@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { name, email, company, stage, kind, budget, timing, about } = req.body;
@@ -10,10 +10,19 @@ export default async function handler(req, res) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      fields: { Name: name, Email: email, Company: company, Stage: stage, Need: Array.isArray(kind) ? kind.join(', ') : kind, Budget: budget, Timing: timing, Notes: about },
+      fields: {
+        Name: name,
+        Email: email,
+        Company: company,
+        Stage: stage,
+        Need: Array.isArray(kind) ? kind.join(', ') : kind,
+        Budget: budget,
+        Timing: timing,
+        Notes: about,
+      },
     }),
   });
 
   const json = await r.json();
   res.status(r.ok ? 200 : 500).json(json);
-}
+};

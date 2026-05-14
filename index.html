@@ -417,8 +417,27 @@
       const [step, setStep]           = useState(0);
       const [data, setData]           = useState({ name:'', email:'', company:'', stage:'', kind:[], budget:'', timing:'', about:'' });
       const [submitted, setSubmitted] = useState(false);
+      const [submitting, setSubmitting] = useState(false);
+      const [submitError, setSubmitError] = useState(false);
 
-      useEffect(() => { if (!open) setTimeout(() => { setStep(0); setSubmitted(false); }, 400); }, [open]);
+      useEffect(() => { if (!open) setTimeout(() => { setStep(0); setSubmitted(false); setSubmitError(false); }, 400); }, [open]);
+
+      const submit = async () => {
+        setSubmitting(true);
+        try {
+          const res = await fetch('/api/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: data.name, email: data.email, company: data.company, stage: data.stage, kind: data.kind, budget: data.budget, timing: data.timing, about: data.about })
+          });
+          if (!res.ok) throw new Error('failed');
+          setSubmitted(true);
+        } catch (e) {
+          setSubmitError(true);
+        } finally {
+          setSubmitting(false);
+        }
+      };
       useEffect(() => {
         const onKey = (e) => { if (e.key === 'Escape' && open) onClose(); };
         window.addEventListener('keydown', onKey);
@@ -517,7 +536,8 @@
                 {step<steps.length-1?(
                   <button disabled={!canNext} onClick={()=>setStep(step+1)} style={{ padding:'14px 24px', border:'none', background:canNext?accent:`${accent}33`, color:canNext?bg:dim, fontSize:10, letterSpacing:'0.32em', cursor:canNext?'pointer':'not-allowed', fontFamily:grotesk, fontWeight:500, textTransform:'uppercase', transition:'all .2s' }}>Continue →</button>
                 ):(
-                  <button onClick={()=>setSubmitted(true)} style={{ padding:'14px 24px', border:'none', background:accent, color:bg, fontSize:10, letterSpacing:'0.32em', cursor:'pointer', fontWeight:500, fontFamily:grotesk, textTransform:'uppercase' }}>Send application →</button>
+                  <button onClick={submit} disabled={submitting} style={{ padding:'14px 24px', border:'none', background:accent, color:bg, fontSize:10, letterSpacing:'0.32em', cursor:submitting?'wait':'pointer', fontWeight:500, fontFamily:grotesk, textTransform:'uppercase', opacity:submitting?0.7:1 }}>{submitting?'Sending…':'Send application →'}</button>
+                  {submitError&&<span style={{ fontSize:11, color:'#c0392b', marginLeft:12 }}>Something went wrong — try again.</span>}
                 )}
               </div>
             )}

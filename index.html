@@ -536,8 +536,10 @@
                 {step<steps.length-1?(
                   <button disabled={!canNext} onClick={()=>setStep(step+1)} style={{ padding:'14px 24px', border:'none', background:canNext?accent:`${accent}33`, color:canNext?bg:dim, fontSize:10, letterSpacing:'0.32em', cursor:canNext?'pointer':'not-allowed', fontFamily:grotesk, fontWeight:500, textTransform:'uppercase', transition:'all .2s' }}>Continue →</button>
                 ):(
-                  <button onClick={submit} disabled={submitting} style={{ padding:'14px 24px', border:'none', background:accent, color:bg, fontSize:10, letterSpacing:'0.32em', cursor:submitting?'wait':'pointer', fontWeight:500, fontFamily:grotesk, textTransform:'uppercase', opacity:submitting?0.7:1 }}>{submitting?'Sending…':'Send application →'}</button>
-                  {submitError&&<span style={{ fontSize:11, color:'#c0392b', marginLeft:12 }}>Something went wrong — try again.</span>}
+                  <React.Fragment>
+                    <button onClick={submit} disabled={submitting} style={{ padding:'14px 24px', border:'none', background:accent, color:bg, fontSize:10, letterSpacing:'0.32em', cursor:submitting?'wait':'pointer', fontWeight:500, fontFamily:grotesk, textTransform:'uppercase', opacity:submitting?0.7:1 }}>{submitting?'Sending…':'Send application →'}</button>
+                    {submitError&&<span style={{ fontSize:11, color:'#c0392b', marginLeft:12 }}>Something went wrong — try again.</span>}
+                  </React.Fragment>
                 )}
               </div>
             )}

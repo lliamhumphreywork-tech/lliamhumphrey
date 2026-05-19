@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lliam Humphrey — Creative Direction</title>
-  <meta name="description" content="I help entrepreneurs document the work they're already doing and turn it into a brand that builds trust, attracts clients, and compounds over time." />
+  <title>Lliam Humphrey</title>
+  <meta name="description" content="19. Building businesses in public from South Africa. Entrepreneur · Creative Director · Founder." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,700&family=Inter+Tight:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -12,9 +12,6 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; }
     body { background: #FAF8F3; -webkit-font-smoothing: antialiased; }
-
-    /* Mobile nav hamburger */
-    .mobile-nav-open { display: none !important; }
     @media (max-width: 768px) {
       .pill-nav-links { display: none !important; }
       .mobile-menu-btn { display: flex !important; }
@@ -47,20 +44,10 @@
       beigeDeep:  '#E8DDC4',
     };
 
-    const PVC = {
-      black:    '#080808',
-      navy:     '#0a1628',
-      navyMid:  '#0f2040',
-      silver:   '#a8b8c8',
-      silverDim:'#5a6a7a',
-      white:    '#f4f5f6',
-    };
-
-    const display = "'Fraunces', 'Cormorant Garamond', serif";
     const grotesk = "'Inter Tight', 'Space Grotesk', sans-serif";
     const serif   = "'Fraunces', 'Cormorant Garamond', serif";
 
-    // ─── Application modal shared constants ───────────────────────
+    // ─── Modal shared constants (module-level prevents focus-loss bug) ─
     const mAccent = '#E8753A', mBg = '#FFFFFF', mPanelBg = '#F2E9D8', mInk = '#0F1A14', mDim = '#5C6B5F', mFaint = '#A89F8A';
     const baseInput = { width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:`1px solid ${mAccent}55`, fontFamily:grotesk, fontSize:16, color:mInk, outline:'none', transition:'border-color .2s', boxSizing:'border-box' };
     const chipBase  = (sel) => ({ padding:'10px 16px', border:`1px solid ${sel?mAccent:mAccent+'33'}`, background:sel?mAccent:'transparent', color:sel?'#fff':mInk, fontFamily:grotesk, fontSize:11, letterSpacing:'0.18em', textTransform:'uppercase', fontWeight:500, cursor:'pointer', transition:'all .2s' });
@@ -74,367 +61,165 @@
       </label>
     );
 
-    // ─── SVG noise / filter defs ───────────────────────────────────
+    // ─── SVG noise ──────────────────────────────────────────────────
     const NoiseDefs = () => (
-      <svg width="0" height="0" style={{ position: 'absolute' }}>
+      <svg width="0" height="0" style={{ position:'absolute' }}>
         <filter id="nf-shared">
           <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
           <feColorMatrix type="saturate" values="0" />
         </filter>
       </svg>
     );
-
     const NoiseBg = ({ opacity = 0.035 }) => (
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
+      <svg style={{ position:'absolute', inset:0, width:'100%', height:'100%', pointerEvents:'none', zIndex:0 }}>
         <rect width="100%" height="100%" filter="url(#nf-shared)" opacity={opacity} />
       </svg>
     );
 
-    // ─── Halo ──────────────────────────────────────────────────────
-    const Halo = ({ children, color = T.orange, size = 200, intensity = 0.55 }) => (
-      <div style={{ position: 'relative', width: size, height: size }}>
-        <div style={{
-          position: 'absolute', inset: '-12%',
-          background: `radial-gradient(circle at 50% 55%, ${color}${Math.round(intensity * 255).toString(16).padStart(2,'0')}, transparent 62%)`,
-          filter: 'blur(28px)', pointerEvents: 'none',
-        }} />
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {children}
-        </div>
-      </div>
-    );
-
-    // ─── Service icons ─────────────────────────────────────────────
-    const IconCamera = ({ s = 110 }) => (
-      <svg width={s} height={s} viewBox="0 0 120 120" fill="none" stroke={T.orange} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="18" y="38" width="84" height="56" rx="8" /><path d="M38 38 L46 28 H74 L82 38" />
-        <circle cx="60" cy="66" r="16" /><circle cx="60" cy="66" r="9" stroke={T.orangeSoft} />
-        <circle cx="86" cy="50" r="2" fill={T.orange} stroke="none" />
-      </svg>
-    );
-    const IconSpine = ({ s = 110 }) => (
-      <svg width={s} height={s} viewBox="0 0 120 120" fill="none" stroke={T.orange} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M30 22 Q60 60 30 98" /><path d="M90 22 Q60 60 90 98" stroke={T.orangeSoft} />
-        <line x1="40" y1="34" x2="80" y2="34" /><line x1="46" y1="50" x2="74" y2="50" />
-        <line x1="48" y1="66" x2="72" y2="66" /><line x1="46" y1="82" x2="74" y2="82" />
-        <circle cx="60" cy="60" r="3" fill={T.orange} stroke="none" />
-      </svg>
-    );
-    const IconMic = ({ s = 110 }) => (
-      <svg width={s} height={s} viewBox="0 0 120 120" fill="none" stroke={T.orange} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="48" y="22" width="24" height="50" rx="12" />
-        <path d="M34 60 Q34 86 60 86 Q86 86 86 60" />
-        <line x1="60" y1="86" x2="60" y2="100" /><line x1="48" y1="100" x2="72" y2="100" />
-        {[18,26,34,42,50].map((x,i) => <line key={i} x1={x} y1={50-i*2} x2={x} y2={70+i*2} stroke={T.orangeSoft} strokeWidth="1.2" />)}
-        {[70,78,86,94,102].map((x,i) => <line key={i} x1={x} y1={50-i*2} x2={x} y2={70+i*2} stroke={T.orangeSoft} strokeWidth="1.2" />)}
-      </svg>
-    );
-    const IconMark = ({ s = 110 }) => (
-      <svg width={s} height={s} viewBox="0 0 120 120" fill="none" stroke={T.orange} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="22" y="22" width="76" height="76" rx="14" /><path d="M22 38 H98" />
-        <path d="M44 56 V84" /><path d="M44 84 H76 V56" stroke={T.orangeSoft} />
-        <circle cx="60" cy="62" r="4" fill={T.orange} stroke="none" />
-      </svg>
-    );
-
-    const SERVICE_ICONS = {
-      'Story Spine':        IconSpine,
-      'Documenting System': IconCamera,
-      'Voice & Editing':    IconMic,
-      'Visual Identity':    IconMark,
-    };
-
-    // ─── ServiceCard ───────────────────────────────────────────────
-    const ServiceCard = ({ title, body, tags, idx }) => {
-      const Icon = SERVICE_ICONS[title] || IconMark;
-      return (
-        <div style={{
-          position: 'relative', overflow: 'hidden',
-          padding: 'clamp(24px, 3vw, 40px)',
-          borderRadius: 28, minHeight: 320,
-          background: `linear-gradient(165deg, ${T.beige}cc 0%, ${T.beigeDeep}99 100%)`,
-          border: `1px solid ${T.silver}33`,
-          boxShadow: `0 1px 0 #ffffff77 inset, 0 30px 60px -30px ${T.navyDeep}22`,
-          display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 24, alignItems: 'center',
-        }}>
-          <div>
-            <div style={{ fontSize: 9, color: T.silver, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 18, fontWeight: 600, fontFamily: grotesk }}>
-              0{idx + 1} · Service
-            </div>
-            <h3 style={{ fontFamily: grotesk, fontSize: 'clamp(22px, 2.5vw, 32px)', fontWeight: 700, letterSpacing: '-0.015em', margin: 0, color: T.white, lineHeight: 1.05, textWrap: 'balance' }}>{title}</h3>
-            <p style={{ marginTop: 14, fontSize: 14, lineHeight: 1.75, color: T.silverLight, fontFamily: grotesk }}>{body}</p>
-            <div style={{ marginTop: 20, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {tags.map((t) => (
-                <span key={t} style={{ fontSize: 9, padding: '5px 11px', borderRadius: 999, border: `1px solid ${T.silver}55`, color: T.silver, letterSpacing: '0.16em', textTransform: 'uppercase', background: `${T.beige}66`, fontFamily: grotesk }}>{t}</span>
-              ))}
-            </div>
-          </div>
-          <div style={{ justifySelf: 'end', alignSelf: 'center' }}>
-            <Halo color={T.orange} size={160}><Icon s={110} /></Halo>
-          </div>
-        </div>
-      );
-    };
-
-    // ─── HeroMark ──────────────────────────────────────────────────
+    // ─── HeroMark ───────────────────────────────────────────────────
     const HeroMark = () => (
-      <div style={{
-        width: 120, height: 120, borderRadius: 30, position: 'relative',
-        background: `linear-gradient(155deg, rgba(242,233,216,0.18) 0%, rgba(232,221,196,0.12) 100%)`,
-        border: `1px solid rgba(232,117,58,0.4)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: `0 40px 120px -30px ${T.orange}44, inset 0 1px 0 rgba(255,255,255,0.2)`,
-        backdropFilter: 'blur(8px)',
-      }}>
-        <span style={{ position: 'absolute', inset: 6, borderRadius: 24, background: `radial-gradient(circle at 50% 80%, ${T.orange}22, transparent 65%)`, pointerEvents: 'none' }} />
-        <span style={{ position: 'absolute', top: 13, left: 0, right: 0, textAlign: 'center', fontSize: 8, color: 'rgba(242,233,216,0.55)', letterSpacing: '0.4em', textTransform: 'uppercase', fontWeight: 600, fontFamily: grotesk }}>est · mmxxiv</span>
-        <span style={{ fontFamily: grotesk, fontSize: 48, fontWeight: 700, letterSpacing: '0.12em', color: T.beige, position: 'relative', marginTop: 14 }}>LH</span>
+      <div style={{ width:100, height:100, borderRadius:26, position:'relative', background:'linear-gradient(155deg, rgba(242,233,216,0.18) 0%, rgba(232,221,196,0.12) 100%)', border:'1px solid rgba(232,117,58,0.4)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:`0 40px 120px -30px ${T.orange}44, inset 0 1px 0 rgba(255,255,255,0.2)`, backdropFilter:'blur(8px)' }}>
+        <span style={{ position:'absolute', inset:5, borderRadius:20, background:`radial-gradient(circle at 50% 80%, ${T.orange}22, transparent 65%)`, pointerEvents:'none' }} />
+        <span style={{ position:'absolute', top:11, left:0, right:0, textAlign:'center', fontSize:7, color:'rgba(242,233,216,0.55)', letterSpacing:'0.4em', textTransform:'uppercase', fontWeight:600, fontFamily:grotesk }}>est · mmxxiv</span>
+        <span style={{ fontFamily:grotesk, fontSize:38, fontWeight:700, letterSpacing:'0.12em', color:T.beige, position:'relative', marginTop:12 }}>LH</span>
       </div>
     );
 
-    // ─── Wordmark ──────────────────────────────────────────────────
+    // ─── Wordmark ───────────────────────────────────────────────────
     const Wordmark = () => (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span style={{ width: 28, height: 28, background: T.navy, position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1.5, background: T.silver }}></span>
-          <span style={{ fontFamily: grotesk, fontSize: 8.5, fontWeight: 700, letterSpacing: 1.2, color: T.white }}>LH</span>
+      <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+        <span style={{ width:28, height:28, background:T.navy, position:'relative', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <span style={{ position:'absolute', top:0, left:0, right:0, height:1.5, background:T.silver }}></span>
+          <span style={{ fontFamily:grotesk, fontSize:8.5, fontWeight:700, letterSpacing:1.2, color:T.white }}>LH</span>
         </span>
-        <span style={{ fontFamily: grotesk, fontSize: 13, fontWeight: 700, letterSpacing: '0.32em', color: T.white, textTransform: 'uppercase' }}>Lliam Humphrey</span>
+        <span style={{ fontFamily:grotesk, fontSize:13, fontWeight:700, letterSpacing:'0.32em', color:T.white, textTransform:'uppercase' }}>Lliam Humphrey</span>
       </div>
     );
 
-    // ─── Button styles ─────────────────────────────────────────────
-    const pillBtnPrimary = { fontFamily: grotesk, fontSize: 11, fontWeight: 500, padding: '12px 22px', border: 'none', borderRadius: 999, background: T.orange, color: T.beige, cursor: 'pointer', letterSpacing: '0.2em', textTransform: 'uppercase', boxShadow: `0 1px 0 #ffffff44 inset, 0 12px 30px -10px ${T.orange}88`, transition: 'transform .2s, box-shadow .2s' };
-    const pillBtnLarge  = { ...pillBtnPrimary, fontSize: 12, padding: '17px 32px' };
-    const pillBtnGhost  = { fontFamily: grotesk, fontSize: 12, fontWeight: 500, padding: '17px 32px', borderRadius: 999, background: `linear-gradient(180deg, rgba(232,221,196,0.25), rgba(242,233,216,0.2))`, border: `1px solid rgba(242,233,216,0.35)`, color: T.beige, cursor: 'pointer', textDecoration: 'none', letterSpacing: '0.2em', textTransform: 'uppercase', boxShadow: `0 1px 0 rgba(255,255,255,0.15) inset`, display: 'inline-block', backdropFilter: 'blur(8px)' };
-    const ctaBtnB       = { fontFamily: grotesk, fontSize: 11, fontWeight: 500, padding: '15px 26px', border: 'none', background: T.silver, color: T.black, cursor: 'pointer', letterSpacing: '0.32em', textTransform: 'uppercase', transition: 'transform .2s, background .2s' };
+    // ─── Button styles ──────────────────────────────────────────────
+    const pillBtnPrimary = { fontFamily:grotesk, fontSize:11, fontWeight:500, padding:'12px 22px', border:'none', borderRadius:999, background:T.orange, color:T.beige, cursor:'pointer', letterSpacing:'0.2em', textTransform:'uppercase', boxShadow:`0 1px 0 #ffffff44 inset, 0 12px 30px -10px ${T.orange}88`, transition:'transform .2s, box-shadow .2s' };
+    const pillBtnLarge   = { ...pillBtnPrimary, fontSize:12, padding:'17px 32px' };
+    const pillBtnGhost   = { fontFamily:grotesk, fontSize:12, fontWeight:500, padding:'17px 32px', borderRadius:999, background:'linear-gradient(180deg, rgba(232,221,196,0.25), rgba(242,233,216,0.2))', border:'1px solid rgba(242,233,216,0.35)', color:T.beige, cursor:'pointer', textDecoration:'none', letterSpacing:'0.2em', textTransform:'uppercase', boxShadow:'0 1px 0 rgba(255,255,255,0.15) inset', display:'inline-block', backdropFilter:'blur(8px)' };
 
-    // ─── PillNav ───────────────────────────────────────────────────
-    const PillNav = ({ onApply, scrolled, menuOpen, setMenuOpen }) => {
-      const items = [
-        { id: 'home',     label: 'Home',    href: '#top' },
-        { id: 'about',    label: 'About',   href: '#about' },
-        { id: 'practice', label: 'Method',  href: '#practice' },
-        { id: 'work',     label: 'Work',    href: '#work' },
-      ];
+    // ─── Nav (simplified — just logo + apply) ───────────────────────
+    const PillNav = ({ onApply, scrolled }) => (
+      <nav style={{ position:'sticky', top:33, zIndex:10, padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:16, background:scrolled?'rgba(250,248,243,0.88)':'transparent', backdropFilter:scrolled?'blur(14px)':'none', borderBottom:scrolled?`1px solid ${T.silverFaint}44`:'1px solid transparent', transition:'all .3s' }}>
+        <Wordmark />
+        <button onClick={onApply} style={pillBtnPrimary}>Apply <span style={{ marginLeft:8 }}>→</span></button>
+      </nav>
+    );
+
+    // ─── Hub Card ───────────────────────────────────────────────────
+    const HubCard = ({ num, eyebrow, title, desc, cta, onCta, ctaHref, primary }) => (
+      <div style={{ position:'relative', background:T.navyDeep, border:`1px solid ${T.orange}22`, padding:'clamp(28px,3.5vw,44px)', minHeight:420, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+        <NoiseBg opacity={0.03} />
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:T.orange }} />
+        <div style={{ position:'relative', flex:1, display:'flex', flexDirection:'column' }}>
+          <div style={{ fontSize:9, color:T.orange, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:24, fontFamily:grotesk, fontWeight:500 }}>0{num} · {eyebrow}</div>
+          <h3 style={{ fontFamily:grotesk, fontSize:'clamp(22px,2.8vw,36px)', fontWeight:700, letterSpacing:'-0.02em', margin:0, color:T.beige, lineHeight:1.08, textWrap:'balance' }}>{title}</h3>
+          <p style={{ marginTop:18, fontSize:14, lineHeight:1.8, color:T.silverDim, fontFamily:grotesk, flex:1 }}>{desc}</p>
+          <div style={{ marginTop:36 }}>
+            {ctaHref ? (
+              <a href={ctaHref} target="_blank" rel="noopener noreferrer" style={{ display:'inline-block', padding:'14px 24px', border:`1px solid ${T.orange}`, background:'transparent', color:T.beige, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, textDecoration:'none', transition:'all .2s' }}>{cta} →</a>
+            ) : (
+              <button onClick={onCta} style={{ padding:'14px 24px', border:'none', background:primary?T.orange:`transparent`, border:primary?'none':`1px solid ${T.orange}`, color:T.beige, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, cursor:'pointer', transition:'all .2s' }}>{cta} →</button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+
+    // ─── Waitlist Modal ─────────────────────────────────────────────
+    const WaitlistModal = ({ open, onClose }) => {
+      const [email, setEmail] = useState('');
+      const [name, setName]   = useState('');
+      const [submitted, setSubmitted] = useState(false);
+      const [submitting, setSubmitting] = useState(false);
+      const [error, setError] = useState(false);
+
+      useEffect(() => { if (!open) setTimeout(() => { setEmail(''); setName(''); setSubmitted(false); setError(false); }, 400); }, [open]);
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === 'Escape' && open) onClose(); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      }, [open, onClose]);
+
+      const submit = async (e) => {
+        e.preventDefault();
+        if (!email) return;
+        setSubmitting(true);
+        try {
+          const res = await fetch('/api/brevo-subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, name })
+          });
+          if (!res.ok) throw new Error('failed');
+          setSubmitted(true);
+        } catch (_) {
+          setError(true);
+        } finally {
+          setSubmitting(false);
+        }
+      };
+
+      const accent = mAccent, bg = mBg, panelBg = mPanelBg, ink = mInk, dim = mDim;
       return (
         <>
-          <nav style={{
-            position: 'sticky', top: 33, zIndex: 10, padding: '14px 24px',
-            display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: 16,
-            background: scrolled ? 'rgba(250,248,243,0.88)' : 'transparent',
-            backdropFilter: scrolled ? 'blur(14px)' : 'none',
-            borderBottom: scrolled ? `1px solid ${T.silverFaint}44` : '1px solid transparent',
-            transition: 'all .3s',
-          }}>
-            <Wordmark />
-
-            {/* Desktop pill links */}
-            <div className="pill-nav-links" style={{ display: 'flex', alignItems: 'center', padding: 5, gap: 2, background: `linear-gradient(180deg, ${T.beigeDeep}aa, ${T.beige}99)`, border: `1px solid ${T.silver}33`, borderRadius: 999, boxShadow: `0 1px 0 #ffffff77 inset, 0 8px 24px -12px ${T.navyDeep}22`, backdropFilter: 'blur(8px)' }}>
-              {items.map((i) => (
-                <a key={i.id} href={i.href} style={{ padding: '9px 20px', fontSize: 11, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: T.silverDim, textDecoration: 'none', borderRadius: 999, border: '1px solid transparent', transition: 'all .25s', fontFamily: grotesk }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = T.white; e.currentTarget.style.background = `linear-gradient(180deg, ${T.beige}, ${T.beigeDeep})`; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = T.silverDim; e.currentTarget.style.background = 'transparent'; }}>
-                  {i.label}
-                </a>
-              ))}
+          <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:100, background:'rgba(8,8,8,0.7)', backdropFilter:'blur(4px)', opacity:open?1:0, pointerEvents:open?'auto':'none', transition:'opacity .35s ease' }} />
+          <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(520px, 96vw)', background:bg, color:ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.6)', borderLeft:`1px solid ${accent}33`, overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:accent, zIndex:5 }} />
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:`1px solid ${accent}22`, fontFamily:grotesk, fontWeight:500, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:dim }}>
+              <span>Private Victories Club · Waitlist</span>
+              <button onClick={onClose} style={{ border:'none', background:'transparent', color:ink, fontSize:18, cursor:'pointer', width:28, height:28, borderRadius:999, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
             </div>
-
-            <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <button onClick={onApply} style={pillBtnPrimary}>Apply <span style={{ marginLeft: 8 }}>→</span></button>
-              {/* Mobile hamburger */}
-              <button className="mobile-menu-btn" onClick={() => setMenuOpen(!menuOpen)} style={{ display: 'none', flexDirection: 'column', gap: 5, background: 'transparent', border: 'none', cursor: 'pointer', padding: 6 }}>
-                <span style={{ width: 22, height: 1.5, background: T.white, display: 'block', transition: 'all .2s', transform: menuOpen ? 'rotate(45deg) translate(4px, 4px)' : 'none' }}></span>
-                <span style={{ width: 22, height: 1.5, background: T.white, display: 'block', opacity: menuOpen ? 0 : 1, transition: 'all .2s' }}></span>
-                <span style={{ width: 22, height: 1.5, background: T.white, display: 'block', transition: 'all .2s', transform: menuOpen ? 'rotate(-45deg) translate(4px, -4px)' : 'none' }}></span>
-              </button>
+            <div style={{ flex:1, overflowY:'auto', padding:'40px 40px 32px' }}>
+              {submitted ? (
+                <div style={{ textAlign:'center', paddingTop:48 }}>
+                  <div style={{ width:56, height:56, border:`1px solid ${accent}`, margin:'0 auto 28px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, color:accent }}>✓</div>
+                  <div style={{ fontSize:9, color:accent, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:18 }}>You're on the list</div>
+                  <h2 style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:36, letterSpacing:'-0.015em', margin:0, color:ink }}>See you on the inside.</h2>
+                  <p style={{ marginTop:22, color:dim, fontSize:14, lineHeight:1.7, maxWidth:340, marginInline:'auto' }}>We'll be in touch at <strong style={{ color:ink, fontWeight:500 }}>{email}</strong> when the doors open.</p>
+                  <button onClick={onClose} style={{ marginTop:40, padding:'14px 26px', fontSize:10, border:`1px solid ${accent}33`, background:'transparent', color:ink, cursor:'pointer', fontFamily:grotesk, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500 }}>Close</button>
+                </div>
+              ) : (
+                <div style={{ animation:'apFade .4s ease both' }}>
+                  <div style={{ fontSize:9, color:accent, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:16, fontWeight:500 }}>— The Community</div>
+                  <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:32, letterSpacing:'-0.02em', margin:0, lineHeight:1.05, textTransform:'uppercase', color:ink }}>Join the waitlist</h2>
+                  <p style={{ marginTop:16, fontSize:14, lineHeight:1.75, color:dim, fontFamily:grotesk }}>
+                    Private Victories Club is a creative community for young South Africans building in public and making money from their content. Drop your email and we'll let you know when doors open.
+                  </p>
+                  <form onSubmit={submit} style={{ marginTop:36, display:'flex', flexDirection:'column', gap:22 }}>
+                    <Field label="Your name" optional><input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Anya Reyes" style={baseInput} /></Field>
+                    <Field label="Email address"><input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="anya@studio.com" required style={baseInput} /></Field>
+                    {error && <p style={{ fontSize:12, color:'#c0392b', fontFamily:grotesk }}>Something went wrong — please try again.</p>}
+                    <button type="submit" disabled={submitting||!email} style={{ marginTop:8, padding:'16px 24px', border:'none', background:email&&!submitting?accent:`${accent}55`, color:mBg, fontSize:10, letterSpacing:'0.32em', cursor:email&&!submitting?'pointer':'not-allowed', fontFamily:grotesk, fontWeight:500, textTransform:'uppercase', transition:'all .2s', opacity:submitting?0.7:1 }}>
+                      {submitting ? 'Joining...' : 'Join the waitlist →'}
+                    </button>
+                  </form>
+                </div>
+              )}
             </div>
-          </nav>
-
-          {/* Mobile menu drawer */}
-          {menuOpen && (
-            <div style={{ position: 'sticky', top: 33, zIndex: 9, background: 'rgba(250,248,243,0.97)', backdropFilter: 'blur(14px)', borderBottom: `1px solid ${T.silverFaint}44`, padding: '8px 24px 20px' }}>
-              {items.map((i) => (
-                <a key={i.id} href={i.href} onClick={() => setMenuOpen(false)} style={{ display: 'block', padding: '14px 0', fontSize: 13, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: T.white, textDecoration: 'none', borderBottom: `1px solid ${T.silverFaint}33`, fontFamily: grotesk }}>{i.label}</a>
-              ))}
-            </div>
-          )}
+          </aside>
+          <style>{`@keyframes apFade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }`}</style>
         </>
       );
     };
 
-    // ─── SpecHead ─────────────────────────────────────────────────
-    const SpecHead = ({ num, title, subtitle, right }) => (
-      <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: 24, alignItems: 'baseline', paddingTop: 8 }}>
-        <div style={{ fontSize: 10, color: T.silverFaint, letterSpacing: '0.32em', fontFamily: grotesk, minWidth: 36 }}>{num}</div>
-        <div>
-          <h2 style={{ fontFamily: grotesk, fontSize: 'clamp(28px, 4.4vw, 60px)', fontWeight: 700, letterSpacing: '-0.02em', margin: 0, lineHeight: 1, textTransform: 'uppercase', color: T.white }}>{title}</h2>
-          {subtitle && <div style={{ marginTop: 12, fontFamily: serif, fontStyle: 'italic', fontWeight: 300, fontSize: 16, color: T.silver }}>{subtitle}</div>}
-        </div>
-        {right && <div>{right}</div>}
-      </div>
-    );
-
-    // ─── PVC Case Study ───────────────────────────────────────────
-    const PVCCase = ({ onApply }) => (
-      <div style={{ border: `1px solid ${T.silver}22`, background: T.navy, position: 'relative', overflow: 'hidden' }}>
-        <NoiseBg opacity={0.03} />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: T.silver }} />
-
-        {/* Header */}
-        <div style={{ padding: 'clamp(20px,3vw,32px)', borderBottom: `1px solid ${T.silver}22`, display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: 24, alignItems: 'baseline', position: 'relative', flexWrap: 'wrap' }}>
-          <div style={{ fontSize: 10, color: T.silverFaint, letterSpacing: '0.32em', fontFamily: grotesk }}>01</div>
-          <div>
-            <div style={{ fontSize: 10, color: T.silver, letterSpacing: '0.4em', marginBottom: 10, textTransform: 'uppercase', fontFamily: grotesk }}>Documented Case Study</div>
-            <h3 style={{ fontFamily: grotesk, fontSize: 'clamp(26px, 4.4vw, 56px)', fontWeight: 700, letterSpacing: '-0.018em', margin: 0, lineHeight: 0.96, textTransform: 'uppercase', color: T.white }}>Private Victories Club</h3>
-            <div style={{ marginTop: 10, fontFamily: serif, fontStyle: 'italic', fontSize: 16, color: T.silver }}>A founder's year, documented — not performed.</div>
-          </div>
-          <div style={{ textAlign: 'right', fontSize: 10, color: T.silverDim, letterSpacing: '0.32em', textTransform: 'uppercase', lineHeight: 1.9, fontFamily: grotesk }}>
-            MMXXIV<br /><span style={{ color: T.silverFaint }}>Founding identity</span>
-          </div>
-        </div>
-
-        {/* Hero plate — IMG_2220.jpg as background with overlay */}
-        <div style={{ padding: '64px clamp(20px,3vw,32px)', position: 'relative', overflow: 'hidden', borderBottom: `1px solid ${T.silver}22`, minHeight: 300 }}>
-          {/* IMG_2220.jpg — moody studio background image */}
-          <img src="./assets/IMG_2220.jpg" alt="" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', zIndex: 0 }} />
-          {/* Moody overlay — preserves editorial feel */}
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(8,8,8,0.72)', zIndex: 1 }} />
-          <NoiseBg opacity={0.05} />
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1.5, background: T.silver, zIndex: 2 }} />
-          {/* Hash marks bottom */}
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', gap: 18, zIndex: 2 }}>
-            {Array.from({ length: 40 }).map((_,i) => (
-              <span key={i} style={{ width: 1, height: i%5===0?10:5, background: T.silver, opacity: i%5===0?0.4:0.18 }}></span>
-            ))}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, position: 'relative', zIndex: 3, padding: '24px 0' }}>
-            <div style={{ fontFamily: grotesk, fontSize: 'clamp(40px, 7vw, 110px)', fontWeight: 700, letterSpacing: '0.18em', color: PVC.white, lineHeight: 1, textTransform: 'uppercase' }}>Private</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '14px 0', width: 'min(560px, 80%)' }}>
-              <div style={{ flex: 1, height: 1, background: PVC.silver, opacity: 0.5 }}></div>
-              <div style={{ fontSize: 9, color: PVC.silver, letterSpacing: '0.5em', textTransform: 'uppercase', fontWeight: 500, fontFamily: grotesk }}>Est. MMXXIV</div>
-              <div style={{ flex: 1, height: 1, background: PVC.silver, opacity: 0.5 }}></div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <div style={{ fontFamily: grotesk, fontSize: 'clamp(40px, 7vw, 110px)', fontWeight: 300, letterSpacing: '0.18em', color: PVC.white, lineHeight: 1, textTransform: 'uppercase' }}>Victories</div>
-              <div style={{ fontFamily: grotesk, fontSize: 'clamp(16px, 2vw, 30px)', fontWeight: 500, letterSpacing: '0.4em', color: PVC.silver, textTransform: 'uppercase', alignSelf: 'flex-end', paddingBottom: 6 }}>Club</div>
-            </div>
-            <div style={{ marginTop: 32, fontFamily: serif, fontStyle: 'italic', fontSize: 16, color: 'rgba(168,184,200,0.7)', textAlign: 'center', letterSpacing: '0.04em' }}>
-              "The world doesn't know yet. But you will."
-            </div>
-          </div>
-        </div>
-
-        {/* Brief & artefacts */}
-        <div style={{ padding: 'clamp(24px,3vw,40px) clamp(20px,3vw,32px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(24px,4vw,56px)', position: 'relative' }}>
-          <div>
-            <div style={{ fontSize: 9, color: T.silver, letterSpacing: '0.4em', marginBottom: 16, textTransform: 'uppercase', fontFamily: grotesk }}>The Brief</div>
-            <p style={{ fontFamily: serif, fontStyle: 'italic', fontSize: 19, lineHeight: 1.55, color: T.white, margin: 0 }}>
-              Built the full brand identity for a private members club for young South African entrepreneurs — from the name and wordmark to the website and founding story. No content strategy. Just a camera pointed at the work.
-            </p>
-            <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-              {[['Scope','Identity · Web · Social · Member Card · Email'],['Duration','10 weeks'],['Role','Creative direction, identity, voice'],['Outcome','Launching MMXXVI']].map(([k,v]) => (
-                <div key={k} style={{ borderTop: `1px solid ${T.silver}33`, paddingTop: 12 }}>
-                  <div style={{ color: T.silverFaint, letterSpacing: '0.32em', textTransform: 'uppercase', marginBottom: 6, fontSize: 9, fontFamily: grotesk }}>{k}</div>
-                  <div style={{ color: k==='Outcome'?T.silver:T.white, fontFamily: serif, fontStyle: 'italic', fontSize: 14 }}>{v}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Artefact grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto auto', gap: 12 }}>
-            {/* Member card */}
-            <div style={{ gridColumn: 'span 2', background: PVC.navyMid, position: 'relative', overflow: 'hidden', aspectRatio: '21/9', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${PVC.silver}18` }}>
-              <NoiseBg opacity={0.04} />
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1.5, background: PVC.silver }} />
-              <div style={{ position: 'absolute', top: 14, left: 18, fontSize: 8, color: PVC.silverDim, letterSpacing: '0.32em', fontFamily: grotesk }}>PLATE I — MEMBER CARD</div>
-              <div style={{ width: 'min(320px, 80%)', aspectRatio: '17/10', background: PVC.navy, position: 'relative', padding: '24px 26px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', border: `1px solid ${PVC.silver}22` }}>
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: PVC.silver }} />
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ fontFamily: grotesk, fontSize: 16, fontWeight: 700, letterSpacing: '0.24em', color: PVC.white }}>PVC</div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 7, color: PVC.silverDim, letterSpacing: '0.32em', textTransform: 'uppercase', fontFamily: grotesk }}>Member</div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: PVC.silver, fontFamily: grotesk }}>001</div>
-                  </div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 7, color: PVC.silverDim, letterSpacing: '0.32em', textTransform: 'uppercase', marginBottom: 4, fontFamily: grotesk }}>Private Victories Club</div>
-                  <div style={{ fontSize: 8, color: PVC.silverDim, letterSpacing: '0.24em', textTransform: 'uppercase', fontFamily: grotesk }}>Founding · Est. MMXXIV</div>
-                </div>
-              </div>
-            </div>
-            {/* Story tile */}
-            <div style={{ background: T.black, position: 'relative', overflow: 'hidden', aspectRatio: '1/1', border: `1px solid ${T.silver}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-              <NoiseBg opacity={0.04} />
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1.5, background: T.silver }} />
-              <div style={{ position: 'absolute', top: 12, left: 14, fontSize: 7, color: T.silverDim, letterSpacing: '0.32em', fontFamily: grotesk }}>II — STORY</div>
-              <div style={{ fontFamily: serif, fontStyle: 'italic', fontSize: 18, color: T.white, textAlign: 'center', lineHeight: 1.5, position: 'relative' }}>"The world<br />doesn't know yet.<br />But you will."</div>
-            </div>
-            {/* Stat tile */}
-            <div style={{ background: T.navy, position: 'relative', overflow: 'hidden', aspectRatio: '1/1', border: `1px solid ${T.silver}18`, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-              <NoiseBg opacity={0.04} />
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1.5, background: T.silver }} />
-              <div style={{ position: 'absolute', top: 12, left: 14, fontSize: 7, color: T.silverDim, letterSpacing: '0.32em', fontFamily: grotesk }}>III — POST</div>
-              <div style={{ position: 'relative' }}>
-                <div style={{ fontSize: 8, color: T.silver, letterSpacing: '0.32em', textTransform: 'uppercase', marginBottom: 10, fontFamily: grotesk }}>Founding Cohort</div>
-                <div style={{ fontFamily: grotesk, fontSize: 'clamp(40px, 5.4vw, 72px)', fontWeight: 700, color: T.white, lineHeight: 1, letterSpacing: '-0.04em' }}>100</div>
-                <div style={{ width: 28, height: 2, background: T.silver, marginTop: 10 }}></div>
-                <div style={{ marginTop: 10, fontFamily: serif, fontStyle: 'italic', fontSize: 13, color: T.silver, lineHeight: 1.4 }}>Seats available.<br />Most won't qualify.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Case footer */}
-        <div style={{ borderTop: `1px solid ${T.silver}22`, padding: '20px clamp(20px,3vw,32px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 10, color: T.silverDim, letterSpacing: '0.32em', textTransform: 'uppercase', fontFamily: grotesk, flexWrap: 'wrap', gap: 12 }}>
-          <span>Case I · Private Victories Club</span>
-          <span style={{ color: T.silver, cursor: 'pointer' }} onClick={onApply}>Full case study on request →</span>
-        </div>
-      </div>
-    );
-
-    // ─── FooterCol ────────────────────────────────────────────────
-    const FooterCol = ({ head, items }) => (
-      <div>
-        <div style={{ fontSize: 9, color: T.silverFaint, letterSpacing: '0.4em', marginBottom: 16, textTransform: 'uppercase', fontWeight: 500, fontFamily: grotesk }}>{head}</div>
-        {items.map((it, i) => {
-          if (typeof it === 'string') return <div key={i} style={{ color: T.silverLight, lineHeight: 2, fontSize: 12, fontFamily: grotesk }}>{it}</div>;
-          return (
-            <a key={i} href={it.href} target="_blank" rel="noopener noreferrer"
-              style={{ display: 'block', color: T.silverLight, lineHeight: 2, fontSize: 12, textDecoration: 'none', transition: 'color .2s', fontFamily: grotesk }}
-              onMouseEnter={(e) => e.currentTarget.style.color = T.silver}
-              onMouseLeave={(e) => e.currentTarget.style.color = T.silverLight}>
-              {it.t}
-            </a>
-          );
-        })}
-      </div>
-    );
-
-    // ─── Data ──────────────────────────────────────────────────────
-    const CAPS = [
-      { title: 'Story Spine',        body: "We find the through-line of what you're building and why. Every piece of content, every post, every pitch connects back to one clear story that's yours.",                                                                                             tags: ['narrative', 'positioning', 'arc'] },
-      { title: 'Documenting System', body: 'A simple weekly rhythm for capturing your work as it happens. Shot lists, prompts, voice notes — the habits that make showing up feel natural.',                                                                                                    tags: ['rhythm', 'capture', 'workflow'] },
-      { title: 'Voice & Editing',    body: 'I shape your raw footage and words into content that sounds like you — not a brand, not a script. Just your story, told well.',                                                                                                                     tags: ['voice', 'editing', 'craft'] },
-      { title: 'Visual Identity',    body: 'The wordmark, colours, and on-camera look that make every post, thumbnail, and slide instantly recognisable as yours.',                                                                                                                             tags: ['identity', 'system', 'guidelines'] },
-    ];
-
-    const METHOD = [
-      { phase: 'Listen',   wk: 'wk 0',    body: "We start with two conversations. I map out where you are, what you're building, and the story you keep meaning to tell but haven't yet.",              deliv: 'Brief' },
-      { phase: 'Spine',    wk: 'wk 1—2',  body: 'I find your point of view — the one story that everything else connects back to. This becomes the foundation for every post, page, and pitch.',        deliv: 'Story Spine' },
-      { phase: 'Document', wk: 'wk 3—10', body: 'We build a weekly capture rhythm around your actual schedule. You keep doing the work. I help you make sure the camera is on while you do it.',       deliv: 'System + Identity' },
-      { phase: 'Hand off', wk: 'wk 11+',  body: "You leave with templates, a content system, and the habit of documenting built in. The story keeps going after we're done.",                          deliv: 'Runway' },
-    ];
-
-    // ─── ApplicationModal ─────────────────────────────────────────
+    // ─── Application Modal ──────────────────────────────────────────
     const ApplicationModal = ({ open, onClose }) => {
-      const [step, setStep]           = useState(0);
-      const [data, setData]           = useState({ name:'', email:'', company:'', stage:'', kind:[], budget:'', timing:'', about:'' });
-      const [submitted, setSubmitted] = useState(false);
+      const [step, setStep]             = useState(0);
+      const [data, setData]             = useState({ name:'', email:'', company:'', stage:'', kind:[], budget:'', timing:'', about:'' });
+      const [submitted, setSubmitted]   = useState(false);
       const [submitting, setSubmitting] = useState(false);
       const [submitError, setSubmitError] = useState(false);
 
       useEffect(() => { if (!open) setTimeout(() => { setStep(0); setSubmitted(false); setSubmitError(false); }, 400); }, [open]);
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === 'Escape' && open) onClose(); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      }, [open, onClose]);
 
       const submit = async () => {
         setSubmitting(true);
@@ -442,21 +227,16 @@
           const res = await fetch('/api/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: data.name, email: data.email, company: data.company, stage: data.stage, kind: data.kind, budget: data.budget, timing: data.timing, about: data.about })
+            body: JSON.stringify({ name:data.name, email:data.email, company:data.company, stage:data.stage, kind:data.kind, budget:data.budget, timing:data.timing, about:data.about })
           });
           if (!res.ok) throw new Error('failed');
           setSubmitted(true);
-        } catch (e) {
+        } catch (_) {
           setSubmitError(true);
         } finally {
           setSubmitting(false);
         }
       };
-      useEffect(() => {
-        const onKey = (e) => { if (e.key === 'Escape' && open) onClose(); };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-      }, [open, onClose]);
 
       const setField   = (k,v) => setData((d) => ({ ...d, [k]:v }));
       const toggleKind = (k)   => setData((d) => ({ ...d, kind: d.kind.includes(k) ? d.kind.filter((x)=>x!==k) : [...d.kind,k] }));
@@ -469,11 +249,12 @@
         { title:'Review & send',  label:'REVIEW' },
       ];
       const canNext = (()=>{ if(step===0) return data.name&&data.email; if(step===1) return data.company&&data.kind.length>0; if(step===2) return data.budget&&data.timing; return true; })();
+
       return (
         <>
           <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:100, background:'rgba(8,8,8,0.7)', backdropFilter:'blur(4px)', opacity:open?1:0, pointerEvents:open?'auto':'none', transition:'opacity .35s ease' }} />
           <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(640px, 96vw)', background:bg, color:ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.6)', borderLeft:`1px solid ${accent}33`, overflow:'hidden' }}>
-            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:accent, zIndex:5 }}></div>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:accent, zIndex:5 }} />
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:`1px solid ${accent}22`, fontFamily:grotesk, fontWeight:500, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:dim }}>
               <span>Application — {submitted?'Received':`Step ${Math.min(step+1,steps.length)} of ${steps.length}`}</span>
               <button onClick={onClose} style={{ border:'none', background:'transparent', color:ink, fontSize:18, cursor:'pointer', width:28, height:28, borderRadius:999, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
@@ -545,18 +326,34 @@
               </div>
             )}
           </aside>
-          <style>{`@keyframes apFade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }`}</style>
         </>
       );
     };
 
-    // ─── Main page ────────────────────────────────────────────────
-    const DirectionB = ({ onApply }) => {
-      const [scrolled, setScrolled]   = useState(false);
-      const [revealed, setRevealed]   = useState({});
-      const [time, setTime]           = useState('');
-      const [menuOpen, setMenuOpen]   = useState(false);
-      const containerRef              = useRef(null);
+    // ─── FooterCol ──────────────────────────────────────────────────
+    const FooterCol = ({ head, items }) => (
+      <div>
+        <div style={{ fontSize:9, color:T.silverFaint, letterSpacing:'0.4em', marginBottom:16, textTransform:'uppercase', fontWeight:500, fontFamily:grotesk }}>{head}</div>
+        {items.map((it, i) => {
+          if (typeof it === 'string') return <div key={i} style={{ color:T.silverLight, lineHeight:2, fontSize:12, fontFamily:grotesk }}>{it}</div>;
+          return (
+            <a key={i} href={it.href} target="_blank" rel="noopener noreferrer"
+              style={{ display:'block', color:T.silverLight, lineHeight:2, fontSize:12, textDecoration:'none', transition:'color .2s', fontFamily:grotesk }}
+              onMouseEnter={(e) => e.currentTarget.style.color = T.silver}
+              onMouseLeave={(e) => e.currentTarget.style.color = T.silverLight}>
+              {it.t}
+            </a>
+          );
+        })}
+      </div>
+    );
+
+    // ─── Hub Page ───────────────────────────────────────────────────
+    const Hub = ({ onApply, onWaitlist }) => {
+      const [scrolled, setScrolled] = useState(false);
+      const [revealed, setRevealed] = useState({});
+      const [time, setTime]         = useState('');
+      const containerRef            = useRef(null);
 
       useEffect(() => {
         const tick = () => { const d = new Date(); setTime(`${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')} UTC`); };
@@ -565,13 +362,13 @@
 
       useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 24);
-        window.addEventListener('scroll', onScroll, { passive: true });
-        const io = new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) setRevealed((r) => ({ ...r, [e.target.dataset.reveal]: true })); }); }, { root: null, threshold: 0.1 });
+        window.addEventListener('scroll', onScroll, { passive:true });
+        const io = new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) setRevealed((r) => ({ ...r, [e.target.dataset.reveal]:true })); }); }, { root:null, threshold:0.1 });
         const el = containerRef.current; if (el) el.querySelectorAll('[data-reveal]').forEach((n) => io.observe(n));
         return () => { window.removeEventListener('scroll', onScroll); io.disconnect(); };
       }, []);
 
-      const reveal = (k) => ({ opacity: revealed[k]?1:0, transform: revealed[k]?'translateY(0)':'translateY(14px)', transition: 'opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1)' });
+      const reveal = (k) => ({ opacity:revealed[k]?1:0, transform:revealed[k]?'translateY(0)':'translateY(14px)', transition:'opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1)' });
 
       return (
         <div ref={containerRef} style={{ width:'100%', background:T.black, color:T.white, fontFamily:grotesk, position:'relative' }}>
@@ -580,210 +377,88 @@
           {/* ── Meta strip ── */}
           <div style={{ position:'sticky', top:0, zIndex:11, display:'grid', gridTemplateColumns:'1fr 1fr 1fr', padding:'10px 24px', fontFamily:grotesk, fontSize:9, fontWeight:500, letterSpacing:'0.28em', textTransform:'uppercase', color:T.silverDim, background:'rgba(250,248,243,0.92)', backdropFilter:'blur(8px)', borderBottom:`1px solid ${T.silverFaint}55` }}>
             <span>Lliam Humphrey · South Africa</span>
-            <span style={{ textAlign:'center', color:T.orange }}>Now Documenting · Three Founders, Spring '26</span>
+            <span style={{ textAlign:'center', color:T.orange }}>Building in Public · Spring 2026</span>
             <span style={{ textAlign:'right' }}>{time}<span style={{ marginLeft:10, display:'inline-block', width:5, height:5, borderRadius:999, background:T.orange, verticalAlign:1 }}></span></span>
           </div>
 
           {/* ── Nav ── */}
-          <PillNav onApply={onApply} scrolled={scrolled} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+          <PillNav onApply={onApply} scrolled={scrolled} />
 
-          {/* ── HERO — full-bleed video background ── */}
-          <header id="top" style={{ position:'relative', overflow:'hidden', textAlign:'center', minHeight:'100svh', display:'flex', alignItems:'center', justifyContent:'center', padding:'80px 24px' }}>
-            {/* IMG_0625.MOV — hero background video */}
-            <video
-              autoPlay muted loop playsInline
-              style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', zIndex:0 }}
-            >
-              <source src="./assets/hero.mp4" type="video/mp4" />
-            </video>
-            {/* Dark overlay — keeps text readable */}
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, rgba(8,14,11,0.65) 0%, rgba(8,14,11,0.72) 60%, rgba(8,14,11,0.8) 100%)', zIndex:1 }} />
-            <NoiseBg opacity={0.06} />
+          {/* ── HERO — photo background ── */}
+          <header id="top" style={{ position:'relative', overflow:'hidden', textAlign:'center', minHeight:'100svh', display:'flex', alignItems:'center', justifyContent:'center', padding:'80px clamp(20px,4vw,48px)' }}>
+            {/* Photo: the South Africa pool / building shot */}
+            <img
+              src="./assets/IMG_3526.jpg"
+              alt=""
+              aria-hidden="true"
+              style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 30%', zIndex:0 }}
+            />
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, rgba(8,14,11,0.52) 0%, rgba(8,14,11,0.68) 55%, rgba(8,14,11,0.88) 100%)', zIndex:1 }} />
+            <NoiseBg opacity={0.05} />
 
-            <div style={{ position:'relative', zIndex:2, maxWidth:1080, marginInline:'auto', width:'100%' }}>
-              <div style={{ display:'flex', justifyContent:'center', marginBottom:48 }}>
+            <div style={{ position:'relative', zIndex:2, maxWidth:860, marginInline:'auto', width:'100%' }}>
+              <div style={{ display:'flex', justifyContent:'center', marginBottom:40 }}>
                 <HeroMark />
               </div>
-              <div style={{ fontSize:10, color:'rgba(232,117,58,0.9)', letterSpacing:'0.4em', textTransform:'uppercase', fontWeight:600, marginBottom:28, display:'inline-flex', alignItems:'center', gap:10, padding:'8px 16px', borderRadius:999, background:'rgba(232,221,196,0.08)', border:'1px solid rgba(232,117,58,0.3)', boxShadow:'0 1px 0 rgba(255,255,255,0.1) inset', backdropFilter:'blur(8px)', fontFamily:grotesk }}>
-                <span style={{ width:6, height:6, borderRadius:999, background:T.orange, boxShadow:`0 0 12px ${T.orange}`, display:'inline-block' }}></span>
-                Documenting the journey — by Lliam Humphrey
-              </div>
-              <h1 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(52px, 8.4vw, 136px)', lineHeight:0.92, letterSpacing:'-0.035em', margin:'0 0 0', color:T.beige, textWrap:'balance' }}>
-                Documentarians <br />
-                <span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, letterSpacing:'-0.025em', color:T.silver }}>of their own</span> journey.
+              <h1 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(48px,8vw,120px)', lineHeight:0.93, letterSpacing:'-0.035em', margin:0, color:T.beige, textWrap:'balance' }}>
+                Lliam Humphrey
               </h1>
-              <p style={{ marginTop:36, fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(17px, 2vw, 22px)', lineHeight:1.6, color:'rgba(242,233,216,0.82)', maxWidth:700, marginInline:'auto', textWrap:'pretty' }}>
-                I help entrepreneurs document the work they're already doing and turn it into a brand that builds trust, attracts clients, and compounds over time. Your story is the asset. Let's tell it.
+              <p style={{ marginTop:28, fontFamily:grotesk, fontWeight:400, fontSize:'clamp(15px,2vw,20px)', letterSpacing:'0.04em', color:'rgba(242,233,216,0.75)', textWrap:'balance' }}>
+                19. Building businesses in public from South Africa.
               </p>
-              <div style={{ marginTop:48, display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap' }}>
-                <button onClick={onApply} style={pillBtnLarge}>Start documenting <span style={{ marginLeft:10 }}>→</span></button>
-                <a href="#practice" style={pillBtnGhost}>Read the philosophy</a>
-              </div>
-              <div style={{ marginTop:22, fontSize:11, color:'rgba(242,233,216,0.45)', letterSpacing:'0.18em', fontFamily:grotesk }}>
-                Currently with three founders · Spring intake open
+              <p style={{ marginTop:12, fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(14px,1.6vw,18px)', color:'rgba(232,117,58,0.85)', letterSpacing:'0.04em' }}>
+                Entrepreneur · Creative Director · Founder
+              </p>
+              <div style={{ marginTop:44, display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap' }}>
+                <button onClick={onApply} style={pillBtnLarge}>Apply to work together <span style={{ marginLeft:8 }}>→</span></button>
+                <button onClick={onWaitlist} style={pillBtnGhost}>Join Private Victories Club</button>
               </div>
             </div>
           </header>
 
-          {/* ── ABOUT ── */}
-          <section id="about" style={{ padding:'clamp(40px,5vw,64px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, position:'relative', overflow:'hidden' }}>
-            <SpecHead num="01" title="About" subtitle="Where attention meets intention" />
-
-            {/* Two-column: bio text left, media stack right */}
-            <div data-reveal="founder" style={{ ...reveal('founder'), marginTop:48, display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:48, alignItems:'start' }}>
-
-              {/* Left: text content */}
-              <div>
-                <div style={{ fontSize:10, color:T.silver, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:20, fontWeight:600, fontFamily:grotesk }}>The Documentarian</div>
-                <h3 style={{ fontFamily:grotesk, fontSize:'clamp(32px, 4vw, 52px)', fontWeight:700, letterSpacing:'-0.02em', margin:0, color:T.white, lineHeight:1.02, textWrap:'balance' }}>Hi, I'm Lliam.</h3>
-                <div style={{ marginTop:28, fontSize:15, lineHeight:1.8, color:T.silverDim, fontFamily:grotesk }}>
-                  <p style={{ margin:0 }}>
-                    For the past year I've been building in public — launching businesses, working in investment banking, closing sales, and documenting all of it online. One honest video got 580,000 views. A brand deal followed. Then another founder asked me to help them do the same thing.
-                  </p>
-                  <p style={{ marginTop:18 }}>
-                    That's when I realised the story was the product. I'm based in South Africa and I work with founders who are ready to be seen.
-                  </p>
-                </div>
-              </div>
-
-              {/* Right: media stack — portrait video + lifestyle still */}
-              <div style={{ display:'grid', gridTemplateRows:'auto auto', gap:16 }}>
-                {/* IMG_3794.MOV — founder portrait video */}
-                <div style={{ position:'relative', borderRadius:20, overflow:'hidden', background:T.navyDeep, aspectRatio:'4/5' }}>
-                  <video
-                    autoPlay muted loop playsInline
-                    style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', display:'block' }}
-                  >
-                    <source src="./assets/founder.mp4" type="video/mp4" />
-                  </video>
-                  {/* Subtle editorial overlay */}
-                  <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, transparent 60%, rgba(15,26,20,0.4) 100%)', pointerEvents:'none' }} />
-                  <div style={{ position:'absolute', top:16, left:20, fontSize:8, color:'rgba(242,233,216,0.5)', letterSpacing:'0.28em', textTransform:'uppercase', fontFamily:grotesk }}>PLATE I · PORTRAIT</div>
-                </div>
-
-                {/* IMG_3526.jpg — lifestyle secondary image */}
-                <div style={{ position:'relative', borderRadius:16, overflow:'hidden', aspectRatio:'16/9' }}>
-                  <img
-                    src="./assets/IMG_3526.jpg"
-                    alt="From the studio — Lliam Humphrey"
-                    style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center', display:'block' }}
-                  />
-                  <div style={{ position:'absolute', inset:0, background:'rgba(15,26,20,0.25)', pointerEvents:'none' }} />
-                  <div style={{ position:'absolute', bottom:14, left:18, fontSize:8, color:'rgba(242,233,216,0.6)', letterSpacing:'0.28em', textTransform:'uppercase', fontFamily:grotesk }}>From the studio — South Africa</div>
-                </div>
-              </div>
+          {/* ── WHAT I'M BUILDING ── */}
+          <section style={{ padding:'clamp(56px,7vw,96px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, position:'relative' }}>
+            <div style={{ marginBottom:48 }}>
+              <div style={{ fontSize:9, color:T.silverFaint, letterSpacing:'0.4em', textTransform:'uppercase', fontFamily:grotesk, marginBottom:16 }}>What I'm Building</div>
+              <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(32px,5vw,64px)', letterSpacing:'-0.025em', margin:0, color:T.white, lineHeight:0.96, textTransform:'uppercase' }}>Three ventures.<br /><span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, textTransform:'none', letterSpacing:'-0.015em', color:T.silver }}>One story.</span></h2>
             </div>
 
-            {/* Stats row — full width below both columns */}
-            <div style={{ marginTop:36, paddingTop:24, borderTop:`1px solid ${T.silver}33`, display:'flex', gap:48, fontSize:11, color:T.silverDim, letterSpacing:'0.18em', textTransform:'uppercase', fontFamily:grotesk, flexWrap:'wrap' }}>
-              <div><div style={{ color:T.silverFaint, fontSize:9, marginBottom:6 }}>Based</div><div style={{ color:T.white }}>South Africa</div></div>
-              <div><div style={{ color:T.silverFaint, fontSize:9, marginBottom:6 }}>Practice since</div><div style={{ color:T.white }}>MMXXIV</div></div>
-              <div><div style={{ color:T.silverFaint, fontSize:9, marginBottom:6 }}>Founders / yr</div><div style={{ color:T.white }}>06—09</div></div>
-            </div>
-          </section>
+            <div data-reveal="cards" style={{ ...reveal('cards'), display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:16 }}>
 
-          {/* ── SERVICES ── */}
-          <section id="practice" style={{ padding:'clamp(40px,5vw,64px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, position:'relative', overflow:'hidden' }}>
-            <SpecHead num="02" title="Services" subtitle="The systems that turn your week into a body of work" />
-            <div data-reveal="prac" style={{ ...reveal('prac'), marginTop:56 }}>
-              <div style={{ maxWidth:700, marginBottom:52, fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(18px, 2.2vw, 24px)', lineHeight:1.55, color:T.white, textWrap:'pretty' }}>
-                Most founders wait until things are polished before they post. The ones who win document the process — the meetings, the decisions, the hard weeks. That's what builds an audience that actually trusts you.
-              </div>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 440px), 1fr))', gap:20 }}>
-                {CAPS.map((c,i) => <ServiceCard key={c.title} {...c} idx={i} />)}
-              </div>
-            </div>
-          </section>
+              {/* Card 1 — Work With Me */}
+              <HubCard
+                num={1}
+                eyebrow="Work With Me"
+                title="1:1 Documentation Consulting"
+                desc="I help founders document their journey and build a brand that compounds. One story, told consistently, over time."
+                cta="Apply to work together"
+                onCta={onApply}
+                primary={true}
+              />
 
-          {/* ── FROM THE STUDIO ── */}
-          <section id="work" style={{ padding:'clamp(40px,5vw,64px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22` }}>
-            <SpecHead
-              num="03" title="From the Studio" subtitle="One founder, one year"
-              right={<span style={{ fontSize:10, color:T.silverDim, letterSpacing:'0.32em', fontFamily:grotesk }}>01 / SHOWN</span>}
-            />
-            <div data-reveal="pvc" style={{ ...reveal('pvc'), marginTop:56 }}>
-              <PVCCase onApply={onApply} />
-            </div>
-          </section>
+              {/* Card 2 — Private Victories Club */}
+              <HubCard
+                num={2}
+                eyebrow="Community"
+                title="Private Victories Club"
+                desc="A creative community for young creators and entrepreneurs building in public who want to make money from their content online."
+                cta="Join the waitlist"
+                onCta={onWaitlist}
+                primary={false}
+              />
 
-          {/* ── METHOD — with IMG_0486.MOV accent ── */}
-          <section style={{ padding:'clamp(40px,5vw,64px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22` }}>
-            <SpecHead num="04" title="Method" subtitle="The shape of an engagement" />
+              {/* Card 3 — evvrywhere */}
+              {/* TODO: Replace '#' below with the evvrywhere website URL */}
+              <HubCard
+                num={3}
+                eyebrow="Agency"
+                title="evvrywhere"
+                desc="AI systems and paid ads for companies ready to scale."
+                cta="Visit evvrywhere"
+                ctaHref={/* PLACEHOLDER: evvrywhere website URL — e.g. 'https://evvrywhere.com' */ '#'}
+                primary={false}
+              />
 
-            {/* IMG_0486.MOV — accent video strip between header and steps */}
-            <div data-reveal="method-vid" style={{ ...reveal('method-vid'), marginTop:40, marginBottom:40, position:'relative', borderRadius:16, overflow:'hidden', height:'clamp(160px, 22vw, 280px)' }}>
-              <video autoPlay muted loop playsInline style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center', display:'block' }}>
-                <source src="./assets/method.mp4" type="video/mp4" />
-              </video>
-              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, rgba(15,26,20,0.6) 0%, rgba(15,26,20,0.2) 50%, rgba(15,26,20,0.5) 100%)' }} />
-              <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <div style={{ fontFamily:serif, fontStyle:'italic', fontSize:'clamp(18px, 2.5vw, 28px)', color:'rgba(242,233,216,0.75)', textAlign:'center', letterSpacing:'0.02em' }}>
-                  "The story was already there.<br />We just pointed the camera."
-                </div>
-              </div>
-            </div>
-
-            {/* Method steps grid */}
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:0, border:`1px solid ${T.silver}22`, borderRight:'none' }}>
-              {METHOD.map((s,i) => (
-                <div key={s.phase} data-reveal={`m${i}`} style={{ ...reveal(`m${i}`), padding:'clamp(20px,2.5vw,28px)', borderRight:`1px solid ${T.silver}22`, minHeight:220, display:'flex', flexDirection:'column', justifyContent:'space-between', position:'relative', background:T.black }}>
-                  <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:T.silver, transform:'scaleX(0.4)', transformOrigin:'left', opacity:0.5 }} />
-                  <div>
-                    <div style={{ display:'flex', justifyContent:'space-between', fontSize:9, color:T.silverFaint, letterSpacing:'0.32em', marginBottom:22, fontFamily:grotesk }}>
-                      <span>0{i+1}</span><span>{s.wk}</span>
-                    </div>
-                    <div style={{ fontSize:'clamp(16px, 2vw, 22px)', fontWeight:700, letterSpacing:'0.04em', textTransform:'uppercase', marginBottom:14, color:T.white, fontFamily:grotesk }}>{s.phase}</div>
-                    <div style={{ fontSize:13, lineHeight:1.7, color:T.silverDim, fontFamily:grotesk }}>{s.body}</div>
-                  </div>
-                  <div style={{ marginTop:22, fontSize:9, color:T.silver, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk }}>↳ {s.deliv}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* ── APPLY ── */}
-          <section id="apply-cta" style={{ padding:'clamp(40px,5vw,64px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22` }}>
-            <SpecHead num="05" title="Apply" subtitle="Begin the conversation" />
-            <div style={{ marginTop:56, display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(280px, 1fr))', gap:56, alignItems:'start' }}>
-              <div>
-                <h3 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(36px, 5.4vw, 80px)', letterSpacing:'-0.025em', lineHeight:0.96, margin:0, textWrap:'balance', color:T.white }}>
-                  Ready to start<br />
-                  <span style={{ fontFamily:serif, fontStyle:'italic', textTransform:'none', fontWeight:300, color:T.silver, letterSpacing:'-0.02em' }}>documenting?</span>
-                </h3>
-                <p style={{ marginTop:28, fontSize:16, lineHeight:1.7, color:T.silverDim, maxWidth:480, fontFamily:grotesk }}>
-                  Tell me who you are, what you're building, and the story you keep meaning to tell. I read every application and get back to you within a week.
-                </p>
-                <button onClick={onApply} style={{ ...ctaBtnB, marginTop:40 }}>Begin application <span style={{ marginLeft:10 }}>→</span></button>
-              </div>
-
-              <div style={{ position:'relative', border:`1px solid ${T.silver}22`, padding:'clamp(24px,3vw,32px)', background:T.navy, overflow:'hidden' }}>
-                <NoiseBg opacity={0.03} />
-                <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:T.silver, opacity:0.6 }} />
-                <div style={{ position:'relative' }}>
-                  <div style={{ fontSize:9, color:T.silver, letterSpacing:'0.4em', marginBottom:18, textTransform:'uppercase', fontFamily:grotesk }}>Fit Criteria</div>
-                  <div style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:17, color:T.white, marginBottom:14 }}>You're likely a fit if —</div>
-                  <ul style={{ listStyle:'none', padding:0, margin:0, color:T.silverLight, fontSize:13.5, lineHeight:1.9, fontFamily:grotesk }}>
-                    {["You're a founder, operator, or creator with something real underway",
-                      "You want an audience that trusts you, not just follows you",
-                      "You're willing to show the process, not just the wins",
-                      "You're in it for the long game"].map((it,i) => (
-                      <li key={i} style={{ display:'flex', gap:12, paddingTop:6 }}>
-                        <span style={{ color:T.silver, flexShrink:0 }}>↳</span><span>{it}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div style={{ marginTop:28, fontSize:9, color:T.silverFaint, letterSpacing:'0.4em', marginBottom:14, textTransform:'uppercase', fontFamily:grotesk }}>Not a Fit</div>
-                  <ul style={{ listStyle:'none', padding:0, margin:0, color:T.silverDim, fontSize:13.5, lineHeight:1.9, fontFamily:grotesk }}>
-                    {["You want viral content without substance behind it",
-                      "You're not willing to be seen on camera or in writing",
-                      "You're looking for a ghostwriter, not a documenter"].map((it,i) => (
-                      <li key={i} style={{ display:'flex', gap:12, paddingTop:4 }}>
-                        <span style={{ color:T.silverFaint, flexShrink:0 }}>×</span><span>{it}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
             </div>
           </section>
 
@@ -793,14 +468,17 @@
             <div aria-hidden="true" style={{ position:'absolute', inset:0, pointerEvents:'none', background:`radial-gradient(50% 60% at 20% 30%, ${T.orange}22, transparent 70%), radial-gradient(40% 50% at 50% 100%, ${T.orangeSoft}2a, transparent 70%)` }} />
             <div style={{ position:'relative', zIndex:1 }}>
               <div style={{ fontSize:9, color:T.silverFaint, letterSpacing:'0.4em', marginBottom:28, textTransform:'uppercase', fontFamily:grotesk }}>An Invitation</div>
-              <h2 style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(28px, 5.4vw, 76px)', lineHeight:1.18, letterSpacing:'-0.02em', margin:0, color:T.white, maxWidth:1100, marginInline:'auto' }}>
+              <h2 style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(28px,5.4vw,76px)', lineHeight:1.18, letterSpacing:'-0.02em', margin:0, color:T.white, maxWidth:1100, marginInline:'auto' }}>
                 The world doesn't need more content. <br />
                 <span style={{ color:T.silver }}>It needs your story, told as it happens.</span>
               </h2>
+              <div style={{ marginTop:48, display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap' }}>
+                <button onClick={onApply} style={pillBtnLarge}>Apply to work together <span style={{ marginLeft:8 }}>→</span></button>
+              </div>
             </div>
           </section>
 
-          {/* ── FOOTER ── */}
+          {/* ── Footer ── */}
           <footer style={{ padding:'clamp(36px,5vw,48px) clamp(20px,3vw,32px) clamp(24px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, background:T.navyDeep, position:'relative', overflow:'hidden' }}>
             <NoiseBg opacity={0.03} />
             <div style={{ position:'relative' }}>
@@ -808,7 +486,7 @@
                 <div>
                   <div style={{ fontFamily:grotesk, fontSize:'clamp(16px,2vw,22px)', fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:T.beige, marginBottom:14 }}>Lliam Humphrey</div>
                   <div style={{ fontFamily:serif, fontStyle:'italic', fontSize:15, color:T.silver, marginBottom:18 }}>Creative direction, est. MMXXIV.</div>
-                  <div style={{ maxWidth:360, lineHeight:1.7, fontSize:12.5, color:T.silverDim, fontFamily:grotesk }}>An independent practice working with entrepreneurs and creators on identity, voice, and the long shape of a brand. Based in South Africa, by appointment.</div>
+                  <div style={{ maxWidth:360, lineHeight:1.7, fontSize:12.5, color:T.silverDim, fontFamily:grotesk }}>Building in public from South Africa.</div>
                 </div>
                 <FooterCol head="Contact" items={['lliamhumphreywork@gmail.com']} />
                 <FooterCol head="Elsewhere" items={[
@@ -819,7 +497,7 @@
               </div>
               <div style={{ marginTop:56, paddingTop:24, borderTop:`1px solid ${T.silver}18`, display:'flex', justifyContent:'space-between', alignItems:'center', fontSize:10, color:T.silverFaint, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, flexWrap:'wrap', gap:12 }}>
                 <span>© MMXXVI · Lliam Humphrey · South Africa</span>
-                <span>v2.0 · {time||'00:00 UTC'}</span>
+                <span>{time||'00:00 UTC'}</span>
               </div>
             </div>
           </footer>
@@ -827,13 +505,15 @@
       );
     };
 
-    // ─── App ───────────────────────────────────────────────────────
+    // ─── App ────────────────────────────────────────────────────────
     function App() {
-      const [open, setOpen] = useState(false);
+      const [applyOpen,    setApplyOpen]    = useState(false);
+      const [waitlistOpen, setWaitlistOpen] = useState(false);
       return (
         <>
-          <DirectionB onApply={() => setOpen(true)} />
-          <ApplicationModal open={open} onClose={() => setOpen(false)} />
+          <Hub onApply={() => setApplyOpen(true)} onWaitlist={() => setWaitlistOpen(true)} />
+          <ApplicationModal open={applyOpen}    onClose={() => setApplyOpen(false)} />
+          <WaitlistModal     open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
         </>
       );
     }

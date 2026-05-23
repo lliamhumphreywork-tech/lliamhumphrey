@@ -16,11 +16,10 @@
     html, body { width: 100%; }
     body { background: #FAF8F3; -webkit-font-smoothing: antialiased; }
     @keyframes siteReveal {
-      0%   { opacity: 0; clip-path: inset(42% 12% 42% 12% round 2px); }
-      30%  { opacity: 1; }
-      100% { opacity: 1; clip-path: inset(0% 0% 0% 0% round 0px); }
+      0%   { opacity: 0; transform: scale(0.97); }
+      100% { opacity: 1; transform: scale(1); }
     }
-    #root { animation: siteReveal 2.2s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.1s; }
+    #root { animation: siteReveal 1.8s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.05s; transform-origin: center 40%; }
     @media (max-width: 768px) {
       .pill-nav-links { display: none !important; }
       .mobile-menu-btn { display: flex !important; }

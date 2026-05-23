@@ -15,6 +15,11 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; }
     body { background: #FAF8F3; -webkit-font-smoothing: antialiased; }
+    @keyframes siteReveal {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    #root { animation: siteReveal 1s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 0.08s; }
     @media (max-width: 768px) {
       .pill-nav-links { display: none !important; }
       .mobile-menu-btn { display: flex !important; }

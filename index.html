@@ -143,83 +143,6 @@
       );
     };
 
-    // ─── Waitlist Modal ─────────────────────────────────────────────
-    const WaitlistModal = ({ open, onClose }) => {
-      const [email, setEmail] = useState('');
-      const [name, setName]   = useState('');
-      const [submitted, setSubmitted] = useState(false);
-      const [submitting, setSubmitting] = useState(false);
-      const [error, setError] = useState(false);
-
-      useEffect(() => { if (!open) setTimeout(() => { setEmail(''); setName(''); setSubmitted(false); setError(false); }, 400); }, [open]);
-      useEffect(() => {
-        const onKey = (e) => { if (e.key === 'Escape' && open) onClose(); };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-      }, [open, onClose]);
-
-      const submit = async (e) => {
-        e.preventDefault();
-        if (!email) return;
-        setSubmitting(true);
-        try {
-          const res = await fetch('/api/brevo-subscribe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, name })
-          });
-          if (!res.ok) throw new Error('failed');
-          setSubmitted(true);
-        } catch (_) {
-          setError(true);
-        } finally {
-          setSubmitting(false);
-        }
-      };
-
-      const accent = mAccent, bg = mBg, panelBg = mPanelBg, ink = mInk, dim = mDim;
-      return (
-        <>
-          <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:100, background:'rgba(8,8,8,0.7)', backdropFilter:'blur(4px)', opacity:open?1:0, pointerEvents:open?'auto':'none', transition:'opacity .35s ease' }} />
-          <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(520px, 96vw)', background:bg, color:ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.6)', borderLeft:`1px solid ${accent}33`, overflow:'hidden' }}>
-            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:accent, zIndex:5 }} />
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:`1px solid ${accent}22`, fontFamily:grotesk, fontWeight:500, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:dim }}>
-              <span>Private Victories Club · Waitlist</span>
-              <button onClick={onClose} style={{ border:'none', background:'transparent', color:ink, fontSize:18, cursor:'pointer', width:28, height:28, borderRadius:999, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
-            </div>
-            <div style={{ flex:1, overflowY:'auto', padding:'40px 40px 32px' }}>
-              {submitted ? (
-                <div style={{ textAlign:'center', paddingTop:48 }}>
-                  <div style={{ width:56, height:56, border:`1px solid ${accent}`, margin:'0 auto 28px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, color:accent }}>✓</div>
-                  <div style={{ fontSize:9, color:accent, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:18 }}>You're on the list</div>
-                  <h2 style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:36, letterSpacing:'-0.015em', margin:0, color:ink }}>See you on the inside.</h2>
-                  <p style={{ marginTop:22, color:dim, fontSize:14, lineHeight:1.7, maxWidth:340, marginInline:'auto' }}>We'll be in touch at <strong style={{ color:ink, fontWeight:500 }}>{email}</strong> when the doors open.</p>
-                  <button onClick={onClose} style={{ marginTop:40, padding:'14px 26px', fontSize:10, border:`1px solid ${accent}33`, background:'transparent', color:ink, cursor:'pointer', fontFamily:grotesk, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500 }}>Close</button>
-                </div>
-              ) : (
-                <div style={{ animation:'apFade .4s ease both' }}>
-                  <div style={{ fontSize:9, color:accent, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:16, fontWeight:500 }}>— The Community</div>
-                  <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:32, letterSpacing:'-0.02em', margin:0, lineHeight:1.05, textTransform:'uppercase', color:ink }}>Join the waitlist</h2>
-                  <p style={{ marginTop:16, fontSize:14, lineHeight:1.75, color:dim, fontFamily:grotesk }}>
-                    Private Victories Club is a creative community for young South Africans building in public and making money from their content. Drop your email and we'll let you know when doors open.
-                  </p>
-                  <form onSubmit={submit} style={{ marginTop:36, display:'flex', flexDirection:'column', gap:22 }}>
-                    <Field label="Your name" optional><input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Anya Reyes" style={baseInput} /></Field>
-                    <Field label="Email address"><input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="anya@studio.com" required style={baseInput} /></Field>
-                    {error && <p style={{ fontSize:12, color:'#c0392b', fontFamily:grotesk }}>Something went wrong — please try again.</p>}
-                    <button type="submit" disabled={submitting||!email} style={{ marginTop:8, padding:'16px 24px', border:'none', background:email&&!submitting?accent:`${accent}55`, color:mBg, fontSize:10, letterSpacing:'0.32em', cursor:email&&!submitting?'pointer':'not-allowed', fontFamily:grotesk, fontWeight:500, textTransform:'uppercase', transition:'all .2s', opacity:submitting?0.7:1 }}>
-                      {submitting ? 'Joining...' : 'Join the waitlist →'}
-                    </button>
-                  </form>
-                </div>
-              )}
-            </div>
-          </aside>
-          <style>{`@keyframes apFade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }`}</style>
-        </>
-      );
-    };
-
     // ─── Application Modal ──────────────────────────────────────────
     const ApplicationModal = ({ open, onClose }) => {
       const [step, setStep]             = useState(0);
@@ -363,7 +286,7 @@
     );
 
     // ─── Hub Page ───────────────────────────────────────────────────
-    const Hub = ({ onApply, onWaitlist }) => {
+    const Hub = ({ onApply }) => {
       const [scrolled, setScrolled] = useState(false);
       const [revealed, setRevealed] = useState({});
       const [time, setTime]         = useState('');
@@ -425,7 +348,6 @@
               </p>
               <div style={{ marginTop:44, display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap' }}>
                 <button onClick={onApply} style={pillBtnLarge}>Apply to work together <span style={{ marginLeft:8 }}>→</span></button>
-                <button onClick={onWaitlist} style={pillBtnGhost}>Join Private Victories Club</button>
               </div>
             </div>
           </header>
@@ -513,13 +435,11 @@
 
     // ─── App ────────────────────────────────────────────────────────
     function App() {
-      const [applyOpen,    setApplyOpen]    = useState(false);
-      const [waitlistOpen, setWaitlistOpen] = useState(false);
+      const [applyOpen, setApplyOpen] = useState(false);
       return (
         <>
-          <Hub onApply={() => setApplyOpen(true)} onWaitlist={() => setWaitlistOpen(true)} />
-          <ApplicationModal open={applyOpen}    onClose={() => setApplyOpen(false)} />
-          <WaitlistModal     open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
+          <Hub onApply={() => setApplyOpen(true)} />
+          <ApplicationModal open={applyOpen} onClose={() => setApplyOpen(false)} />
         </>
       );
     }

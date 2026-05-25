@@ -16,10 +16,15 @@
     html, body { width: 100%; }
     body { background: #FAF8F3; -webkit-font-smoothing: antialiased; }
     @keyframes siteReveal {
-      0%   { opacity: 0; transform: scale(0.97); }
-      100% { opacity: 1; transform: scale(1); }
+      from { opacity: 0; }
+      to   { opacity: 1; }
     }
-    #root { animation: siteReveal 1.8s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.05s; transform-origin: center 40%; }
+    @keyframes siteScale {
+      from { transform: scale(0.97); }
+      to   { transform: scale(1); }
+    }
+    #root { animation: siteReveal 1.8s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.05s; }
+    #site-inner { animation: siteScale 1.8s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.05s; transform-origin: center 40%; }
     @media (max-width: 768px) {
       .pill-nav-links { display: none !important; }
       .mobile-menu-btn { display: flex !important; }
@@ -438,7 +443,9 @@
       const [applyOpen, setApplyOpen] = useState(false);
       return (
         <>
-          <Hub onApply={() => setApplyOpen(true)} />
+          <div id="site-inner">
+            <Hub onApply={() => setApplyOpen(true)} />
+          </div>
           <ApplicationModal open={applyOpen} onClose={() => setApplyOpen(false)} />
         </>
       );

@@ -373,7 +373,7 @@
 
     // ─── Hub Page ───────────────────────────────────────────────────
     const Hub = ({ onWaitlist }) => {
-      const [scrolled, setScrolled] = useState(false);
+      const [scrollY,  setScrollY]  = useState(0);
       const [revealed, setRevealed] = useState({});
       const [time, setTime]         = useState('');
       const containerRef            = useRef(null);
@@ -384,13 +384,19 @@
       }, []);
 
       useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 24);
+        let raf;
+        const onScroll = () => {
+          if (raf) cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => setScrollY(window.scrollY));
+        };
         window.addEventListener('scroll', onScroll, { passive:true });
         const io = new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) setRevealed((r) => ({ ...r, [e.target.dataset.reveal]:true })); }); }, { root:null, threshold:0.1 });
         const el = containerRef.current; if (el) el.querySelectorAll('[data-reveal]').forEach((n) => io.observe(n));
-        return () => { window.removeEventListener('scroll', onScroll); io.disconnect(); };
+        return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); io.disconnect(); };
       }, []);
 
+      const scrolled    = scrollY > 24;
+      const pullProgress = Math.min(1, scrollY / (window.innerHeight * 0.42));
       const reveal = (k) => ({ opacity:revealed[k]?1:0, transform:revealed[k]?'translateY(0)':'translateY(14px)', transition:'opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1)' });
 
       return (
@@ -433,9 +439,13 @@
                 Entrepreneur · Creative Director · Founder
               </p>
               <div style={{ marginTop:56, display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
-                <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.42em', textTransform:'uppercase', color:'rgba(242,233,216,0.38)', fontWeight:500 }}>What I'm building</span>
-                <div style={{ position:'relative', width:1, height:48, background:'transparent', overflow:'hidden' }}>
-                  <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, transparent, ${T.orange}, transparent)`, animation:'scrollLine 1.8s cubic-bezier(0.4,0,0.6,1) infinite' }} />
+                <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.42em', textTransform:'uppercase', color:`rgba(242,233,216,${0.2 + pullProgress * 0.6})`, fontWeight:500, transition:'none' }}>What I'm building</span>
+                <div style={{ position:'relative', width:1, overflow:'hidden', height: pullProgress > 0 ? `${48 + pullProgress * 180}px` : 48 }}>
+                  {pullProgress === 0 ? (
+                    <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, transparent, ${T.orange}, transparent)`, animation:'scrollLine 1.8s cubic-bezier(0.4,0,0.6,1) infinite' }} />
+                  ) : (
+                    <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, ${T.orange}cc, ${T.orange}44)` }} />
+                  )}
                 </div>
               </div>
               <style>{`@keyframes scrollLine { 0%{transform:translateY(-100%)} 100%{transform:translateY(200%)} }`}</style>
@@ -443,7 +453,7 @@
           </header>
 
           {/* ── WHAT I'M BUILDING ── */}
-          <section style={{ padding:'clamp(56px,7vw,96px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, position:'relative' }}>
+          <section style={{ padding:'clamp(56px,7vw,96px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, position:'relative', transform:`translateY(${(1 - pullProgress) * 72}px)`, opacity: 0.3 + pullProgress * 0.7, willChange:'transform' }}>
             <div style={{ marginBottom:48 }}>
               <div style={{ fontSize:9, color:T.silverFaint, letterSpacing:'0.4em', textTransform:'uppercase', fontFamily:grotesk, marginBottom:16 }}>What I'm Building</div>
               <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(32px,5vw,64px)', letterSpacing:'-0.025em', margin:0, color:T.white, lineHeight:0.96, textTransform:'uppercase' }}>Three ventures.<br /><span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, textTransform:'none', letterSpacing:'-0.015em', color:T.silver }}>One story.</span></h2>

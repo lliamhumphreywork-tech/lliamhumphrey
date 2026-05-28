@@ -114,11 +114,10 @@
     const pillBtnLarge   = { ...pillBtnPrimary, fontSize:12, padding:'17px 32px' };
     const pillBtnGhost   = { fontFamily:grotesk, fontSize:12, fontWeight:500, padding:'17px 32px', borderRadius:999, background:'linear-gradient(180deg, rgba(232,221,196,0.25), rgba(242,233,216,0.2))', border:'1px solid rgba(242,233,216,0.35)', color:T.beige, cursor:'pointer', textDecoration:'none', letterSpacing:'0.2em', textTransform:'uppercase', boxShadow:'0 1px 0 rgba(255,255,255,0.15) inset', display:'inline-block', backdropFilter:'blur(8px)' };
 
-    // ─── Nav (simplified — just logo + apply) ───────────────────────
-    const PillNav = ({ onApply, scrolled }) => (
+    // ─── Nav ────────────────────────────────────────────────────────
+    const PillNav = ({ scrolled }) => (
       <nav style={{ position:'sticky', top:33, zIndex:10, padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:16, background:scrolled?'rgba(250,248,243,0.88)':'transparent', backdropFilter:scrolled?'blur(14px)':'none', borderBottom:scrolled?`1px solid ${T.silverFaint}44`:'1px solid transparent', transition:'all .3s' }}>
         <Wordmark />
-        <button onClick={onApply} style={pillBtnPrimary}>Apply <span style={{ marginLeft:8 }}>→</span></button>
       </nav>
     );
 
@@ -373,7 +372,7 @@
     );
 
     // ─── Hub Page ───────────────────────────────────────────────────
-    const Hub = ({ onApply, onWaitlist }) => {
+    const Hub = ({ onWaitlist }) => {
       const [scrolled, setScrolled] = useState(false);
       const [revealed, setRevealed] = useState({});
       const [time, setTime]         = useState('');
@@ -406,7 +405,7 @@
           </div>
 
           {/* ── Nav ── */}
-          <PillNav onApply={onApply} scrolled={scrolled} />
+          <PillNav scrolled={scrolled} />
 
           {/* ── HERO — photo background ── */}
           <header id="top" style={{ position:'relative', overflow:'hidden', textAlign:'center', minHeight:'100svh', display:'flex', alignItems:'center', justifyContent:'center', padding:'80px clamp(20px,4vw,48px)' }}>
@@ -433,9 +432,13 @@
               <p style={{ marginTop:12, fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(14px,1.6vw,18px)', color:'rgba(232,117,58,0.85)', letterSpacing:'0.04em' }}>
                 Entrepreneur · Creative Director · Founder
               </p>
-              <div style={{ marginTop:44, display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap' }}>
-                <button onClick={onApply} style={pillBtnLarge}>Apply to work together <span style={{ marginLeft:8 }}>→</span></button>
+              <div style={{ marginTop:56, display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
+                <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.42em', textTransform:'uppercase', color:'rgba(242,233,216,0.38)', fontWeight:500 }}>What I'm building</span>
+                <div style={{ position:'relative', width:1, height:48, background:'transparent', overflow:'hidden' }}>
+                  <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, transparent, ${T.orange}, transparent)`, animation:'scrollLine 1.8s cubic-bezier(0.4,0,0.6,1) infinite' }} />
+                </div>
               </div>
+              <style>{`@keyframes scrollLine { 0%{transform:translateY(-100%)} 100%{transform:translateY(200%)} }`}</style>
             </div>
           </header>
 
@@ -491,9 +494,6 @@
                 The world doesn't need more content. <br />
                 <span style={{ color:T.silver }}>It needs your story, told as it happens.</span>
               </h2>
-              <div style={{ marginTop:48, display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap' }}>
-                <button onClick={onApply} style={pillBtnLarge}>Apply to work together <span style={{ marginLeft:8 }}>→</span></button>
-              </div>
             </div>
           </section>
 
@@ -526,15 +526,13 @@
 
     // ─── App ────────────────────────────────────────────────────────
     function App() {
-      const [applyOpen,    setApplyOpen]    = useState(false);
       const [waitlistOpen, setWaitlistOpen] = useState(false);
       return (
         <>
           <div id="site-inner">
-            <Hub onApply={() => setApplyOpen(true)} onWaitlist={() => setWaitlistOpen(true)} />
+            <Hub onWaitlist={() => setWaitlistOpen(true)} />
           </div>
-          <ApplicationModal open={applyOpen}    onClose={() => setApplyOpen(false)} />
-          <WaitlistModal     open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
+          <WaitlistModal open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
         </>
       );
     }

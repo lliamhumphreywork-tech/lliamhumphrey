@@ -148,6 +148,88 @@
       );
     };
 
+    // ─── Waitlist Modal ─────────────────────────────────────────────
+    const WaitlistModal = ({ open, onClose }) => {
+      const [email, setEmail] = useState('');
+      const [name,  setName]  = useState('');
+      const [submitted,  setSubmitted]  = useState(false);
+      const [submitting, setSubmitting] = useState(false);
+      const [error, setError] = useState(false);
+
+      useEffect(() => { if (!open) setTimeout(() => { setEmail(''); setName(''); setSubmitted(false); setError(false); }, 400); }, [open]);
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === 'Escape' && open) onClose(); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      }, [open, onClose]);
+
+      const submit = async (e) => {
+        e.preventDefault();
+        if (!email) return;
+        setSubmitting(true);
+        try {
+          const res = await fetch('/api/brevo-subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, name })
+          });
+          if (!res.ok) throw new Error('failed');
+          setSubmitted(true);
+        } catch (_) {
+          setError(true);
+        } finally {
+          setSubmitting(false);
+        }
+      };
+
+      const accent = '#FFFFFF', bg = '#0B0F1E', ink = '#FFFFFF', dim = 'rgba(255,255,255,0.55)';
+      return (
+        <>
+          <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:100, background:'rgba(8,8,8,0.75)', backdropFilter:'blur(4px)', opacity:open?1:0, pointerEvents:open?'auto':'none', transition:'opacity .35s ease' }} />
+          <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(520px, 96vw)', background:bg, color:ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.6)', borderLeft:'1px solid rgba(255,255,255,0.1)', overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'#FFFFFF', zIndex:5 }} />
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:'1px solid rgba(255,255,255,0.1)', fontFamily:grotesk, fontWeight:500, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:dim }}>
+              <span>Private Victories Club · Waitlist</span>
+              <button onClick={onClose} style={{ border:'none', background:'transparent', color:ink, fontSize:18, cursor:'pointer', width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
+            </div>
+            <div style={{ flex:1, overflowY:'auto', padding:'40px 40px 32px' }}>
+              {submitted ? (
+                <div style={{ textAlign:'center', paddingTop:48 }}>
+                  <div style={{ width:56, height:56, border:'1px solid rgba(255,255,255,0.4)', margin:'0 auto 28px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, color:ink }}>✓</div>
+                  <div style={{ fontSize:9, color:dim, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:18 }}>You're on the list</div>
+                  <h2 style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:36, letterSpacing:'-0.015em', margin:0, color:ink }}>See you on the inside.</h2>
+                  <p style={{ marginTop:22, color:dim, fontSize:14, lineHeight:1.7, maxWidth:340, marginInline:'auto' }}>We'll be in touch at <strong style={{ color:ink, fontWeight:500 }}>{email}</strong> when doors open.</p>
+                  <button onClick={onClose} style={{ marginTop:40, padding:'14px 26px', fontSize:10, border:'1px solid rgba(255,255,255,0.2)', background:'transparent', color:ink, cursor:'pointer', fontFamily:grotesk, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500 }}>Close</button>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontSize:9, color:dim, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:16, fontWeight:500 }}>— The Community</div>
+                  <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:32, letterSpacing:'-0.02em', margin:0, lineHeight:1.05, textTransform:'uppercase', color:ink }}>Join the waitlist</h2>
+                  <p style={{ marginTop:16, fontSize:14, lineHeight:1.75, color:dim, fontFamily:grotesk }}>
+                    A creative community for young creators and entrepreneurs building in public who want to make money from their content online.
+                  </p>
+                  <form onSubmit={submit} style={{ marginTop:36, display:'flex', flexDirection:'column', gap:22 }}>
+                    <label style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                      <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Your name <span style={{ opacity:0.5 }}>(optional)</span></span>
+                      <input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Anya Reyes" style={{ width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.2)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' }} />
+                    </label>
+                    <label style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                      <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Email address</span>
+                      <input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="anya@studio.com" required style={{ width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.2)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' }} />
+                    </label>
+                    {error && <p style={{ fontSize:12, color:'#ff6b6b', fontFamily:grotesk }}>Something went wrong — please try again.</p>}
+                    <button type="submit" disabled={submitting||!email} style={{ marginTop:8, padding:'16px 24px', border:'1px solid rgba(255,255,255,0.3)', background:email&&!submitting?'#FFFFFF':'transparent', color:email&&!submitting?bg:dim, fontSize:10, letterSpacing:'0.32em', cursor:email&&!submitting?'pointer':'not-allowed', fontFamily:grotesk, fontWeight:500, textTransform:'uppercase', transition:'all .2s' }}>
+                      {submitting ? 'Joining...' : 'Join the waitlist →'}
+                    </button>
+                  </form>
+                </div>
+              )}
+            </div>
+          </aside>
+        </>
+      );
+    };
+
     // ─── Application Modal ──────────────────────────────────────────
     const ApplicationModal = ({ open, onClose }) => {
       const [step, setStep]             = useState(0);
@@ -291,7 +373,7 @@
     );
 
     // ─── Hub Page ───────────────────────────────────────────────────
-    const Hub = ({ onApply }) => {
+    const Hub = ({ onApply, onWaitlist }) => {
       const [scrolled, setScrolled] = useState(false);
       const [revealed, setRevealed] = useState({});
       const [time, setTime]         = useState('');
@@ -366,15 +448,19 @@
 
             <div data-reveal="cards" style={{ ...reveal('cards'), display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:16 }}>
 
-              {/* Card 1 — Work With Me */}
+              {/* Card 1 — Private Victories Club */}
               <HubCard
                 num={1}
-                eyebrow="Work With Me"
-                title="1:1 Documentation Consulting"
-                desc="I help founders document their journey and build a brand that compounds. One story, told consistently, over time."
-                cta="Apply to work together"
-                onCta={onApply}
+                eyebrow="Community"
+                title="Private Victories Club"
+                desc="A creative community for young creators and entrepreneurs building in public who want to make money from their content online."
+                cta="Join the waitlist"
+                onCta={onWaitlist}
                 primary={true}
+                bg="#0B0F1E"
+                accent="#FFFFFF"
+                ink="#FFFFFF"
+                dim="rgba(255,255,255,0.5)"
               />
 
               {/* Card 2 — evverywhere */}
@@ -440,13 +526,15 @@
 
     // ─── App ────────────────────────────────────────────────────────
     function App() {
-      const [applyOpen, setApplyOpen] = useState(false);
+      const [applyOpen,    setApplyOpen]    = useState(false);
+      const [waitlistOpen, setWaitlistOpen] = useState(false);
       return (
         <>
           <div id="site-inner">
-            <Hub onApply={() => setApplyOpen(true)} />
+            <Hub onApply={() => setApplyOpen(true)} onWaitlist={() => setWaitlistOpen(true)} />
           </div>
-          <ApplicationModal open={applyOpen} onClose={() => setApplyOpen(false)} />
+          <ApplicationModal open={applyOpen}    onClose={() => setApplyOpen(false)} />
+          <WaitlistModal     open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
         </>
       );
     }

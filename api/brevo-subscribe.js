@@ -1,8 +1,12 @@
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { email, name } = req.body;
+  const { email, name, social } = req.body;
   if (!email) return res.status(400).json({ error: 'email required' });
+
+  const attributes = {};
+  if (name) attributes.FIRSTNAME = name;
+  if (social) attributes.SOCIAL_HANDLE = social;
 
   const r = await fetch('https://api.brevo.com/v3/contacts', {
     method: 'POST',
@@ -12,7 +16,7 @@ module.exports = async function handler(req, res) {
     },
     body: JSON.stringify({
       email,
-      attributes: name ? { FIRSTNAME: name } : undefined,
+      attributes: Object.keys(attributes).length ? attributes : undefined,
       listIds: [Number(process.env.BREVO_LIST_ID)],
       updateEnabled: true,
     }),

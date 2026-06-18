@@ -128,18 +128,18 @@
       const cardInk    = ink    || T.beige;
       const cardDim    = dim    || T.silverDim;
       return (
-        <div style={{ position:'relative', background:cardBg, border:`1px solid ${cardAccent}22`, padding:'clamp(28px,3.5vw,44px)', minHeight:420, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+        <div style={{ position:'relative', background:cardBg, border:`1px solid ${cardAccent}22`, padding:'clamp(40px,6vw,72px)', minHeight:480, display:'flex', flexDirection:'column', overflow:'hidden' }}>
           <NoiseBg opacity={0.03} />
-          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:cardAccent }} />
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:cardAccent }} />
           <div style={{ position:'relative', flex:1, display:'flex', flexDirection:'column' }}>
-            <div style={{ fontSize:9, color:cardAccent, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:24, fontFamily:grotesk, fontWeight:500 }}>0{num} · {eyebrow}</div>
-            <h3 style={{ fontFamily:grotesk, fontSize:'clamp(22px,2.8vw,36px)', fontWeight:700, letterSpacing:'-0.02em', margin:0, color:cardInk, lineHeight:1.08, textWrap:'balance' }}>{title}</h3>
-            <p style={{ marginTop:18, fontSize:14, lineHeight:1.8, color:cardDim, fontFamily:grotesk, flex:1 }}>{desc}</p>
-            <div style={{ marginTop:36 }}>
+            <div style={{ fontSize:11, color:cardAccent, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:28, fontFamily:grotesk, fontWeight:500 }}>0{num} · {eyebrow}</div>
+            <h3 style={{ fontFamily:grotesk, fontSize:'clamp(32px,5vw,56px)', fontWeight:700, letterSpacing:'-0.02em', margin:0, color:cardInk, lineHeight:1.05, textWrap:'balance' }}>{title}</h3>
+            <p style={{ marginTop:24, fontSize:'clamp(15px,1.6vw,18px)', lineHeight:1.8, color:cardDim, fontFamily:grotesk, flex:1, maxWidth:480 }}>{desc}</p>
+            <div style={{ marginTop:44 }}>
               {ctaHref ? (
-                <a href={ctaHref} target="_blank" rel="noopener noreferrer" style={{ display:'inline-block', padding:'14px 24px', border:`1px solid ${cardAccent}`, background:'transparent', color:cardInk, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, textDecoration:'none', transition:'all .2s' }}>{cta} →</a>
+                <a href={ctaHref} target="_blank" rel="noopener noreferrer" style={{ display:'inline-block', padding:'18px 32px', border:`1px solid ${cardAccent}`, background:'transparent', color:cardInk, fontSize:11, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, textDecoration:'none', transition:'all .2s' }}>{cta} →</a>
               ) : (
-                <button onClick={onCta} style={{ padding:'14px 24px', border:primary?'none':`1px solid ${cardAccent}`, background:primary?cardAccent:'transparent', color:primary?cardBg:cardInk, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, cursor:'pointer', transition:'all .2s' }}>{cta} →</button>
+                <button onClick={onCta} style={{ padding:'18px 32px', border:primary?'none':`1px solid ${cardAccent}`, background:primary?cardAccent:'transparent', color:primary?cardBg:cardInk, fontSize:11, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, cursor:'pointer', transition:'all .2s' }}>{cta} →</button>
               )}
             </div>
           </div>
@@ -459,7 +459,7 @@
               <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(32px,5vw,64px)', letterSpacing:'-0.025em', margin:0, color:T.white, lineHeight:0.96, textTransform:'uppercase' }}>One venture.<br /><span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, textTransform:'none', letterSpacing:'-0.015em', color:T.silver }}>One story.</span></h2>
             </div>
 
-            <div data-reveal="cards" style={{ ...reveal('cards'), display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:16, maxWidth:480, marginInline:'auto' }}>
+            <div data-reveal="cards" style={{ ...reveal('cards'), display:'grid', gridTemplateColumns:'1fr', gap:16, maxWidth:880, marginInline:'auto' }}>
 
               {/* Card 1 — Private Victories Club */}
               <HubCard

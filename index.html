@@ -456,10 +456,10 @@
           <section style={{ padding:'clamp(56px,7vw,96px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, position:'relative', transform:`translateY(${(1 - pullProgress) * 72}px)`, opacity: 0.3 + pullProgress * 0.7, willChange:'transform' }}>
             <div style={{ marginBottom:48 }}>
               <div style={{ fontSize:9, color:T.silverFaint, letterSpacing:'0.4em', textTransform:'uppercase', fontFamily:grotesk, marginBottom:16 }}>What I'm Building</div>
-              <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(32px,5vw,64px)', letterSpacing:'-0.025em', margin:0, color:T.white, lineHeight:0.96, textTransform:'uppercase' }}>Two ventures.<br /><span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, textTransform:'none', letterSpacing:'-0.015em', color:T.silver }}>One story.</span></h2>
+              <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(32px,5vw,64px)', letterSpacing:'-0.025em', margin:0, color:T.white, lineHeight:0.96, textTransform:'uppercase' }}>One venture.<br /><span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, textTransform:'none', letterSpacing:'-0.015em', color:T.silver }}>One story.</span></h2>
             </div>
 
-            <div data-reveal="cards" style={{ ...reveal('cards'), display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:16 }}>
+            <div data-reveal="cards" style={{ ...reveal('cards'), display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:16, maxWidth:480, marginInline:'auto' }}>
 
               {/* Card 1 — Private Victories Club */}
               <HubCard
@@ -474,21 +474,6 @@
                 accent="#FFFFFF"
                 ink="#FFFFFF"
                 dim="rgba(255,255,255,0.5)"
-              />
-
-              {/* Card 2 — evverywhere */}
-              <HubCard
-                num={2}
-                eyebrow="Agency"
-                title="evverywhere"
-                desc="AI systems and paid ads for companies ready to scale."
-                cta="Visit evverywhere"
-                ctaHref="https://www.evverywhere.com/"
-                primary={false}
-                bg="#E2D5C0"
-                accent="#BF4535"
-                ink="#1A1410"
-                dim="#7A6A5A"
               />
 
             </div>

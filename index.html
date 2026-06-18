@@ -210,19 +210,19 @@
                   </p>
                   <form onSubmit={submit} style={{ marginTop:36, display:'flex', flexDirection:'column', gap:22 }}>
                     <label style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                      <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Your name <span style={{ opacity:0.5 }}>(optional)</span></span>
-                      <input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Anya Reyes" style={{ width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.2)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' }} />
+                      <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Your name</span>
+                      <input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Anya Reyes" required style={{ width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.2)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' }} />
                     </label>
                     <label style={{ display:'flex', flexDirection:'column', gap:10 }}>
                       <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Email address</span>
                       <input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="anya@studio.com" required style={{ width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.2)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' }} />
                     </label>
                     <label style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                      <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Instagram or TikTok <span style={{ opacity:0.5 }}>(optional)</span></span>
-                      <input value={social} onChange={(e)=>setSocial(e.target.value)} placeholder="@anya.reyes" style={{ width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.2)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' }} />
+                      <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Instagram or TikTok</span>
+                      <input value={social} onChange={(e)=>setSocial(e.target.value)} placeholder="@anya.reyes" required style={{ width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.2)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' }} />
                     </label>
                     {error && <p style={{ fontSize:12, color:'#ff6b6b', fontFamily:grotesk }}>Something went wrong — please try again.</p>}
-                    <button type="submit" disabled={submitting||!email} style={{ marginTop:8, padding:'16px 24px', border:'1px solid rgba(255,255,255,0.3)', background:email&&!submitting?'#FFFFFF':'transparent', color:email&&!submitting?bg:dim, fontSize:10, letterSpacing:'0.32em', cursor:email&&!submitting?'pointer':'not-allowed', fontFamily:grotesk, fontWeight:500, textTransform:'uppercase', transition:'all .2s' }}>
+                    <button type="submit" disabled={submitting||!email||!name||!social} style={{ marginTop:8, padding:'16px 24px', border:'1px solid rgba(255,255,255,0.3)', background:email&&name&&social&&!submitting?'#FFFFFF':'transparent', color:email&&name&&social&&!submitting?bg:dim, fontSize:10, letterSpacing:'0.32em', cursor:email&&name&&social&&!submitting?'pointer':'not-allowed', fontFamily:grotesk, fontWeight:500, textTransform:'uppercase', transition:'all .2s' }}>
                       {submitting ? 'Joining...' : 'Join the waitlist →'}
                     </button>
                   </form>

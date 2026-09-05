@@ -7,6 +7,8 @@ const NOTION_TOKEN        = import.meta.env.NOTION_TOKEN;
 const NOTION_DB_ID        = '872bd20eee31468f91bed1cd472e157a';
 const BREVO_API_KEY       = import.meta.env.BREVO_API_KEY;
 const TALLY_WEBHOOK_SECRET = import.meta.env.TALLY_MEMBERSHIP_SECRET;
+const SLACK_MEMBERS_URL   = import.meta.env.SLACK_MEMBERS_URL;
+const SLACK_LEADS_URL     = import.meta.env.SLACK_LEADS_URL;
 
 // Brevo lists
 const BREVO_LIST_ALL      = 10; // PVC - Membership Applications (All)
@@ -39,14 +41,18 @@ const COMMITMENT_MAP: Record<string, string> = {
 };
 
 const FIELD = {
-  name:       'Full Name',
-  email:      'Email',
-  phone:      'Phone number (WhatsApp)',
-  instagram:  'Instagram handle',
-  business:   'What business are you building?',
-  revenue:    'What revenue stage are you at?',
-  prompt:     'What prompted you to apply to Private Victories right now?',
-  commitment: 'If we decide it\'s a fit, are you ready to commit at that level?',
+  name:        'Full Name',
+  email:       'Email',
+  phone:       'Phone number (WhatsApp)',
+  instagram:   'Instagram handle',
+  business:    'What business are you building?',
+  revenue:     'What revenue stage are you at?',
+  prompt:      'What prompted you to apply to Private Victories right now?',
+  commitment:  'If we decide it\'s a fit, are you ready to commit at that level?',
+  utm_source:  'utm_source',
+  utm_medium:  'utm_medium',
+  utm_campaign:'utm_campaign',
+  referrer:    'referrer',
 };
 
 function extractField(fields: any[], label: string): string {
@@ -121,6 +127,38 @@ async function sendBrevoTemplate(email: string, firstName: string, templateId: n
   }
 }
 
+async function notifySlackMembers(data: {
+  name: string;
+  email: string;
+  business: string;
+  revenue: string;
+  tag: string;
+  source: string;
+}) {
+  if (!SLACK_MEMBERS_URL) return;
+  await fetch(SLACK_MEMBERS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      text: `🙋 *New Application*\n*${data.name}* (${data.email})\n*Business:* ${data.business}\n*Revenue:* ${data.revenue}\n*Tag:* ${data.tag}${data.source ? `\n*Source:* ${data.source}` : ''}`,
+    }),
+  });
+}
+
+async function notifySlackLeads(data: {
+  name: string; email: string; business: string; revenue: string; tag: string;
+}) {
+  if (!SLACK_LEADS_URL) return;
+  const dot = data.revenue === 'R100k+/month' ? ':large_green_circle:' : data.revenue === 'R0 - R10k/month' ? ':white_circle:' : ':large_yellow_circle:';
+  await fetch(SLACK_LEADS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      text: `<!channel> ${dot} *New Membership Lead · ${data.tag}*\n*${data.name}* — ${data.email}\n*Revenue:* ${data.revenue}\n*Business:* ${data.business}`,
+    }),
+  });
+}
+
 async function createNotionEntry(data: {
   name: string;
   email: string;
@@ -131,6 +169,7 @@ async function createNotionEntry(data: {
   prompt: string;
   commitment: string;
   tag: string;
+  source: string;
 }) {
   const notionRevenue = REVENUE_TO_NOTION[data.revenue];
   const notionCommitment = COMMITMENT_MAP[data.commitment] ?? data.commitment;
@@ -150,7 +189,7 @@ async function createNotionEntry(data: {
       'Submission Date':{ date: { start: new Date().toISOString().split('T')[0] } },
       Status:           { select: { name: isPreRevenue ? 'Free Community Funnel' : 'Pending Review' } },
       Type:             { multi_select: [{ name: 'Membership Applicant' }] },
-      Notes:            { rich_text: [{ text: { content: `Tag: ${data.tag}` } }] },
+      Notes:            { rich_text: [{ text: { content: `Tag: ${data.tag}${data.source ? ' | Source: ' + data.source : ''}` } }] },
     },
   };
 
@@ -195,14 +234,22 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const fields: any[] = payload.data?.fields ?? [];
-  const name       = extractField(fields, FIELD.name);
-  const email      = extractField(fields, FIELD.email);
-  const phone      = extractField(fields, FIELD.phone);
-  const instagram  = extractField(fields, FIELD.instagram);
-  const business   = extractField(fields, FIELD.business);
-  const revenue    = extractField(fields, FIELD.revenue);
-  const prompt     = extractField(fields, FIELD.prompt);
-  const commitment = extractField(fields, FIELD.commitment);
+  const name        = extractField(fields, FIELD.name);
+  const email       = extractField(fields, FIELD.email);
+  const phone       = extractField(fields, FIELD.phone);
+  const instagram   = extractField(fields, FIELD.instagram);
+  const business    = extractField(fields, FIELD.business);
+  const revenue     = extractField(fields, FIELD.revenue);
+  const prompt      = extractField(fields, FIELD.prompt);
+  const commitment  = extractField(fields, FIELD.commitment);
+  const utmSource   = extractField(fields, FIELD.utm_source);
+  const utmMedium   = extractField(fields, FIELD.utm_medium);
+  const utmCampaign = extractField(fields, FIELD.utm_campaign);
+  const referrer    = extractField(fields, FIELD.referrer);
+  const sourceParts = [utmSource, utmMedium, utmCampaign].filter(Boolean);
+  const source      = sourceParts.length
+    ? sourceParts.join('/') + (referrer && referrer !== 'direct' ? ` (ref: ${referrer})` : '')
+    : referrer || '';
 
   if (!name || !email) {
     return new Response('Missing required fields', { status: 400 });
@@ -220,10 +267,11 @@ export const POST: APIRoute = async ({ request }) => {
   // Return 200 immediately — Tally has a 10s timeout
   waitUntil(
     Promise.all([
-      createNotionEntry({ name, email, phone, instagram, business, revenue, prompt, commitment, tag }),
+      createNotionEntry({ name, email, phone, instagram, business, revenue, prompt, commitment, tag, source }),
       addToBrevo({ firstName, lastName, email, phone, listIds, tag }),
       sendBrevoTemplate(email, firstName, TEMPLATE_CONFIRMATION),
       ...(isPreRevenue ? [sendBrevoTemplate(email, firstName, TEMPLATE_NURTURE)] : []),
+      notifySlackLeads({ name, email, business, revenue, tag }),
     ]).then(() => {
       console.log(`[membership-webhook] Processed ${name} (${email}) — ${revenue} | ${tag}`);
     }).catch((err: any) => {

@@ -1,0 +1,473 @@
+---
+import '../styles/global.css';
+import Analytics from '@vercel/analytics/astro';
+const PH_KEY = import.meta.env.PUBLIC_POSTHOG_KEY ?? '';
+
+const NOISE = (id: string) => `
+  <filter id="${id}"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  <rect width="100%" height="100%" filter="url(#${id})"/>
+`;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Private Victories Club · Build in private. Win in public.</title>
+  <meta name="description" content="Africa's private network for entrepreneurs scaling their businesses. Connect, grow, and build alongside the people doing the exact same thing. By application only." />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,500&display=swap" rel="stylesheet" />
+  <Analytics />
+  <script define:vars={{ PH_KEY }} is:inline>window.__PVC_PH_KEY = PH_KEY;</script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">
+    <div class="nav-mark"><span>PVC</span></div>
+    <div class="nav-lock">
+      <div class="nav-lock-1">Private Victories</div>
+      <div class="nav-lock-2">Africa's private network for founders scaling businesses.</div>
+    </div>
+  </a>
+  <a href="#" class="nav-apply apply-trigger">Apply for Membership</a>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero" data-screen-label="Hero">
+  <div class="hero-top-bar"></div>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow reveal">Africa's Private Members Club</div>
+    <h1 class="hero-title reveal d1">PRIVATE<br />VICTORIES<br /><span class="lt">CLUB</span></h1>
+    <p class="hero-tagline reveal d2">Build in private. Win in public.</p>
+    <p class="hero-line reveal d3">Africa's private network for entrepreneurs scaling their businesses.</p>
+    <a href="#doors" class="cta-btn reveal d4">Apply for Membership</a>
+    <div class="cta-note reveal d4">By application only.</div>
+  </div>
+
+  <div class="hero-right">
+    <div class="photo-slot hero-photo">
+      <img src="/images/hero-skyline.jpg" alt="Modern city skyline lit up at night" />
+    </div>
+    <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:5" set:html={NOISE('n1')} />
+    <div class="hero-float-card">
+      <div class="hero-float-eyebrow">The premise</div>
+      <div class="hero-float-text">The room you're in determines how far you go. The right people show you what's possible and make you push harder.</div>
+    </div>
+  </div>
+
+  <div class="hero-scroll reveal d5">
+    <span>Scroll</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══ 01 · THE PREMISE ═══ -->
+<section id="premise" data-screen-label="01 Premise">
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('n2')} />
+  <div class="premise-inner">
+    <div class="premise-left">
+      <div class="section-label reveal"><span class="section-num">01</span> The Premise</div>
+      <h2 class="premise-headline reveal d1"><span class="strike">Not a course.</span> <span class="strike">Not a community.</span> A private <em class="serif">network.</em></h2>
+      <div class="premise-body">
+        <p class="reveal d2">A private network, designed specifically for entrepreneurs scaling their business.</p>
+        <p class="reveal d3">The network, the masterclasses, the board of directors, the experiences. All of it exists to accelerate what you're already doing and put you around people who can help you do the exact same thing.</p>
+        <p class="reveal d3">Built in Africa. Open to anyone, anywhere, who's dialled in to building and scaling a real business.</p>
+        <p class="reveal d4"><b>That's exactly what money can't buy.</b></p>
+      </div>
+    </div>
+    <div class="premise-stats">
+      <div class="premise-stat reveal d1">
+        <div class="premise-stat-val">R10k</div>
+        <div class="premise-stat-text"><b>Minimum to apply.</b> You're already in motion. PVC accelerates it.</div>
+      </div>
+      <div class="premise-stat reveal d2">
+        <div class="premise-stat-val accent">Africa</div>
+        <div class="premise-stat-text">Built here. <b>Open to founders globally.</b> The network spans wherever serious people are building.</div>
+      </div>
+      <div class="premise-stat reveal d3">
+        <div class="premise-stat-val">Private</div>
+        <div class="premise-stat-text">Vetted. Reviewed. <b>Everyone in the room is there for a reason.</b> No exceptions.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 02 · THE FOUNDER ═══ -->
+<section id="founder" data-screen-label="02 Founder">
+  <div class="founder-inner">
+    <div class="founder-portrait reveal">
+      <img src="/images/founder-portrait.jpg" alt="Lliam Humphrey, founder of Private Victories Club" />
+    </div>
+    <div>
+      <div class="founder-label reveal d1">02 · The Founder · In his words</div>
+      <div class="founder-story">
+        <p class="reveal d1">I didn't want to do this alone.</p>
+        <p class="reveal d2">The journey gets lonely. But I noticed something. Having people next to you who are winning makes you work harder. And having people ahead of you who've already figured it out shows you how far you can actually go.</p>
+        <p class="reveal d3">I'm 20. I'm a student. I'm building multiple things simultaneously. And I built PVC because I needed this room to exist and it didn't.</p>
+        <p class="reveal d4">The ones ahead of me showed me what was possible. The ones next to me made me push harder. All while actually enjoying it.</p>
+        <p class="reveal d4">That's what money can't buy. And that's why I built <em>PVC</em>.</p>
+      </div>
+      <div class="founder-sign reveal d4">
+        <span class="founder-sign-name">Lliam Humphrey</span>
+        <span class="founder-sign-role">Founder</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 03 · NOT FOR EVERYONE ═══ -->
+<section id="who" data-screen-label="03 Who">
+  <div class="photo-slot who-photo">
+    <img src="/images/who-interior.jpg" alt="Historic building lit up on a quiet street at night" />
+  </div>
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:5" set:html={NOISE('n4')} />
+  <div class="who-inner">
+    <div class="who-head">
+      <div class="section-label reveal"><span class="section-num">03</span> Entry</div>
+      <h2 class="who-headline reveal d1">NOT FOR<br />EVERYONE.</h2>
+      <p class="who-sub reveal d2">And that is the entire point.</p>
+      <p class="who-filter reveal d3">Entrepreneurs already building something real, doing R10k/month minimum in their business. Not people thinking about starting. Not people looking for motivation. People who are in it and want to move faster. If you have a specific problem you're solving, skin in the game, and you're already in motion, this is your room. <b>The standard is the only filter. Not your stage, not your age.</b></p>
+    </div>
+    <div class="criteria">
+      <div class="criterion reveal d1">
+        <div class="criterion-num">01</div>
+        <div class="criterion-text">You're already building something real.<span>PVC accelerates it, not teaches it.</span></div>
+        <div class="criterion-ghost">01</div>
+      </div>
+      <div class="criterion reveal d2">
+        <div class="criterion-num">02</div>
+        <div class="criterion-text">You'd rather do the work<span>than talk about it.</span></div>
+        <div class="criterion-ghost">02</div>
+      </div>
+      <div class="criterion reveal d3">
+        <div class="criterion-num">03</div>
+        <div class="criterion-text">You understand the room you're in<span>determines how far you go.</span></div>
+        <div class="criterion-ghost">03</div>
+      </div>
+      <div class="criterion reveal d4">
+        <div class="criterion-num">04</div>
+        <div class="criterion-text">You finish<span>what you start.</span></div>
+        <div class="criterion-ghost">04</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 04 · THE PROOF ═══ -->
+<section id="proof" data-screen-label="04 The Proof">
+  <div class="proof-inner">
+    <div class="section-label reveal"><span class="section-num">04</span> The Proof</div>
+    <h2 class="proof-headline reveal d1">172 applications. 15 seats. <em class="serif">One table.</em></h2>
+    <p class="proof-body reveal d2">On August 8th we ran our founding dinner. No speakers, no panels, just founders actually talking. By the end of the night, members were planning content shoots, partnerships, and the next trip together. Unprompted.</p>
+    <div class="proof-photo reveal d3">
+      <img src="/images/dinner-table.jpg" alt="PVC Founding Dinner, founders around one table at The Grillhouse" />
+    </div>
+    <div class="proof-quote-wrap reveal d4">
+      <blockquote class="proof-quote">
+        <p>"I've been to networking events before. All of them were terrible. This is different."</p>
+        <cite>a founder in the room</cite>
+      </blockquote>
+    </div>
+    <p class="proof-closer reveal d5">This wasn't staged. This is what happens when the room is right.</p>
+    <p class="proof-body reveal" style="margin-top:44px;">It didn't stop at one night. The community's been running ever since. Weekly calls, real accountability, members actually connecting, sharing insights, jumping on calls together outside the group. One member needed help with ads, connected same day to someone from our network who could actually help. Right now, the room's building a real Lead Conversion SOP together, from what's actually worked for the people in it.</p>
+    <p class="proof-closer reveal" style="margin-top:32px; color: var(--silver-light); font-weight: 400;">The dinner was the proof of concept. Every week since has been the proof it's real.</p>
+  </div>
+</section>
+
+<!-- ═══ 05 · BECOME A MEMBER ═══ -->
+<section id="doors" data-screen-label="05 The Club">
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('n5')} />
+  <div class="member-inner">
+    <div class="section-label reveal"><span class="section-num">05</span> Membership</div>
+    <h2 class="member-headline reveal d1">Become a <em class="serif">Member.</em></h2>
+    <div class="member-card reveal d2">
+
+      <div class="member-card-left">
+        <div class="member-badge">Inside</div>
+        <div class="member-card-title">ROOM 01.</div>
+        <div class="member-card-hint">Enter.</div>
+        <div class="member-card-wm" aria-hidden="true">PVC</div>
+      </div>
+
+      <div class="member-card-right">
+        <ul class="member-list">
+          <li class="member-list-item">
+            <span class="mli-num">01</span>
+            <span class="mli-text">Members-only WhatsApp community, live around the clock</span>
+          </li>
+          <li class="member-list-item">
+            <span class="mli-num">02</span>
+            <span class="mli-text">Weekly community calls with founders you're building alongside</span>
+          </li>
+          <li class="member-list-item">
+            <span class="mli-num">03</span>
+            <span class="mli-text">Board Q&amp;As and masterclasses, led by operators not theorists</span>
+          </li>
+          <li class="member-list-item">
+            <span class="mli-num">04</span>
+            <span class="mli-text">Founder dinners and curated events (172 applications, 15 seats)</span>
+          </li>
+          <li class="member-list-item">
+            <span class="mli-num">05</span>
+            <span class="mli-text">Talent Network: vetted editors, videographers, and sales reps</span>
+          </li>
+          <li class="member-list-item">
+            <span class="mli-num">06</span>
+            <span class="mli-text">Resource library and recordings, every masterclass on file</span>
+          </li>
+        </ul>
+        <div class="member-card-cta">
+          <a href="#" class="cta-btn member-cta-btn apply-trigger">Apply for Membership</a>
+          <span class="member-cta-meta">Membership<br />Applications reviewed manually</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 06 · THE MISSION ═══ -->
+<section id="mission" data-screen-label="07 Mission">
+  <div class="photo-slot mission-photo">
+    <img src="/images/mission-city.jpg" alt="Modern building with infinity pool at golden hour" />
+  </div>
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:5" set:html={NOISE('n7')} />
+  <div class="mission-inner">
+    <div class="section-label mission-label reveal"><span class="section-num">07</span> The Mission</div>
+    <h2 class="mission-headline reveal d1">We exist to accelerate <span class="lt">more winners in Africa.</span></h2>
+    <p class="mission-body reveal d2">Built in Africa, for the people building it. <b>Open to anyone dialled in, from anywhere.</b> The standard is the only filter. Every member who wins pulls the next one further.</p>
+    <p class="mission-signal reveal d3">Built in Africa. The rest is coming.</p>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section id="faq" data-screen-label="FAQ">
+  <div class="faq-inner">
+    <div class="faq-label reveal">FAQ</div>
+    <div class="faq-list">
+      <div class="faq-item reveal d1">
+        <button type="button" class="faq-question" aria-expanded="false">
+          <span>WHAT HAPPENS AFTER I JOIN?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>You start with a one to one onboarding call with Lliam. We look at what you're building, where you're stuck, and where you want to go. From there we make your first introduction to a member or board operator who can directly help what you're working on right now. You're plugged into the network, the masterclasses, and the community before your first week is out. You get value before you've had time to wonder if this was worth it.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal d2">
+        <button type="button" class="faq-question" aria-expanded="false">
+          <span>HOW WILL IT HELP GROW MY BUSINESS?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>PVC isn't a course and it's not a coaching programme. It's a network of people who are actually building, alongside operators who've already built. Your standard rises when the people around you are moving. You start thinking differently when someone two steps ahead of you is accessible. And the opportunities, the clients, the partnerships, the connections, they don't come from chasing. They come from consistently being in the right room. That's what PVC puts you in.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal d3">
+        <button type="button" class="faq-question" aria-expanded="false">
+          <span>WHO IS THIS FOR?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Founders already generating revenue who want to scale faster. R10k/month minimum in their business. You've started, you're moving, you have a real problem you're solving and skin in the game. Not someone looking for motivation to begin. Someone who's already in it and wants to be around people doing the same thing at a higher level. Not your age, not your stage. Just the standard.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal d4">
+        <button type="button" class="faq-question" aria-expanded="false">
+          <span>DO I NEED TO BE IN SOUTH AFRICA?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>No. Geography doesn't matter. Standard does. We're built in Africa, open to anyone, anywhere, who's dialled in.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CLOSE ═══ -->
+<section id="close" data-screen-label="Close">
+  <div class="photo-slot close-photo">
+    <img src="/images/close-atmosphere.jpg" alt="Illuminated pool at night in a courtyard" />
+  </div>
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:5" set:html={NOISE('n8')} />
+  <div class="close-eyebrow eyebrow reveal">Private Victories Club</div>
+  <p class="close-line reveal d1">The wins you have in public are proportionate to the <em>victories</em> you have in private.</p>
+  <div class="close-cta-wrap reveal d2">
+    <a href="#" class="cta-btn apply-trigger">Apply for Membership</a>
+    <div class="cta-note">Applications reviewed manually · <b>@privatevictories.club</b></div>
+  </div>
+</section>
+
+<!-- APPLICATION MODAL -->
+<div id="applyModal" class="pvc-modal" aria-hidden="true">
+  <div class="pvc-modal-overlay" id="modalOverlay"></div>
+  <div class="pvc-modal-panel">
+    <button class="pvc-modal-close" id="modalClose" aria-label="Close">&times;</button>
+    <div class="pvc-modal-form">
+      <iframe data-tally-src="https://tally.so/r/jarg7Y?transparentBackground=1" loading="lazy" width="100%" height="680" frameborder="0" marginheight="0" marginwidth="0" title="PVC Membership Application" scrolling="no"></iframe>
+      <script async src="https://tally.so/widgets/embed.js"></script>
+    </div>
+  </div>
+</div>
+
+<!-- COOKIE BANNER -->
+<div id="cookieBanner" class="cookie-banner" aria-hidden="true">
+  <p class="cookie-text">We use cookies for analytics and marketing to understand how people find and use PVC.</p>
+  <div class="cookie-actions">
+    <button id="cookieAccept" class="cookie-btn cookie-accept">Accept</button>
+    <button id="cookieDecline" class="cookie-btn cookie-decline">Decline</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-lock">
+    <div class="footer-mark">PVC</div>
+    <div class="footer-name">Private Victories Club</div>
+  </div>
+  <div class="footer-handle"><a href="https://instagram.com/privatevictories.club" target="_blank" rel="noopener">@privatevictories.club</a> · Built in Africa</div>
+  <div class="footer-copy">© MMXXVI · Build in private. Win in public.</div>
+  <div class="footer-legal"><a href="/legal">Terms &amp; Conditions</a> · <a href="/legal#privacy">Privacy Policy</a> · <a href="/legal#refunds">Refund Policy</a></div>
+</footer>
+
+<script>
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+  // Parallax on hero + founder portrait
+  const heroPhoto = document.querySelector<HTMLElement>('.hero-photo');
+  const founderPortrait = document.querySelector<HTMLElement>('.founder-portrait');
+  const onParallax = () => {
+    const y = window.scrollY;
+    if (heroPhoto) heroPhoto.style.setProperty('--parallax-y', `${y * 0.28}px`);
+    if (founderPortrait) {
+      const rect = founderPortrait.getBoundingClientRect();
+      const offset = (window.innerHeight / 2 - rect.top - rect.height / 2) * 0.12;
+      founderPortrait.style.setProperty('--parallax-y', `${offset}px`);
+    }
+  };
+  window.addEventListener('scroll', onParallax, { passive: true });
+  onParallax();
+
+  // Nav scroll state
+  const nav = document.getElementById('nav');
+  const onScroll = () => { nav?.classList.toggle('scrolled', window.scrollY > 60); };
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  // Hero reveals
+  setTimeout(() => {
+    document.querySelectorAll('#hero .reveal').forEach((el) => el.classList.add('visible'));
+  }, 120);
+
+  // Member card reveal
+  const memberCard = document.querySelector('.member-card');
+  const memberLeft = document.querySelector('.member-card-left');
+  memberLeft?.addEventListener('click', () => {
+    if (!memberCard?.classList.contains('open')) memberCard?.classList.add('open');
+  });
+
+  // Tally page-change fade animation
+  window.addEventListener('message', (e) => {
+    if (e.data?.event === 'Tally.FormPageView' || e.data?.name === 'tally-form-page-view') {
+      const iframe = document.querySelector<HTMLElement>('.pvc-modal-form iframe');
+      if (!iframe) return;
+      iframe.classList.add('tally-fade');
+      requestAnimationFrame(() => requestAnimationFrame(() => iframe.classList.remove('tally-fade')));
+    }
+  });
+
+  // Modal
+  const modal = document.getElementById('applyModal');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalClose = document.getElementById('modalClose');
+  function injectSourceIntoTally(iframeSelector: string) {
+    const params = new URLSearchParams(window.location.search);
+    const utmSource   = params.get('utm_source')   || '';
+    const utmMedium   = params.get('utm_medium')   || '';
+    const utmCampaign = params.get('utm_campaign') || '';
+    const referrer    = document.referrer
+      ? (() => { try { return new URL(document.referrer).hostname; } catch { return document.referrer; } })()
+      : 'direct';
+    const iframe = document.querySelector<HTMLIFrameElement>(iframeSelector);
+    if (!iframe) return;
+    const base = iframe.getAttribute('data-tally-src') || iframe.src || '';
+    const url = new URL(base.startsWith('http') ? base : 'https://tally.so' + base);
+    if (utmSource)   url.searchParams.set('utm_source',   utmSource);
+    if (utmMedium)   url.searchParams.set('utm_medium',   utmMedium);
+    if (utmCampaign) url.searchParams.set('utm_campaign', utmCampaign);
+    url.searchParams.set('referrer', referrer);
+    iframe.setAttribute('data-tally-src', url.toString());
+    iframe.src = url.toString();
+  }
+
+  const openModal = (e: Event) => {
+    e.preventDefault();
+    injectSourceIntoTally('.pvc-modal-form iframe');
+    modal?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (typeof (window as any).Tally !== 'undefined') (window as any).Tally.loadEmbeds();
+  };
+  const closeModal = () => { modal?.classList.remove('open'); document.body.style.overflow = ''; };
+  document.querySelectorAll('.apply-trigger').forEach((btn) => btn.addEventListener('click', openModal));
+  modalOverlay?.addEventListener('click', closeModal);
+  modalClose?.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  // Cookie consent
+  const cookieBanner = document.getElementById('cookieBanner');
+  const cookieAccept = document.getElementById('cookieAccept');
+  const cookieDecline = document.getElementById('cookieDecline');
+  const CONSENT_KEY = 'pvc_cookie_consent';
+
+  function loadTracking() {
+    // Whop pixel
+    !function(w: any,d: any,s: any,u: any,n: any,a: any,b: any){if(w[n])return;a=w[n]={q:[],t:+new Date,s:[],o:u,track:function(){a.q.push([+new Date].concat([].slice.call(arguments)))},setScope:function(){a.s=[].slice.call(arguments).filter(function(x: any){return typeof x==="string"});a.q.push([+new Date,"setScope"].concat(a.s))},scope:function(){var c=[].slice.call(arguments);return{track:function(){a.q.push([+new Date].concat([].slice.call(arguments)).concat([{__scope:c}]))}}}};b=d.createElement(s);b.async=1;b.src=u+"/s.js";d.getElementsByTagName(s)[0].parentNode.insertBefore(b,d.getElementsByTagName(s)[0])}(window,document,"script","https://t.whop.tw","whop");(window as any).whop.setScope("biz_wgGZg1FUySAA37");(window as any).whop.track("page");
+    // PostHog
+    const ph = (window as any).__PVC_PH_KEY;
+    if (ph) {
+      !function(t: any,e: any){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i: any,s: any,a: any){function g(t: any,e: any){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t: any){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));
+      (window as any).posthog.init(ph, {api_host: 'https://eu.posthog.com', capture_pageview: true});
+    }
+  }
+
+  const stored = localStorage.getItem(CONSENT_KEY);
+  if (stored === 'accepted') {
+    loadTracking();
+  } else if (!stored) {
+    setTimeout(() => { cookieBanner?.removeAttribute('aria-hidden'); cookieBanner?.classList.add('visible'); }, 1800);
+  }
+
+  cookieAccept?.addEventListener('click', () => {
+    localStorage.setItem(CONSENT_KEY, 'accepted');
+    cookieBanner?.classList.remove('visible');
+    loadTracking();
+  });
+  cookieDecline?.addEventListener('click', () => {
+    localStorage.setItem(CONSENT_KEY, 'declined');
+    cookieBanner?.classList.remove('visible');
+  });
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-question').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const open = item?.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(!!open));
+      const icon = btn.querySelector('.faq-icon');
+      if (icon) icon.textContent = open ? '−' : '+';
+    });
+  });
+</script>
+</body>
+</html>

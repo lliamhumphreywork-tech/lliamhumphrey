@@ -1,0 +1,1115 @@
+---
+export const prerender = false;
+const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PVC — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:       #08111f;
+      --navy:        #0a1628;
+      --navy-mid:    #0d1e35;
+      --surface:     #0f1f38;
+      --border:      rgba(168,184,200,0.1);
+      --border-mid:  rgba(168,184,200,0.18);
+      --border-bright: rgba(168,184,200,0.35);
+      --silver:      #a8b8c8;
+      --silver-dim:  #4a5a6a;
+      --silver-light:#dde4ec;
+      --white:       #f4f5f6;
+      --cream:       #ece6da;
+      --green:       #52b788;
+      --red:         #c94a5c;
+      --g: 'Syne', sans-serif;
+      --s: 'DM Sans', sans-serif;
+    }
+
+    html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--white); font-family: var(--s); font-size: 14px; min-height: 100vh; }
+
+    /* ── LOADING ── */
+    #loading {
+      position: fixed; inset: 0; background: var(--black);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; transition: opacity 0.4s ease;
+    }
+    #loading.hidden { opacity: 0; pointer-events: none; }
+    .loading-mark {
+      width: 32px; height: 32px; border: 1px solid var(--silver);
+      position: relative; animation: markpulse 2s ease-in-out infinite;
+    }
+    .loading-mark::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--silver); }
+    @keyframes markpulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+    /* ── AUTH ── */
+    #auth-screen {
+      display: none; min-height: 100vh; align-items: center; justify-content: center;
+      background: var(--black);
+    }
+    #auth-screen.visible { display: flex; }
+    .auth-wrap { width: 100%; max-width: 420px; padding: 24px; }
+    .auth-box {
+      display: flex; flex-direction: column; gap: 32px;
+      padding: 56px 48px; border: 1px solid var(--border);
+      background: var(--navy);
+      animation: authFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes authFadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .auth-header { display: flex; flex-direction: column; gap: 12px; }
+    .auth-mark { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+    .auth-mark-icon { width: 28px; height: 28px; border: 1px solid var(--silver); position: relative; flex-shrink: 0; }
+    .auth-mark-icon::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--silver); }
+    .auth-mark-text { font-family: var(--g); font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); }
+    .auth-title { font-family: var(--g); font-size: 28px; font-weight: 700; color: var(--white); letter-spacing: -0.01em; }
+    .auth-sub { font-size: 13px; color: var(--silver-dim); line-height: 1.6; }
+    .auth-fields { display: flex; flex-direction: column; gap: 20px; }
+    .auth-field { display: flex; flex-direction: column; gap: 8px; }
+    .auth-field label { font-family: var(--g); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); font-weight: 600; }
+    .auth-field input {
+      border: none; border-bottom: 1px solid var(--border-mid);
+      padding: 12px 0; font-size: 15px; background: transparent;
+      color: var(--white); font-family: var(--s); outline: none;
+      transition: border-color 0.2s; width: 100%; -webkit-appearance: none; border-radius: 0;
+    }
+    .auth-field input:focus { border-bottom-color: var(--silver); }
+    .auth-field input::placeholder { color: var(--silver-dim); }
+    .auth-btn {
+      padding: 17px; background: var(--silver); color: var(--black);
+      font-family: var(--g); font-size: 10px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .auth-btn:hover:not(:disabled) { background: var(--silver-light); transform: translateY(-1px); }
+    .auth-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .auth-err { font-size: 12px; color: var(--red); min-height: 16px; letter-spacing: 0.3px; }
+    .auth-footer { font-size: 10px; color: var(--silver-dim); text-align: center; letter-spacing: 1px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+    /* ── NAV ── */
+    .admin-nav {
+      display: flex; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0;
+      background: rgba(8,17,31,0.96);
+      backdrop-filter: blur(20px); z-index: 100;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 32px 0 24px;
+      border-right: 1px solid var(--border);
+      text-decoration: none; flex-shrink: 0;
+    }
+    .nav-mark { width: 28px; height: 28px; border: 1px solid var(--silver); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; }
+    .nav-mark::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--silver); }
+    .nav-mark span { font-family: var(--g); font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--white); }
+    .nav-label { display: flex; flex-direction: column; gap: 2px; }
+    .nav-label-1 { font-family: var(--g); font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--white); }
+    .nav-label-2 { font-size: 8px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); }
+    .nav-tabs { display: flex; overflow-x: auto; }
+    .tab {
+      padding: 0 22px; height: 56px; display: flex; align-items: center;
+      font-family: var(--g); font-size: 9px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--silver-dim); cursor: pointer; border-bottom: 2px solid transparent;
+      margin-bottom: -1px; transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap; border-right: 1px solid var(--border); flex-shrink: 0;
+    }
+    .tab:hover { color: var(--silver); }
+    .tab.active { color: var(--white); border-bottom-color: var(--silver); }
+    .nav-right { margin-left: auto; display: flex; align-items: center; flex-shrink: 0; }
+    .nav-user { padding: 0 20px; font-size: 11px; color: var(--silver-dim); letter-spacing: 0.5px; white-space: nowrap; }
+    .sign-out-btn {
+      height: 56px; padding: 0 24px; background: transparent; border: none;
+      border-left: 1px solid var(--border); color: var(--silver-dim); font-family: var(--g);
+      font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; transition: color 0.2s;
+    }
+    .sign-out-btn:hover { color: var(--white); }
+
+    /* ── PANELS ── */
+    .panel { display: none; padding: 52px 44px 100px; max-width: 1040px; margin: 0 auto; opacity: 0; transform: translateY(8px); }
+    .panel.active { display: block; animation: panelIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+    @keyframes panelIn { to { opacity: 1; transform: translateY(0); } }
+
+    /* ── SECTION HEADER ── */
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 36px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .section-title { font-family: var(--g); font-size: 10px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--silver); }
+    .section-count { font-size: 11px; color: var(--silver-dim); letter-spacing: 1px; }
+
+    /* ── DASHBOARD ── */
+    .dash-welcome { margin-bottom: 52px; }
+    .dash-eyebrow { font-family: var(--g); font-size: 9px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 10px; }
+    .dash-name { font-family: var(--g); font-size: 40px; font-weight: 700; color: var(--white); line-height: 1; letter-spacing: -0.02em; }
+    .dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 52px; }
+    .dash-card {
+      background: var(--navy); border: 1px solid var(--border);
+      padding: 28px 24px; display: flex; flex-direction: column; gap: 10px;
+      transition: border-color 0.25s, transform 0.2s;
+    }
+    .dash-card:hover { border-color: var(--border-mid); transform: translateY(-2px); }
+    .dash-card-label { font-family: var(--g); font-size: 8px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); }
+    .dash-card-val { font-family: var(--g); font-size: 42px; font-weight: 700; color: var(--white); line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .dash-card-sub { font-size: 12px; color: var(--silver-dim); }
+    .dash-card.accent { border-color: rgba(168,184,200,0.2); }
+    .dash-card.accent .dash-card-val { color: var(--silver); }
+    .dash-funnel-title { font-family: var(--g); font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 20px; }
+    .funnel-row { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
+    .funnel-label { font-size: 11px; color: var(--silver-dim); width: 150px; flex-shrink: 0; }
+    .funnel-bar-wrap { flex: 1; height: 2px; background: rgba(168,184,200,0.08); }
+    .funnel-bar-fill { height: 100%; background: var(--silver); transition: width 1s cubic-bezier(0.16,1,0.3,1); width: 0; }
+    .funnel-count { font-family: var(--g); font-size: 12px; font-weight: 600; color: var(--white); width: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* ── FILTERS ── */
+    .filter-group { margin-bottom: 10px; }
+    .filter-label { font-family: var(--g); font-size: 8px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 8px; }
+    .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-btn {
+      padding: 7px 16px; font-family: var(--g); font-size: 9px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; cursor: pointer; border: 1px solid var(--border);
+      background: transparent; color: var(--silver-dim); transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: var(--border-mid); color: var(--silver); }
+    .filter-btn.active { border-color: var(--silver); color: var(--white); background: rgba(168,184,200,0.06); }
+
+    /* ── LEAD CARDS ── */
+    .lead-list { display: flex; flex-direction: column; gap: 4px; margin-top: 24px; }
+    .lead-card {
+      background: #ffffff; border: 1px solid rgba(0,0,0,0.07);
+      cursor: pointer; opacity: 0; transform: translateY(10px);
+      animation: fadeUp 0.4s ease forwards;
+      transition: border-color 0.2s, box-shadow 0.25s;
+    }
+    .lead-card:hover { border-color: rgba(0,0,0,0.14); box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .lead-card.expanded { border-color: rgba(0,0,0,0.18); box-shadow: 0 6px 30px rgba(0,0,0,0.1); }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    .lead-row { display: flex; align-items: center; gap: 24px; padding: 18px 24px; }
+    .lead-initials { width: 40px; height: 40px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #555; font-family: 'Syne', sans-serif; }
+    .lead-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+    .lead-name { font-size: 14px; font-weight: 500; color: #0a0a0a; font-family: 'DM Sans', sans-serif; }
+    .lead-biz { font-size: 12px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'DM Sans', sans-serif; }
+    .lead-meta { display: flex; align-items: center; gap: 14px; margin-top: 4px; }
+    .lead-status { font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-family: 'Syne', sans-serif; }
+    .s-pending { color: #aaa; }
+    .s-called { color: #2563eb; }
+    .s-qualified { color: #7c3aed; }
+    .s-member { color: #16a34a; }
+    .s-applied { color: #0284c7; }
+    .lead-revenue { font-size: 9px; color: #999; letter-spacing: 1px; text-transform: uppercase; font-family: 'Syne', sans-serif; }
+    .lead-sep { width: 1px; height: 10px; background: rgba(0,0,0,0.1); }
+    .lead-chevron { flex-shrink: 0; width: 16px; height: 16px; color: #bbb; transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+    .lead-card.expanded .lead-chevron { transform: rotate(180deg); }
+
+    /* ── EXPAND DRAWER ── */
+    .lead-expand { display: none; padding: 0 24px 24px; border-top: 1px solid rgba(0,0,0,0.06); }
+    .lead-card.expanded .lead-expand { display: block; }
+    .expand-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 24px; margin-bottom: 20px; padding-top: 20px; }
+    .expand-field { display: flex; flex-direction: column; gap: 4px; }
+    .expand-label { font-size: 8px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #aaa; font-family: 'Syne', sans-serif; }
+    .expand-val { font-size: 13px; color: #1a1a1a; word-break: break-word; font-family: 'DM Sans', sans-serif; }
+    .expand-val a { color: #2563eb; text-decoration: none; }
+    .expand-val a:hover { text-decoration: underline; }
+    .expand-val.empty { color: #ccc; font-style: italic; }
+    .expand-goals { background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05); padding: 14px 16px; margin-bottom: 16px; font-size: 13px; color: #333; line-height: 1.7; font-family: 'DM Sans', sans-serif; }
+    .expand-goals-label { font-size: 8px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #aaa; margin-bottom: 8px; font-family: 'Syne', sans-serif; }
+    .expand-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .expand-tag { padding: 4px 10px; font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; border: 1px solid rgba(0,0,0,0.1); color: #666; font-family: 'Syne', sans-serif; }
+    .expand-tier { display: inline-flex; align-items: center; gap: 6px; font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #555; font-family: 'Syne', sans-serif; }
+    .tier-badge { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; }
+    .tier-A { background: #16a34a; } .tier-B { background: #2563eb; } .tier-C { background: #999; }
+    .expand-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .expand-action-row { display: flex; gap: 8px; }
+    .expand-act { padding: 9px 20px; font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border: 1px solid #0a0a0a; background: #0a0a0a; color: #fff; font-family: 'Syne', sans-serif; transition: background 0.2s; }
+    .expand-act:hover { background: #1a1a1a; }
+    .expand-act.secondary { background: transparent; color: #0a0a0a; }
+    .expand-act.secondary:hover { background: rgba(0,0,0,0.04); }
+
+    /* ── TIMELINE ── */
+    .timeline { margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 18px; }
+    .timeline-label { font-size: 8px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #aaa; margin-bottom: 14px; font-family: 'Syne', sans-serif; }
+    .timeline-entry { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 13px; color: #333; line-height: 1.5; font-family: 'DM Sans', sans-serif; }
+    .timeline-entry:last-child { border-bottom: none; }
+    .timeline-dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; flex-shrink: 0; margin-top: 6px; }
+    .timeline-dot.email { background: #2563eb; } .timeline-dot.call { background: #16a34a; } .timeline-dot.dm { background: #7c3aed; } .timeline-dot.whatsapp { background: #25d366; }
+    .timeline-text { flex: 1; }
+    .timeline-date { font-size: 10px; color: #bbb; margin-top: 2px; font-family: 'DM Sans', sans-serif; }
+    .timeline-empty { font-size: 12px; color: #ccc; font-style: italic; padding: 8px 0; }
+    .timeline-loading { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #ccc; padding: 8px 0; font-family: 'Syne', sans-serif; }
+
+    /* ── FORMS ── */
+    .form-section { max-width: 560px; }
+    .form-eyebrow { font-family: var(--g); font-size: 9px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 8px; }
+    .form-heading { font-family: var(--g); font-size: 30px; font-weight: 700; color: var(--white); margin-bottom: 10px; line-height: 1.1; letter-spacing: -0.01em; }
+    .form-sub { font-size: 14px; color: var(--silver-dim); line-height: 1.7; margin-bottom: 36px; }
+    .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .field label { font-family: var(--g); font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    input, select, textarea {
+      width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--border-mid);
+      padding: 12px 0; color: var(--white); font-size: 14px; font-family: var(--s); outline: none;
+      transition: border-color 0.2s; -webkit-appearance: none; appearance: none; border-radius: 0;
+    }
+    input:focus, select:focus, textarea:focus { border-bottom-color: var(--silver); }
+    input::placeholder, textarea::placeholder { color: var(--silver-dim); }
+    textarea { resize: vertical; min-height: 80px; }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234a5a6a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 4px center; padding-right: 24px; cursor: pointer; }
+    select option { background: #0d1e35; color: var(--white); }
+    .submit-btn {
+      margin-top: 8px; padding: 17px 40px; width: 100%;
+      font-family: var(--g); font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+      background: var(--silver); color: var(--black); border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .submit-btn:hover { background: var(--silver-light); transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.3; pointer-events: none; transform: none; }
+    .msg { font-family: var(--g); font-size: 10px; font-weight: 600; letter-spacing: 1.5px; min-height: 16px; margin-top: 14px; text-align: center; }
+    .ok { color: var(--green); } .err { color: var(--red); }
+
+    /* ── EMAIL PREVIEW ── */
+    .email-preview { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border); }
+    .actions-divider { height: 1px; background: var(--border); margin: 64px 0; max-width: 560px; }
+    .preview-label { font-family: var(--g); font-size: 9px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 20px; }
+    .preview-body { font-size: 14px; line-height: 2.1; color: var(--silver); }
+    .preview-body a { color: var(--silver-light); }
+
+    /* ── BREVO PANEL ── */
+    .brevo-meta { font-size: 12px; color: var(--silver-dim); margin-bottom: 28px; line-height: 1.7; }
+    .brevo-meta strong { color: var(--silver); font-weight: 500; }
+    .brevo-list { display: flex; flex-direction: column; gap: 3px; }
+    .brevo-lead {
+      display: flex; align-items: center; gap: 20px; padding: 16px 20px;
+      border: 1px solid var(--border); background: var(--navy);
+      opacity: 0; transform: translateY(6px);
+      animation: fadeUp 0.35s ease forwards;
+      transition: border-color 0.2s;
+    }
+    .brevo-lead:hover { border-color: var(--border-mid); }
+    .brevo-rank { font-family: var(--g); font-size: 10px; font-weight: 700; color: var(--silver-dim); width: 24px; text-align: center; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .brevo-info { flex: 1; min-width: 0; }
+    .brevo-email { font-size: 13px; color: var(--white); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .brevo-bar-wrap { width: 100px; flex-shrink: 0; }
+    .brevo-bar { height: 2px; background: rgba(168,184,200,0.08); }
+    .brevo-bar-fill { height: 100%; background: var(--silver); transition: width 0.8s cubic-bezier(0.16,1,0.3,1); }
+    .brevo-stats { display: flex; gap: 24px; flex-shrink: 0; }
+    .brevo-stat { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; min-width: 40px; }
+    .brevo-stat-val { font-family: var(--g); font-size: 18px; font-weight: 700; color: var(--white); line-height: 1; font-variant-numeric: tabular-nums; }
+    .brevo-stat-label { font-family: var(--g); font-size: 7px; letter-spacing: 2px; text-transform: uppercase; color: var(--silver-dim); }
+    .brevo-empty { padding: 60px 0; text-align: center; font-family: var(--g); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); }
+
+    /* ── PAYMENT LINKS ── */
+    .link-row { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border: 1px solid var(--border); background: var(--navy); flex-wrap: wrap; transition: border-color 0.2s; }
+    .link-row:hover { border-color: var(--border-mid); }
+    .link-meta { display: flex; flex-direction: column; gap: 3px; min-width: 200px; flex: 1; }
+    .link-name { font-family: var(--g); font-size: 13px; font-weight: 600; color: var(--white); }
+    .link-price { font-size: 12px; color: var(--silver-dim); }
+    .link-url { font-size: 11px; color: var(--silver-dim); font-family: monospace; flex: 2; }
+    .copy-btn { padding: 8px 18px; background: transparent; border: 1px solid var(--border); color: var(--silver); font-family: var(--g); font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; white-space: nowrap; transition: border-color 0.2s, color 0.2s; }
+    .copy-btn:hover { border-color: var(--silver); color: var(--white); }
+    .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+    /* ── LOADING STATE ── */
+    .loading { padding: 60px 0; text-align: center; font-family: var(--g); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); animation: ldpulse 1.4s ease-in-out infinite; }
+    @keyframes ldpulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+    @media (max-width: 800px) {
+      .panel { padding: 32px 20px 60px; }
+      .dash-grid { grid-template-columns: 1fr 1fr; }
+      .lead-biz, .lead-status, .lead-revenue { display: none; }
+      .grid2 { grid-template-columns: 1fr; }
+      .nav-brand, .nav-user { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading"><div class="loading-mark"></div></div>
+
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <div class="auth-header">
+        <div class="auth-mark">
+          <div class="auth-mark-icon"></div>
+          <div class="auth-mark-text">Private Victories</div>
+        </div>
+        <div class="auth-title">Sign in</div>
+        <div class="auth-sub">Admin dashboard — internal access only.</div>
+      </div>
+      <div class="auth-fields">
+        <div class="auth-field">
+          <label>Email</label>
+          <input type="email" id="auth-email" placeholder="you@domain.com" autocomplete="email" />
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <div class="auth-err" id="auth-err"></div>
+        <button class="auth-btn" id="auth-btn">Sign In</button>
+      </div>
+      <div class="auth-footer">Private Victories Club · Restricted access</div>
+    </div>
+  </div>
+</div>
+
+<div id="admin-data" data-key={ADMIN_KEY} hidden></div>
+
+<div id="app" style="display:none">
+  <nav class="admin-nav">
+    <a class="nav-brand" href="#">
+      <div class="nav-mark"><span>PV</span></div>
+      <div class="nav-label">
+        <div class="nav-label-1">Private Victories</div>
+        <div class="nav-label-2">Admin</div>
+      </div>
+    </a>
+    <div class="nav-tabs">
+      <div class="tab active" data-tab="overview">Overview</div>
+      <div class="tab" data-tab="pipeline">Pipeline</div>
+      <div class="tab" data-tab="actions">Actions</div>
+      <div class="tab" data-tab="brevo">Email Activity</div>
+      <div class="tab" data-tab="revenue">Revenue</div>
+      <div class="tab" data-tab="links">Payment Links</div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-user" id="nav-user"></div>
+      <button class="sign-out-btn" id="sign-out-btn">Sign Out</button>
+    </div>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <div id="tab-overview" class="panel active">
+    <div class="dash-welcome">
+      <div class="dash-eyebrow">Welcome back</div>
+      <div class="dash-name" id="dash-name">Loading...</div>
+    </div>
+
+    <!-- Revenue hero row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div class="dash-card" style="border-color:rgba(168,184,200,0.3);background:rgba(168,184,200,0.04);padding:36px 32px;">
+        <div class="dash-card-label">Total Collected</div>
+        <div class="dash-card-val" id="dash-rev-total" style="font-size:clamp(36px,5vw,56px);color:var(--silver);">—</div>
+        <div class="dash-card-sub" id="dash-rev-total-sub">all time</div>
+      </div>
+      <div class="dash-card" style="padding:36px 32px;">
+        <div class="dash-card-label">This Month</div>
+        <div class="dash-card-val" id="dash-rev-month" style="font-size:clamp(36px,5vw,56px);">—</div>
+        <div class="dash-card-sub" id="dash-rev-month-sub"></div>
+      </div>
+    </div>
+
+    <!-- Revenue split + pipeline stats -->
+    <div class="dash-grid" style="margin-bottom:12px;">
+      <div class="dash-card">
+        <div class="dash-card-label">Memberships</div>
+        <div class="dash-card-val" id="dash-rev-mem" style="font-size:28px;">—</div>
+        <div class="dash-card-sub">collected</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-label">Events</div>
+        <div class="dash-card-val" id="dash-rev-evt" style="font-size:28px;">—</div>
+        <div class="dash-card-sub">ticket sales</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-label">Members</div>
+        <div class="dash-card-val" id="dash-members">—</div>
+        <div class="dash-card-sub">active + founding</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-label">Qualified</div>
+        <div class="dash-card-val" id="dash-qualified">—</div>
+        <div class="dash-card-sub">hot leads</div>
+      </div>
+    </div>
+
+    <!-- Pipeline + recent payments side by side -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:40px;">
+      <div>
+        <div class="dash-funnel-title">Pipeline Funnel</div>
+        <div id="dash-funnel-rows" style="margin-top:12px;"></div>
+        <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);">
+          <div class="dash-funnel-title" style="margin-bottom:8px;">Pipeline totals</div>
+          <div style="display:flex;gap:24px;margin-top:12px;">
+            <div><div style="font-family:var(--g);font-size:28px;font-weight:700;color:var(--white);font-variant-numeric:tabular-nums;" id="dash-total">—</div><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--silver-dim);margin-top:4px;">Total Leads</div></div>
+            <div><div style="font-family:var(--g);font-size:28px;font-weight:700;color:var(--white);font-variant-numeric:tabular-nums;" id="dash-pending">—</div><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--silver-dim);margin-top:4px;">Pending</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="dash-funnel-title">Recent Payments</div>
+        <div id="dash-recent-payments" style="display:flex;flex-direction:column;gap:4px;margin-top:12px;"><div style="font-size:11px;color:var(--silver-dim);letter-spacing:1px;">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div id="tab-pipeline" class="panel">
+    <div class="section-head">
+      <span class="section-title">Leads Pipeline</span>
+      <span class="section-count" id="lead-count"></span>
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">Stage</div>
+      <div class="filters" id="filters">
+        <button class="filter-btn active" data-status="">All</button>
+        <button class="filter-btn" data-status="Pending Review">Pending Review</button>
+        <button class="filter-btn" data-status="Approved - Call Email Sent">Call Email Sent</button>
+        <button class="filter-btn" data-status="Call Booked">Call Booked</button>
+        <button class="filter-btn" data-status="Qualified">Qualified</button>
+        <button class="filter-btn" data-status="Member">Member</button>
+        <button class="filter-btn" data-status="Founding Member">Founding</button>
+        <button class="filter-btn" data-status="Not a Fit">Not a Fit</button>
+      </div>
+    </div>
+    <div class="filter-group" style="margin-top:12px">
+      <div class="filter-label">Type</div>
+      <div class="filters" id="type-filters">
+        <button class="filter-btn active" data-type="">All</button>
+        <button class="filter-btn" data-type="Dinner Applicant">Dinner</button>
+        <button class="filter-btn" data-type="Membership Applicant">Membership</button>
+        <button class="filter-btn" data-type="IG Lead">IG Lead</button>
+        <button class="filter-btn" data-type="Founding Member">Founding</button>
+      </div>
+    </div>
+    <div class="filter-group" style="margin-top:12px">
+      <div class="filter-label">Revenue</div>
+      <div class="filters" id="revenue-filters">
+        <button class="filter-btn active" data-revenue="">All</button>
+        <button class="filter-btn" data-revenue="Pre-revenue">Pre-revenue</button>
+        <button class="filter-btn" data-revenue="R0-R10k">R0-10k</button>
+        <button class="filter-btn" data-revenue="R10k-R50k">R10k-50k</button>
+        <button class="filter-btn" data-revenue="R50k-R100k">R50k-100k</button>
+        <button class="filter-btn" data-revenue="R100k+">R100k+</button>
+      </div>
+    </div>
+    <div id="lead-list" class="lead-list"><div class="loading">Loading</div></div>
+  </div>
+
+  <!-- SEND CALL EMAIL -->
+  <div id="tab-actions" class="panel">
+    <div class="form-section">
+      <div class="form-eyebrow">Send</div>
+      <div class="form-heading">Call booking email.</div>
+      <div class="form-sub">Sends the call email from lliamhumphreywork@gmail.com and automatically moves them to <em>Approved - Call Email Sent</em> in the CRM.</div>
+      <form id="call-form">
+        <div class="grid2">
+          <div class="field"><label>First Name</label><input type="text" id="call-name" placeholder="Annie" autocomplete="off" /></div>
+          <div class="field"><label>Email</label><input type="email" id="call-email" placeholder="annie@domain.com" autocomplete="off" /></div>
+        </div>
+        <button type="submit" class="submit-btn">Send + Update CRM</button>
+        <div class="msg" id="call-msg"></div>
+      </form>
+      <div class="email-preview">
+        <div class="preview-label">Email preview</div>
+        <div class="preview-body">
+          <p>Hey [Name],</p><br>
+          <p>Thanks for filling out the form, appreciate you taking the time to actually share where you're at.</p><br>
+          <p>Based on what you shared, I'd like to hop on a quick call, 30 minutes, to understand your business a bit more and see if Private Victories is the right fit for you right now.</p><br>
+          <p>Here's my calendar, grab whatever time works:<br><a href="#">calendly.com/lliamhumphreywork/1hr</a></p><br>
+          <p>Talk soon,<br>Lliam</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-divider"></div>
+
+    <div class="form-section">
+      <div class="form-eyebrow">Log</div>
+      <div class="form-heading">Record a touchpoint.</div>
+      <div class="form-sub">For IG DMs, calls, WhatsApp, anything that happened outside the system. Appends a timestamped entry to their contact page in Notion.</div>
+      <form id="log-form">
+        <div class="field"><label>Email</label><input type="email" id="log-email" placeholder="their email address" autocomplete="off" /></div>
+        <div class="grid2">
+          <div class="field">
+            <label>Type</label>
+            <select id="log-type">
+              <option value="IG DM">IG DM</option>
+              <option value="Call">Call</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="Voice Note">Voice Note</option>
+              <option value="Email Sent">Email Sent</option>
+              <option value="Met IRL">Met IRL</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Update Status (optional)</label>
+            <select id="log-status">
+              <option value="">no change</option>
+              <option value="Contacted">Contacted</option>
+              <option value="Approved - Call Email Sent">Call Email Sent</option>
+              <option value="Call Booked">Call Booked</option>
+              <option value="Qualified">Qualified</option>
+              <option value="Payment Link Sent">Payment Link Sent</option>
+              <option value="Member">Member</option>
+              <option value="Founding Member">Founding Member</option>
+              <option value="Not a Fit">Not a Fit</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Note</label><textarea id="log-note" placeholder="Replied to DM, keen on PVC, asked about next dinner. Following up tomorrow."></textarea></div>
+        <button type="submit" class="submit-btn">Log Interaction</button>
+        <div class="msg" id="log-msg"></div>
+      </form>
+    </div>
+
+    <div class="actions-divider"></div>
+
+    <div class="form-section">
+      <div class="form-eyebrow">New</div>
+      <div class="form-heading">Add a lead.</div>
+      <div class="form-sub">For IG DMs or anyone who didn't come through Tally.</div>
+      <form id="add-form">
+        <div class="grid2">
+          <div class="field"><label>Name</label><input type="text" id="add-name" placeholder="Full name" autocomplete="off" /></div>
+          <div class="field"><label>Instagram</label><input type="text" id="add-insta" placeholder="@handle" autocomplete="off" /></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Email</label><input type="email" id="add-email" placeholder="email@domain.com" autocomplete="off" /></div>
+          <div class="field"><label>Phone</label><input type="tel" id="add-phone" placeholder="+27 ..." autocomplete="off" /></div>
+        </div>
+        <div class="field"><label>Business</label><input type="text" id="add-biz" placeholder="What they're building" /></div>
+        <div class="grid2">
+          <div class="field">
+            <label>How they came in</label>
+            <select id="add-interaction">
+              <option value="DM on Instagram">DM'd us</option>
+              <option value="Story Reply">Story reply</option>
+              <option value="Met IRL">Met IRL</option>
+              <option value="Sent WhatsApp">WhatsApp</option>
+              <option value="Referral">Referral</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Tag as</label>
+            <select id="add-type">
+              <option value="IG Lead">IG Lead</option>
+              <option value="Membership Applicant">Membership Applicant</option>
+              <option value="Dinner Applicant">Dinner Applicant</option>
+              <option value="Founding Member">Founding Member</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Notes</label><textarea id="add-notes" placeholder="Revenue stage, vibe, why interesting..."></textarea></div>
+        <button type="submit" class="submit-btn">Add to CRM</button>
+        <div class="msg" id="add-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EMAIL ACTIVITY -->
+  <div id="tab-brevo" class="panel">
+    <div class="section-head">
+      <span class="section-title">Most Active Email Leads</span>
+      <span class="section-count" id="brevo-count"></span>
+    </div>
+    <div class="brevo-meta" id="brevo-meta"></div>
+    <div id="brevo-list" class="brevo-list"><div class="loading">Loading</div></div>
+  </div>
+
+  <!-- REVENUE -->
+  <div id="tab-revenue" class="panel">
+    <div class="section-head"><span class="section-title">Revenue</span><span class="section-count" id="rev-count"></span></div>
+    <div class="dash-grid" style="margin-bottom:40px;">
+      <div class="dash-card accent">
+        <div class="dash-card-label">Total Collected</div>
+        <div class="dash-card-val" id="rev-total">—</div>
+        <div class="dash-card-sub">all time</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-label">This Month</div>
+        <div class="dash-card-val" id="rev-month">—</div>
+        <div class="dash-card-sub" id="rev-month-label"></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-label">Memberships</div>
+        <div class="dash-card-val" id="rev-membership">—</div>
+        <div class="dash-card-sub">recurring + one-time</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-label">Events</div>
+        <div class="dash-card-val" id="rev-event">—</div>
+        <div class="dash-card-sub">ticket sales</div>
+      </div>
+    </div>
+    <div style="margin-bottom:40px;">
+      <div class="dash-funnel-title">By Product</div>
+      <div id="rev-by-item" style="display:flex;flex-direction:column;gap:4px;margin-top:16px;"></div>
+    </div>
+    <div>
+      <div class="dash-funnel-title">Recent Payments</div>
+      <div id="rev-recent" style="display:flex;flex-direction:column;gap:4px;margin-top:16px;"><div class="loading">Loading</div></div>
+    </div>
+  </div>
+
+  <!-- PAYMENT LINKS -->
+  <div id="tab-links" class="panel">
+    <div class="section-head"><span class="section-title">Payment Links</span></div>
+    <div style="display:flex;flex-direction:column;gap:36px;">
+      <div>
+        <div class="filter-label" style="margin-bottom:16px;">Membership</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="link-row" data-url="https://privatevictoriesclub.com/monthly-membership">
+            <div class="link-meta"><span class="link-name">Monthly Membership</span><span class="link-price">R1,000 / month</span></div>
+            <span class="link-url">privatevictoriesclub.com/monthly-membership</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <div class="link-row" data-url="https://privatevictoriesclub.com/quarterly-membership">
+            <div class="link-meta"><span class="link-name">4-Month Membership</span><span class="link-price">R3,600 / 4 months</span></div>
+            <span class="link-url">privatevictoriesclub.com/quarterly-membership</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="filter-label" style="margin-bottom:16px;">Cape Town Event</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="link-row" data-url="https://privatevictoriesclub.com/cape-town-members">
+            <div class="link-meta"><span class="link-name">Members Ticket</span><span class="link-price">R2,000 · Paystack</span></div>
+            <span class="link-url">privatevictoriesclub.com/cape-town-members</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <div class="link-row" data-url="https://privatevictoriesclub.com/cape-town-ga">
+            <div class="link-meta"><span class="link-name">General Admission</span><span class="link-price">R4,000 · Paystack</span></div>
+            <span class="link-url">privatevictoriesclub.com/cape-town-ga</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <div class="link-row" data-url="https://privatevictoriesclub.com/cape-town-vip">
+            <div class="link-meta"><span class="link-name">VIP Experience</span><span class="link-price">R7,000 · Paystack</span></div>
+            <span class="link-url">privatevictoriesclub.com/cape-town-vip</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <div class="link-row" data-url="https://privatevictoriesclub.com/cape-town-vvip">
+            <div class="link-meta"><span class="link-name">VVIP Experience</span><span class="link-price">Contact only · IG DM</span></div>
+            <span class="link-url">privatevictoriesclub.com/cape-town-vvip</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module" is:inline>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut as fbSignOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyClcxxc3RVCM5giPNF0fPw5Sv6HNmbYhzQ",
+  authDomain: "pvc-workspace.firebaseapp.com",
+  projectId: "pvc-workspace",
+  storageBucket: "pvc-workspace.firebasestorage.app",
+  messagingSenderId: "28852834979",
+  appId: "1:28852834979:web:ccfe6e6e185d885b396516"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const KEY  = document.getElementById('admin-data').dataset.key;
+const H    = { 'Content-Type': 'application/json', 'x-admin-key': KEY };
+
+// ── Auth state ──
+onAuthStateChanged(auth, user => {
+  document.getElementById('loading').classList.add('hidden');
+  if (user) {
+    document.getElementById('auth-screen').classList.remove('visible');
+    document.getElementById('app').style.display = 'block';
+    const name = user.email.split('@')[0];
+    document.getElementById('nav-user').textContent = user.email;
+    document.getElementById('dash-name').textContent = name.charAt(0).toUpperCase() + name.slice(1) + '.';
+    loadLeads();
+    loadOverviewRevenue();
+  } else {
+    document.getElementById('auth-screen').classList.add('visible');
+    document.getElementById('app').style.display = 'none';
+  }
+});
+
+document.getElementById('auth-btn').addEventListener('click', async () => {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass  = document.getElementById('auth-pass').value;
+  const btn   = document.getElementById('auth-btn');
+  const err   = document.getElementById('auth-err');
+  err.textContent = '';
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    err.textContent = e.code === 'auth/invalid-credential' ? 'Invalid email or password.' : 'Sign-in failed. Try again.';
+    btn.disabled = false; btn.textContent = 'Sign In';
+  }
+});
+document.getElementById('auth-pass').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('auth-btn').click(); });
+document.getElementById('sign-out-btn').addEventListener('click', () => fbSignOut(auth));
+
+// ── Tabs ──
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const panel = document.getElementById('tab-' + tab.dataset.tab);
+    panel.classList.add('active');
+    if (tab.dataset.tab === 'brevo') loadBrevoLeads();
+  if (tab.dataset.tab === 'revenue') { revenueLoaded = false; loadRevenue(); }
+  });
+});
+
+// ── Copy links ──
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const url = btn.closest('.link-row').dataset.url;
+    navigator.clipboard.writeText(url).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+    });
+  });
+});
+
+// ── Pipeline ──
+let allLeads = [], activeFilter = '', activeType = '', activeRevenue = '';
+
+async function loadLeads() {
+  try {
+    const res  = await fetch(`/api/admin/applicants?key=${encodeURIComponent(KEY)}`);
+    if (res.status === 401) return;
+    allLeads = (await res.json()).filter(l => l.status !== 'Membership Activated');
+    renderLeads();
+    renderDashboard();
+  } catch {
+    document.getElementById('lead-list').innerHTML = '<div class="loading" style="color:#c94a5c">Failed to load</div>';
+  }
+}
+
+function statusClass(s) {
+  if (!s) return 's-applied';
+  if (['Member','Founding Member','Membership Activated'].includes(s)) return 's-member';
+  if (['Approved - Call Email Sent','Call Booked'].includes(s)) return 's-called';
+  if (['Qualified','Payment Link Sent'].includes(s)) return 's-qualified';
+  if (['Pending Review','Reviewing'].includes(s)) return 's-pending';
+  return 's-applied';
+}
+
+function statusLabel(s) {
+  if (!s) return 'Applied';
+  return { 'Approved - Call Email Sent': 'Call Email Sent', 'Founding Member': 'Founding', 'Membership Activated': 'Member', 'Discovery Call Booked': 'Call Booked' }[s] || s;
+}
+
+function renderLeads() {
+  let f = activeFilter ? allLeads.filter(l => l.status === activeFilter) : allLeads;
+  if (activeType)    f = f.filter(l => (l.type || []).includes(activeType));
+  if (activeRevenue) f = f.filter(l => l.r === activeRevenue);
+  document.getElementById('lead-count').textContent = f.length + ' leads';
+  if (!f.length) { document.getElementById('lead-list').innerHTML = '<div class="loading">No leads in this stage</div>'; return; }
+  document.getElementById('lead-list').innerHTML = f.map((lead, i) => {
+    const email = lead.e || '', fn = (lead.n || '').split(' ')[0];
+    const initials = (lead.n || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    const tierHtml  = lead.t ? `<span class="tier-badge tier-${esc(lead.t)}">${esc(lead.t)}</span>` : '';
+    const tagsHtml  = (lead.type || []).map(t => `<span class="expand-tag">${esc(t)}</span>`).join('');
+    const goalsHtml = lead.w ? `<div class="expand-goals"><div class="expand-goals-label">Goals</div>${esc(lead.w)}</div>` : '';
+    const scoreHtml = lead.s != null ? `<span class="expand-tier">${tierHtml} Score ${lead.s}/10</span>` : '';
+    return `<div class="lead-card" style="animation-delay:${Math.min(i*40,600)}ms" data-page-id="${esc(lead.id||'')}" data-email="${esc(email)}" data-firstname="${esc(fn)}">
+      <div class="lead-row">
+        <div class="lead-initials">${initials}</div>
+        <div class="lead-body">
+          <div class="lead-name">${esc(lead.n||'—')}</div>
+          <div class="lead-biz">${esc(lead.b||'—')}</div>
+          <div class="lead-meta">
+            <span class="lead-status ${statusClass(lead.status)}">${statusLabel(lead.status)}</span>
+            ${lead.r ? `<div class="lead-sep"></div><span class="lead-revenue">${esc(lead.r)}</span>` : ''}
+          </div>
+        </div>
+        <svg class="lead-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4,6 8,10 12,6"/></svg>
+      </div>
+      <div class="lead-expand">
+        <div class="expand-grid">
+          <div class="expand-field"><span class="expand-label">Email</span><span class="expand-val">${email?`<a href="mailto:${esc(email)}">${esc(email)}</a>`:'<em class="empty">—</em>'}</span></div>
+          <div class="expand-field"><span class="expand-label">Phone</span><span class="expand-val">${lead.p?`<a href="tel:${esc(lead.p)}">${esc(lead.p)}</a>`:'<em class="empty">—</em>'}</span></div>
+          <div class="expand-field"><span class="expand-label">Instagram</span><span class="expand-val">${lead.i?esc(lead.i):'<em class="empty">—</em>'}</span></div>
+          <div class="expand-field"><span class="expand-label">Revenue</span><span class="expand-val">${lead.r?esc(lead.r):'<em class="empty">—</em>'}</span></div>
+          <div class="expand-field"><span class="expand-label">Status</span><span class="expand-val">${esc(lead.status||'Applied')}</span></div>
+          <div class="expand-field"><span class="expand-label">Score</span><span class="expand-val">${scoreHtml||'<em class="empty">—</em>'}</span></div>
+          <div class="expand-field"><span class="expand-label">Source</span><span class="expand-val">${lead.src?esc(lead.src):'<em class="empty">—</em>'}</span></div>
+        </div>
+        ${goalsHtml}
+        ${tagsHtml?`<div class="expand-tags">${tagsHtml}</div>`:''}
+        <div class="expand-footer">
+          <div class="expand-action-row">
+            ${email?`<button class="expand-act send-call-btn">Send Call Email</button>`:''}
+            ${email?`<button class="expand-act secondary log-btn">Log Interaction</button>`:''}
+          </div>
+          ${scoreHtml}
+        </div>
+        <div class="timeline"><div class="timeline-label">Touchpoints</div><div class="timeline-list"><div class="timeline-loading">Loading...</div></div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('.lead-card').forEach(card => {
+    card.querySelector('.lead-row').addEventListener('click', e => {
+      if (e.target.closest('.expand-act')) return;
+      card.classList.toggle('expanded');
+      if (card.classList.contains('expanded')) loadTimeline(card);
+    });
+    card.querySelector('.send-call-btn')?.addEventListener('click', e => { e.stopPropagation(); prefillCall(card.dataset.firstname, card.dataset.email); });
+    card.querySelector('.log-btn')?.addEventListener('click', e => { e.stopPropagation(); prefillLog(card.dataset.email); });
+  });
+}
+
+function renderDashboard() {
+  const stages = [
+    { label: 'Pending Review',    key: 'Pending Review' },
+    { label: 'Call Email Sent',   key: 'Approved - Call Email Sent' },
+    { label: 'Call Booked',       key: 'Call Booked' },
+    { label: 'Qualified',         key: 'Qualified' },
+    { label: 'Payment Link Sent', key: 'Payment Link Sent' },
+    { label: 'Member',            key: 'Member' },
+    { label: 'Founding Member',   key: 'Founding Member' },
+    { label: 'Not a Fit',         key: 'Not a Fit' },
+  ];
+  document.getElementById('dash-total').textContent     = allLeads.length;
+  document.getElementById('dash-pending').textContent   = allLeads.filter(l => l.status === 'Pending Review').length;
+  document.getElementById('dash-qualified').textContent = allLeads.filter(l => ['Qualified','Payment Link Sent'].includes(l.status)).length;
+  document.getElementById('dash-members').textContent   = allLeads.filter(l => ['Member','Founding Member','Membership Activated'].includes(l.status)).length;
+
+  const counts  = stages.map(s => allLeads.filter(l => l.status === s.key).length);
+  const maxCount = Math.max(...counts, 1);
+  document.getElementById('dash-funnel-rows').innerHTML = stages.map((s, i) => {
+    const pct = Math.round((counts[i] / maxCount) * 100);
+    return `<div class="funnel-row">
+      <div class="funnel-label">${s.label}</div>
+      <div class="funnel-bar-wrap"><div class="funnel-bar-fill" style="width:0%" data-pct="${pct}"></div></div>
+      <div class="funnel-count">${counts[i]}</div>
+    </div>`;
+  }).join('');
+  // Animate bars after render
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll('.funnel-bar-fill').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
+  }));
+}
+
+async function loadTimeline(card) {
+  const list = card.querySelector('.timeline-list');
+  if (!list || list.dataset.loaded) return;
+  list.dataset.loaded = '1';
+  const pageId = card.dataset.pageId;
+  if (!pageId) { list.innerHTML = '<div class="timeline-empty">No page ID</div>'; return; }
+  try {
+    const entries = await fetch(`/api/admin/interactions?key=${encodeURIComponent(KEY)}&pageId=${encodeURIComponent(pageId)}`).then(r => r.json());
+    if (!entries.length) { list.innerHTML = '<div class="timeline-empty">No touchpoints recorded yet</div>'; return; }
+    list.innerHTML = entries.map(entry => {
+      const parts = entry.text.split(' · ');
+      const date = parts[0] || '', rest = parts.slice(1).join(' · ');
+      const type = rest.split(':')[0]?.toLowerCase() || '';
+      const dot  = type.includes('email') ? 'email' : type.includes('call') ? 'call' : type.includes('dm') || type.includes('ig') ? 'dm' : type.includes('whatsapp') ? 'whatsapp' : '';
+      return `<div class="timeline-entry"><div class="timeline-dot ${dot}"></div><div class="timeline-text"><div>${esc(rest||entry.text)}</div>${date?`<div class="timeline-date">${esc(date)}</div>`:''}</div></div>`;
+    }).join('');
+  } catch { list.innerHTML = '<div class="timeline-empty">Failed to load</div>'; }
+}
+
+['filters','type-filters','revenue-filters'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll(`#${id} .filter-btn`).forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (id === 'filters')         activeFilter  = btn.dataset.status;
+    else if (id === 'type-filters')   activeType    = btn.dataset.type;
+    else                              activeRevenue = btn.dataset.revenue;
+    renderLeads();
+  });
+});
+
+function prefillCall(name, email) { document.querySelector('[data-tab="actions"]').click(); document.getElementById('call-name').value = name; document.getElementById('call-email').value = email; }
+function prefillLog(email)         { document.querySelector('[data-tab="actions"]').click(); document.getElementById('log-email').value  = email; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ── Call Email ──
+document.getElementById('call-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const firstName = document.getElementById('call-name').value.trim();
+  const email     = document.getElementById('call-email').value.trim();
+  if (!firstName || !email) { setMsg('call-msg', 'Name and email required', true); return; }
+  const btn = e.target.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    const res = await fetch('/api/send-call-email', { method: 'POST', headers: H, body: JSON.stringify({ email, firstName }) });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    setMsg('call-msg', `Sent to ${email}`, false); e.target.reset(); setTimeout(loadLeads, 2000);
+  } catch(err) { setMsg('call-msg', err.message, true); }
+  finally { btn.disabled = false; btn.textContent = 'Send + Update CRM'; }
+});
+
+// ── Log Interaction ──
+document.getElementById('log-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = document.getElementById('log-email').value.trim();
+  const note  = document.getElementById('log-note').value.trim();
+  if (!email || !note) { setMsg('log-msg', 'Email and note required', true); return; }
+  const btn = e.target.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Logging...';
+  try {
+    const body = { email, type: document.getElementById('log-type').value, note, status: document.getElementById('log-status').value || undefined };
+    const res  = await fetch('/api/log-interaction', { method: 'POST', headers: H, body: JSON.stringify(body) });
+    if (res.status === 404) { setMsg('log-msg', 'Contact not found', true); return; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    setMsg('log-msg', 'Logged', false); e.target.reset(); setTimeout(loadLeads, 1500);
+  } catch(err) { setMsg('log-msg', err.message, true); }
+  finally { btn.disabled = false; btn.textContent = 'Log Interaction'; }
+});
+
+// ── Add Lead ──
+document.getElementById('add-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = document.getElementById('add-name').value.trim();
+  if (!name) { setMsg('add-msg', 'Name is required', true); return; }
+  const btn = e.target.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Adding...';
+  try {
+    const res = await fetch(`/api/admin/add?key=${encodeURIComponent(KEY)}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email: document.getElementById('add-email').value.trim(), phone: document.getElementById('add-phone').value.trim(), insta: document.getElementById('add-insta').value.trim(), biz: document.getElementById('add-biz').value.trim(), interaction: document.getElementById('add-interaction').value, type: document.getElementById('add-type').value, notes: document.getElementById('add-notes').value.trim() }),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    setMsg('add-msg', 'Added to CRM', false); e.target.reset(); setTimeout(loadLeads, 1500);
+  } catch(err) { setMsg('add-msg', err.message, true); }
+  finally { btn.disabled = false; btn.textContent = 'Add to CRM'; }
+});
+
+// ── Brevo Activity ──
+let brevoLoaded = false;
+async function loadBrevoLeads() {
+  if (brevoLoaded && !document.getElementById('brevo-list').querySelector('.brevo-empty')) return;
+  brevoLoaded = true;
+  try {
+    const res  = await fetch(`/api/admin/brevo-leads?key=${encodeURIComponent(KEY)}`);
+    const data = await res.json();
+    const contacts = data.contacts ?? [];
+    if (data.error) {
+      const msg = data.error.includes('429') ? 'Brevo rate limit hit — try again in a few minutes.' : `Error: ${data.error}`;
+      document.getElementById('brevo-list').innerHTML = `<div class="brevo-empty">${msg}</div>`;
+      return;
+    }
+    document.getElementById('brevo-count').textContent = contacts.length + ' contacts';
+    const evCount = data.eventCount ?? 0;
+    document.getElementById('brevo-meta').innerHTML = `From <strong>${evCount} tracked events</strong> across all emails. Ranked by opens + clicks.`;
+    if (!contacts.length) { document.getElementById('brevo-list').innerHTML = '<div class="brevo-empty">No engagement data yet</div>'; return; }
+    const maxScore = contacts[0].opens + contacts[0].clicks * 2;
+    document.getElementById('brevo-list').innerHTML = contacts.map((c, i) => {
+      const score = c.opens + c.clicks * 2;
+      const pct   = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+      return `<div class="brevo-lead" style="animation-delay:${Math.min(i*30,600)}ms">
+        <div class="brevo-rank">${i + 1}</div>
+        <div class="brevo-info"><div class="brevo-email">${esc(c.email)}</div></div>
+        <div class="brevo-bar-wrap"><div class="brevo-bar"><div class="brevo-bar-fill" style="width:0%" data-pct="${pct}"></div></div></div>
+        <div class="brevo-stats">
+          <div class="brevo-stat"><div class="brevo-stat-val">${c.opens}</div><div class="brevo-stat-label">Opens</div></div>
+          <div class="brevo-stat"><div class="brevo-stat-val">${c.clicks}</div><div class="brevo-stat-label">Clicks</div></div>
+        </div>
+      </div>`;
+    }).join('');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      document.querySelectorAll('.brevo-bar-fill').forEach(el => { el.style.width = el.dataset.pct + '%'; });
+    }));
+  } catch { document.getElementById('brevo-list').innerHTML = '<div class="brevo-empty">Failed to load</div>'; }
+}
+
+// ── Overview Revenue ──
+async function loadOverviewRevenue() {
+  try {
+    const res  = await fetch(`/api/admin/revenue?key=${encodeURIComponent(KEY)}`);
+    const data = await res.json();
+    const fmt  = n => 'R' + Math.round(n).toLocaleString('en-ZA');
+    const now  = new Date();
+    const monthLabel = now.toLocaleString('en', { month: 'long' });
+
+    document.getElementById('dash-rev-total').textContent     = fmt(data.total);
+    document.getElementById('dash-rev-total-sub').textContent = data.count + ' payments';
+    document.getElementById('dash-rev-month').textContent     = fmt(data.thisMonth);
+    document.getElementById('dash-rev-month-sub').textContent = monthLabel;
+    document.getElementById('dash-rev-mem').textContent       = fmt(data.byCategory['Membership'] ?? 0);
+    document.getElementById('dash-rev-evt').textContent       = fmt(data.byCategory['Event'] ?? 0);
+
+    const recent = data.recent.slice(0, 8);
+    document.getElementById('dash-recent-payments').innerHTML = recent.length
+      ? recent.map(p => `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid var(--border);background:var(--navy);gap:16px;">
+          <div style="min-width:0;">
+            <div style="font-size:13px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.name || p.email)}</div>
+            <div style="font-size:10px;color:var(--silver-dim);margin-top:2px;letter-spacing:0.5px;">${esc(p.item)}</div>
+          </div>
+          <div style="font-family:var(--g);font-size:15px;font-weight:700;color:var(--silver);white-space:nowrap;font-variant-numeric:tabular-nums;">R${Math.round(p.amount).toLocaleString('en-ZA')}</div>
+        </div>`).join('')
+      : '<div style="font-size:12px;color:var(--silver-dim);">No payments yet</div>';
+  } catch(e) {
+    document.getElementById('dash-rev-total').textContent = 'Error';
+  }
+}
+
+// ── Revenue Tab ──
+let revenueLoaded = false;
+async function loadRevenue() {
+  if (revenueLoaded) return;
+  revenueLoaded = true;
+  try {
+    const res  = await fetch(`/api/admin/revenue?key=${encodeURIComponent(KEY)}`);
+    const data = await res.json();
+    const fmt  = n => 'R' + Math.round(n).toLocaleString('en-ZA');
+    const now  = new Date();
+    const monthLabel = now.toLocaleString('en', { month: 'long', year: 'numeric' });
+
+    document.getElementById('rev-total').textContent      = fmt(data.total);
+    document.getElementById('rev-month').textContent      = fmt(data.thisMonth);
+    document.getElementById('rev-month-label').textContent = monthLabel;
+    document.getElementById('rev-membership').textContent = fmt(data.byCategory['Membership'] ?? 0);
+    document.getElementById('rev-event').textContent      = fmt(data.byCategory['Event'] ?? 0);
+    document.getElementById('rev-count').textContent      = data.count + ' payments';
+
+    const maxItem = Math.max(...Object.values(data.byItem).map(v => v.amount), 1);
+    document.getElementById('rev-by-item').innerHTML = Object.entries(data.byItem)
+      .sort((a, b) => b[1].amount - a[1].amount)
+      .map(([item, v]) => {
+        const pct = Math.round((v.amount / maxItem) * 100);
+        return `<div class="funnel-row">
+          <div class="funnel-label" style="width:220px;font-size:12px;">${esc(item)}</div>
+          <div class="funnel-bar-wrap"><div class="funnel-bar-fill" style="width:0%" data-pct="${pct}"></div></div>
+          <div class="funnel-count" style="width:80px;text-align:right;font-size:12px;">${fmt(v.amount)}</div>
+          <div style="width:36px;text-align:right;font-size:10px;color:var(--silver-dim);margin-left:8px;">${v.count}x</div>
+        </div>`;
+      }).join('');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      document.querySelectorAll('#rev-by-item .funnel-bar-fill').forEach(el => { el.style.width = el.dataset.pct + '%'; });
+    }));
+
+    document.getElementById('rev-recent').innerHTML = data.recent.length
+      ? data.recent.map(p => `<div class="brevo-lead" style="animation-delay:0ms">
+          <div class="brevo-info">
+            <div class="brevo-email">${esc(p.name || p.email)}</div>
+            <div style="font-size:11px;color:var(--silver-dim);margin-top:2px;">${esc(p.item)} · ${esc(p.date)}</div>
+          </div>
+          <div style="font-family:var(--g);font-size:18px;font-weight:700;color:var(--white);font-variant-numeric:tabular-nums;">R${Math.round(p.amount).toLocaleString('en-ZA')}</div>
+        </div>`).join('')
+      : '<div class="brevo-empty">No payments yet</div>';
+  } catch(e) {
+    document.getElementById('rev-recent').innerHTML = '<div class="brevo-empty">Failed to load</div>';
+  }
+}
+
+function setMsg(id, text, isErr) {
+  const el = document.getElementById(id);
+  el.textContent = text.toUpperCase(); el.className = 'msg ' + (isErr ? 'err' : 'ok');
+  setTimeout(() => { el.textContent = ''; el.className = 'msg'; }, 4000);
+}
+</script>
+</body>
+</html>

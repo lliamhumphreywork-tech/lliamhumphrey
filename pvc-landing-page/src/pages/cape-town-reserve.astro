@@ -1,0 +1,215 @@
+---
+export const prerender = false;
+const email = Astro.url.searchParams.get('email') ?? '';
+const tierParam = Astro.url.searchParams.get('tier') ?? '';
+const PH_KEY = import.meta.env.PUBLIC_POSTHOG_KEY ?? '';
+const PS_KEY = import.meta.env.PUBLIC_PAYSTACK_KEY ?? '';
+
+const isVIP = tierParam === 'VIP Admission';
+const isGA = tierParam === 'General Admission';
+
+const tier = isVIP ? 'vip' : 'ga';
+const tierLabel = isVIP ? 'VIP Experience' : 'General Admission';
+const tierBadge = isVIP ? 'Tier 3 · Premium Access' : 'Tier 2 · Open Access';
+const price = isVIP ? 'R7,000' : 'R4,000';
+const tierNote = isVIP ? 'VIP Admission' : 'General Admission';
+const introText = isVIP
+  ? "You've applied for VIP Experience. Click below to lock in your spot request. The team will confirm your seat and send payment details directly."
+  : "You've applied for General Admission. Click below to lock in your spot request. The team will confirm your seat and send payment details directly.";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cape Town · {tierLabel} · Reserve Your Seat</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  {PH_KEY && <script define:vars={{ PH_KEY }}>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));
+    posthog.init(PH_KEY, {api_host: 'https://eu.posthog.com', capture_pageview: true});
+  </script>}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --black: #08111f; --navy: #0a1628; --cream: #ece6da; --white: #ffffff; --silver: #a8b8c8; --silver-dim: #4a5666; --silver-light: #dde4ec; --muted: rgba(236,230,218,0.45); }
+    html, body { min-height: 100vh; }
+    body { background: var(--navy); color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.6; }
+    .top-bar { height: 2px; background: var(--silver); }
+    nav { max-width: 680px; margin: 0 auto; padding: 32px 24px 0; }
+    .nav-brand { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); text-decoration: none; }
+    .nav-brand:hover { color: var(--silver); }
+    .wrap { max-width: 680px; margin: 0 auto; padding: 72px 24px 120px; }
+    .eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--silver); margin-bottom: 20px; }
+    h1 { font-family: 'Syne', sans-serif; font-size: clamp(42px, 8vw, 72px); font-weight: 300; line-height: 1.0; color: var(--white); margin-bottom: 8px; }
+    .tier-badge-ga { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--silver-dim); border: 1px solid rgba(168,184,200,0.25); padding: 5px 12px; margin-bottom: 48px; }
+    .tier-badge-vip { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--black); background: var(--silver); padding: 5px 12px; margin-bottom: 48px; }
+    .price-block-ga { margin-bottom: 48px; padding: 36px; border: 1px solid rgba(168,184,200,0.2); background: rgba(255,255,255,0.02); }
+    .price-block-vip { margin-bottom: 48px; padding: 36px; border: 1px solid rgba(168,184,200,0.3); background: rgba(168,184,200,0.04); }
+    .price-amount { font-family: 'Syne', sans-serif; font-size: clamp(52px, 10vw, 84px); font-weight: 300; color: var(--white); line-height: 1; margin-bottom: 6px; }
+    .price-note { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--silver-dim); }
+    .includes { margin-bottom: 52px; }
+    .includes-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 16px; }
+    .includes ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .includes li { display: flex; align-items: flex-start; gap: 14px; font-size: 15px; color: rgba(236,230,218,0.75); }
+    .includes li::before { content: '·'; color: var(--silver); flex-shrink: 0; }
+    .divider { height: 1px; background: rgba(168,184,200,0.15); margin-bottom: 48px; }
+    .reserve-intro { font-size: 15px; color: rgba(236,230,218,0.65); margin-bottom: 32px; line-height: 1.6; }
+    .reserve-btn { display: flex; align-items: center; justify-content: center; width: 100%; background: var(--silver); color: var(--black); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; padding: 18px 40px; border: none; cursor: pointer; transition: background 0.2s, transform 0.15s; }
+    .reserve-btn:hover:not(:disabled) { background: var(--silver-light); transform: translateY(-1px); }
+    .reserve-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .error-msg { display: none; margin-top: 16px; padding: 14px 16px; background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.3); color: #e09090; font-size: 14px; }
+    .success-state { display: none; padding: 48px 0 0; }
+    .success-mark { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 300; color: var(--silver); margin-bottom: 20px; }
+    .success-state h2 { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 300; color: var(--white); margin-bottom: 12px; line-height: 1.1; }
+    .success-state .success-sub { color: rgba(236,230,218,0.55); font-size: 15px; line-height: 1.65; max-width: 480px; margin-bottom: 40px; }
+    .post-reserve-options { display: flex; flex-direction: column; gap: 16px; max-width: 420px; }
+    .secure-btn { display: flex; align-items: center; justify-content: center; background: var(--silver); color: var(--black); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; padding: 18px 40px; border: none; cursor: pointer; transition: background 0.2s, transform 0.15s; width: 100%; }
+    .secure-btn:hover { background: var(--silver-light); transform: translateY(-1px); }
+    .wa-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background: transparent; color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; padding: 16px 40px; border: 1px solid rgba(168,184,200,0.25); cursor: pointer; text-decoration: none; transition: border-color 0.2s, color 0.2s; width: 100%; box-sizing: border-box; }
+    .wa-btn:hover { border-color: var(--silver); color: var(--white); }
+    footer { max-width: 680px; margin: 0 auto; padding: 32px 24px; border-top: 1px solid rgba(168,184,200,0.1); font-size: 11px; color: var(--silver-dim); letter-spacing: 1px; }
+    footer a { color: var(--silver-dim); text-decoration: none; }
+    footer a:hover { color: var(--silver); }
+  </style>
+</head>
+<body>
+<div class="top-bar"></div>
+<nav><a href="/" class="nav-brand">Private Victories Club</a></nav>
+<div class="wrap">
+  <div class="eyebrow">Cape Town · October 10th</div>
+
+  {isVIP ? (
+    <>
+      <h1>VIP<br />Experience</h1>
+      <div class="tier-badge-vip">Tier 3 · Premium Access</div>
+      <div class="price-block-vip">
+        <div class="price-amount">R7,000</div>
+        <div class="price-note">One-time · Cape Town event</div>
+      </div>
+      <div class="includes">
+        <div class="includes-label">What's included</div>
+        <ul>
+          <li>Everything in General Admission</li>
+          <li>Shared VIP hour with both speakers</li>
+          <li>Full event shot and captured</li>
+        </ul>
+      </div>
+    </>
+  ) : (
+    <>
+      <h1>General<br />Admission</h1>
+      <div class="tier-badge-ga">Tier 2 · Open Access</div>
+      <div class="price-block-ga">
+        <div class="price-amount">R4,000</div>
+        <div class="price-note">One-time · Cape Town event</div>
+      </div>
+      <div class="includes">
+        <div class="includes-label">What's included</div>
+        <ul>
+          <li>Full mastermind access</li>
+          <li>Full event shot and captured</li>
+          <li>Private dinner</li>
+          <li>Keepsakes</li>
+          <li>30-day PVC membership</li>
+        </ul>
+      </div>
+    </>
+  )}
+
+  <div class="divider"></div>
+
+  <div id="reserve-section">
+    <p class="reserve-intro">{introText}</p>
+    <button class="reserve-btn" id="reserve-btn">Reserve My Seat</button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+
+  <div class="success-state" id="success-state">
+    <div class="success-mark">·</div>
+    <h2>Your spot is held.</h2>
+    <p class="success-sub">What do you want to do next?</p>
+    <div class="post-reserve-options">
+      <button class="secure-btn" id="secure-now-btn">Secure My Seat Now</button>
+      <a class="wa-btn" id="wa-details-btn" href="#" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        Get the Details on WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+<footer><a href="/legal">Terms &amp; Conditions</a> · <a href="/legal#privacy">Privacy Policy</a> · <a href="/legal#refunds">Refund Policy</a></footer>
+
+<script is:inline src="https://js.paystack.co/v1/inline.js"></script>
+<script is:inline define:vars={{ email, tierNote, PS_KEY }}>
+  if (window.posthog) posthog.capture('reserve_page_viewed', { tier: tierNote, email });
+
+  var isVIP = tierNote === 'VIP Admission';
+  var amount = isVIP ? 700000 : 400000;
+  var itemName = isVIP ? 'Cape Town Event: VIP Experience' : 'Cape Town Event: General Admission';
+  var redirectTier = isVIP ? 'vip' : 'ga';
+
+  // Secure now button — opens Paystack inline
+  document.getElementById('secure-now-btn').addEventListener('click', function () {
+    var handler = PaystackPop.setup({
+      key: PS_KEY,
+      email: email || '',
+      amount: amount,
+      currency: 'ZAR',
+      ref: 'pvc_reserve_' + Date.now(),
+      metadata: { item_name: itemName },
+      callback: function () {
+        window.location.href = '/cape-town-welcome?tier=' + redirectTier;
+      },
+      onClose: function () {},
+    });
+    handler.openIframe();
+  });
+
+  // WhatsApp details button — pre-filled message to Lliam
+  var waNumber = '27XXXXXXXXXX'; // TODO: replace with real number
+  var tierLabel = isVIP ? 'VIP Experience (R7,000)' : 'General Admission (R4,000)';
+  var waMsg = encodeURIComponent('Hey Lliam, I just reserved my ' + tierLabel + ' seat for Cape Town on Oct 10. Can you send me the details?');
+  document.getElementById('wa-details-btn').href = 'https://wa.me/' + waNumber + '?text=' + waMsg;
+
+  document.getElementById('reserve-btn').addEventListener('click', async function () {
+    this.disabled = true;
+    this.textContent = 'Reserving...';
+    document.getElementById('error-msg').style.display = 'none';
+    try {
+      const res = await fetch('/api/reserve-seat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, tier: tierNote }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (window.posthog) posthog.capture('seat_reserve_failed', { tier: tierNote, error: data.error });
+        showError(data.error || 'Something went wrong. Please try again.');
+        resetBtn();
+        return;
+      }
+      if (window.posthog) posthog.capture('seat_reserved', { tier: tierNote, email });
+      document.getElementById('reserve-section').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+    } catch {
+      showError('Something went wrong. Please try again.');
+      resetBtn();
+    }
+  });
+  function resetBtn() {
+    const b = document.getElementById('reserve-btn');
+    b.disabled = false;
+    b.textContent = 'Reserve My Seat';
+  }
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+</script>
+</body>
+</html>

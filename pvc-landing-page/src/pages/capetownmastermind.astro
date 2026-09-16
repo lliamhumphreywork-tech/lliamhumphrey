@@ -15,11 +15,11 @@ const NOISE = (id: string) => `
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cape Town Mastermind · Private Victories Club</title>
-  <meta name="description" content="One day. Three entrepreneurs who've actually done it. An experience built for founders scaling. Cape Town · Friday 2 October." />
+  <meta name="description" content="One day. Multiple entrepreneurs who've actually done it. An experience built for founders scaling. Cape Town · Saturday 10 October." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet" />
   <Analytics />
   {PH_KEY && <script define:vars={{ PH_KEY }}>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));
@@ -47,12 +47,28 @@ const NOISE = (id: string) => `
     <h1 class="ct-title reveal d1">Cape<br /><em class="ct-title-em">Town</em></h1>
     <div class="ct-three reveal d2">
       <p>One day.</p>
-      <p>Three entrepreneurs who've actually done it.</p>
+      <p>Multiple entrepreneurs who've actually done it.</p>
       <p>An experience built for founders scaling.</p>
     </div>
-    <p class="ct-date reveal d3">Friday, October 2nd</p>
+    <p class="ct-date reveal d3">Saturday, October 10th</p>
     <a href="#tickets" class="cta-btn scroll-to-tickets reveal d4">Apply for a Seat</a>
     <p class="cta-note reveal d4">Spots are limited. Applications reviewed manually.</p>
+  </div>
+</section>
+
+<!-- COUNTDOWN -->
+<section class="ct-countdown-bar">
+  <div class="ct-countdown-inner">
+    <div class="ct-countdown-label">Cape Town · Oct 10, 2026</div>
+    <div class="ct-countdown-units" id="ct-countdown">
+      <div class="ct-cd-unit"><span class="ct-cd-num" id="cd-days">--</span><span class="ct-cd-lbl">Days</span></div>
+      <div class="ct-cd-sep">:</div>
+      <div class="ct-cd-unit"><span class="ct-cd-num" id="cd-hours">--</span><span class="ct-cd-lbl">Hours</span></div>
+      <div class="ct-cd-sep">:</div>
+      <div class="ct-cd-unit"><span class="ct-cd-num" id="cd-mins">--</span><span class="ct-cd-lbl">Minutes</span></div>
+      <div class="ct-cd-sep">:</div>
+      <div class="ct-cd-unit"><span class="ct-cd-num" id="cd-secs">--</span><span class="ct-cd-lbl">Seconds</span></div>
+    </div>
   </div>
 </section>
 
@@ -61,7 +77,7 @@ const NOISE = (id: string) => `
   <div class="ct-inner">
     <div class="ct-label reveal">The Premise</div>
     <p class="ct-premise-lead reveal d1">Not just your regular networking event.</p>
-    <p class="ct-premise-body reveal d2">A real mastermind, three entrepreneurs who've built real revenue, a structured session where you work through your actual bottleneck alongside other serious founders, and an evening where the real relationships get built.</p>
+    <p class="ct-premise-body reveal d2">A real mastermind, multiple entrepreneurs who've built real revenue, a structured session where you work through your actual bottleneck alongside other serious founders, and an evening where the real relationships get built.</p>
     <div class="ct-proof reveal d3">
       <div class="ct-proof-block">
         <div class="ct-proof-stat">172</div>
@@ -81,7 +97,7 @@ const NOISE = (id: string) => `
   </div>
 </section>
 
-<!-- VIDEO BREAK — founding dinner clips -->
+<!-- VIDEO BREAK: founding dinner clips -->
 <div class="ct-video-break">
   <div class="ct-video-strip">
     <video autoplay muted loop playsinline>
@@ -103,9 +119,9 @@ const NOISE = (id: string) => `
     <p class="ct-who-lead reveal d1">Founders already building something real.</p>
     <p class="ct-qualifier reveal d2">R10k/month minimum. Not people still deciding if they should start. People who are in motion and want to move faster.</p>
     <ul class="ct-who-list">
-      <li class="reveal d2">You have a specific bottleneck holding you back.</li>
-      <li class="reveal d3">You want honest input from people who've been there.</li>
-      <li class="reveal d4">You believe the right room changes your trajectory and opens doors you didn't have access to before.</li>
+      <li class="reveal d2" data-num="01">You have a specific bottleneck holding you back.</li>
+      <li class="reveal d3" data-num="02">You want honest input from people who've been there.</li>
+      <li class="reveal d4" data-num="03">You believe the right room changes your trajectory and opens doors you didn't have access to before.</li>
     </ul>
     <p class="ct-who-close reveal d5">If that's you, this event is for you.</p>
   </div>
@@ -124,44 +140,40 @@ const NOISE = (id: string) => `
 <section class="ct-section ct-speakers">
   <div class="ct-inner">
     <div class="ct-label reveal">The Speakers</div>
-    <p class="ct-speakers-intro reveal d1">Three entrepreneurs. Three different lanes. Real numbers behind every one of them.</p>
+    <p class="ct-speakers-intro reveal d1">Multiple entrepreneurs. Multiple different lanes. Real numbers behind every one of them.</p>
     <div class="ct-speaker-grid">
-      <div class="ct-speaker reveal d1" style="--accent-op:0.35">
-        <div class="ct-speaker-ghost" aria-hidden="true">C</div>
-        <div class="ct-speaker-photo-placeholder" aria-hidden="true"><span>C</span></div>
-        <div class="ct-speaker-name">Conrad</div>
-        <div class="ct-speaker-stat">$25k/month</div>
-        <div class="ct-speaker-context">at 18 years old</div>
-        <p class="ct-speaker-desc">Built a detailing business to $25k a month at 18. If you're trying to build fast with limited resources, this is your speaker.</p>
-      </div>
       <div class="ct-speaker reveal d2" style="--accent-op:0.2">
         <div class="ct-speaker-ghost" aria-hidden="true">N</div>
-        <div class="ct-speaker-photo-placeholder" aria-hidden="true"><span>N</span></div>
-        <div class="ct-speaker-name">Noah</div>
-        <div class="ct-speaker-stat">$57k</div>
-        <div class="ct-speaker-context">in 5 months</div>
-        <p class="ct-speaker-desc">Scaled a clothing manufacturing business to $57k in 5 months. The person to talk to about product, operations, and speed.</p>
+        <img src="/images/noah.jpg" alt="Noah Kerchhoff" class="ct-speaker-photo" style="object-position: center 70%;" />
+        <div class="ct-speaker-inner">
+          <div class="ct-speaker-name">Noah Kerchhoff</div>
+          <div class="ct-speaker-stat">$57k</div>
+          <div class="ct-speaker-context">in 5 months</div>
+          <p class="ct-speaker-desc">Generated $57k in 5 months in clothing manufacturing. The person to talk to about product, operations, and speed.</p>
+        </div>
       </div>
       <div class="ct-speaker reveal d3" style="--accent-op:0.5">
         <div class="ct-speaker-ghost" aria-hidden="true">N</div>
-        <div class="ct-speaker-photo-placeholder" aria-hidden="true"><span>N</span></div>
-        <div class="ct-speaker-name">Niyaaz</div>
-        <div class="ct-speaker-stat">$25k to $107k</div>
-        <div class="ct-speaker-context">per month</div>
-        <p class="ct-speaker-desc">Scaled a high-ticket coaching business from $25k to $107k a month. If you sell services or coaching, pay attention.</p>
+        <img src="/images/niyaaz.jpg" alt="Niyaaz" class="ct-speaker-photo" />
+        <div class="ct-speaker-inner">
+          <div class="ct-speaker-name">Niyaaz Solomon</div>
+          <div class="ct-speaker-stat">$25k to $107k</div>
+          <div class="ct-speaker-context">per month</div>
+          <p class="ct-speaker-desc">Scaled a high-ticket coaching business from $25k to $107k a month. If you sell services or coaching, pay attention.</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- PHOTO BREAK 2 — Cape Town coastline -->
+<!-- PHOTO BREAK 2: Cape Town coastline -->
 <div class="ct-photo-break">
   <img src="/images/ct-clifton.jpg" alt="Camps Bay, Cape Town" style="object-position: 50% 60%;" />
   <div class="ct-photo-break-overlay"></div>
   <div class="ct-photo-break-caption">Camps Bay · Cape Town</div>
 </div>
 
-<!-- PHOTO BREAK 3 — Cape Town evening -->
+<!-- PHOTO BREAK 3: Cape Town evening -->
 <div class="ct-photo-break ct-photo-break-tall">
   <img src="/images/ct-night-event.jpg" alt="Cape Town at night" style="object-position: 50% 50%;" />
   <div class="ct-photo-break-overlay"></div>
@@ -175,11 +187,11 @@ const NOISE = (id: string) => `
     <ol class="ct-schedule">
       <li class="ct-schedule-item reveal d1">
         <div class="ct-schedule-tag">VIP Hour</div>
-        <div class="ct-schedule-desc">All VIPs and all 3 speakers working through real bottlenecks together as a group.</div>
+        <div class="ct-schedule-desc">All VIPs and both speakers working through real bottlenecks together as a group.</div>
       </li>
       <li class="ct-schedule-item reveal d2">
-        <div class="ct-schedule-tag">Speaker Sessions</div>
-        <div class="ct-schedule-desc">Three individual speaker sessions. Real knowledge and insight in the game of business, to help you scale.</div>
+        <div class="ct-schedule-tag">Mastermind</div>
+        <div class="ct-schedule-desc">Three individual mastermind sessions. Real knowledge and insight in the game of business, to help you scale.</div>
       </li>
       <li class="ct-schedule-item reveal d3">
         <div class="ct-schedule-tag">Closing</div>
@@ -201,6 +213,10 @@ const NOISE = (id: string) => `
     <div class="ct-tickets-head">
       <div class="ct-label reveal" style="max-width:900px;margin:0 auto 16px;">Apply for a Seat</div>
       <p class="ct-tickets-note reveal d1">Spots are limited and reviewed manually. Choose your tier and apply below.</p>
+      <div class="ct-social-proof reveal d2">
+        <span class="ct-proof-dot"></span>
+        People are confirming seats right now. Oct 10 is 23 days away.
+      </div>
     </div>
     <div class="ct-tiers reveal d2">
       <!-- GA -->
@@ -212,19 +228,15 @@ const NOISE = (id: string) => `
           <div class="ct-tier-wm" aria-hidden="true">PVC</div>
         </div>
         <div class="ct-tier-right">
-          <div class="ct-tier-price-block">
-            <div class="ct-tier-price">R2,500</div>
-            <div class="ct-tier-price-note">One-time · Cape Town event</div>
-          </div>
           <ul class="ct-tier-list">
             <li><span class="ct-tier-check">·</span>Full mastermind access</li>
-            <li><span class="ct-tier-check">·</span>All 3 speaker sessions</li>
+            <li><span class="ct-tier-check">·</span>Full event shot and captured</li>
             <li><span class="ct-tier-check">·</span>Private dinner</li>
             <li><span class="ct-tier-check">·</span>Keepsakes</li>
             <li><span class="ct-tier-check">·</span>30-day PVC membership</li>
           </ul>
           <div class="ct-tier-cta-row">
-            <a href="#" class="cta-btn apply-trigger ct-tier-apply-btn">Apply Now</a>
+            <a href="#" class="cta-btn apply-trigger ct-tier-apply-btn" data-tier="General Admission">Apply Now</a>
             <span class="ct-tier-meta">Reviewed manually</span>
           </div>
         </div>
@@ -238,17 +250,15 @@ const NOISE = (id: string) => `
           <div class="ct-tier-wm ct-tier-wm-vip" aria-hidden="true">PVC</div>
         </div>
         <div class="ct-tier-right ct-tier-right-vip">
-          <div class="ct-tier-price-block">
-            <div class="ct-tier-price ct-tier-price-vip">R3,750</div>
-            <div class="ct-tier-price-note ct-tier-price-note-vip">One-time · 3 seats only</div>
-          </div>
           <ul class="ct-tier-list ct-tier-list-vip">
             <li><span class="ct-tier-check">·</span>Everything in General Admission</li>
-            <li><span class="ct-tier-check">·</span>Shared VIP hour with all 3 speakers</li>
-            <li><span class="ct-tier-check">·</span>Dedicated content for your brand</li>
+            <li><span class="ct-tier-check">·</span>Shared VIP hour with both speakers</li>
+            <li><span class="ct-tier-check">·</span>Full event shot and captured</li>
+            <li><span class="ct-tier-check">·</span>A dedicated one-on-one content moment with each speaker, captured by our team, real personal footage for your own brand</li>
+            <li><span class="ct-tier-check">·</span>First access to future Private Victories events, before they're announced publicly</li>
           </ul>
           <div class="ct-tier-cta-row ct-tier-cta-row-vip">
-            <a href="#" class="cta-btn apply-trigger">Apply Now</a>
+            <a href="#" class="cta-btn apply-trigger" data-tier="VIP Admission">Apply Now</a>
             <span class="ct-tier-meta ct-tier-meta-vip">Reviewed manually</span>
           </div>
         </div>
@@ -262,8 +272,8 @@ const NOISE = (id: string) => `
   <div class="ct-vvip-inner">
     <div class="ct-vvip-label reveal">VVIP</div>
     <p class="ct-vvip-heading reveal d1">The full concierge experience.</p>
-    <p class="ct-vvip-body reveal d2">Everything in the event — every session, every speaker, the private dinner — plus a curated Day 3 activity and full concierge treatment from arrival to departure. Designed for a very small number of people who want the complete experience built around them. If that's you, reach out directly.</p>
-    <a href="mailto:lliam@privatevictoriesclub.com" class="ct-vvip-btn reveal d3">Contact Directly</a>
+    <p class="ct-vvip-body reveal d2">Everything in the event: every session, every speaker, the private dinner. Plus a curated Day 3 activity and full concierge treatment from arrival to departure. Designed for a very small number of people who want the complete experience built around them. Serious inquiries only.</p>
+    <a href="https://www.instagram.com/lliam.humphrey/" class="ct-vvip-btn reveal d3" target="_blank" rel="noopener">Contact Directly</a>
   </div>
 </section>
 
@@ -282,30 +292,8 @@ const NOISE = (id: string) => `
   <div class="pvc-modal-overlay" id="modalOverlay"></div>
   <div class="pvc-modal-panel">
     <button class="pvc-modal-close" id="modalClose" aria-label="Close">&times;</button>
-    <div class="pvc-modal-eyebrow">Cape Town Mastermind &middot; Friday 2 October</div>
+    <div class="pvc-modal-eyebrow">Cape Town Mastermind &middot; Saturday 10 October</div>
     <h2 class="pvc-modal-title">Apply for a Seat</h2>
-    <div class="pvc-modal-tiers">
-      <div class="pvc-modal-tier">
-        <div class="pvc-modal-tier-label">General Admission</div>
-        <div class="pvc-modal-tier-price">R2,500</div>
-        <ul class="pvc-modal-tier-list">
-          <li>Full mastermind access</li>
-          <li>All 3 speaker sessions</li>
-          <li>Private dinner</li>
-          <li>Keepsakes</li>
-          <li>30-day PVC membership</li>
-        </ul>
-      </div>
-      <div class="pvc-modal-tier pvc-modal-tier-vip">
-        <div class="pvc-modal-tier-label">VIP</div>
-        <div class="pvc-modal-tier-price">R3,750</div>
-        <ul class="pvc-modal-tier-list">
-          <li>Everything in General Admission</li>
-          <li>Shared VIP hour with all 3 speakers</li>
-          <li>Dedicated content for your brand</li>
-        </ul>
-      </div>
-    </div>
     <div class="pvc-modal-form">
       <iframe data-tally-src="https://tally.so/r/J94gk4?transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="500" frameborder="0" marginheight="0" marginwidth="0" title="Cape Town Mastermind Application"></iframe>
       <script async src="https://tally.so/widgets/embed.js"></script>
@@ -359,10 +347,11 @@ const NOISE = (id: string) => `
 
   const openModal = (e: Event) => {
     e.preventDefault();
+    const tier = (e.currentTarget as HTMLElement)?.dataset?.tier ?? 'unknown';
     modal?.classList.add('open');
     document.body.style.overflow = 'hidden';
     if (typeof (window as any).Tally !== 'undefined') (window as any).Tally.loadEmbeds();
-    (window as any).posthog?.capture('apply_modal_opened', { page: 'cape-town-mastermind' });
+    (window as any).posthog?.capture('apply_modal_opened', { page: 'cape-town-mastermind', tier });
   };
   const closeModal = () => { modal?.classList.remove('open'); document.body.style.overflow = ''; };
 
@@ -370,25 +359,63 @@ const NOISE = (id: string) => `
   modalOverlay?.addEventListener('click', closeModal);
   modalClose?.addEventListener('click', closeModal);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  // Countdown to Oct 10 2026 14:00 SAST (UTC+2)
+  const eventDate = new Date('2026-10-10T12:00:00Z');
+  function updateCountdown() {
+    const diff = eventDate - Date.now();
+    if (diff <= 0) {
+      ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '00'; });
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const pad = (n) => String(n).padStart(2, '0');
+    const days = document.getElementById('cd-days'); if (days) days.textContent = pad(d);
+    const hours = document.getElementById('cd-hours'); if (hours) hours.textContent = pad(h);
+    const mins = document.getElementById('cd-mins'); if (mins) mins.textContent = pad(m);
+    const secs = document.getElementById('cd-secs'); if (secs) secs.textContent = pad(s);
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 </script>
 
 <style>
+  /* ── COUNTDOWN BAR ── */
+  .ct-countdown-bar { background: rgba(168,184,200,0.06); border-top: 1px solid rgba(168,184,200,0.12); border-bottom: 1px solid rgba(168,184,200,0.12); padding: 28px 24px; }
+  .ct-countdown-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .ct-countdown-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); }
+  .ct-countdown-units { display: flex; align-items: center; gap: 8px; }
+  .ct-cd-unit { display: flex; flex-direction: column; align-items: center; min-width: 52px; }
+  .ct-cd-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 300; color: var(--pure-white); line-height: 1; }
+  .ct-cd-lbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--silver-dim); margin-top: 4px; }
+  .ct-cd-sep { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 300; color: var(--silver-dim); padding-bottom: 12px; }
+  /* ── SOCIAL PROOF ── */
+  .ct-social-proof { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--silver-dim); margin-top: 20px; }
+  .ct-proof-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; flex-shrink: 0; animation: proof-pulse 2s ease-in-out infinite; }
+  @keyframes proof-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   /* ── HERO ── */
   .ct-hero {
-    min-height: 72vh; background: var(--pure-black); display: flex; align-items: flex-end;
-    padding: 80px 48px 72px; position: relative; overflow: hidden;
+    min-height: 88vh; background: var(--pure-black); display: flex; align-items: flex-end;
+    padding: 80px 80px 96px; position: relative; overflow: hidden;
   }
+  .ct-hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--silver); z-index: 10; }
   .ct-hero-photo { position: absolute; inset: 0; z-index: 0; }
   .ct-hero-photo img {
     width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%;
     transform: scale(1.04); transition: transform 6s cubic-bezier(0.16,1,0.3,1);
+    filter: contrast(1.08) saturate(0.88);
   }
   .ct-hero-photo img.loaded { transform: scale(1); }
   .ct-hero-overlay {
     position: absolute; inset: 0; z-index: 1;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.82) 100%);
+    background:
+      linear-gradient(to bottom, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.05) 25%, rgba(0,0,0,0.88) 100%),
+      linear-gradient(to right, rgba(0,0,0,0.35) 0%, transparent 60%);
   }
-  .ct-hero-inner { position: relative; z-index: 3; max-width: 900px; width: 100%; }
+  .ct-hero-inner { position: relative; z-index: 3; max-width: 980px; width: 100%; }
 
   .ct-eyebrow {
     font-size: 10px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase;
@@ -399,13 +426,14 @@ const NOISE = (id: string) => `
     letter-spacing: -4px; line-height: 0.88; text-transform: uppercase; color: var(--white); margin-bottom: 36px;
   }
   .ct-title-em {
-    font-family: var(--s); font-style: italic; font-weight: 300;
-    font-size: clamp(80px, 13vw, 176px); letter-spacing: -3px; color: var(--silver-light); text-transform: none;
+    font-family: var(--g); font-style: normal; font-weight: 400;
+    font-size: clamp(80px, 13vw, 176px); letter-spacing: -5px; color: rgba(221,228,236,0.75); text-transform: none;
   }
-  .ct-three { margin-bottom: 24px; }
+  .ct-three { margin-bottom: 28px; }
   .ct-three p {
-    font-family: var(--s); font-style: italic; font-weight: 300;
-    font-size: clamp(20px, 2.6vw, 32px); color: var(--white); line-height: 1.55; margin: 0;
+    font-family: var(--s); font-style: normal; font-weight: 300;
+    font-size: clamp(16px, 2vw, 26px); color: rgba(168,184,200,0.65); line-height: 1.7; margin: 0;
+    letter-spacing: 0.2px;
   }
   .ct-date {
     font-size: 12px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase;
@@ -452,85 +480,98 @@ const NOISE = (id: string) => `
   }
 
   /* ── PREMISE ── */
+  .ct-premise { background: var(--navy-deep); }
   .ct-premise-lead {
-    font-size: clamp(28px, 4vw, 56px); font-weight: 700; letter-spacing: -1.5px;
-    color: var(--white); line-height: 1.05; margin-bottom: 28px;
+    font-size: clamp(32px, 5vw, 68px); font-weight: 700; letter-spacing: -2px;
+    color: var(--white); line-height: 0.97; margin-bottom: 32px;
   }
   .ct-premise-body {
-    font-size: clamp(16px, 1.7vw, 19px); color: var(--silver-light); line-height: 1.9;
-    max-width: 64ch; margin-bottom: 56px; font-weight: 300;
+    font-size: clamp(15px, 1.6vw, 18px); color: rgba(168,184,200,0.6); line-height: 1.9;
+    max-width: 64ch; margin-bottom: 60px; font-weight: 300;
   }
   .ct-proof {
-    display: flex; align-items: center; gap: 48px; flex-wrap: wrap;
-    padding: 44px; border: 1px solid rgba(168,184,200,0.2); background: rgba(168,184,200,0.03);
+    display: flex; align-items: stretch; gap: 0; flex-wrap: wrap;
+    border: 1px solid rgba(168,184,200,0.1); background: rgba(168,184,200,0.02);
+    position: relative; overflow: hidden;
   }
-  .ct-proof-block { display: flex; flex-direction: column; gap: 8px; }
+  .ct-proof::before { content: ''; position: absolute; top: 0; left: 0; width: 32px; height: 2px; background: rgba(168,184,200,0.25); }
+  .ct-proof-block { display: flex; flex-direction: column; gap: 10px; padding: 44px 48px; border-right: 1px solid rgba(168,184,200,0.08); }
+  .ct-proof-block:last-of-type { border-right: none; }
   .ct-proof-stat {
     font-family: var(--s); font-size: clamp(52px, 7vw, 88px); font-weight: 300;
-    color: var(--white); line-height: 1; letter-spacing: -2px;
+    color: rgba(168,184,200,0.35); line-height: 1; letter-spacing: -2px;
   }
   .ct-proof-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim);
+    font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim);
   }
-  .ct-proof-divider { width: 1px; height: 72px; background: rgba(168,184,200,0.2); flex-shrink: 0; }
-  .ct-proof-quote-wrap { margin: 0; }
+  .ct-proof-divider { display: none; }
+  .ct-proof-quote-wrap { margin: 0; padding: 44px 48px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
   .ct-proof-quote {
     font-family: var(--s); font-style: italic; font-weight: 300;
-    font-size: clamp(16px, 1.9vw, 22px); color: var(--silver); line-height: 1.7;
-    max-width: 30ch; margin: 0 0 10px;
+    font-size: clamp(16px, 2vw, 24px); color: var(--white); line-height: 1.55;
+    max-width: 32ch; margin: 0 0 14px;
   }
   .ct-proof-cite {
-    font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    font-size: 9.5px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase;
     color: var(--silver-dim);
   }
 
   /* ── WHO ── */
   .ct-who-lead {
-    font-size: clamp(26px, 3.5vw, 48px); font-weight: 700; letter-spacing: -1px;
-    color: var(--white); margin-bottom: 16px; line-height: 1.05;
+    font-size: clamp(32px, 4.5vw, 60px); font-weight: 700; letter-spacing: -2px;
+    color: var(--white); margin-bottom: 20px; line-height: 0.97;
   }
   .ct-qualifier {
-    font-size: clamp(15px, 1.6vw, 18px); color: var(--silver); margin-bottom: 52px; line-height: 1.8; font-weight: 300; max-width: 60ch;
+    font-size: clamp(14px, 1.5vw, 17px); color: rgba(168,184,200,0.55); margin-bottom: 56px; line-height: 1.85; font-weight: 300; max-width: 58ch;
   }
-  .ct-who-list { list-style: none; border-top: 1px solid #ffffff14; margin-bottom: 52px; }
+  .ct-who-list { list-style: none; border-top: 1px solid rgba(168,184,200,0.08); margin-bottom: 56px; }
   .ct-who-list li {
-    padding: 30px 0; border-bottom: 1px solid #ffffff14;
-    font-size: clamp(20px, 2.8vw, 38px); font-weight: 500; color: var(--white);
-    letter-spacing: -0.5px; line-height: 1.2; transition: padding-left 0.3s;
+    padding: 34px 0; border-bottom: 1px solid rgba(168,184,200,0.08);
+    font-size: clamp(18px, 2.4vw, 32px); font-weight: 500; color: var(--white);
+    letter-spacing: -0.5px; line-height: 1.2;
+    display: flex; align-items: baseline; gap: 24px;
+    transition: padding-left 0.3s, color 0.3s;
   }
-  .ct-who-list li:hover { padding-left: 18px; }
+  .ct-who-list li::before {
+    content: attr(data-num); font-size: 9px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--silver-dim); flex-shrink: 0; padding-top: 4px;
+  }
+  .ct-who-list li:hover { padding-left: 8px; color: var(--silver-light); }
   .ct-who-close {
-    font-family: var(--s); font-style: italic; font-weight: 300;
-    font-size: clamp(18px, 2vw, 26px); color: var(--silver-light);
+    font-family: var(--s); font-style: normal; font-weight: 300;
+    font-size: clamp(16px, 1.8vw, 22px); color: rgba(168,184,200,0.45); letter-spacing: 0.2px;
   }
 
   /* ── STATEMENT ── */
-  .ct-statement { background: var(--navy-deep); }
-  .ct-statement-inner { padding: 40px 0; max-width: 820px; }
+  .ct-statement { background: var(--navy-deep); border-top: 1px solid rgba(168,184,200,0.06); }
+  .ct-statement-inner { padding: 40px 0; max-width: 840px; }
   .ct-statement-head {
-    font-family: var(--s); font-style: italic; font-weight: 300;
-    font-size: clamp(26px, 4vw, 56px); color: var(--white); line-height: 1.3;
-    letter-spacing: -0.5px; margin-bottom: 32px;
+    font-family: var(--s); font-style: normal; font-weight: 300;
+    font-size: clamp(26px, 4vw, 58px); color: var(--white); line-height: 1.3;
+    letter-spacing: -1px; margin-bottom: 36px;
   }
   .ct-statement-sub {
-    font-size: clamp(15px, 1.6vw, 18px); font-weight: 500;
-    color: var(--silver); letter-spacing: 0.5px;
+    font-size: clamp(13px, 1.4vw, 16px); font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--silver-dim);
+    display: flex; align-items: center; gap: 16px;
   }
+  .ct-statement-sub::before { content: ''; width: 20px; height: 1px; background: rgba(168,184,200,0.3); }
 
   /* ── SPEAKERS ── */
   .ct-speakers-intro {
     font-size: clamp(15px, 1.6vw, 18px); color: var(--silver); margin-bottom: 56px; font-weight: 300; line-height: 1.8; max-width: 60ch;
   }
   .ct-speaker-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
+    display: grid; grid-template-columns: repeat(2, 1fr);
     gap: 1px; background: rgba(168,184,200,0.08); border: 1px solid rgba(168,184,200,0.08);
   }
   .ct-speaker {
-    padding: 52px 40px 48px; background: var(--pure-black);
+    padding: 0 0 48px; background: var(--pure-black);
     border-top: 2px solid rgba(168,184,200, var(--accent-op, 0.3));
     border-bottom: 3px solid transparent; transition: border-bottom-color 0.25s, background 0.25s;
     display: flex; flex-direction: column; position: relative; overflow: hidden;
   }
+  .ct-speaker-inner { padding: 36px 40px 0; display: flex; flex-direction: column; flex: 1; }
   .ct-speaker:hover { border-bottom-color: var(--silver); background: rgba(168,184,200,0.02); }
   .ct-speaker-ghost {
     position: absolute; top: -10px; right: -8px;
@@ -541,11 +582,15 @@ const NOISE = (id: string) => `
   }
   .ct-speaker-photo-placeholder {
     width: 64px; height: 64px; border: 1px solid rgba(168,184,200,0.25);
-    display: flex; align-items: center; justify-content: center; margin-bottom: 28px;
-    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 0;
+    position: relative; z-index: 1; margin: 36px 40px 28px;
   }
   .ct-speaker-photo-placeholder span {
     font-size: 22px; font-weight: 600; color: var(--silver-dim); letter-spacing: 0;
+  }
+  .ct-speaker-photo {
+    width: 100%; height: 260px; object-fit: cover; object-position: center 60%;
+    display: block; position: relative; z-index: 1;
   }
   .ct-speaker-name {
     font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
@@ -562,22 +607,25 @@ const NOISE = (id: string) => `
   .ct-speaker-desc { font-size: 14px; color: var(--silver); line-height: 1.8; flex: 1; }
 
   /* ── THE DAY ── */
-  .ct-schedule { list-style: none; border-top: 1px solid #ffffff14; }
+  .ct-schedule { list-style: none; border-top: 1px solid rgba(168,184,200,0.08); counter-reset: schedule-counter; }
   .ct-schedule-item {
-    display: grid; grid-template-columns: 200px 1fr; gap: 40px; align-items: baseline;
-    padding: 36px 0; border-bottom: 1px solid #ffffff14; transition: padding-left 0.3s;
+    display: grid; grid-template-columns: 220px 1fr; gap: 48px; align-items: baseline;
+    padding: 40px 0; border-bottom: 1px solid rgba(168,184,200,0.08); transition: padding-left 0.3s;
+    position: relative;
   }
-  .ct-schedule-item:hover { padding-left: 14px; }
+  .ct-schedule-item:hover { padding-left: 12px; }
   .ct-schedule-tag {
-    font-size: 11px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--silver);
+    font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim);
   }
   .ct-schedule-desc {
-    font-size: clamp(17px, 2vw, 24px); font-weight: 400; color: var(--white); line-height: 1.45;
+    font-size: clamp(18px, 2.2vw, 28px); font-weight: 500; color: var(--white); line-height: 1.35; letter-spacing: -0.3px;
   }
   .ct-day-note {
-    margin-top: 44px; font-size: 12px; font-weight: 600; letter-spacing: 2px;
-    text-transform: uppercase; color: var(--silver);
+    margin-top: 52px; font-size: 11px; font-weight: 600; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--silver-dim);
+    display: flex; align-items: center; gap: 14px;
   }
+  .ct-day-note::before { content: ''; width: 20px; height: 1px; background: rgba(168,184,200,0.3); }
 
   /* ── TICKETS ── */
   .ct-tickets-section {
@@ -679,12 +727,12 @@ const NOISE = (id: string) => `
   }
   .ct-vvip-btn:hover { border-color: var(--silver); color: var(--white); }
 
-  .ct-close { background: var(--navy-deep); }
+  .ct-close { background: var(--pure-black); border-top: 1px solid rgba(168,184,200,0.06); }
   .ct-close-inner { text-align: center; padding: 40px 0; }
   .ct-close-quote {
-    font-family: var(--s); font-style: italic; font-weight: 300;
-    font-size: clamp(22px, 4vw, 56px); color: var(--white); line-height: 1.35;
-    letter-spacing: -0.5px; margin-bottom: 52px; max-width: 22ch; margin-inline: auto;
+    font-family: var(--s); font-style: normal; font-weight: 300;
+    font-size: clamp(24px, 4.5vw, 64px); color: var(--white); line-height: 1.25;
+    letter-spacing: -1.5px; margin-bottom: 56px; max-width: 22ch; margin-inline: auto;
   }
 
   /* ── MOBILE ── */
@@ -693,9 +741,14 @@ const NOISE = (id: string) => `
     .ct-section, .ct-tickets-section { padding: 80px 24px; }
     .ct-speaker-grid { grid-template-columns: 1fr; }
     .ct-schedule-item { grid-template-columns: 1fr; gap: 10px; }
-    .ct-proof { gap: 24px; padding: 32px; }
+    .ct-proof { flex-direction: column; gap: 0; padding: 0; }
+    .ct-proof-block { padding: 32px 28px; border-right: none; border-bottom: 1px solid rgba(168,184,200,0.08); }
+    .ct-proof-quote-wrap { padding: 32px 28px; }
     .ct-proof-divider { display: none; }
     .ct-tiers { grid-template-columns: 1fr; }
+    .ct-tier-right { padding: 32px 28px 36px; }
+    .ct-tier-left { padding: 28px 28px 24px; }
+    .ct-vvip-section { padding: 64px 24px; }
     .ct-video-break { grid-template-columns: 1fr; }
     .ct-video-strip { height: 40vh; }
     .ct-photo-break { height: 45vh; }
@@ -708,70 +761,13 @@ const NOISE = (id: string) => `
     .ct-section, .ct-tickets-section { padding: 64px 20px; }
     .ct-photo-break { height: 38vh; }
     .cta-btn { width: 100%; text-align: center; justify-content: center; }
-    .ct-speaker { padding: 36px 24px; }
-    .ct-tier-right { padding: 32px 24px; }
+    .ct-speaker-inner { padding: 28px 24px 0; }
+    .ct-speaker-photo-placeholder { margin: 28px 24px 20px; }
+    .ct-tier-right { padding: 28px 20px 32px; }
+    .ct-tier-left { padding: 24px 20px; }
     .ct-tier-cta-row { flex-direction: column; align-items: flex-start; gap: 12px; }
-  }
-  /* Modal tier layout */
-  .pvc-modal-tiers {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  .pvc-modal-tier {
-    flex: 1;
-    border: 1px solid #ffffff18;
-    border-radius: 12px;
-    padding: 20px 18px;
-    background: #0a0d14;
-  }
-  .pvc-modal-tier-vip {
-    border-color: var(--silver-dim);
-    background: #10141e;
-  }
-  .pvc-modal-tier-label {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--silver-dim);
-    margin-bottom: 8px;
-  }
-  .pvc-modal-tier-vip .pvc-modal-tier-label {
-    color: var(--silver);
-  }
-  .pvc-modal-tier-price {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 36px;
-    font-weight: 600;
-    color: var(--cream);
-    margin-bottom: 16px;
-    line-height: 1;
-  }
-  .pvc-modal-tier-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .pvc-modal-tier-list li {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
-    color: var(--silver);
-    line-height: 1.4;
-    padding-left: 14px;
-    position: relative;
-  }
-  .pvc-modal-tier-list li::before {
-    content: '·';
-    position: absolute;
-    left: 0;
-    color: var(--silver-dim);
-  }
-  @media (max-width: 480px) {
-    .pvc-modal-tiers { flex-direction: column; }
+    .ct-vvip-section { padding: 56px 20px; }
+    .ct-schedule-item { padding: 28px 0; }
   }
 </style>
 

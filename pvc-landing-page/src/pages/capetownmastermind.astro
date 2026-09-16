@@ -384,14 +384,15 @@ const NOISE = (id: string) => `
 
 <style>
   /* ── COUNTDOWN BAR ── */
-  .ct-countdown-bar { background: rgba(168,184,200,0.06); border-top: 1px solid rgba(168,184,200,0.12); border-bottom: 1px solid rgba(168,184,200,0.12); padding: 28px 24px; }
-  .ct-countdown-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
-  .ct-countdown-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); }
-  .ct-countdown-units { display: flex; align-items: center; gap: 8px; }
-  .ct-cd-unit { display: flex; flex-direction: column; align-items: center; min-width: 52px; }
-  .ct-cd-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 300; color: var(--pure-white); line-height: 1; }
-  .ct-cd-lbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--silver-dim); margin-top: 4px; }
-  .ct-cd-sep { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 300; color: var(--silver-dim); padding-bottom: 12px; }
+  .ct-countdown-bar { background: var(--pure-black); border-top: 1px solid rgba(168,184,200,0.15); border-bottom: 1px solid rgba(168,184,200,0.15); padding: 52px 24px; }
+  .ct-countdown-inner { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+  .ct-countdown-label { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--silver-dim); }
+  .ct-countdown-units { display: flex; align-items: flex-start; gap: 0; }
+  .ct-cd-unit { display: flex; flex-direction: column; align-items: center; padding: 0 20px; border-right: 1px solid rgba(168,184,200,0.12); }
+  .ct-cd-unit:last-child { border-right: none; }
+  .ct-cd-num { font-family: 'Syne', sans-serif; font-size: clamp(52px, 10vw, 96px); font-weight: 300; color: var(--pure-white); line-height: 1; }
+  .ct-cd-lbl { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); margin-top: 10px; }
+  .ct-cd-sep { display: none; }
   /* ── SOCIAL PROOF ── */
   .ct-social-proof { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--silver-dim); margin-top: 20px; }
   .ct-proof-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; flex-shrink: 0; animation: proof-pulse 2s ease-in-out infinite; }

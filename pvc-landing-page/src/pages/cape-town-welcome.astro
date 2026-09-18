@@ -1,0 +1,188 @@
+---
+export const prerender = false;
+const tier = Astro.url.searchParams.get('tier') ?? 'ga';
+const isVIP     = tier === 'vip';
+const isMembers = tier === 'members';
+
+const tierLabel = isVIP ? 'VIP Experience' : isMembers ? 'Members Ticket' : 'General Admission';
+const calStart  = isVIP ? '20251010T130000' : '20251010T140000';
+const calEnd    = '20251010T180000';
+const calUrl    = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=PVC+Cape+Town+Mastermind&dates=${calStart}/${calEnd}&location=Workshop17,+Kloof+Street,+Cape+Town&details=Private+Victories+Club+Cape+Town+Private+Dinner+%26+Mastermind`;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>You're In · Cape Town · Private Victories Club</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #08111f;
+      --navy: #0a1628;
+      --cream: #ece6da;
+      --white: #ffffff;
+      --silver: #a8b8c8;
+      --silver-dim: #4a5666;
+      --silver-light: #dde4ec;
+      --muted: rgba(236,230,218,0.5);
+      --g: 'DM Sans', sans-serif;
+      --s: 'Syne', sans-serif;
+    }
+    html, body { min-height: 100vh; }
+    body { background: var(--navy); color: var(--cream); font-family: var(--g); font-size: 16px; line-height: 1.6; }
+    .top-bar { height: 2px; background: var(--silver); }
+    nav { max-width: 680px; margin: 0 auto; padding: 32px 24px 0; display: flex; align-items: center; justify-content: space-between; }
+    .nav-brand { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); text-decoration: none; }
+    .nav-brand:hover { color: var(--silver); }
+    .wrap { max-width: 680px; margin: 0 auto; padding: 72px 24px 120px; }
+
+    .confirm-mark {
+      width: 52px; height: 52px; border: 1px solid var(--silver);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 36px; position: relative;
+    }
+    .confirm-mark::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--silver); }
+    .confirm-mark svg { width: 20px; height: 20px; stroke: var(--silver); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--silver); margin-bottom: 16px; }
+    h1 { font-family: var(--s); font-size: clamp(52px, 10vw, 84px); font-weight: 300; line-height: 1.0; color: var(--white); margin-bottom: 20px; }
+    .tier-badge {
+      display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--black); background: var(--silver);
+      padding: 5px 14px; margin-bottom: 52px;
+    }
+
+    .divider { height: 1px; background: rgba(168,184,200,0.15); margin-bottom: 48px; }
+
+    .details-block { display: flex; flex-direction: column; gap: 0; margin-bottom: 52px; }
+    .detail-row {
+      display: flex; align-items: flex-start; gap: 24px;
+      padding: 20px 0; border-bottom: 1px solid rgba(168,184,200,0.1);
+    }
+    .detail-row:first-child { border-top: 1px solid rgba(168,184,200,0.1); }
+    .detail-label {
+      font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--silver-dim); flex-shrink: 0; width: 96px; padding-top: 2px;
+    }
+    .detail-val { font-size: 15px; color: var(--cream); line-height: 1.5; }
+    .detail-val strong { color: var(--white); font-weight: 500; }
+    .detail-val a { color: var(--silver); text-decoration: none; }
+    .detail-val a:hover { color: var(--silver-light); }
+
+    .vip-block {
+      padding: 32px 36px; border: 1px solid rgba(168,184,200,0.25);
+      background: rgba(168,184,200,0.03); margin-bottom: 48px;
+    }
+    .vip-eyebrow { font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--silver); margin-bottom: 12px; }
+    .vip-heading { font-family: var(--s); font-size: 22px; font-weight: 400; color: var(--white); margin-bottom: 16px; line-height: 1.2; }
+    .vip-body { font-size: 14px; color: var(--muted); line-height: 1.8; margin-bottom: 20px; }
+    .vip-speakers { display: flex; flex-direction: column; gap: 8px; }
+    .vip-speaker { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--cream); }
+    .vip-speaker::before { content: ''; width: 20px; height: 1px; background: var(--silver-dim); flex-shrink: 0; }
+
+    .cal-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: var(--silver); color: var(--black); font-family: var(--g);
+      font-size: 11px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase;
+      padding: 16px 32px; text-decoration: none; transition: background 0.2s, transform 0.15s;
+      margin-bottom: 52px;
+    }
+    .cal-btn:hover { background: var(--silver-light); transform: translateY(-1px); }
+
+    .note { font-size: 13px; color: var(--silver-dim); line-height: 1.8; padding: 24px 0; border-top: 1px solid rgba(168,184,200,0.1); }
+    .note a { color: var(--silver); text-decoration: none; }
+    .note a:hover { color: var(--silver-light); }
+
+    footer { max-width: 680px; margin: 0 auto; padding: 32px 24px; border-top: 1px solid rgba(168,184,200,0.1); font-size: 11px; color: var(--silver-dim); letter-spacing: 1px; }
+    footer a { color: var(--silver-dim); text-decoration: none; }
+    footer a:hover { color: var(--silver); }
+  </style>
+</head>
+<body>
+
+<div class="top-bar"></div>
+
+<nav>
+  <a href="/" class="nav-brand">Private Victories Club</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="confirm-mark">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+
+  <div class="eyebrow">Cape Town · October 2025</div>
+  <h1>You're In.</h1>
+  <div class="tier-badge">{tierLabel}</div>
+
+  <div class="divider"></div>
+
+  <div class="details-block">
+    <div class="detail-row">
+      <div class="detail-label">Date</div>
+      <div class="detail-val"><strong>Saturday, 10 October 2025</strong></div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">Time</div>
+      <div class="detail-val">
+        {isVIP
+          ? <><strong>1:00 PM</strong> — VIP hour begins<br /><strong>2:00 PM</strong> — Main event starts</>
+          : <><strong>2:00 PM</strong> — Doors open, be there on time</>
+        }
+      </div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">Venue</div>
+      <div class="detail-val">
+        <strong>Workshop17</strong><br />
+        <a href="https://maps.google.com/?q=Workshop17+Kloof+Street+Cape+Town" target="_blank" rel="noopener">Kloof Street, Cape Town</a>
+      </div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">Dress</div>
+      <div class="detail-val">Smart casual</div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">WhatsApp</div>
+      <div class="detail-val"><a href="https://chat.whatsapp.com/K1K1WwqvSo626qSlyTdr4o?mode=gi_t" target="_blank" rel="noopener">Join the attendee group</a></div>
+    </div>
+  </div>
+
+  {isVIP && (
+    <div class="vip-block">
+      <div class="vip-eyebrow">VIP Hour · 1:00 PM</div>
+      <div class="vip-heading">Private session with the speakers</div>
+      <div class="vip-body">
+        Arrive at 1:00 PM for an exclusive hour with both speakers before the main event opens. Small group, real conversation.
+      </div>
+      <div class="vip-speakers">
+        <div class="vip-speaker">Niyaaz Solomon</div>
+        <div class="vip-speaker">Noah Kerchhoff</div>
+      </div>
+    </div>
+  )}
+
+  <a href={calUrl} target="_blank" rel="noopener" class="cal-btn">Add to Calendar</a>
+
+  <div class="note">
+    Questions or need anything before the event? DM us on Instagram
+    <a href="https://instagram.com/privatevictoriesclub" target="_blank" rel="noopener"> @privatevictoriesclub</a>
+    or reply to your confirmation email.
+  </div>
+
+</div>
+
+<footer>
+  <a href="/legal">Terms &amp; Conditions</a> · <a href="/legal#privacy">Privacy Policy</a>
+</footer>
+
+</body>
+</html>

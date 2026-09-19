@@ -418,35 +418,34 @@
           {/* ── Nav ── */}
           <PillNav scrolled={scrolled} />
 
-          {/* ── HERO — pure dark navy ── */}
-          <header id="top" style={{ position:'relative', overflow:'hidden', textAlign:'center', minHeight:'88svh', display:'flex', alignItems:'center', justifyContent:'center', padding:'80px clamp(20px,4vw,48px)' }}>
-            <NoiseBg opacity={0.025} />
+          {/* ── HERO ── */}
+          <header id="top" style={{ position:'relative', minHeight:'92svh', display:'flex', flexDirection:'column', justifyContent:'space-between', padding:'clamp(32px,5vw,56px) clamp(24px,4vw,48px)' }}>
 
-            <div style={{ position:'relative', zIndex:1, maxWidth:860, marginInline:'auto', width:'100%' }}>
-              <div style={{ display:'flex', justifyContent:'center', marginBottom:40 }}>
-                <HeroMark />
-              </div>
-              <h1 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(48px,8vw,120px)', lineHeight:0.93, letterSpacing:'-0.035em', margin:0, color:T.beige, textWrap:'balance' }}>
-                Lliam Humphrey
-              </h1>
-              <p style={{ marginTop:28, fontFamily:grotesk, fontWeight:400, fontSize:'clamp(15px,2vw,20px)', letterSpacing:'0.04em', color:'rgba(242,233,216,0.75)', textWrap:'balance' }}>
-                19. Building businesses in public from South Africa.
-              </p>
-              <p style={{ marginTop:12, fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(14px,1.6vw,18px)', color:'rgba(240,237,232,0.55)', letterSpacing:'0.04em' }}>
-                Entrepreneur · Creative Director · Founder
-              </p>
-              <div style={{ marginTop:56, display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
-                <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.42em', textTransform:'uppercase', color:`rgba(220,215,205,${0.2 + pullProgress * 0.6})`, fontWeight:500, transition:'none' }}>What I'm building</span>
-                <div style={{ position:'relative', width:1, overflow:'hidden', height: pullProgress > 0 ? `${48 + pullProgress * 180}px` : 48 }}>
-                  {pullProgress === 0 ? (
-                    <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, transparent, ${T.orange}, transparent)`, animation:'scrollLine 1.8s cubic-bezier(0.4,0,0.6,1) infinite' }} />
-                  ) : (
-                    <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, ${T.orange}cc, ${T.orange}44)` }} />
-                  )}
-                </div>
-              </div>
-              <style>{`@keyframes scrollLine { 0%{transform:translateY(-100%)} 100%{transform:translateY(200%)} }`}</style>
+            {/* top row */}
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <span style={{ fontFamily:grotesk, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:'rgba(200,196,188,0.35)', fontWeight:500 }}>19</span>
+              <span style={{ fontFamily:grotesk, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:'rgba(200,196,188,0.35)', fontWeight:500 }}>South Africa</span>
             </div>
+
+            {/* name — centred vertically */}
+            <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <h1 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(52px,10vw,140px)', lineHeight:0.92, letterSpacing:'-0.04em', margin:0, color:T.beige, textAlign:'center', textWrap:'balance' }}>
+                Lliam<br />Humphrey
+              </h1>
+            </div>
+
+            {/* bottom row — scroll tether */}
+            <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
+              <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.42em', textTransform:'uppercase', color:`rgba(200,196,188,${0.2 + pullProgress * 0.5})`, fontWeight:500, transition:'none' }}>What I'm building</span>
+              <div style={{ position:'relative', width:1, overflow:'hidden', height: pullProgress > 0 ? `${40 + pullProgress * 160}px` : 40 }}>
+                {pullProgress === 0 ? (
+                  <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, transparent, rgba(220,216,208,0.6), transparent)`, animation:'scrollLine 1.8s cubic-bezier(0.4,0,0.6,1) infinite' }} />
+                ) : (
+                  <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, rgba(220,216,208,0.7), rgba(220,216,208,0.15))` }} />
+                )}
+              </div>
+            </div>
+            <style>{`@keyframes scrollLine { 0%{transform:translateY(-100%)} 100%{transform:translateY(200%)} }`}</style>
           </header>
 
           {/* ── PHOTO STRIP ── */}

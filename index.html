@@ -250,13 +250,13 @@
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
       }, [open, onClose]);
-      const bg = '#08101E', ink = '#DDD8D0', dim = 'rgba(220,216,208,0.55)', faint = 'rgba(200,196,188,0.35)';
+      const bg = '#F0EDE8', ink = '#0C0E14', dim = 'rgba(12,14,20,0.6)', faint = 'rgba(12,14,20,0.4)';
       return (
         <>
-          <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:100, background:'rgba(8,8,8,0.75)', backdropFilter:'blur(4px)', opacity:open?1:0, pointerEvents:open?'auto':'none', transition:'opacity .35s ease' }} />
-          <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(580px, 96vw)', background:bg, color:ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.8)', borderLeft:'1px solid rgba(255,255,255,0.07)', overflow:'hidden' }}>
-            <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:'rgba(255,255,255,0.25)', zIndex:5 }} />
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:'1px solid rgba(255,255,255,0.08)', fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:dim }}>
+          <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:100, background:'rgba(8,8,8,0.65)', backdropFilter:'blur(4px)', opacity:open?1:0, pointerEvents:open?'auto':'none', transition:'opacity .35s ease' }} />
+          <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(580px, 96vw)', background:bg, color:ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.5)', borderLeft:'1px solid rgba(12,14,20,0.1)', overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:'rgba(12,14,20,0.2)', zIndex:5 }} />
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:'1px solid rgba(12,14,20,0.08)', fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:dim }}>
               <span>Setter Management Co. · What We Do</span>
               <button onClick={onClose} style={{ border:'none', background:'transparent', color:ink, fontSize:18, cursor:'pointer', width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
             </div>
@@ -265,13 +265,13 @@
               <p style={{ fontSize:16, lineHeight:1.85, color:dim, margin:'0 0 36px' }}>
                 I audit, manage and scale setting teams for high-ticket coaches and consultants doing $20k/month or more.
               </p>
-              <div style={{ padding:'28px 0', borderTop:'1px solid rgba(255,255,255,0.08)', borderBottom:'1px solid rgba(255,255,255,0.08)', marginBottom:36, display:'flex', flexDirection:'column', gap:18 }}>
+              <div style={{ padding:'28px 0', borderTop:'1px solid rgba(12,14,20,0.1)', borderBottom:'1px solid rgba(12,14,20,0.1)', marginBottom:36, display:'flex', flexDirection:'column', gap:18 }}>
                 {[
                   '$250k/month in fixable leaks found inside a $1M/month sales team',
                   '$175k personally collected in 6 months as a brand-new setter',
                 ].map((s,i) => (
                   <div key={i} style={{ display:'flex', gap:16, alignItems:'flex-start' }}>
-                    <span style={{ color:'rgba(255,255,255,0.22)', fontSize:11, marginTop:3, flexShrink:0 }}>·</span>
+                    <span style={{ color:'rgba(12,14,20,0.3)', fontSize:11, marginTop:3, flexShrink:0 }}>·</span>
                     <p style={{ fontSize:14, lineHeight:1.75, color:dim, margin:0 }}>{s}</p>
                   </div>
                 ))}
@@ -279,7 +279,7 @@
               <p style={{ fontSize:14, lineHeight:1.9, color:faint, margin:'0 0 44px' }}>
                 Every diagnosis follows the same process: pull the real data across all fronts and compare against a real baseline, then fix and scale it.
               </p>
-              <a href="https://instagram.com/lliam.humphrey" target="_blank" rel="noopener noreferrer" style={{ display:'inline-block', padding:'16px 28px', border:'1px solid rgba(255,255,255,0.22)', background:'transparent', color:ink, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, textDecoration:'none' }}>
+              <a href="https://instagram.com/lliam.humphrey" target="_blank" rel="noopener noreferrer" style={{ display:'inline-block', padding:'16px 28px', border:'1px solid rgba(12,14,20,0.25)', background:'transparent', color:ink, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, textDecoration:'none' }}>
                 DM on Instagram →
               </a>
             </div>

@@ -408,41 +408,16 @@
         <div ref={containerRef} style={{ width:'100%', background:T.black, color:T.white, fontFamily:grotesk, position:'relative' }}>
           <NoiseDefs />
 
-          {/* ── Meta strip ── */}
-          <div style={{ position:'sticky', top:0, zIndex:11, display:'grid', gridTemplateColumns:'1fr 1fr 1fr', padding:'10px 24px', fontFamily:grotesk, fontSize:9, fontWeight:500, letterSpacing:'0.28em', textTransform:'uppercase', color:'rgba(200,196,188,0.45)', background:'rgba(6,8,15,0.96)', backdropFilter:'blur(8px)', borderBottom:`1px solid rgba(255,255,255,0.06)` }}>
-            <span>Lliam Humphrey · South Africa</span>
-            <span style={{ textAlign:'center', color:T.orange }}>Building in Public · Spring 2026</span>
-            <span style={{ textAlign:'right' }}>{time}<span style={{ marginLeft:10, display:'inline-block', width:5, height:5, borderRadius:999, background:T.orange, verticalAlign:1 }}></span></span>
-          </div>
-
-          {/* ── Nav ── */}
-          <PillNav scrolled={scrolled} />
 
           {/* ── HERO ── */}
-          <header id="top" style={{ position:'relative', minHeight:'92svh', display:'flex', flexDirection:'column', justifyContent:'space-between', padding:'clamp(32px,5vw,56px) clamp(24px,4vw,48px)' }}>
-
-            {/* top row */}
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <span style={{ fontFamily:grotesk, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:'rgba(200,196,188,0.35)', fontWeight:500 }}>19</span>
-              <span style={{ fontFamily:grotesk, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:'rgba(200,196,188,0.35)', fontWeight:500 }}>South Africa</span>
-            </div>
-
-            {/* name — centred vertically */}
-            <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <h1 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(52px,10vw,140px)', lineHeight:0.92, letterSpacing:'-0.04em', margin:0, color:T.beige, textAlign:'center', textWrap:'balance' }}>
-                Lliam<br />Humphrey
-              </h1>
-            </div>
-
-            {/* bottom row — scroll tether */}
+          <header id="top" style={{ padding:'clamp(48px,7vw,96px) clamp(24px,4vw,48px) clamp(24px,3vw,40px)', display:'flex', flexDirection:'column', alignItems:'center', gap:28 }}>
+            <h1 style={{ fontFamily:grotesk, fontWeight:300, fontSize:'clamp(38px,6.5vw,80px)', lineHeight:1, letterSpacing:'-0.02em', margin:0, color:T.beige, textAlign:'center' }}>
+              Lliam Humphrey
+            </h1>
             <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
-              <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.42em', textTransform:'uppercase', color:`rgba(200,196,188,${0.2 + pullProgress * 0.5})`, fontWeight:500, transition:'none' }}>What I'm building</span>
-              <div style={{ position:'relative', width:1, overflow:'hidden', height: pullProgress > 0 ? `${40 + pullProgress * 160}px` : 40 }}>
-                {pullProgress === 0 ? (
-                  <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, transparent, rgba(220,216,208,0.6), transparent)`, animation:'scrollLine 1.8s cubic-bezier(0.4,0,0.6,1) infinite' }} />
-                ) : (
-                  <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, rgba(220,216,208,0.7), rgba(220,216,208,0.15))` }} />
-                )}
+              <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.42em', textTransform:'uppercase', color:'rgba(200,196,188,0.32)', fontWeight:500 }}>What I'm building</span>
+              <div style={{ position:'relative', width:1, overflow:'hidden', height:44 }}>
+                <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, transparent, rgba(220,216,208,0.55), transparent)`, animation:'scrollLine 1.8s cubic-bezier(0.4,0,0.6,1) infinite' }} />
               </div>
             </div>
             <style>{`@keyframes scrollLine { 0%{transform:translateY(-100%)} 100%{transform:translateY(200%)} }`}</style>

@@ -511,7 +511,7 @@
               <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(32px,5vw,64px)', letterSpacing:'-0.025em', margin:0, color:T.white, lineHeight:0.96, textTransform:'uppercase' }}>Two ventures.<br /><span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, textTransform:'none', letterSpacing:'-0.015em', color:T.silver }}>One story.</span></h2>
             </div>
 
-            <div data-reveal="cards" style={{ ...reveal('cards'), display:'grid', gridTemplateColumns:'1fr', gap:16, maxWidth:880, marginInline:'auto' }}>
+            <div data-reveal="cards" style={{ ...reveal('cards'), display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(320px, 1fr))', gap:16 }}>
 
               {/* Card 1 — Private Victories Club */}
               <HubCard
@@ -535,8 +535,8 @@
                 desc="Setter management for high-ticket coaches &amp; consultants."
                 cta="Learn More"
                 onCta={onSetter}
-                bg="#08101E"
-                accent="#FFFFFF"
+                bg="#06091A"
+                accent="#7AAEF0"
                 ink="#DDD8D0"
                 dim="rgba(220,216,208,0.45)"
               />

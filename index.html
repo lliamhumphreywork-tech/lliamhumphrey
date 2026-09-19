@@ -212,7 +212,7 @@
                 </div>
               ) : (
                 <div>
-                  <div style={{ fontSize:9, color:dim, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:16, fontWeight:500 }}>— Members Club</div>
+                  <div style={{ fontSize:9, color:dim, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:16, fontWeight:500 }}>Members Club</div>
                   <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:32, letterSpacing:'-0.02em', margin:0, lineHeight:1.05, textTransform:'uppercase', color:ink }}>Join the waitlist</h2>
                   <p style={{ marginTop:16, fontSize:14, lineHeight:1.75, color:dim, fontFamily:grotesk }}>
                     Africa's private members club for entrepreneurs.
@@ -230,7 +230,7 @@
                       <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Instagram or TikTok</span>
                       <input value={social} onChange={(e)=>setSocial(e.target.value)} placeholder="@anya.reyes" required style={{ width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.15)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' }} />
                     </label>
-                    {error && <p style={{ fontSize:12, color:'#ff6b6b', fontFamily:grotesk }}>Something went wrong — please try again.</p>}
+                    {error && <p style={{ fontSize:12, color:'#ff6b6b', fontFamily:grotesk }}>Something went wrong. Please try again.</p>}
                     <button type="submit" disabled={submitting||!email||!name||!social} style={{ marginTop:8, padding:'16px 24px', border:'1px solid rgba(255,255,255,0.25)', background:email&&name&&social&&!submitting?'#FFFFFF':'transparent', color:email&&name&&social&&!submitting?bg:dim, fontSize:10, letterSpacing:'0.32em', cursor:email&&name&&social&&!submitting?'pointer':'not-allowed', fontFamily:grotesk, fontWeight:500, textTransform:'uppercase', transition:'all .2s' }}>
                       {submitting ? 'Joining...' : 'Join the waitlist →'}
                     </button>
@@ -271,7 +271,7 @@
                   '$175k personally collected in 6 months as a brand-new setter',
                 ].map((s,i) => (
                   <div key={i} style={{ display:'flex', gap:16, alignItems:'flex-start' }}>
-                    <span style={{ color:'rgba(255,255,255,0.22)', fontSize:11, marginTop:3, flexShrink:0 }}>—</span>
+                    <span style={{ color:'rgba(255,255,255,0.22)', fontSize:11, marginTop:3, flexShrink:0 }}>·</span>
                     <p style={{ fontSize:14, lineHeight:1.75, color:dim, margin:0 }}>{s}</p>
                   </div>
                 ))}
@@ -338,7 +338,7 @@
           <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(640px, 96vw)', background:bg, color:ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.6)', borderLeft:`1px solid ${accent}33`, overflow:'hidden' }}>
             <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:accent, zIndex:5 }} />
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:`1px solid ${accent}22`, fontFamily:grotesk, fontWeight:500, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:dim }}>
-              <span>Application — {submitted?'Received':`Step ${Math.min(step+1,steps.length)} of ${steps.length}`}</span>
+              <span>Application / {submitted?'Received':`Step ${Math.min(step+1,steps.length)} of ${steps.length}`}</span>
               <button onClick={onClose} style={{ border:'none', background:'transparent', color:ink, fontSize:18, cursor:'pointer', width:28, height:28, borderRadius:999, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
             </div>
             {!submitted&&(
@@ -362,7 +362,7 @@
                 </div>
               ):(
                 <div key={step} style={{ animation:'apFade .4s ease both' }}>
-                  <div style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.4em', textTransform:'uppercase', color:accent, marginBottom:16, fontWeight:500 }}>— {steps[step].label}</div>
+                  <div style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.4em', textTransform:'uppercase', color:accent, marginBottom:16, fontWeight:500 }}>{steps[step].label}</div>
                   <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:36, letterSpacing:'-0.02em', margin:0, lineHeight:1.05, textTransform:'uppercase', color:ink }}>{steps[step].title}</h2>
                   <div style={{ marginTop:36, display:'flex', flexDirection:'column', gap:22 }}>
                     {step===0&&(<>
@@ -376,13 +376,13 @@
                       <Field label="What kind of work do you need?" hint="Select any that apply"><div style={{ display:'flex', flexWrap:'wrap', gap:8, marginTop:4 }}>{['Identity','Art direction','Voice / messaging','Counsel','Editorial','Not sure yet'].map((o)=>{const sel=data.kind.includes(o);return(<button key={o} type="button" onClick={()=>toggleKind(o)} style={{ ...chipBase(sel), display:'inline-flex', alignItems:'center', gap:8 }}>{sel&&<span style={{ fontSize:10 }}>✓</span>}{o}</button>);})}</div></Field>
                     </>)}
                     {step===2&&(<>
-                      <Field label="Budget range"><div style={{ display:'flex', flexWrap:'wrap', gap:8, marginTop:4 }}>{['$25 — 50k','$50 — 100k','$100 — 250k','$250k +'].map((o)=>(<button key={o} type="button" onClick={()=>setField('budget',o)} style={chipBase(data.budget===o)}>{o}</button>))}</div></Field>
+                      <Field label="Budget range"><div style={{ display:'flex', flexWrap:'wrap', gap:8, marginTop:4 }}>{['$25-50k','$50-100k','$100-250k','$250k+'].map((o)=>(<button key={o} type="button" onClick={()=>setField('budget',o)} style={chipBase(data.budget===o)}>{o}</button>))}</div></Field>
                       <Field label="When would you like to begin?"><div style={{ display:'flex', flexWrap:'wrap', gap:8, marginTop:4 }}>{['Within a month','This quarter','Later this year','Flexible'].map((o)=>(<button key={o} type="button" onClick={()=>setField('timing',o)} style={chipBase(data.timing===o)}>{o}</button>))}</div></Field>
                       <Field label="Anything else worth knowing?" optional><textarea value={data.about} onChange={(e)=>setField('about',e.target.value)} placeholder="What you're building, what feels off, what success would look like." rows={4} style={{ ...baseInput, resize:'vertical', lineHeight:1.55, padding:'12px 0' }} /></Field>
                     </>)}
                     {step===3&&(
                       <div style={{ display:'flex', flexDirection:'column', gap:0, fontSize:14 }}>
-                        {[['Name',data.name],['Email',data.email],['Company',data.company],['Stage',data.stage||'—'],['Need',data.kind.join(', ')||'—'],['Budget',data.budget],['Timing',data.timing],['Notes',data.about||'—']].map(([k,v])=>(
+                        {[['Name',data.name],['Email',data.email],['Company',data.company],['Stage',data.stage||'-'],['Need',data.kind.join(', ')||'-'],['Budget',data.budget],['Timing',data.timing],['Notes',data.about||'-']].map(([k,v])=>(
                           <div key={k} style={{ display:'grid', gridTemplateColumns:'140px 1fr', gap:16, padding:'14px 0', borderTop:`1px solid ${accent}18` }}>
                             <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', color:dim, paddingTop:4, fontWeight:500 }}>{k}</span>
                             <span style={{ color:ink, lineHeight:1.5, fontSize:14, fontFamily:serif, fontStyle:'italic', fontWeight:300 }}>{v}</span>
@@ -402,7 +402,7 @@
                 ):(
                   <React.Fragment>
                     <button onClick={submit} disabled={submitting} style={{ padding:'14px 24px', border:'none', background:accent, color:bg, fontSize:10, letterSpacing:'0.32em', cursor:submitting?'wait':'pointer', fontWeight:500, fontFamily:grotesk, textTransform:'uppercase', opacity:submitting?0.7:1 }}>{submitting?'Sending…':'Send application →'}</button>
-                    {submitError&&<span style={{ fontSize:11, color:'#c0392b', marginLeft:12 }}>Something went wrong — try again.</span>}
+                    {submitError&&<span style={{ fontSize:11, color:'#c0392b', marginLeft:12 }}>Something went wrong. Try again.</span>}
                   </React.Fragment>
                 )}
               </div>
@@ -544,25 +544,24 @@
             </div>
           </section>
 
+          {/* ── About ── */}
+          <section id="about" style={{ padding:'clamp(72px,9vw,120px) clamp(20px,3vw,32px)', background:'#F0EDE8' }}>
+            <div style={{ maxWidth:680, marginInline:'auto' }}>
+              <div style={{ fontSize:9, color:'rgba(12,14,20,0.35)', letterSpacing:'0.4em', textTransform:'uppercase', fontFamily:grotesk, marginBottom:32 }}>About</div>
+              <p style={{ fontFamily:grotesk, fontSize:'clamp(15px,1.6vw,18px)', lineHeight:1.9, color:'rgba(12,14,20,0.7)', margin:0 }}>
+                I'm a 20 year old South African entrepreneur who took a gap year in 2025 to figure out my life. That landed me at a hotel working 10-12 hour days for minimum wage. I wanted out when I realised there was no room for growth, so in September 2025 I posted my first piece of content to build my personal brand. I've spent the last year inside high-ticket sales, remote setting, and eventually on a team doing $1M a month. That's where Private Victories and Setter Management Co. both came from: the same instinct, pointed at two different problems. Look at what's actually happening, not what people assume is happening. Then build something from it.
+              </p>
+            </div>
+          </section>
+
           {/* ── Closing tagline ── */}
           <section style={{ padding:'clamp(80px,10vw,120px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, textAlign:'center', position:'relative', overflow:'hidden' }}>
             <NoiseBg opacity={0.04} />
-            <div aria-hidden="true" style={{ position:'absolute', inset:0, pointerEvents:'none', background:`radial-gradient(50% 60% at 20% 30%, rgba(16,26,52,0.8), transparent 70%), radial-gradient(40% 50% at 80% 80%, rgba(4,6,16,0.9), transparent 70%)` }} />
             <div style={{ position:'relative', zIndex:1 }}>
               <div style={{ fontSize:9, color:T.silverFaint, letterSpacing:'0.4em', marginBottom:28, textTransform:'uppercase', fontFamily:grotesk }}>An Invitation</div>
               <h2 style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(28px,5.4vw,76px)', lineHeight:1.18, letterSpacing:'-0.02em', margin:0, color:T.white, maxWidth:1100, marginInline:'auto' }}>
                 The wins you have in public are proportionate to the victories you have in private.
               </h2>
-            </div>
-          </section>
-
-          {/* ── About ── */}
-          <section id="about" style={{ padding:'clamp(72px,9vw,120px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22` }}>
-            <div style={{ maxWidth:680, marginInline:'auto' }}>
-              <div style={{ fontSize:9, color:T.silverFaint, letterSpacing:'0.4em', textTransform:'uppercase', fontFamily:grotesk, marginBottom:32 }}>About</div>
-              <p style={{ fontFamily:grotesk, fontSize:'clamp(15px,1.6vw,18px)', lineHeight:1.9, color:T.silverDim, margin:0 }}>
-                I'm a 20 year old South African entrepreneur who took a gap year in 2025 to figure out my life — that landed me at a hotel working 10–12 hour days for minimum wage. I wanted out when I realised there was no room for growth, so in September 2025 I posted my first piece of content to build my personal brand. I've spent the last year inside high-ticket sales, remote setting, and eventually on a team doing $1M a month. That's where Private Victories and Setter Management Co. both came from: the same instinct, pointed at two different problems. Look at what's actually happening, not what people assume is happening. Then build something from it.
-              </p>
             </div>
           </section>
 
@@ -578,8 +577,8 @@
                 </div>
                 <FooterCol head="Contact" items={['lliamhumphreywork@gmail.com']} />
                 <FooterCol head="Elsewhere" items={[
-                  { t:'Instagram — @lliam.humphrey', href:'https://instagram.com/lliam.humphrey' },
-                  { t:'TikTok — @lliam.humphrey',    href:'https://tiktok.com/@lliam.humphrey' },
+                  { t:'Instagram @lliam.humphrey', href:'https://instagram.com/lliam.humphrey' },
+                  { t:'TikTok @lliam.humphrey',    href:'https://tiktok.com/@lliam.humphrey' },
                 ]} />
                 <FooterCol head="Colophon" items={['South Africa, MMXXVI.']} />
               </div>

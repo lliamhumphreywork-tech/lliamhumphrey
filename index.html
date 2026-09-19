@@ -100,13 +100,7 @@
 
     // ─── Wordmark ───────────────────────────────────────────────────
     const Wordmark = () => (
-      <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-        <span style={{ width:28, height:28, background:T.navy, position:'relative', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
-          <span style={{ position:'absolute', top:0, left:0, right:0, height:1.5, background:T.silver }}></span>
-          <span style={{ fontFamily:grotesk, fontSize:8.5, fontWeight:700, letterSpacing:1.2, color:T.white }}>LH</span>
-        </span>
-        <span style={{ fontFamily:grotesk, fontSize:13, fontWeight:700, letterSpacing:'0.32em', color:T.white, textTransform:'uppercase' }}>Lliam Humphrey</span>
-      </div>
+      <span style={{ fontFamily:grotesk, fontSize:11, fontWeight:500, letterSpacing:'0.28em', color:'rgba(220,216,208,0.7)', textTransform:'uppercase' }}>Lliam Humphrey</span>
     );
 
     // ─── Button styles ──────────────────────────────────────────────
@@ -116,8 +110,12 @@
 
     // ─── Nav ────────────────────────────────────────────────────────
     const PillNav = ({ scrolled }) => (
-      <nav style={{ position:'sticky', top:33, zIndex:10, padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:16, background:scrolled?'rgba(6,8,15,0.92)':'transparent', backdropFilter:scrolled?'blur(14px)':'none', borderBottom:scrolled?`1px solid rgba(255,255,255,0.07)`:'1px solid transparent', transition:'all .3s' }}>
+      <nav style={{ position:'sticky', top:0, zIndex:10, padding:'9px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:16, background:scrolled?'rgba(6,8,15,0.92)':'transparent', backdropFilter:scrolled?'blur(14px)':'none', borderBottom:scrolled?`1px solid rgba(255,255,255,0.07)`:'1px solid transparent', transition:'all .3s' }}>
         <Wordmark />
+        <div style={{ display:'flex', gap:28, alignItems:'center' }}>
+          <a href="#ventures" style={{ fontFamily:grotesk, fontSize:10, fontWeight:500, letterSpacing:'0.26em', textTransform:'uppercase', color:'rgba(200,196,188,0.5)', textDecoration:'none' }}>Ventures</a>
+          <a href="#about" style={{ fontFamily:grotesk, fontSize:10, fontWeight:500, letterSpacing:'0.26em', textTransform:'uppercase', color:'rgba(200,196,188,0.5)', textDecoration:'none' }}>About</a>
+        </div>
       </nav>
     );
 
@@ -408,6 +406,9 @@
         <div ref={containerRef} style={{ width:'100%', background:T.black, color:T.white, fontFamily:grotesk, position:'relative' }}>
           <NoiseDefs />
 
+
+          {/* ── Nav ── */}
+          <PillNav scrolled={scrolled} />
 
           {/* ── HERO ── */}
           <header id="top" style={{ padding:'clamp(48px,7vw,96px) clamp(24px,4vw,48px) clamp(24px,3vw,40px)', display:'flex', flexDirection:'column', alignItems:'center', gap:28 }}>

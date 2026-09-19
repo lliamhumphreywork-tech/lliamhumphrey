@@ -14,7 +14,18 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; }
-    body { background: #06080F; -webkit-font-smoothing: antialiased; }
+    body {
+      background:
+        radial-gradient(ellipse 75vw 65vh at 5%  12%,  rgba(12,30,88,0.62)  0%, transparent 70%),
+        radial-gradient(ellipse 65vw 75vh at 95% 35%,  rgba(9,22,72,0.55)   0%, transparent 70%),
+        radial-gradient(ellipse 55vw 60vh at 55% 72%,  rgba(14,34,92,0.48)  0%, transparent 70%),
+        radial-gradient(ellipse 50vw 55vh at 80% 92%,  rgba(10,26,78,0.40)  0%, transparent 70%),
+        radial-gradient(ellipse 60vw 50vh at 18% 56%,  rgba(11,28,82,0.35)  0%, transparent 70%),
+        radial-gradient(ellipse 45vw 60vh at 65% 18%,  rgba(8,20,68,0.38)   0%, transparent 70%),
+        #06080F;
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+    }
     @keyframes siteReveal {
       from { opacity: 0; }
       to   { opacity: 1; }
@@ -403,7 +414,7 @@
       const reveal = (k) => ({ opacity:revealed[k]?1:0, transform:revealed[k]?'translateY(0)':'translateY(14px)', transition:'opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1)' });
 
       return (
-        <div ref={containerRef} style={{ width:'100%', background:T.black, color:T.white, fontFamily:grotesk, position:'relative' }}>
+        <div ref={containerRef} style={{ width:'100%', background:'transparent', color:T.white, fontFamily:grotesk, position:'relative' }}>
           <NoiseDefs />
 
 

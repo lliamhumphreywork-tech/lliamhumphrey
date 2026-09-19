@@ -421,43 +421,43 @@
           {/* ── Nav ── */}
           <PillNav scrolled={scrolled} />
 
-          {/* ── HERO ── */}
-          <header id="top" style={{ padding:'clamp(48px,7vw,96px) clamp(24px,4vw,48px) clamp(24px,3vw,40px)', display:'flex', flexDirection:'column', alignItems:'center', gap:28 }}>
-            <h1 style={{ fontFamily:grotesk, fontWeight:300, fontSize:'clamp(38px,6.5vw,80px)', lineHeight:1, letterSpacing:'-0.02em', margin:0, color:T.beige, textAlign:'center' }}>
-              Lliam Humphrey
-            </h1>
-            <p style={{ fontFamily:grotesk, fontWeight:400, fontSize:'clamp(10px,1.1vw,12px)', letterSpacing:'0.36em', textTransform:'uppercase', color:'rgba(200,196,188,0.38)', margin:0, textAlign:'center' }}>Visionary · Entrepreneur</p>
-            <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
-              <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.42em', textTransform:'uppercase', color:'rgba(200,196,188,0.32)', fontWeight:500 }}>What I'm building</span>
-              <div style={{ position:'relative', width:1, overflow:'hidden', height:44 }}>
-                <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, transparent, rgba(220,216,208,0.55), transparent)`, animation:'scrollLine 1.8s cubic-bezier(0.4,0,0.6,1) infinite' }} />
+          {/* ── HERO — photo grid with name overlay ── */}
+          <header id="top" style={{ position:'relative', overflow:'hidden' }}>
+            {/* photo grid */}
+            <div style={{ display:'flex', gap:2, height:'clamp(420px,72vh,680px)' }}>
+              {[
+                { src:'./assets/ph-IMG_5408-2.jpg', pos:'center 40%' },
+                { src:'./assets/ph-IMG_4332.jpg',   pos:'center 30%' },
+                { src:'./assets/ph-IMG_3526.jpg',   pos:'center 60%' },
+                { src:'./assets/ph-IMG_3993.jpg',   pos:'center 50%' },
+                { src:'./assets/ph-IMG_4695.jpg',   pos:'center 25%' },
+                { src:'./assets/ph-IMG_4590.jpg',   pos:'center 40%' },
+                { src:'./assets/ph-IMG_3751.jpg',   pos:'center 30%' },
+              ].map(({ src, pos }, i) => (
+                <div key={i} style={{ flex:'1 1 0', position:'relative', overflow:'hidden' }}>
+                  <img src={src} alt="" aria-hidden="true" style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:pos }} />
+                </div>
+              ))}
+            </div>
+
+            {/* full overlay */}
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(6,8,15,0.82) 0%, rgba(6,8,15,0.35) 55%, rgba(6,8,15,0.18) 100%)' }} />
+
+            {/* name + meta */}
+            <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', justifyContent:'flex-end', padding:'clamp(24px,4vw,48px)' }}>
+              <p style={{ fontFamily:grotesk, fontWeight:400, fontSize:'clamp(9px,0.9vw,11px)', letterSpacing:'0.38em', textTransform:'uppercase', color:'rgba(200,196,188,0.4)', margin:'0 0 14px' }}>Visionary · Entrepreneur</p>
+              <h1 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(48px,9.5vw,136px)', lineHeight:0.9, letterSpacing:'-0.04em', margin:0, color:T.beige }}>
+                Lliam<br />Humphrey
+              </h1>
+              <div style={{ marginTop:28, display:'flex', flexDirection:'column', gap:8 }}>
+                <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.42em', textTransform:'uppercase', color:'rgba(200,196,188,0.3)', fontWeight:500 }}>What I'm building</span>
+                <div style={{ position:'relative', width:1, overflow:'hidden', height:36 }}>
+                  <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, transparent, rgba(220,216,208,0.5), transparent)`, animation:'scrollLine 1.8s cubic-bezier(0.4,0,0.6,1) infinite' }} />
+                </div>
               </div>
             </div>
             <style>{`@keyframes scrollLine { 0%{transform:translateY(-100%)} 100%{transform:translateY(200%)} }`}</style>
           </header>
-
-          {/* ── PHOTO STRIP ── */}
-          <section style={{ borderTop:`1px solid rgba(255,255,255,0.06)`, overflowX:'auto', WebkitOverflowScrolling:'touch', scrollbarWidth:'none', msOverflowStyle:'none' }}>
-            <style>{`.photo-strip::-webkit-scrollbar { display: none; }`}</style>
-            <div className="photo-strip" style={{ display:'flex', gap:2 }}>
-              {[
-                { src:'./assets/ph-IMG_5408-2.jpg', n:'01', pos:'center 40%' },
-                { src:'./assets/ph-IMG_4332.jpg',   n:'02', pos:'center 30%' },
-                { src:'./assets/ph-IMG_3526.jpg',   n:'03', pos:'center 60%' },
-                { src:'./assets/ph-IMG_3993.jpg',   n:'04', pos:'center 50%' },
-                { src:'./assets/ph-IMG_4695.jpg',   n:'05', pos:'center 25%' },
-                { src:'./assets/ph-IMG_4590.jpg',   n:'06', pos:'center 40%' },
-                { src:'./assets/ph-IMG_3751.jpg',   n:'07', pos:'center 30%' },
-              ].map(({ src, n, pos }) => (
-                <div key={n} style={{ position:'relative', width:'clamp(200px,24vw,300px)', height:440, flexShrink:0, overflow:'hidden' }}>
-                  <img src={src} alt="" aria-hidden="true" style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:pos }} />
-                  <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(6,8,15,0.75) 0%, rgba(6,8,15,0.15) 50%, transparent 100%)' }} />
-                  <span style={{ position:'absolute', bottom:22, left:22, fontFamily:grotesk, fontSize:28, fontWeight:700, color:'rgba(220,216,208,0.35)', letterSpacing:'-0.01em' }}>{n}</span>
-                </div>
-              ))}
-              <div style={{ display:'flex', alignItems:'flex-end', padding:'0 40px 28px', flexShrink:0, color:'rgba(200,196,188,0.25)', fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', lineHeight:2 }}>More<br />coming<br />soon</div>
-            </div>
-          </section>
 
           {/* ── WHAT I'M BUILDING ── */}
           <section style={{ padding:'clamp(56px,7vw,96px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, position:'relative', transform:`translateY(${(1 - pullProgress) * 72}px)`, opacity: 0.3 + pullProgress * 0.7, willChange:'transform' }}>

@@ -186,6 +186,7 @@ async function createNotionEntry(data: {
 export const POST: APIRoute = async ({ request }) => {
   if (TALLY_WEBHOOK_SECRET) {
     const sig = request.headers.get('tally-webhook-secret');
+    console.log(`[ct-mastermind-webhook] secret check: header_present=${!!sig}, match=${sig === TALLY_WEBHOOK_SECRET}`);
     if (sig !== TALLY_WEBHOOK_SECRET) return new Response('Unauthorized', { status: 401 });
   } else {
     console.warn('[ct-mastermind-webhook] TALLY_WEBHOOK_SECRET not set — webhook is unauthenticated');

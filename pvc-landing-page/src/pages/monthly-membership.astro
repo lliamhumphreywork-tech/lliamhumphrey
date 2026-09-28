@@ -1,0 +1,300 @@
+---
+export const prerender = false;
+const PS_KEY = import.meta.env.PUBLIC_PAYSTACK_KEY ?? '';
+const PS_MONTHLY_PLAN = 'PLN_xcnrxx0avql0p5h';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monthly Membership · Private Victories Club</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script is:inline src="https://js.paystack.co/v1/inline.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #08111f;
+      --navy: #0a1628;
+      --cream: #ece6da;
+      --white: #ffffff;
+      --silver: #a8b8c8;
+      --silver-dim: #4a5666;
+      --silver-light: #dde4ec;
+      --muted: rgba(236,230,218,0.45);
+      --g: 'DM Sans', sans-serif;
+      --s: 'Syne', sans-serif;
+    }
+    html, body { min-height: 100vh; }
+    body {
+      background: var(--navy);
+      color: var(--cream);
+      font-family: var(--g);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .top-bar { height: 2px; background: var(--silver); }
+    nav {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 32px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver-dim);
+      text-decoration: none;
+    }
+    .nav-brand:hover { color: var(--silver); }
+    .wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 72px 24px 120px;
+    }
+    .eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--silver);
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-family: var(--s);
+      font-size: clamp(42px, 8vw, 72px);
+      font-weight: 300;
+      line-height: 1.0;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .price-block {
+      margin: 40px 0 52px;
+      padding: 36px;
+      border: 1px solid rgba(168,184,200,0.2);
+      background: rgba(255,255,255,0.02);
+    }
+    .price-amount {
+      font-family: var(--s);
+      font-size: clamp(48px, 10vw, 80px);
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .price-note {
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--silver-dim);
+    }
+    .benefits {
+      margin: 0 0 52px;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .benefits li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 15px;
+      color: rgba(236,230,218,0.75);
+    }
+    .benefits li::before {
+      content: '·';
+      color: var(--silver);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .divider {
+      height: 1px;
+      background: rgba(168,184,200,0.15);
+      margin-bottom: 48px;
+    }
+    .form-label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver-dim);
+      margin-bottom: 10px;
+    }
+    .form-field {
+      margin-bottom: 24px;
+    }
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(168,184,200,0.25);
+      color: var(--cream);
+      font-family: var(--g);
+      font-size: 15px;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus {
+      border-color: var(--silver);
+    }
+    input::placeholder { color: var(--silver-dim); }
+    .pay-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--silver);
+      color: var(--black);
+      font-family: var(--g);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 18px 40px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 8px;
+      width: 100%;
+      justify-content: center;
+    }
+    .pay-btn:hover:not(:disabled) { background: var(--silver-light); transform: translateY(-1px); }
+    .pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .error-msg {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: rgba(200,80,80,0.1);
+      border: 1px solid rgba(200,80,80,0.3);
+      color: #e09090;
+      font-size: 14px;
+    }
+    .success-state {
+      display: none;
+      text-align: center;
+      padding: 64px 0;
+    }
+    .success-icon {
+      font-family: var(--s);
+      font-size: 60px;
+      font-weight: 300;
+      color: var(--silver);
+      margin-bottom: 24px;
+    }
+    .success-state h2 {
+      font-family: var(--s);
+      font-size: 36px;
+      font-weight: 300;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .success-state p {
+      color: var(--muted);
+      font-size: 15px;
+    }
+    footer {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      border-top: 1px solid rgba(168,184,200,0.1);
+      font-size: 11px;
+      color: var(--silver-dim);
+      letter-spacing: 1px;
+    }
+    footer a { color: var(--silver-dim); text-decoration: none; }
+    footer a:hover { color: var(--silver); }
+  </style>
+</head>
+<body>
+
+<div class="top-bar"></div>
+
+<nav>
+  <a href="/" class="nav-brand">Private Victories Club</a>
+</nav>
+
+<div class="wrap">
+  <div class="eyebrow">Membership</div>
+  <h1>Monthly<br />Access</h1>
+
+  <div class="price-block">
+    <div class="price-amount">R1,000</div>
+    <div class="price-note">Per month · Cancel anytime</div>
+  </div>
+
+  <ul class="benefits">
+    <li>Access to Africa's private founder network</li>
+    <li>Monthly in-person events and dinners</li>
+    <li>Private WhatsApp groups and resource library</li>
+    <li>Direct connections with founders scaling businesses</li>
+    <li>Community calls and peer accountability</li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <div id="form-section">
+    <div class="form-field">
+      <label class="form-label" for="name">Full Name</label>
+      <input type="text" id="name" placeholder="Your name" autocomplete="name" />
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="email">Email Address</label>
+      <input type="email" id="email" placeholder="your@email.com" autocomplete="email" />
+    </div>
+    <button class="pay-btn" id="pay-btn">Pay R1,000 · Secure Checkout</button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+
+  <div class="success-state" id="success-state">
+    <div class="success-icon">✓</div>
+    <h2>Welcome to the Club.</h2>
+    <p>Payment confirmed. Check your inbox. We'll be in touch shortly.</p>
+  </div>
+</div>
+
+<footer>
+  <a href="/legal">Terms &amp; Conditions</a> · <a href="/legal#privacy">Privacy Policy</a> · <a href="/legal#refunds">Refund Policy</a>
+</footer>
+
+<script is:inline define:vars={{ PS_KEY, PS_MONTHLY_PLAN }}>
+  if (window.location.search.includes('success=1')) {
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('success-state').style.display = 'block';
+  }
+  document.getElementById('pay-btn').addEventListener('click', function () {
+    var name  = document.getElementById('name').value.trim();
+    var email = document.getElementById('email').value.trim();
+    document.getElementById('error-msg').style.display = 'none';
+    if (!name)  { showError('Please enter your full name.'); return; }
+    if (!email || !email.includes('@')) { showError('Please enter a valid email address.'); return; }
+    var handler = PaystackPop.setup({
+      key: PS_KEY,
+      email: email,
+      plan: PS_MONTHLY_PLAN,
+      currency: 'ZAR',
+      ref: 'pvc_monthly_' + Date.now(),
+      metadata: { name: name, item_name: 'PVC Membership: Monthly' },
+      callback: function () {
+        document.getElementById('form-section').style.display = 'none';
+        document.getElementById('success-state').style.display = 'block';
+      },
+      onClose: function () {},
+    });
+    handler.openIframe();
+  });
+  function showError(msg) { var el = document.getElementById('error-msg'); el.textContent = msg; el.style.display = 'block'; }
+</script>
+
+</body>
+</html>

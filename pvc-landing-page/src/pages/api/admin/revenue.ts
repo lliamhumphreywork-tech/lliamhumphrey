@@ -7,7 +7,7 @@ const ADMIN_KEY            = import.meta.env.ADMIN_KEY;
 const WHOP_API_KEY         = import.meta.env.WHOP_API_KEY;
 
 function auth(req: Request) {
-  return new URL(req.url).searchParams.get('key') === ADMIN_KEY;
+  return ADMIN_KEY !== '' && req.headers.get('x-admin-key') === ADMIN_KEY;
 }
 
 async function queryNotion() {

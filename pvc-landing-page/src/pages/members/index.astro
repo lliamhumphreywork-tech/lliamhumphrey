@@ -1,0 +1,133 @@
+---
+export const prerender = false;
+import { getSession } from '../../lib/members-auth';
+
+const session = getSession(Astro.request.headers.get('cookie'));
+if (session) return Astro.redirect('/members/dashboard');
+
+const error = Astro.url.searchParams.get('error');
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Members · Private Victories Club</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #08111f;
+      --navy: #0a1628;
+      --cream: #ece6da;
+      --white: #ffffff;
+      --silver: #a8b8c8;
+      --silver-dim: #4a5666;
+      --border: rgba(168,184,200,0.12);
+      --g: 'Syne', sans-serif;
+      --s: 'DM Sans', sans-serif;
+    }
+    html, body { height: 100%; }
+    body { background: var(--black); color: var(--cream); font-family: var(--s); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+
+    .login-wrap { width: 100%; max-width: 400px; }
+    .brand { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 56px; }
+    .headline { font-family: var(--g); font-size: clamp(28px, 6vw, 40px); font-weight: 400; color: var(--white); line-height: 1.15; margin-bottom: 12px; }
+    .sub { font-size: 14px; font-weight: 300; color: var(--silver-dim); line-height: 1.7; margin-bottom: 40px; }
+
+    .form { display: flex; flex-direction: column; gap: 12px; }
+    .input {
+      background: rgba(168,184,200,0.06); border: 1px solid var(--border);
+      color: var(--cream); font-family: var(--s); font-size: 15px; font-weight: 300;
+      padding: 16px 18px; outline: none; width: 100%;
+      transition: border-color 0.2s;
+    }
+    .input::placeholder { color: var(--silver-dim); }
+    .input:focus { border-color: rgba(168,184,200,0.4); }
+
+    .submit-btn {
+      background: var(--silver); color: var(--black); font-family: var(--s);
+      font-size: 11px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase;
+      padding: 17px; border: none; cursor: pointer; transition: background 0.2s, transform 0.15s;
+      width: 100%;
+    }
+    .submit-btn:hover { background: #dde4ec; transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .sent-state { display: none; text-align: center; padding: 32px 0; }
+    .sent-state.visible { display: block; }
+    .form.hidden { display: none; }
+
+    .sent-icon { width: 40px; height: 40px; border: 1px solid var(--silver); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+    .sent-icon svg { width: 16px; height: 16px; stroke: var(--silver); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .sent-headline { font-family: var(--g); font-size: 22px; font-weight: 400; color: var(--white); margin-bottom: 12px; }
+    .sent-sub { font-size: 14px; font-weight: 300; color: var(--silver-dim); line-height: 1.7; }
+
+    .error-msg { font-size: 12px; color: #e07070; margin-top: 4px; }
+  </style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="brand">Private Victories Club</div>
+  <h1 class="headline">Member Portal</h1>
+  <p class="sub">Enter your email and we'll send you a login link.</p>
+
+  {error && (
+    <p class="error-msg" style="margin-bottom:16px;">
+      {error === 'invalid' ? 'That link has expired. Request a new one.' : 'Email not found.'}
+    </p>
+  )}
+
+  <form class="form" id="login-form">
+    <input class="input" type="email" id="email-input" placeholder="Your email address" autocomplete="email" required />
+    <button class="submit-btn" type="submit" id="submit-btn">Send Login Link</button>
+    <p class="error-msg" id="form-error" style="display:none;"></p>
+  </form>
+
+  <div class="sent-state" id="sent-state">
+    <div class="sent-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="sent-headline">Check your inbox</div>
+    <p class="sent-sub">We sent a login link to <strong id="sent-email" style="color:var(--cream);font-weight:400;"></strong>.<br />It expires in 15 minutes.</p>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('login-form');
+  const btn = document.getElementById('submit-btn');
+  const emailInput = document.getElementById('email-input');
+  const sentState = document.getElementById('sent-state');
+  const sentEmail = document.getElementById('sent-email');
+  const formError = document.getElementById('form-error');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    formError.style.display = 'none';
+
+    try {
+      await fetch('/api/members/request-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      sentEmail.textContent = email;
+      form.classList.add('hidden');
+      sentState.classList.add('visible');
+    } catch {
+      formError.textContent = 'Something went wrong. Try again.';
+      formError.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Send Login Link';
+    }
+  });
+</script>
+</body>
+</html>

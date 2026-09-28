@@ -217,9 +217,9 @@ export const POST: APIRoute = async ({ request }) => {
 
   if (TALLY_WEBHOOK_SECRET) {
     const sig = request.headers.get('tally-webhook-secret');
-    if (sig !== TALLY_WEBHOOK_SECRET) {
-      return new Response('Unauthorized', { status: 401 });
-    }
+    if (sig !== TALLY_WEBHOOK_SECRET) return new Response('Unauthorized', { status: 401 });
+  } else {
+    console.warn('[membership-webhook] TALLY_WEBHOOK_SECRET not set — webhook is unauthenticated');
   }
 
   let payload: any;

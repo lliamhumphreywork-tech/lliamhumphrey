@@ -162,6 +162,16 @@ const NOISE = (id: string) => `
           <p class="ct-speaker-desc">Scaled a high-ticket coaching business from $25k to $107k a month. If you sell services or coaching, pay attention.</p>
         </div>
       </div>
+      <div class="ct-speaker reveal d4" style="--accent-op:0.8">
+        <div class="ct-speaker-ghost" aria-hidden="true">C</div>
+        <img src="/images/conrad.jpg" alt="Conrad" class="ct-speaker-photo" style="object-position: center 20%;" />
+        <div class="ct-speaker-inner">
+          <div class="ct-speaker-name">Conrad</div>
+          <div class="ct-speaker-stat">$25k</div>
+          <div class="ct-speaker-context">per month at 18</div>
+          <p class="ct-speaker-desc">Built a detailing business to $25k a month at 18. No funding, no shortcuts. Found the right customers, charged what the work was worth, and didn't stop.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -187,7 +197,7 @@ const NOISE = (id: string) => `
     <ol class="ct-schedule">
       <li class="ct-schedule-item reveal d1">
         <div class="ct-schedule-tag">VIP Hour</div>
-        <div class="ct-schedule-desc">All VIPs and both speakers working through real bottlenecks together as a group.</div>
+        <div class="ct-schedule-desc">All VIPs and all three speakers working through real bottlenecks together as a group.</div>
       </li>
       <li class="ct-schedule-item reveal d2">
         <div class="ct-schedule-tag">Mastermind</div>
@@ -217,6 +227,7 @@ const NOISE = (id: string) => `
         <span class="ct-proof-dot"></span>
         People are confirming seats right now. Oct 10 is 23 days away.
       </div>
+      <div class="ct-spots-left reveal d3">6 spots left</div>
     </div>
     <div class="ct-tiers reveal d2">
       <!-- GA -->
@@ -252,7 +263,7 @@ const NOISE = (id: string) => `
         <div class="ct-tier-right ct-tier-right-vip">
           <ul class="ct-tier-list ct-tier-list-vip">
             <li><span class="ct-tier-check">·</span>Everything in General Admission</li>
-            <li><span class="ct-tier-check">·</span>Shared VIP hour with both speakers</li>
+            <li><span class="ct-tier-check">·</span>Shared VIP hour with all three speakers</li>
             <li><span class="ct-tier-check">·</span>Full event shot and captured</li>
             <li><span class="ct-tier-check">·</span>A dedicated one-on-one content moment with each speaker, captured by our team, real personal footage for your own brand</li>
             <li><span class="ct-tier-check">·</span>First access to future Private Victories events, before they're announced publicly</li>
@@ -395,6 +406,7 @@ const NOISE = (id: string) => `
   .ct-cd-sep { display: none; }
   /* ── SOCIAL PROOF ── */
   .ct-social-proof { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--silver-dim); margin-top: 20px; }
+  .ct-spots-left { display: inline-block; margin-top: 16px; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--white); background: rgba(168,184,200,0.08); border: 1px solid rgba(168,184,200,0.18); padding: 6px 14px; }
   .ct-proof-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; flex-shrink: 0; animation: proof-pulse 2s ease-in-out infinite; }
   @keyframes proof-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   /* ── HERO ── */
@@ -563,7 +575,7 @@ const NOISE = (id: string) => `
     font-size: clamp(15px, 1.6vw, 18px); color: var(--silver); margin-bottom: 56px; font-weight: 300; line-height: 1.8; max-width: 60ch;
   }
   .ct-speaker-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr);
+    display: grid; grid-template-columns: repeat(3, 1fr);
     gap: 1px; background: rgba(168,184,200,0.08); border: 1px solid rgba(168,184,200,0.08);
   }
   .ct-speaker {

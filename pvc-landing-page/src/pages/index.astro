@@ -19,7 +19,7 @@ const NOISE = (id: string) => `
   <link rel="icon" href="data:," />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet" />
   <Analytics />
   <script define:vars={{ PH_KEY }} is:inline>window.__PVC_PH_KEY = PH_KEY;</script>
 </head>
@@ -105,7 +105,7 @@ const NOISE = (id: string) => `
       <img src="/images/founder-portrait.jpg" alt="Lliam Humphrey, founder of Private Victories Club" />
     </div>
     <div>
-      <div class="founder-label reveal d1">02 · The Founder · In his words</div>
+      <div class="founder-label reveal d1">02 · The Founder</div>
       <div class="founder-story">
         <p class="reveal d1">I didn't want to do this alone.</p>
         <p class="reveal d2">The journey gets lonely. But I noticed something. Having people next to you who are winning makes you work harder. And having people ahead of you who've already figured it out shows you how far you can actually go.</p>
@@ -169,13 +169,14 @@ const NOISE = (id: string) => `
       <img src="/images/dinner-table.jpg" alt="PVC Founding Dinner, founders around one table at The Grillhouse" />
     </div>
     <div class="proof-quote-wrap reveal d4">
+      <div class="proof-quote-bar"></div>
       <blockquote class="proof-quote">
         <p>"I've been to networking events before. All of them were terrible. This is different."</p>
         <cite>a founder in the room</cite>
       </blockquote>
     </div>
     <p class="proof-closer reveal d5">This wasn't staged. This is what happens when the room is right.</p>
-    <p class="proof-body reveal" style="margin-top:44px;">It didn't stop at one night. The community's been running ever since. Weekly calls, real accountability, members actually connecting, sharing insights, jumping on calls together outside the group. One member needed help with ads, connected same day to someone from our network who could actually help. Right now, the room's building a real Lead Conversion SOP together, from what's actually worked for the people in it.</p>
+    <p class="proof-body reveal" style="margin-top:44px;">It didn't stop at one night. The community's been running ever since. Weekly calls, real accountability, members actually connecting, sharing insights, jumping on calls together outside the group. One member needed help with ads, connected same day to someone from our network who could actually help.</p>
     <p class="proof-closer reveal" style="margin-top:32px; color: var(--silver-light); font-weight: 400;">The dinner was the proof of concept. Every week since has been the proof it's real.</p>
   </div>
 </section>
@@ -185,7 +186,7 @@ const NOISE = (id: string) => `
   <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('n5')} />
   <div class="member-inner">
     <div class="section-label reveal"><span class="section-num">05</span> Membership</div>
-    <h2 class="member-headline reveal d1">Become a <em class="serif">Member.</em></h2>
+    <h2 class="member-headline reveal d1">Become a <em>Member.</em></h2>
     <div class="member-card reveal d2">
 
       <div class="member-card-left">
@@ -233,14 +234,14 @@ const NOISE = (id: string) => `
 </section>
 
 <!-- ═══ 06 · THE MISSION ═══ -->
-<section id="mission" data-screen-label="07 Mission">
+<section id="mission" data-screen-label="06 Mission">
   <div class="photo-slot mission-photo">
     <img src="/images/mission-city.jpg" alt="Modern building with infinity pool at golden hour" />
   </div>
   <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:5" set:html={NOISE('n7')} />
   <div class="mission-inner">
-    <div class="section-label mission-label reveal"><span class="section-num">07</span> The Mission</div>
-    <h2 class="mission-headline reveal d1">We exist to accelerate <span class="lt">more winners in Africa.</span></h2>
+    <div class="section-label mission-label reveal"><span class="section-num">06</span> The Mission</div>
+    <h2 class="mission-headline reveal d1">We exist to accelerate <span>more winners in Africa.</span></h2>
     <p class="mission-body reveal d2">Built in Africa, for the people building it. <b>Open to anyone dialled in, from anywhere.</b> The standard is the only filter. Every member who wins pulls the next one further.</p>
     <p class="mission-signal reveal d3">Built in Africa. The rest is coming.</p>
   </div>
@@ -249,7 +250,11 @@ const NOISE = (id: string) => `
 <!-- ═══ FAQ ═══ -->
 <section id="faq" data-screen-label="FAQ">
   <div class="faq-inner">
-    <div class="faq-label reveal">FAQ</div>
+    <div class="section-label reveal">FAQ</div>
+    <div class="faq-header">
+      <h2 class="faq-label reveal d1">Common<br /><em>Questions.</em></h2>
+      <p class="faq-intro reveal d1">Everything you need to know about membership, how it works, and who it's for.</p>
+    </div>
     <div class="faq-list">
       <div class="faq-item reveal d1">
         <button type="button" class="faq-question" aria-expanded="false">
@@ -257,7 +262,7 @@ const NOISE = (id: string) => `
           <span class="faq-icon">+</span>
         </button>
         <div class="faq-answer">
-          <p>You start with a one to one onboarding call with Lliam. We look at what you're building, where you're stuck, and where you want to go. From there we make your first introduction to a member or board operator who can directly help what you're working on right now. You're plugged into the network, the masterclasses, and the community before your first week is out. You get value before you've had time to wonder if this was worth it.</p>
+          <p>It starts with a real conversation, we get on a call, understand where you're at, what you're building, what your goals are, and what's actually in your way. From there we plug you into the network and make your first introduction to a member or board operator who can directly help with what you're working on right now. You're in the community, the masterclasses, and the calls before your first week is out. You get real value before you've had time to wonder if this was worth it.</p>
         </div>
       </div>
       <div class="faq-item reveal d2">

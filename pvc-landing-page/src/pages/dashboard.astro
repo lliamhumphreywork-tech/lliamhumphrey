@@ -1,0 +1,444 @@
+---
+export const prerender = false;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PVC — Applicant Review</title>
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080807;
+      --surface: #0f0f0d;
+      --surface2: #141410;
+      --border: #1c1c18;
+      --muted: #454540;
+      --text: #ede8df;
+      --sub: #7a7668;
+      --accent: #c9a96e;
+      --accent-dim: rgba(201,169,110,0.12);
+      --cream: #f5eedf;
+      --gold-bright: #e0bc7e;
+      --red: #d45f6a;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    /* ── Auth screen ── */
+    #auth-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 16px;
+      padding: 24px;
+    }
+    #auth-screen h1 { font-size: 18px; color: var(--accent); letter-spacing: 0.06em; }
+    #auth-screen p  { font-size: 13px; color: var(--sub); }
+    #auth-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-size: 15px;
+      width: 280px;
+      outline: none;
+    }
+    #auth-input:focus { border-color: var(--accent); }
+    #auth-btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 28px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    #auth-err { color: var(--red); font-size: 13px; display: none; }
+
+    /* ── App shell ── */
+    #app { display: none; flex-direction: column; min-height: 100vh; }
+
+    header {
+      padding: 18px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .logo { font-size: 16px; font-weight: 700; color: var(--accent); letter-spacing: 0.07em; }
+    #stats { font-size: 12px; color: var(--sub); margin-left: 4px; }
+    #refresh-btn {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--sub);
+      font-size: 12px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    #refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Filters ── */
+    #filters {
+      padding: 12px 24px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+    .pill {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--sub);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: all 0.15s;
+    }
+    .pill.active { background: var(--accent); border-color: var(--accent); color: #080807; }
+    .pill-a.active { background: var(--gold-bright); border-color: var(--gold-bright); color: #080807; }
+    .pill-b.active { background: #a89070; border-color: #a89070; color: #080807; }
+    .pill-c.active { background: #5a5650; border-color: #5a5650; color: var(--cream); }
+    .sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+    #sort-select {
+      margin-left: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--sub);
+      font-size: 12px;
+      padding: 5px 28px 5px 10px;
+      cursor: pointer;
+      outline: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+    #sort-select option { background: #111; }
+
+    /* ── Grid ── */
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+      padding: 20px 24px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .card:hover { border-color: #333; }
+    .card.expanded { border-color: var(--accent); }
+
+    .card-top { display: flex; align-items: flex-start; gap: 12px; }
+    .ring {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .ring-A { background: var(--accent-dim); color: var(--gold-bright); border: 2px solid var(--accent); }
+    .ring-B { background: rgba(168,144,112,0.1); color: #a89070; border: 2px solid #6b5c48; }
+    .ring-C { background: rgba(90,86,80,0.12); color: #5a5650; border: 2px solid #2e2c28; }
+
+    .card-info { flex: 1; min-width: 0; }
+    .card-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-biz  { font-size: 12px; color: var(--sub); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-meta { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid;
+    }
+    .tag-rev  { border-color: #332b1e; background: var(--accent-dim); color: #a8874a; }
+    .tag-ig   { border-color: #2a2820; background: rgba(201,169,110,0.05); color: var(--sub); }
+    .tag-status { border-color: #2a2820; background: rgba(201,169,110,0.06); color: #8a7d65; }
+
+    .card-expand { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .card.expanded .card-expand { display: block; }
+    .expand-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 5px; }
+    .expand-text  { font-size: 13px; color: #aaa; line-height: 1.6; }
+    .expand-contacts { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
+    .expand-contacts a { font-size: 12px; color: var(--accent); text-decoration: none; }
+
+    /* ── Empty / loading ── */
+    #loading, #empty {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--sub);
+      font-size: 14px;
+    }
+  </style>
+  <script is:inline>!function(w,d,s,u,n,a,b){if(w[n])return;a=w[n]={q:[],t:+new Date,s:[],o:u,track:function(){a.q.push([+new Date].concat([].slice.call(arguments)))},setScope:function(){a.s=[].slice.call(arguments).filter(function(x){return typeof x==="string"});a.q.push([+new Date,"setScope"].concat(a.s))},scope:function(){var c=[].slice.call(arguments);return{track:function(){a.q.push([+new Date].concat([].slice.call(arguments)).concat([{__scope:c}]))}}}};b=d.createElement(s);b.async=1;b.src=u+"/s.js";d.getElementsByTagName(s)[0].parentNode.insertBefore(b,d.getElementsByTagName(s)[0])}(window,document,"script","https://t.whop.tw","whop");whop.setScope("biz_wgGZg1FUySAA37");whop.track("page");</script>
+</head>
+<body>
+
+<!-- Auth gate -->
+<div id="auth-screen">
+  <h1>PVC</h1>
+  <p>Enter your admin key to view applicants</p>
+  <input id="auth-input" type="password" placeholder="Admin key" autocomplete="off" />
+  <button id="auth-btn">Enter</button>
+  <span id="auth-err">Wrong key — try again</span>
+</div>
+
+<!-- Dashboard -->
+<div id="app">
+  <header>
+    <span class="logo">PVC</span>
+    <span id="stats"></span>
+    <button id="refresh-btn">Refresh</button>
+  </header>
+
+  <div id="filters">
+    <button class="pill active" data-tier="all">All</button>
+    <button class="pill pill-a" data-tier="A">Tier A</button>
+    <button class="pill pill-b" data-tier="B">Tier B</button>
+    <button class="pill pill-c" data-tier="C">Tier C</button>
+    <div class="sep"></div>
+    <button class="pill" data-rev="Pre-revenue">Pre-rev</button>
+    <button class="pill" data-rev="R0-R10k">R0-R10k</button>
+    <button class="pill" data-rev="R10k-R50k">R10k-R50k</button>
+    <button class="pill" data-rev="R50k-R100k">R50k-R100k</button>
+    <button class="pill" data-rev="R100k+">R100k+</button>
+    <select id="sort-select">
+      <option value="score">Sort: Score</option>
+      <option value="name">Sort: Name</option>
+      <option value="revenue">Sort: Revenue</option>
+    </select>
+  </div>
+
+  <div id="grid">
+    <div id="loading">Loading applicants…</div>
+  </div>
+</div>
+
+<script>
+  const REV_ORDER = { 'Pre-revenue': 0, 'R0-R10k': 1, 'R10k-R50k': 2, 'R50k-R100k': 3, 'R100k+': 4 };
+
+  let KEY = new URLSearchParams(location.search).get('key') || '';
+  let allData = [];
+  let activeTier = 'all';
+  let activeRev  = null;
+  let sortMode   = 'score';
+
+  // ── Auth ──
+  const authScreen = document.getElementById('auth-screen');
+  const authInput  = document.getElementById('auth-input');
+  const authBtn    = document.getElementById('auth-btn');
+  const authErr    = document.getElementById('auth-err');
+  const app        = document.getElementById('app');
+
+  if (KEY) {
+    boot();
+  }
+
+  authBtn.addEventListener('click', () => {
+    KEY = authInput.value.trim();
+    if (KEY) boot();
+  });
+  authInput.addEventListener('keydown', e => { if (e.key === 'Enter') authBtn.click(); });
+
+  async function boot() {
+    authErr.style.display = 'none';
+    authBtn.textContent = 'Checking…';
+    authBtn.disabled = true;
+
+    // Quick auth probe before loading all data
+    let probeOk = false;
+    try {
+      const probe = await fetch(`/api/admin/applicants?key=${encodeURIComponent(KEY)}`, { signal: AbortSignal.timeout(30000) });
+      if (probe.status === 401) {
+        authErr.style.display = 'block';
+        authBtn.textContent = 'Enter';
+        authBtn.disabled = false;
+        return;
+      }
+      // Auth passed — show app immediately while we parse data
+      const url = new URL(location.href);
+      url.searchParams.set('key', KEY);
+      history.replaceState(null, '', url);
+      authScreen.style.display = 'none';
+      app.style.display = 'flex';
+
+      if (probe.ok) {
+        allData = await probe.json();
+        render();
+        updateStats();
+      }
+    } catch (e) {
+      console.error(e);
+      authErr.textContent = 'Connection error — try again';
+      authErr.style.display = 'block';
+      authBtn.textContent = 'Enter';
+      authBtn.disabled = false;
+    }
+  }
+
+  // ── Data ──
+  async function load() {
+    document.getElementById('grid').innerHTML = '<div id="loading">Loading applicants…</div>';
+    try {
+      const res = await fetch(`/api/admin/applicants?key=${encodeURIComponent(KEY)}`);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      allData = await res.json();
+      render();
+      updateStats();
+    } catch (e) {
+      console.error(e);
+      document.getElementById('grid').innerHTML = '<div id="loading" style="color:#d45f6a">Failed to load — try refreshing</div>';
+    }
+  }
+
+  document.getElementById('refresh-btn').addEventListener('click', load);
+
+  // ── Filters ──
+  document.querySelectorAll('[data-tier]').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('[data-tier]').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      activeTier = el.dataset.tier;
+      render();
+    });
+  });
+
+  document.querySelectorAll('[data-rev]').forEach(el => {
+    el.addEventListener('click', () => {
+      if (activeRev === el.dataset.rev) {
+        activeRev = null;
+        el.classList.remove('active');
+      } else {
+        document.querySelectorAll('[data-rev]').forEach(b => b.classList.remove('active'));
+        activeRev = el.dataset.rev;
+        el.classList.add('active');
+      }
+      render();
+    });
+  });
+
+  document.getElementById('sort-select').addEventListener('change', e => {
+    sortMode = e.target.value;
+    render();
+  });
+
+  // ── Render ──
+  function filtered() {
+    return allData.filter(a => {
+      if (activeTier !== 'all' && a.t !== activeTier) return false;
+      if (activeRev && a.r !== activeRev) return false;
+      return true;
+    });
+  }
+
+  function sorted(arr) {
+    return [...arr].sort((a, b) => {
+      if (sortMode === 'score')   return (b.s ?? -1) - (a.s ?? -1);
+      if (sortMode === 'name')    return a.n.localeCompare(b.n);
+      if (sortMode === 'revenue') return (REV_ORDER[b.r] ?? -1) - (REV_ORDER[a.r] ?? -1);
+      return 0;
+    });
+  }
+
+  function render() {
+    const grid = document.getElementById('grid');
+    const list = sorted(filtered());
+
+    if (list.length === 0) {
+      grid.innerHTML = '<div id="empty">No applicants match this filter.</div><div id="loading" style="display:none"></div>';
+      return;
+    }
+
+    grid.innerHTML = '<div id="loading" style="display:none"></div>';
+    list.forEach(a => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = cardHTML(a);
+      card.addEventListener('click', () => card.classList.toggle('expanded'));
+      grid.appendChild(card);
+    });
+  }
+
+  function cardHTML(a) {
+    const score = a.s !== null ? a.s : '?';
+    const igTag = a.i ? `<span class="tag tag-ig">${a.i.startsWith('@') ? a.i : '@' + a.i}</span>` : '';
+    const revTag = a.r ? `<span class="tag tag-rev">${a.r}</span>` : '';
+    const statusTag = a.status ? `<span class="tag tag-status">${a.status}</span>` : '';
+
+    const whyText = a.w ? a.w.slice(0, 400) + (a.w.length > 400 ? '…' : '') : '<em>No answer</em>';
+    const contactLinks = [
+      a.e ? `<a href="mailto:${a.e}">${a.e}</a>` : '',
+      a.p ? `<a href="tel:${a.p}">${a.p}</a>` : '',
+      a.i ? `<a href="https://instagram.com/${a.i.replace('@','')}" target="_blank">${a.i.startsWith('@') ? a.i : '@' + a.i}</a>` : '',
+    ].filter(Boolean).join('');
+
+    return `
+      <div class="card-top">
+        <div class="ring ring-${a.t}">${score}</div>
+        <div class="card-info">
+          <div class="card-name">${esc(a.n || 'Unknown')}</div>
+          <div class="card-biz">${esc(a.b || '—')}</div>
+          <div class="card-meta">${revTag}${igTag}${statusTag}</div>
+        </div>
+      </div>
+      <div class="card-expand">
+        <div class="expand-label">Why they want a seat</div>
+        <div class="expand-text">${esc(a.w || '—')}</div>
+        ${contactLinks ? `<div class="expand-contacts">${contactLinks}</div>` : ''}
+      </div>
+    `;
+  }
+
+  function updateStats() {
+    const a = allData.filter(x => x.t === 'A').length;
+    const b = allData.filter(x => x.t === 'B').length;
+    const c = allData.filter(x => x.t === 'C').length;
+    document.getElementById('stats').textContent =
+      `${allData.length} applicants · ${a}A · ${b}B · ${c}C`;
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>

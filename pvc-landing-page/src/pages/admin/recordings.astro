@@ -1,0 +1,572 @@
+---
+export const prerender = false;
+import { list } from '@vercel/blob';
+
+const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
+const keyParam = Astro.url.searchParams.get('key') ?? '';
+const authed = keyParam === ADMIN_KEY && ADMIN_KEY !== '';
+
+interface Recording {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  videoUrl: string;
+  uploadedAt: string;
+}
+
+let recordings: Recording[] = [];
+if (authed) {
+  try {
+    const { blobs } = await list({ prefix: 'recordings/meta/' });
+    const fetches = blobs.map(b => fetch(b.url).then(r => r.json()));
+    recordings = (await Promise.all(fetches)).sort(
+      (a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+    );
+  } catch {}
+}
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin · PVC</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #07101e;
+      --sidebar-bg: #040d18;
+      --card: #0e1929;
+      --card-hover: #132036;
+      --cream: #dce6f0;
+      --white: #f0f4f8;
+      --silver: #8a9bb0;
+      --silver-dim: #3e4e60;
+      --border: rgba(168,184,200,0.08);
+      --border-mid: rgba(168,184,200,0.15);
+      --green: #34d399;
+      --red: #f87171;
+      --g: 'DM Sans', sans-serif;
+      --s: 'Syne', sans-serif;
+      --r: 10px;
+    }
+    body {
+      background: var(--black);
+      color: var(--cream);
+      font-family: var(--g);
+      font-size: 14px;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+    }
+
+    /* ---- SIDEBAR ---- */
+    .sidebar {
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 28px 0 24px;
+      overflow: hidden;
+    }
+    .sb-brand {
+      padding: 0 20px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sb-eyebrow {
+      font-size: 8px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver-dim);
+      margin-bottom: 4px;
+    }
+    .sb-title {
+      font-family: var(--s);
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--white);
+    }
+    .sb-nav {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sb-nav-label {
+      font-size: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--silver-dim);
+      padding: 0 10px;
+      margin-bottom: 6px;
+      margin-top: 4px;
+    }
+    .sb-link {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 10px;
+      border-radius: 7px;
+      text-decoration: none;
+      color: var(--silver);
+      font-size: 13px;
+      transition: background 0.12s, color 0.12s;
+    }
+    .sb-link:hover { background: rgba(255,255,255,0.04); color: var(--cream); }
+    .sb-link.active { background: rgba(255,255,255,0.06); color: var(--white); }
+    .sb-link svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.7; }
+    .sb-link.active svg { opacity: 1; }
+    .sb-ext { margin-left: auto; opacity: 0.4; }
+    .sb-ext svg { width: 10px; height: 10px; }
+    .sb-bottom {
+      padding: 16px 20px 0;
+      border-top: 1px solid var(--border);
+    }
+    .sb-event {
+      font-size: 10px;
+      color: var(--silver-dim);
+      line-height: 1.6;
+    }
+    .sb-event strong { color: var(--silver); font-weight: 500; }
+
+    /* ---- MAIN ---- */
+    .main {
+      padding: 48px 52px 80px;
+      max-width: 560px;
+    }
+    .page-head {
+      margin-bottom: 36px;
+    }
+    .page-eyebrow {
+      font-size: 8px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver-dim);
+      margin-bottom: 6px;
+    }
+    .page-title {
+      font-family: var(--s);
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--white);
+    }
+    .page-sub {
+      font-size: 12px;
+      color: var(--silver-dim);
+      margin-top: 5px;
+      line-height: 1.6;
+    }
+
+    /* ---- AUTH ---- */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--silver-dim);
+      margin-bottom: 8px;
+    }
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--cream);
+      font-family: var(--g);
+      font-size: 13px;
+      padding: 11px 14px;
+      outline: none;
+      border-radius: var(--r);
+      transition: border-color 0.15s;
+    }
+    input:focus { border-color: var(--border-mid); }
+
+    /* ---- UPLOAD ---- */
+    .drop-zone {
+      border: 2px dashed var(--border-mid);
+      border-radius: var(--r);
+      padding: 36px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 18px;
+      background: var(--card);
+    }
+    .drop-zone:hover, .drop-zone.over { border-color: var(--silver-dim); background: var(--card-hover); }
+    .drop-zone input { display: none; }
+    .dz-icon { font-size: 24px; margin-bottom: 8px; }
+    .dz-label { font-size: 13px; color: var(--silver-dim); }
+    .dz-hint { font-size: 11px; color: var(--silver-dim); opacity: 0.55; margin-top: 3px; }
+    .dz-file { font-size: 13px; color: var(--cream); font-weight: 500; margin-top: 8px; }
+
+    .title-field { margin-bottom: 16px; }
+    .title-field label {
+      display: block;
+      font-size: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--silver-dim);
+      margin-bottom: 8px;
+    }
+    input[type="text"].title-inp {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--cream);
+      font-family: var(--g);
+      font-size: 13px;
+      padding: 10px 14px;
+      outline: none;
+      border-radius: var(--r);
+      transition: border-color 0.15s;
+    }
+    input[type="text"].title-inp:focus { border-color: var(--border-mid); }
+
+    .progress { display: none; margin-bottom: 14px; }
+    .progress-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--green); width: 0; transition: width 0.12s; }
+    .progress-text { font-size: 10px; color: var(--silver-dim); margin-top: 5px; text-align: center; }
+
+    .msg { font-size: 12px; padding: 9px 13px; border-radius: 8px; margin-bottom: 12px; display: none; }
+    .msg.ok { background: rgba(52,211,153,0.08); color: var(--green); border: 1px solid rgba(52,211,153,0.18); }
+    .msg.err { background: rgba(248,113,113,0.08); color: var(--red); border: 1px solid rgba(248,113,113,0.18); }
+
+    /* ---- BTN ---- */
+    .btn {
+      width: 100%;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: var(--g);
+      font-weight: 600;
+      background: var(--silver);
+      color: var(--black);
+      border: none;
+      padding: 13px 24px;
+      cursor: pointer;
+      border-radius: var(--r);
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* ---- LIST ---- */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 32px 0 24px; }
+    .list-head {
+      font-size: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--silver-dim);
+      margin-bottom: 12px;
+    }
+    .rec-list { display: flex; flex-direction: column; gap: 8px; }
+    .rec-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .rec-icon {
+      width: 30px; height: 30px;
+      background: rgba(74,143,232,0.08);
+      border: 1px solid rgba(74,143,232,0.15);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .rec-icon svg { width: 12px; height: 12px; stroke: #5a9fe8; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .rec-body { flex: 1; min-width: 0; }
+    .rec-title { font-size: 13px; font-weight: 500; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rec-date { font-size: 10px; color: var(--silver-dim); margin-top: 2px; }
+    .rec-del { font-size: 10px; color: var(--silver-dim); background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: color 0.12s; }
+    .rec-del:hover { color: var(--red); }
+    .empty { font-size: 12px; color: var(--silver-dim); text-align: center; padding: 20px 0; }
+
+    /* ---- MOBILE ---- */
+    .mob-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 52px;
+      background: var(--sidebar-bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .mob-brand { font-family: var(--s); font-size: 14px; color: var(--white); }
+    .mob-menu { background: none; border: none; color: var(--silver); cursor: pointer; padding: 4px; }
+    .mob-menu svg { width: 18px; height: 18px; }
+    .mob-nav-drawer {
+      display: none;
+      background: var(--sidebar-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 10px 16px;
+    }
+    .mob-nav-drawer.open { display: block; }
+
+    @media (max-width: 700px) {
+      body { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .mob-bar { display: flex; }
+      .main { padding: 24px 20px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Mobile bar -->
+<div class="mob-bar">
+  <div class="mob-brand">PVC Admin</div>
+  <button class="mob-menu" onclick="toggleMobNav()">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+</div>
+<div class="mob-nav-drawer" id="mob-nav">
+  <div class="sb-nav" style="padding:8px 0">
+    <a class="sb-link active" href={`?key=${keyParam}`}>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="15 7 10 12 15 17 15 7" transform="scale(0.8) translate(0,-1)"/><rect x="1" y="4" width="11" height="9" rx="1.5"/></svg>
+      Recordings
+    </a>
+    <a class="sb-link" href="https://claude.ai/artifact/SBZkb238xRneipS2uVXu7P" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4"/><line x1="9.5" y1="9.5" x2="14" y2="14"/></svg>
+      Lead Tracker
+      <span class="sb-ext"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 8L8 2M4.5 2H8v3.5"/></svg></span>
+    </a>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-eyebrow">Private Victories</div>
+    <div class="sb-title">Admin</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-nav-label">Content</div>
+    <a class="sb-link active" href={`?key=${keyParam}`}>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="14 7 9 12 14 17 14 7" transform="scale(0.85) translate(-0.5,-1.5)"/>
+        <rect x="1" y="3.5" width="10.5" height="9" rx="1.5"/>
+      </svg>
+      Recordings
+    </a>
+    <div class="sb-nav-label" style="margin-top:10px">Events</div>
+    <a class="sb-link" href="https://claude.ai/artifact/SBZkb238xRneipS2uVXu7P" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="7" cy="7" r="4.5"/>
+        <line x1="10.5" y1="10.5" x2="14.5" y2="14.5"/>
+      </svg>
+      Lead Tracker
+      <span class="sb-ext">
+        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M2 8L8 2M4.5 2H8v3.5"/>
+        </svg>
+      </span>
+    </a>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-event">
+      <strong>Cape Town Event</strong><br/>
+      Oct 10, 2026
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+  {!authed ? (
+    <>
+      <div class="page-head">
+        <div class="page-eyebrow">Authentication</div>
+        <div class="page-title">Admin access</div>
+        <div class="page-sub">Enter your admin key to continue.</div>
+      </div>
+      <form id="auth-form">
+        <div class="field">
+          <label>Admin Key</label>
+          <input type="password" id="key-input" autocomplete="current-password" />
+        </div>
+        <button class="btn" type="submit">Continue</button>
+      </form>
+    </>
+  ) : (
+    <>
+      <div class="page-head">
+        <div class="page-eyebrow">Content</div>
+        <div class="page-title">Recordings</div>
+        <div class="page-sub">Drop a video file. It goes live in the member portal immediately.</div>
+      </div>
+
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <input type="file" id="file-input" accept="video/*,.mp4,.mov,.mkv,.webm" />
+        <div class="dz-icon">&#9654;</div>
+        <div class="dz-label">Drop video here or click to choose</div>
+        <div class="dz-hint">MP4, MOV, MKV, any size</div>
+        <div class="dz-file" id="dz-file"></div>
+      </div>
+
+      <div class="title-field">
+        <label>Title</label>
+        <input type="text" class="title-inp" id="title-input" placeholder="September 2026 Mastermind" />
+      </div>
+
+      <div class="progress" id="progress">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-text" id="progress-text">Uploading...</div>
+      </div>
+      <div class="msg" id="msg"></div>
+      <button class="btn" id="upload-btn" onclick="upload()">Upload Recording</button>
+
+      {recordings.length > 0 && (
+        <>
+          <hr class="divider" />
+          <div class="list-head">{recordings.length} recording{recordings.length !== 1 ? 's' : ''} live</div>
+          <div class="rec-list">
+            {recordings.map(r => (
+              <div class="rec-item">
+                <div class="rec-icon">
+                  <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                </div>
+                <div class="rec-body">
+                  <div class="rec-title">{r.title}</div>
+                  <div class="rec-date">{r.date}</div>
+                </div>
+                <button class="rec-del" onclick={`del('${r.id}', this)`}>Remove</button>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  )}
+
+</main>
+
+<script define:vars={{ adminKey: authed ? keyParam : '' }}>
+  const authForm = document.getElementById('auth-form');
+  if (authForm) {
+    authForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const k = document.getElementById('key-input').value.trim();
+      if (k) window.location.href = `?key=${encodeURIComponent(k)}`;
+    });
+  }
+
+  const fileInput = document.getElementById('file-input');
+  const dropZone = document.getElementById('drop-zone');
+
+  if (fileInput) {
+    fileInput.addEventListener('change', () => onFile(fileInput.files[0]));
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault(); dropZone.classList.remove('over');
+      const f = e.dataTransfer.files[0];
+      if (f) onFile(f);
+    });
+  }
+
+  function onFile(f) {
+    if (!f) return;
+    document.getElementById('dz-file').textContent = f.name;
+    const name = f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+    const titleInput = document.getElementById('title-input');
+    if (titleInput && !titleInput.value) titleInput.value = name.charAt(0).toUpperCase() + name.slice(1);
+  }
+
+  function show(msg, type) {
+    const el = document.getElementById('msg');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'msg ' + (type || '');
+    el.style.display = msg ? 'block' : 'none';
+  }
+
+  async function del(id, btn) {
+    if (!confirm('Remove this recording?')) return;
+    btn.textContent = '...'; btn.disabled = true;
+    const r = await fetch('/api/admin/upload-recording', {
+      method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminKey, id }),
+    }).then(r => r.json());
+    if (r.ok) window.location.reload();
+    else { btn.textContent = 'Remove'; btn.disabled = false; }
+  }
+
+  function toggleMobNav() {
+    document.getElementById('mob-nav').classList.toggle('open');
+  }
+
+  window.__adminKey = adminKey;
+  window.del = del;
+  window.show = show;
+  window.toggleMobNav = toggleMobNav;
+</script>
+
+<script>
+  import { upload as blobUpload } from '@vercel/blob/client';
+
+  window.upload = async function upload() {
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    const file = fileInput?.files?.[0];
+    const title = (document.getElementById('title-input') as HTMLInputElement)?.value.trim();
+    const show = (window as any).show;
+    const adminKey = (window as any).__adminKey;
+
+    if (!file) return show('Choose a video file first.', 'err');
+    if (!title) return show('Add a title.', 'err');
+
+    const btn = document.getElementById('upload-btn') as HTMLButtonElement;
+    const progressEl = document.getElementById('progress') as HTMLElement;
+    const progressFill = document.getElementById('progress-fill') as HTMLElement;
+    const progressText = document.getElementById('progress-text') as HTMLElement;
+
+    btn.disabled = true; btn.textContent = 'Uploading...';
+    progressEl.style.display = 'block';
+    show('', '');
+
+    const ext = file.name.split('.').pop() ?? 'mp4';
+    const pathname = `recordings/video/rec_${Date.now()}.${ext}`;
+    const date = new Date().toLocaleDateString('en-ZA', { month: 'short', year: 'numeric' });
+
+    try {
+      await blobUpload(pathname, file, {
+        access: 'public',
+        handleUploadUrl: '/api/admin/blob-upload-token',
+        clientPayload: JSON.stringify({ adminKey, title, date }),
+        onUploadProgress: ({ percentage }) => {
+          progressFill.style.width = percentage + '%';
+          progressText.textContent = percentage < 100 ? `Uploading ${Math.round(percentage)}%` : 'Processing...';
+        },
+      });
+      show('Done. Refreshing...', 'ok');
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (e: any) {
+      show(e.message ?? 'Upload failed', 'err');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Upload Recording';
+      progressEl.style.display = 'none';
+    }
+  };
+</script>
+</body>
+</html>

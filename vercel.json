@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
+  "installCommand": "cd pvc-landing-page && npm install",
+  "buildCommand": "cd pvc-landing-page && npm run build",
+  "outputDirectory": "pvc-landing-page/dist",
+  "crons": [
     {
-      "src": "/assets/(.*)",
-      "headers": { "Cache-Control": "public, max-age=31536000, immutable" },
-      "dest": "/assets/$1"
-    },
-    { "src": "/(.*)", "dest": "/index.html" }
+      "path": "/api/admin/leads-daily-summary",
+      "schedule": "0 6 * * *"
+    }
   ]
 }

@@ -1,0 +1,464 @@
+---
+import '../styles/global.css';
+import Analytics from '@vercel/analytics/astro';
+const PH_KEY = import.meta.env.PUBLIC_POSTHOG_KEY ?? '';
+
+const NOISE = (id: string) => `
+  <filter id="${id}"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  <rect width="100%" height="100%" filter="url(#${id})"/>
+`;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Founding Dinner · Private Victories Club</title>
+  <meta name="description" content="One table. Twelve ambitious entrepreneurs. No spectators. Rosebank · Saturday 8 August." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,500&display=swap" rel="stylesheet" />
+  <Analytics />
+  {PH_KEY && <script define:vars={{ PH_KEY }}>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));
+    posthog.init(PH_KEY, {api_host: 'https://eu.posthog.com', capture_pageview: true});
+  </script>}
+  <script is:inline>!function(w,d,s,u,n,a,b){if(w[n])return;a=w[n]={q:[],t:+new Date,s:[],o:u,track:function(){a.q.push([+new Date].concat([].slice.call(arguments)))},setScope:function(){a.s=[].slice.call(arguments).filter(function(x){return typeof x==="string"});a.q.push([+new Date,"setScope"].concat(a.s))},scope:function(){var c=[].slice.call(arguments);return{track:function(){a.q.push([+new Date].concat([].slice.call(arguments)).concat([{__scope:c}]))}}}};b=d.createElement(s);b.async=1;b.src=u+"/s.js";d.getElementsByTagName(s)[0].parentNode.insertBefore(b,d.getElementsByTagName(s)[0])}(window,document,"script","https://t.whop.tw","whop");whop.setScope("biz_wgGZg1FUySAA37");whop.track("page");</script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav" class="dinner-nav">
+  <a href="https://privatevictoriesclub.com" class="nav-logo">
+    <div class="nav-mark"><span>PVC</span></div>
+    <div class="nav-lock">
+      <div class="nav-lock-1">Private Victories</div>
+      <div class="nav-lock-2">Club · Africa's Private Members Club</div>
+    </div>
+  </a>
+  <a href="#" class="cta-btn apply-trigger" class="nav-apply">Apply for a Seat</a>
+</nav>
+
+<!-- HERO -->
+<section class="d-hero">
+  <div class="d-hero-photo">
+    <img src="/images/dinner-venue-ok.jpg" alt="Private dining room set for the Founding Dinner" />
+  </div>
+  <div class="d-hero-overlay"></div>
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:2" set:html={NOISE('dn1')} />
+  <div class="d-hero-inner">
+    <div class="d-eyebrow reveal">Rosebank &middot; Saturday 8 August</div>
+    <h1 class="d-title reveal d1">Founding<br /><em class="d-title-em">Dinner</em></h1>
+    <div class="d-three reveal d2">
+      <p>One table.</p>
+      <p>Nine ambitious entrepreneurs.</p>
+      <p>No spectators.</p>
+    </div>
+    <p class="d-sub reveal d3">A private dinner for entrepreneurs building businesses worth talking about.</p>
+    <a href="#" class="cta-btn apply-trigger" class="cta-btn reveal d4">Apply for a Seat</a>
+  </div>
+</section>
+
+<!-- WHY THIS EXISTS -->
+<section class="d-section d-why">
+  <div class="d-inner">
+    <div class="d-label reveal">Why This Exists</div>
+    <div class="d-why-body">
+      <p class="d-why-line reveal d1">Most entrepreneurs build alone.</p>
+      <p class="d-why-sub reveal d2">Nobody to challenge them.<br />Nobody to celebrate with.<br />Nobody who truly understands what they're building.</p>
+      <p class="d-why-close reveal d3">The Founding Dinner exists to change that.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PHOTO BREAK -->
+<div class="d-photo-break">
+  <img src="/images/dinner-atmosphere-ok.jpg" alt="Entrepreneurs gathered at a rooftop terrace at night" />
+  <div class="d-photo-break-overlay"></div>
+</div>
+
+<!-- WHO THIS IS FOR -->
+<section class="d-section d-who">
+  <div class="d-inner">
+    <div class="d-label reveal">Who This Is For</div>
+    <p class="d-who-intro reveal d1">You might belong here if...</p>
+    <ul class="d-who-list">
+      <li class="reveal d1">You're already building.</li>
+      <li class="reveal d2">You're obsessed with getting better.</li>
+      <li class="reveal d3">You value real conversations over networking events.</li>
+      <li class="reveal d4">You believe who you're in the room with changes everything.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- NOT NETWORKING -->
+<section class="d-section d-statement">
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:2" set:html={NOISE('dn2')} />
+  <div class="d-inner d-statement-inner">
+    <h2 class="d-statement-head reveal">This isn't networking.</h2>
+    <p class="d-statement-body reveal d1">This isn't about collecting business cards.<br />It's about building relationships with people you'll still be speaking to years from now.</p>
+  </div>
+</section>
+
+<!-- WHY 15 -->
+<section class="d-section d-fifteen">
+  <div class="d-inner">
+    <div class="d-label reveal">Why Only 9?</div>
+    <p class="d-fifteen-intro reveal d1">We intentionally kept the room small.</p>
+    <div class="d-fifteen-reasons">
+      <div class="d-fifteen-item reveal d2">Better conversations.</div>
+      <div class="d-fifteen-item reveal d3">Better relationships.</div>
+      <div class="d-fifteen-item reveal d4">Better people.</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT HAPPENS NEXT -->
+<section class="d-section d-next">
+  <div class="d-inner">
+    <div class="d-label reveal">What Happens Next</div>
+    <ol class="d-next-list">
+      <li class="reveal d1"><span class="d-next-num">01</span><span>Apply.</span></li>
+      <li class="reveal d2"><span class="d-next-num">02</span><span>We'll review your application.</span></li>
+      <li class="reveal d3"><span class="d-next-num">03</span><span>If accepted, you'll receive your private ticket link.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="d-section d-close">
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:2" set:html={NOISE('dn3')} />
+  <div class="d-inner d-close-inner">
+    <p class="d-close-line reveal">If you're building something meaningful...</p>
+    <p class="d-close-line d-close-line-em reveal d1">We'd love to meet you.</p>
+    <a href="#" class="cta-btn apply-trigger" class="cta-btn reveal d2">Apply for a Seat</a>
+  </div>
+</section>
+
+<!-- APPLICATION MODAL -->
+<div id="applyModal" class="d-modal" aria-hidden="true">
+  <div class="d-modal-overlay" id="modalOverlay"></div>
+  <div class="d-modal-panel">
+    <button class="d-modal-close" id="modalClose" aria-label="Close">&times;</button>
+    <div class="d-modal-header">
+      <div class="d-modal-eyebrow">The Founding Dinner · Rosebank · 8 August</div>
+      <h2 class="d-modal-title">Apply for a Seat</h2>
+    </div>
+    <div class="d-modal-form">
+      <iframe data-tally-src="https://tally.so/r/5B5j6E?transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="600" frameborder="0" marginheight="0" marginwidth="0" title="Founding Dinner Application"></iframe>
+      <script async src="https://tally.so/widgets/embed.js"></script>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="d-footer">
+  <div class="footer-lock">
+    <div class="footer-mark">PVC</div>
+    <div class="footer-name">Private Victories Club</div>
+  </div>
+  <div class="footer-handle"><a href="https://instagram.com/privatevictories.club" target="_blank" rel="noopener">@privatevictories.club</a> · Built in Africa</div>
+  <div class="footer-copy">© MMXXVI · Build in private. Win in public.</div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav?.classList.toggle('scrolled', window.scrollY > 60);
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  setTimeout(() => {
+    document.querySelectorAll('.d-hero .reveal').forEach((el) => el.classList.add('visible'));
+  }, 120);
+
+  const heroImg = document.querySelector('.d-hero-photo img') as HTMLImageElement;
+  if (heroImg) {
+    const trigger = () => heroImg.classList.add('loaded');
+    heroImg.complete ? trigger() : heroImg.addEventListener('load', trigger);
+  }
+
+  const modal = document.getElementById('applyModal');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalClose = document.getElementById('modalClose');
+
+  const ph = () => (window as any).posthog;
+
+  function injectSourceIntoTally(iframeSelector: string) {
+    const params = new URLSearchParams(window.location.search);
+    const utmSource   = params.get('utm_source')   || '';
+    const utmMedium   = params.get('utm_medium')   || '';
+    const utmCampaign = params.get('utm_campaign') || '';
+    const referrer    = document.referrer
+      ? (() => { try { return new URL(document.referrer).hostname; } catch { return document.referrer; } })()
+      : 'direct';
+    const iframe = document.querySelector<HTMLIFrameElement>(iframeSelector);
+    if (!iframe) return;
+    const base = iframe.getAttribute('data-tally-src') || iframe.src || '';
+    const url = new URL(base.startsWith('http') ? base : 'https://tally.so' + base);
+    if (utmSource)   url.searchParams.set('utm_source',   utmSource);
+    if (utmMedium)   url.searchParams.set('utm_medium',   utmMedium);
+    if (utmCampaign) url.searchParams.set('utm_campaign', utmCampaign);
+    url.searchParams.set('referrer', referrer);
+    iframe.setAttribute('data-tally-src', url.toString());
+    iframe.src = url.toString();
+  }
+
+  const openModal = (e: Event) => {
+    e.preventDefault();
+    injectSourceIntoTally('.pvc-modal-form iframe');
+    modal?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (typeof (window as any).Tally !== 'undefined') (window as any).Tally.loadEmbeds();
+    ph()?.capture('apply_modal_opened', { page: 'dinner' });
+  };
+  const closeModal = () => {
+    modal?.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  document.querySelectorAll('.apply-trigger').forEach((btn) => btn.addEventListener('click', openModal));
+  modalOverlay?.addEventListener('click', closeModal);
+  modalClose?.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+</script>
+
+<style>
+  /* ── DINNER PAGE ── */
+  .d-hero {
+    min-height: 80vh; background: var(--pure-black); display: flex; align-items: flex-end;
+    padding: 120px 48px 80px; position: relative; overflow: hidden;
+  }
+  .d-hero-photo {
+    position: absolute; inset: 0; z-index: 0;
+  }
+  .d-hero-photo img {
+    width: 100%; height: 100%; object-fit: cover; object-position: 40% 38%;
+    filter: contrast(1.05) saturate(0.8);
+    transform: scale(1.04);
+    transition: transform 6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .d-hero-photo img.loaded { transform: scale(1); }
+  .d-hero-overlay {
+    position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.88) 100%);
+  }
+
+  .d-photo-break {
+    width: 100%; height: 50vh; position: relative; overflow: hidden;
+  }
+  .d-photo-break img {
+    width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%;
+    filter: contrast(1.05) saturate(0.75);
+  }
+  .d-photo-break-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.55) 100%);
+  }
+  .d-hero-inner { position: relative; z-index: 3; max-width: 860px; margin: 0; width: 100%; }
+
+  .d-eyebrow {
+    font-size: 9px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase;
+    color: rgba(255,255,255,0.45); margin-bottom: 20px;
+  }
+  .d-title {
+    font-family: var(--g); font-size: clamp(52px, 9vw, 120px); font-weight: 800;
+    letter-spacing: -3px; line-height: 0.9; text-transform: uppercase; color: var(--white);
+    margin-bottom: 32px;
+  }
+  .d-title-em {
+    font-family: var(--s); font-style: italic; font-weight: 300;
+    font-size: clamp(58px, 10vw, 132px); letter-spacing: -2px; color: var(--silver-light);
+    text-transform: none;
+  }
+  .d-three {
+    margin-bottom: 24px;
+  }
+  .d-three p {
+    font-family: var(--s); font-style: italic; font-weight: 300;
+    font-size: clamp(18px, 2.2vw, 26px); color: rgba(255,255,255,0.6); line-height: 1.5; margin: 0;
+  }
+  .d-sub {
+    margin-bottom: 36px; font-size: clamp(13px, 1.4vw, 15px); font-weight: 300;
+    color: rgba(255,255,255,0.35); max-width: 48ch; line-height: 1.7;
+  }
+
+  /* ── SECTIONS ── */
+  .d-section { padding: 120px 48px; background: var(--pure-black); position: relative; overflow: hidden; }
+  .d-inner { max-width: 900px; margin: 0 auto; }
+  .d-label {
+    font-size: 9.5px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--silver-dim); margin-bottom: 48px; display: flex; align-items: center; gap: 16px;
+  }
+  .d-label::after { content: ''; flex: 1; height: 1px; background: #ffffff12; }
+
+  /* WHY */
+  .d-why-line {
+    font-size: clamp(28px, 4.5vw, 56px); font-weight: 700; letter-spacing: -1.5px;
+    color: var(--white); line-height: 1; margin-bottom: 32px;
+  }
+  .d-why-sub {
+    font-family: var(--s); font-style: italic; font-weight: 300;
+    font-size: clamp(18px, 2.5vw, 28px); color: var(--silver); line-height: 1.9;
+    margin-bottom: 48px;
+  }
+  .d-why-close {
+    font-size: clamp(14px, 1.6vw, 18px); font-weight: 500; color: var(--silver-light);
+    letter-spacing: -0.2px;
+  }
+
+  /* WHO */
+  .d-who-intro {
+    font-size: clamp(16px, 1.8vw, 20px); font-weight: 300; color: var(--silver);
+    margin-bottom: 40px; font-style: italic; font-family: var(--s);
+  }
+  .d-who-list { list-style: none; border-top: 1px solid #ffffff14; }
+  .d-who-list li {
+    padding: 28px 0; border-bottom: 1px solid #ffffff14;
+    font-size: clamp(20px, 2.8vw, 34px); font-weight: 500; color: var(--white);
+    letter-spacing: -0.5px; line-height: 1.2;
+    transition: padding-left 0.3s;
+  }
+  .d-who-list li:hover { padding-left: 16px; }
+  .d-who-list li.visible { color: var(--white); }
+
+  /* STATEMENT */
+  .d-statement { background: var(--navy-deep); }
+  .d-statement-inner { text-align: center; padding: 40px 0; }
+  .d-statement-head {
+    font-size: clamp(36px, 7vw, 96px); font-weight: 800; letter-spacing: -3px;
+    text-transform: uppercase; color: var(--white); line-height: 1; margin-bottom: 32px;
+  }
+  .d-statement-body {
+    font-family: var(--s); font-style: italic; font-weight: 300;
+    font-size: clamp(18px, 2.4vw, 28px); color: var(--silver); line-height: 1.8; max-width: 56ch; margin: 0 auto;
+  }
+
+  /* FIFTEEN */
+  .d-fifteen-intro {
+    font-size: clamp(16px, 1.8vw, 20px); font-weight: 300; color: var(--silver-dim);
+    margin-bottom: 48px;
+  }
+  .d-fifteen-reasons { display: flex; flex-direction: column; gap: 0; border-top: 1px solid #ffffff14; }
+  .d-fifteen-item {
+    padding: 28px 0; border-bottom: 1px solid #ffffff14;
+    font-size: clamp(22px, 3.5vw, 44px); font-weight: 700; letter-spacing: -1px; color: var(--white);
+  }
+
+  /* WHAT NEXT */
+  .d-next-list { list-style: none; border-top: 1px solid #ffffff14; }
+  .d-next-list li {
+    display: flex; align-items: baseline; gap: 28px;
+    padding: 32px 0; border-bottom: 1px solid #ffffff14;
+    font-size: clamp(16px, 2vw, 22px); font-weight: 400; color: var(--white);
+    transition: padding-left 0.3s;
+  }
+  .d-next-list li:hover { padding-left: 12px; }
+  .d-next-num {
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--silver-dim);
+    flex-shrink: 0;
+  }
+
+  /* CLOSE */
+  .d-close { background: var(--pure-black); }
+  .d-close-inner { text-align: center; padding: 40px 0; }
+  .d-close-line {
+    font-size: clamp(20px, 3vw, 38px); font-weight: 300; color: var(--silver); line-height: 1.4;
+    margin-bottom: 16px;
+  }
+  .d-close-line-em {
+    font-family: var(--s); font-style: italic; font-weight: 300;
+    font-size: clamp(28px, 4.5vw, 60px); color: var(--white); letter-spacing: -1px;
+    margin-bottom: 48px;
+  }
+
+  /* MODAL */
+  .d-modal {
+    position: fixed; inset: 0; z-index: 1000;
+    display: flex; align-items: flex-end; justify-content: center;
+    pointer-events: none; opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .d-modal.open { pointer-events: all; opacity: 1; }
+  .d-modal-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+  }
+  .d-modal-panel {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 680px; max-height: 90vh;
+    background: var(--pure-black);
+    border-top: 1px solid #ffffff18;
+    border-left: 1px solid #ffffff0d;
+    border-right: 1px solid #ffffff0d;
+    border-radius: 16px 16px 0 0;
+    overflow-y: auto;
+    padding: 48px 48px 72px;
+    transform: translateY(40px);
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .d-modal.open .d-modal-panel { transform: translateY(0); }
+  .d-modal-close {
+    position: absolute; top: 20px; right: 20px;
+    background: none; border: 1px solid #ffffff18; color: var(--silver-dim);
+    width: 36px; height: 36px; border-radius: 50%; font-size: 20px; line-height: 1;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .d-modal-close:hover { color: var(--white); border-color: #ffffff40; }
+  .d-modal-eyebrow {
+    font-size: 9px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--silver-dim); margin-bottom: 12px;
+  }
+  .d-modal-title {
+    font-family: var(--g); font-size: clamp(28px, 4vw, 44px); font-weight: 800;
+    letter-spacing: -1.5px; color: var(--white); margin-bottom: 40px; line-height: 1;
+    text-transform: uppercase;
+  }
+  .d-modal-form iframe { display: block; border: none; background: transparent; width: 100%; }
+  @media (max-width: 680px) {
+    .d-modal-panel { padding: 36px 24px 56px; border-radius: 12px 12px 0 0; }
+  }
+
+  /* FOOTER */
+  .d-footer { background: var(--pure-black); }
+
+  /* MOBILE */
+  @media (max-width: 880px) {
+    .d-hero { padding: 120px 24px 72px; min-height: 75vh; }
+    .d-section { padding: 80px 24px; }
+    .d-statement-head { letter-spacing: -2px; }
+    .d-modal-panel { padding: 40px 28px 60px; }
+  }
+  @media (max-width: 560px) {
+    .dinner-nav .nav-lock-2 { display: none; }
+    .dinner-nav .nav-apply { padding: 10px 16px; font-size: 9px; letter-spacing: 1.5px; }
+    .d-hero { padding: 100px 20px 56px; min-height: 70vh; align-items: flex-end; }
+    .d-title { letter-spacing: -2px; margin-bottom: 20px; }
+    .d-title-em { letter-spacing: -1.5px; }
+    .d-eyebrow { margin-bottom: 14px; }
+    .d-three { margin-bottom: 16px; }
+    .d-sub { margin-bottom: 28px; }
+    .d-section { padding: 64px 20px; }
+    .d-photo-break { height: 40vh; }
+    .d-who-list li { font-size: clamp(18px, 5vw, 24px); padding: 22px 0; }
+    .d-fifteen-item { font-size: clamp(20px, 5.5vw, 30px); padding: 22px 0; }
+    .d-statement-head { font-size: clamp(28px, 9vw, 56px); letter-spacing: -1.5px; }
+    .d-statement-body { font-size: clamp(16px, 4vw, 22px); }
+    .d-next-list li { font-size: clamp(15px, 4vw, 18px); gap: 16px; padding: 24px 0; }
+    .d-close-inner { padding: 20px 0; }
+    .cta-btn { width: 100%; text-align: center; justify-content: center; }
+    .d-modal { align-items: flex-end; }
+    .d-modal-panel { padding: 32px 20px 48px; border-radius: 12px 12px 0 0; max-height: 92vh; }
+    .d-modal-title { font-size: clamp(24px, 7vw, 36px); margin-bottom: 28px; }
+  }
+</style>
+
+</body>
+</html>

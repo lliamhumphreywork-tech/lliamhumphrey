@@ -324,6 +324,29 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
       .grid2 { grid-template-columns: 1fr; }
       .nav-brand, .nav-user { display: none; }
     }
+    .rec-item { background: var(--navy); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+    .rec-icon { width: 32px; height: 32px; background: rgba(74,143,232,0.1); border: 1px solid rgba(74,143,232,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rec-body { flex: 1; min-width: 0; }
+    .rec-title { font-size: 13px; font-weight: 500; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rec-date { font-size: 10px; color: var(--silver-dim); margin-top: 2px; letter-spacing: 0.5px; }
+    .rec-del { font-size: 10px; color: var(--silver-dim); background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: color 0.15s; flex-shrink: 0; }
+    .rec-del:hover { color: #e05555; }
+
+    @media (min-width: 801px) {
+      .admin-nav {
+        position: fixed; left: 0; top: 0; bottom: 0; width: 200px;
+        flex-direction: column; border-bottom: none;
+        border-right: 1px solid var(--border); overflow-y: auto;
+      }
+      .panel { margin-left: 200px; max-width: calc(100vw - 200px); }
+      .nav-brand { border-right: none; border-bottom: 1px solid var(--border); padding: 20px; flex-shrink: 0; }
+      .nav-tabs { flex-direction: column; overflow-x: unset; flex: 1; padding: 8px 0; }
+      .tab { height: auto !important; padding: 10px 20px !important; border-bottom: none !important; border-right: none !important; margin-bottom: 0 !important; border-left: 2px solid transparent !important; }
+      .tab.active { border-left-color: var(--silver) !important; }
+      .nav-right { margin-left: 0 !important; flex-direction: column; align-items: flex-start; padding: 14px 20px; gap: 6px; border-top: 1px solid var(--border); flex-shrink: 0; }
+      .nav-user { display: block !important; padding: 0 !important; font-size: 10px; word-break: break-all; }
+      .sign-out-btn { height: auto !important; padding: 8px 0 !important; border-left: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -358,7 +381,6 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
   </div>
 </div>
 
-<div id="admin-data" data-key={ADMIN_KEY} hidden></div>
 
 <div id="app" style="display:none">
   <nav class="admin-nav">
@@ -376,6 +398,9 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
       <div class="tab" data-tab="brevo">Email Activity</div>
       <div class="tab" data-tab="revenue">Revenue</div>
       <div class="tab" data-tab="links">Payment Links</div>
+      <div class="tab" data-tab="members">Portal Access</div>
+      <div class="tab" data-tab="recordings">Recordings</div>
+      <div class="tab" data-tab="ctleads">CT Leads</div>
     </div>
     <div class="nav-right">
       <div class="nav-user" id="nav-user"></div>
@@ -695,6 +720,128 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     </div>
   </div>
 
+  <!-- Portal Access panel -->
+  <div id="tab-members" class="panel">
+    <div class="section-head">
+      <div class="section-title">Portal Access</div>
+      <div class="section-count" id="members-count"></div>
+    </div>
+
+    <div style="margin-bottom:32px;">
+      <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--silver-dim);margin-bottom:16px;">Pending Requests</div>
+      <div id="members-pending-list" style="display:flex;flex-direction:column;gap:1px;background:var(--border);">
+        <div style="background:var(--navy);padding:20px 24px;font-size:12px;color:var(--silver-dim);">Loading...</div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--silver-dim);margin-bottom:16px;">Approved</div>
+      <div id="members-approved-list" style="display:flex;flex-direction:column;gap:1px;background:var(--border);">
+        <div style="background:var(--navy);padding:20px 24px;font-size:12px;color:var(--silver-dim);">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recordings -->
+  <div id="tab-recordings" class="panel">
+    <div class="section-head">
+      <div class="section-title">Recordings</div>
+      <div class="section-count" id="rec-count"></div>
+    </div>
+
+    <div style="max-width:520px;">
+      <!-- Drop zone -->
+      <div id="rec-drop" style="border:2px dashed rgba(168,184,200,0.18);border-radius:12px;padding:36px 24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--navy);margin-bottom:20px;" onclick="document.getElementById('rec-file').click()">
+        <input type="file" id="rec-file" accept="video/*,.mp4,.mov,.mkv,.webm" style="display:none" />
+        <div style="font-size:24px;margin-bottom:10px;">&#9654;</div>
+        <div style="font-size:13px;color:var(--silver-dim);">Drop video here or click to choose</div>
+        <div style="font-size:11px;color:var(--silver-dim);opacity:0.5;margin-top:4px;">MP4, MOV, MKV</div>
+        <div id="rec-file-name" style="font-size:13px;color:var(--white);font-weight:500;margin-top:8px;"></div>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--silver-dim);margin-bottom:8px;">Title</div>
+        <input id="rec-title" type="text" placeholder="September 2026 Mastermind"
+          style="width:100%;background:var(--navy);border:1px solid var(--border);color:var(--white);font-family:var(--s);font-size:13px;padding:11px 14px;outline:none;border-radius:8px;transition:border-color 0.15s;"
+          onfocus="this.style.borderColor='rgba(168,184,200,0.35)'" onblur="this.style.borderColor='rgba(168,184,200,0.1)'" />
+      </div>
+
+      <!-- Progress -->
+      <div id="rec-progress" style="display:none;margin-bottom:16px;">
+        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+          <div id="rec-progress-fill" style="height:100%;background:var(--green);width:0;transition:width 0.15s;border-radius:2px;"></div>
+        </div>
+        <div id="rec-progress-text" style="font-size:11px;color:var(--silver-dim);margin-top:6px;text-align:center;">Uploading...</div>
+      </div>
+
+      <div id="rec-msg" style="display:none;font-size:12px;padding:10px 14px;border-radius:8px;margin-bottom:14px;text-align:center;"></div>
+
+      <button id="rec-upload-btn" onclick="uploadRecording()"
+        style="background:var(--silver);color:#08111f;border:none;padding:12px 28px;font-family:var(--s);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:100px;transition:opacity 0.2s;">
+        Upload Recording
+      </button>
+    </div>
+
+    <div style="margin-top:48px;">
+      <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--silver-dim);margin-bottom:16px;">Live in portal</div>
+      <div id="rec-list" style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:12px;color:var(--silver-dim);padding:16px 0;">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CT LEADS -->
+  <div id="tab-ctleads" class="panel">
+    <div class="section-head" style="margin-bottom:28px;">
+      <div class="section-title">CT Follow-up</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="sendDailySummary()" id="ctleads-send-btn" style="background:var(--silver);color:var(--black);border:none;font-size:9px;font-family:var(--g);font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 16px;cursor:pointer;">Send Now</button>
+        <button onclick="loadCTLeads()" style="background:none;border:1px solid var(--border);color:var(--silver-dim);font-size:11px;letter-spacing:1px;padding:6px 14px;cursor:pointer;font-family:var(--s);">Refresh</button>
+      </div>
+    </div>
+    <div id="ctleads-send-msg" style="display:none;font-size:12px;margin-bottom:16px;padding:10px 14px;"></div>
+
+    <div id="ctleads-err" style="display:none;font-size:12px;color:#e07070;margin-bottom:16px;line-height:1.7;"></div>
+
+    <div id="ctleads-setup" style="display:none;font-size:12px;color:var(--silver-dim);line-height:2;margin-bottom:24px;background:rgba(168,184,200,0.04);border:1px solid var(--border);padding:20px;">
+      <div style="color:var(--cream);margin-bottom:8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;">Setup required</div>
+      Add these environment variables in Vercel to enable Slack integration:<br/>
+      <code style="color:var(--silver);background:rgba(0,0,0,0.3);padding:2px 6px;font-size:11px;">SLACK_BOT_TOKEN</code>: Bot OAuth token with <code style="color:var(--silver);background:rgba(0,0,0,0.3);padding:2px 6px;font-size:11px;">channels:history</code> + <code style="color:var(--silver);background:rgba(0,0,0,0.3);padding:2px 6px;font-size:11px;">reactions:read</code> scopes<br/>
+      <code style="color:var(--silver);background:rgba(0,0,0,0.3);padding:2px 6px;font-size:11px;">SLACK_LEADS_CHANNEL</code>: Channel ID for your #leads channel (starts with C)
+    </div>
+
+    <div id="ctleads-today-section" style="display:none;margin-bottom:36px;">
+      <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--silver-dim);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+        Today's outreach
+        <span id="ctleads-today-count" style="background:var(--cream);color:var(--black);font-size:9px;font-weight:700;padding:2px 7px;letter-spacing:1px;"></span>
+      </div>
+      <div id="ctleads-today-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <div id="ctleads-switch-section" style="display:none;margin-bottom:36px;">
+      <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--silver-dim);margin-bottom:14px;">Switch channel</div>
+      <div id="ctleads-switch-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <div id="ctleads-community-section" style="display:none;margin-bottom:36px;">
+      <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--silver-dim);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+        Talent network / community
+        <span id="ctleads-community-count" style="color:var(--silver);font-size:11px;letter-spacing:0;text-transform:none;font-weight:400;"></span>
+      </div>
+      <div id="ctleads-community-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <div id="ctleads-all-section">
+      <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--silver-dim);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+        Event leads
+        <span id="ctleads-total-count" style="color:var(--silver);font-size:11px;letter-spacing:0;text-transform:none;font-weight:400;"></span>
+      </div>
+      <div id="ctleads-all-list" style="display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:12px;color:var(--silver-dim);padding:16px 0;">Click the tab to load.</div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script type="module" is:inline>
@@ -713,13 +860,26 @@ const firebaseConfig = {
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const KEY  = document.getElementById('admin-data').dataset.key;
-const H    = { 'Content-Type': 'application/json', 'x-admin-key': KEY };
+let KEY = '';
+let H   = { 'Content-Type': 'application/json', 'x-admin-key': '' };
 
 // ── Auth state ──
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async user => {
   document.getElementById('loading').classList.add('hidden');
   if (user) {
+    try {
+      const idToken = await user.getIdToken();
+      const sessionRes = await fetch('/api/admin/session', {
+        headers: { 'Authorization': `Bearer ${idToken}` },
+      });
+      if (!sessionRes.ok) { fbSignOut(auth); return; }
+      const { key } = await sessionRes.json();
+      KEY = key;
+      H = { 'Content-Type': 'application/json', 'x-admin-key': KEY };
+    } catch {
+      fbSignOut(auth);
+      return;
+    }
     document.getElementById('auth-screen').classList.remove('visible');
     document.getElementById('app').style.display = 'block';
     const name = user.email.split('@')[0];
@@ -728,6 +888,8 @@ onAuthStateChanged(auth, user => {
     loadLeads();
     loadOverviewRevenue();
   } else {
+    KEY = '';
+    H = { 'Content-Type': 'application/json', 'x-admin-key': '' };
     document.getElementById('auth-screen').classList.add('visible');
     document.getElementById('app').style.display = 'none';
   }
@@ -753,13 +915,16 @@ document.getElementById('sign-out-btn').addEventListener('click', () => fbSignOu
 // ── Tabs ──
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     tab.classList.add('active');
     const panel = document.getElementById('tab-' + tab.dataset.tab);
     panel.classList.add('active');
     if (tab.dataset.tab === 'brevo') loadBrevoLeads();
-  if (tab.dataset.tab === 'revenue') { revenueLoaded = false; loadRevenue(); }
+    if (tab.dataset.tab === 'revenue') { revenueLoaded = false; loadRevenue(); }
+    if (tab.dataset.tab === 'members') loadPortalAccess();
+    if (tab.dataset.tab === 'recordings') loadRecordings();
+    if (tab.dataset.tab === 'ctleads') loadCTLeads();
   });
 });
 
@@ -775,12 +940,38 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
   });
 });
 
+// ── Recordings drop zone wiring ──
+const recFileInput = document.getElementById('rec-file');
+const recDrop = document.getElementById('rec-drop');
+if (recFileInput) {
+  recFileInput.addEventListener('change', () => {
+    const f = recFileInput.files?.[0];
+    if (!f) return;
+    document.getElementById('rec-file-name').textContent = f.name;
+    const titleInput = document.getElementById('rec-title');
+    if (!titleInput.value) {
+      const name = f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+      titleInput.value = name.charAt(0).toUpperCase() + name.slice(1);
+    }
+  });
+  recDrop.addEventListener('dragover', e => { e.preventDefault(); recDrop.style.borderColor = 'rgba(168,184,200,0.4)'; });
+  recDrop.addEventListener('dragleave', () => { recDrop.style.borderColor = 'rgba(168,184,200,0.18)'; });
+  recDrop.addEventListener('drop', e => {
+    e.preventDefault(); recDrop.style.borderColor = 'rgba(168,184,200,0.18)';
+    const f = e.dataTransfer.files[0];
+    if (f) {
+      const dt = new DataTransfer(); dt.items.add(f); recFileInput.files = dt.files;
+      recFileInput.dispatchEvent(new Event('change'));
+    }
+  });
+}
+
 // ── Pipeline ──
 let allLeads = [], activeFilter = '', activeType = '', activeRevenue = '';
 
 async function loadLeads() {
   try {
-    const res  = await fetch(`/api/admin/applicants?key=${encodeURIComponent(KEY)}`);
+    const res  = await fetch('/api/admin/applicants', { headers: H });
     if (res.status === 401) return;
     allLeads = (await res.json()).filter(l => l.status !== 'Membership Activated');
     renderLeads();
@@ -812,7 +1003,7 @@ function renderLeads() {
   if (!f.length) { document.getElementById('lead-list').innerHTML = '<div class="loading">No leads in this stage</div>'; return; }
   document.getElementById('lead-list').innerHTML = f.map((lead, i) => {
     const email = lead.e || '', fn = (lead.n || '').split(' ')[0];
-    const initials = (lead.n || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    const initials = esc((lead.n || '?').split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase());
     const tierHtml  = lead.t ? `<span class="tier-badge tier-${esc(lead.t)}">${esc(lead.t)}</span>` : '';
     const tagsHtml  = (lead.type || []).map(t => `<span class="expand-tag">${esc(t)}</span>`).join('');
     const goalsHtml = lead.w ? `<div class="expand-goals"><div class="expand-goals-label">Goals</div>${esc(lead.w)}</div>` : '';
@@ -906,7 +1097,7 @@ async function loadTimeline(card) {
   const pageId = card.dataset.pageId;
   if (!pageId) { list.innerHTML = '<div class="timeline-empty">No page ID</div>'; return; }
   try {
-    const entries = await fetch(`/api/admin/interactions?key=${encodeURIComponent(KEY)}&pageId=${encodeURIComponent(pageId)}`).then(r => r.json());
+    const entries = await fetch(`/api/admin/interactions?pageId=${encodeURIComponent(pageId)}`, { headers: H }).then(r => r.json());
     if (!entries.length) { list.innerHTML = '<div class="timeline-empty">No touchpoints recorded yet</div>'; return; }
     list.innerHTML = entries.map(entry => {
       const parts = entry.text.split(' · ');
@@ -977,7 +1168,7 @@ document.getElementById('add-form').addEventListener('submit', async e => {
   const btn = e.target.querySelector('button');
   btn.disabled = true; btn.textContent = 'Adding...';
   try {
-    const res = await fetch(`/api/admin/add?key=${encodeURIComponent(KEY)}`, {
+    const res = await fetch('/api/admin/add', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email: document.getElementById('add-email').value.trim(), phone: document.getElementById('add-phone').value.trim(), insta: document.getElementById('add-insta').value.trim(), biz: document.getElementById('add-biz').value.trim(), interaction: document.getElementById('add-interaction').value, type: document.getElementById('add-type').value, notes: document.getElementById('add-notes').value.trim() }),
     });
@@ -993,7 +1184,7 @@ async function loadBrevoLeads() {
   if (brevoLoaded && !document.getElementById('brevo-list').querySelector('.brevo-empty')) return;
   brevoLoaded = true;
   try {
-    const res  = await fetch(`/api/admin/brevo-leads?key=${encodeURIComponent(KEY)}`);
+    const res  = await fetch('/api/admin/brevo-leads', { headers: H });
     const data = await res.json();
     const contacts = data.contacts ?? [];
     if (data.error) {
@@ -1028,7 +1219,7 @@ async function loadBrevoLeads() {
 // ── Overview Revenue ──
 async function loadOverviewRevenue() {
   try {
-    const res  = await fetch(`/api/admin/revenue?key=${encodeURIComponent(KEY)}`);
+    const res  = await fetch('/api/admin/revenue', { headers: H });
     const data = await res.json();
     const fmt  = n => 'R' + Math.round(n).toLocaleString('en-ZA');
     const now  = new Date();
@@ -1062,7 +1253,7 @@ async function loadRevenue() {
   if (revenueLoaded) return;
   revenueLoaded = true;
   try {
-    const res  = await fetch(`/api/admin/revenue?key=${encodeURIComponent(KEY)}`);
+    const res  = await fetch('/api/admin/revenue', { headers: H });
     const data = await res.json();
     const fmt  = n => 'R' + Math.round(n).toLocaleString('en-ZA');
     const now  = new Date();
@@ -1110,6 +1301,346 @@ function setMsg(id, text, isErr) {
   el.textContent = text.toUpperCase(); el.className = 'msg ' + (isErr ? 'err' : 'ok');
   setTimeout(() => { el.textContent = ''; el.className = 'msg'; }, 4000);
 }
+
+let portalLoaded = false;
+async function loadPortalAccess() {
+  if (portalLoaded) return;
+  portalLoaded = true;
+  try {
+    const res = await fetch('/api/admin/portal-access', { headers: H });
+    const data = await res.json();
+    const pending = data.filter(r => !r.approved);
+    const approved = data.filter(r => r.approved);
+    document.getElementById('members-count').textContent = `${approved.length} approved · ${pending.length} pending`;
+    const row = (r, showApprove) => `
+      <div style="background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+        <div>
+          <div style="font-size:13px;color:var(--white);">${esc(r.email)}</div>
+          ${r.name ? `<div style="font-size:11px;color:var(--silver-dim);margin-top:2px;">${esc(r.name)}</div>` : ''}
+        </div>
+        ${showApprove ? `<button onclick="approveAccess('${esc(r.pageId)}', this)" style="padding:8px 18px;background:var(--silver);color:var(--black);font-family:var(--g);font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;">Approve</button>` : `<span style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--green);">Approved</span>`}
+      </div>`;
+    document.getElementById('members-pending-list').innerHTML = pending.length ? pending.map(r => row(r, true)).join('') : '<div style="background:var(--navy);padding:20px 24px;font-size:12px;color:var(--silver-dim);">No pending requests</div>';
+    document.getElementById('members-approved-list').innerHTML = approved.length ? approved.map(r => row(r, false)).join('') : '<div style="background:var(--navy);padding:20px 24px;font-size:12px;color:var(--silver-dim);">None yet</div>';
+  } catch(e) {
+    document.getElementById('members-pending-list').innerHTML = '<div style="background:var(--navy);padding:20px 24px;font-size:12px;color:var(--red);">Failed to load</div>';
+  }
+}
+
+async function approveAccess(pageId, btn) {
+  btn.disabled = true; btn.textContent = '...';
+  await fetch('/api/admin/portal-access', {
+    method: 'POST',
+    headers: H,
+    body: JSON.stringify({ pageId }),
+  });
+  portalLoaded = false;
+  loadPortalAccess();
+}
+
+// ── Recordings ──
+let recLoaded = false;
+
+async function loadRecordings() {
+  if (recLoaded) return;
+  recLoaded = true;
+  const list = document.getElementById('rec-list');
+  if (!list) return;
+  list.innerHTML = '<div style="font-size:12px;color:var(--silver-dim);padding:20px 0">Loading...</div>';
+  try {
+    const res = await fetch('/api/admin/upload-recording', { headers: H });
+    const data = await res.json();
+    renderRecList(data.recordings || []);
+  } catch {
+    list.innerHTML = '<div style="font-size:12px;color:#c94a5c;padding:20px 0">Failed to load</div>';
+  }
+}
+
+function renderRecList(recs) {
+  const list = document.getElementById('rec-list');
+  const count = document.getElementById('rec-count');
+  if (count) count.textContent = recs.length + ' recording' + (recs.length !== 1 ? 's' : '');
+  if (!recs.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--silver-dim);padding:20px 0;text-align:center">No recordings yet</div>';
+    return;
+  }
+  list.innerHTML = recs.map(r => `
+    <div class="rec-item">
+      <div class="rec-icon">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#4a8fe8;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round">
+          <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+        </svg>
+      </div>
+      <div class="rec-body">
+        <div class="rec-title">${esc(r.title)}</div>
+        <div class="rec-date">${esc(r.date)}</div>
+      </div>
+      <button class="rec-del" onclick="deleteRecording('${esc(r.id)}', this)">Remove</button>
+    </div>
+  `).join('');
+}
+
+async function uploadRecording() {
+  const fileInput = document.getElementById('rec-file');
+  const titleInput = document.getElementById('rec-title');
+  const file = fileInput?.files?.[0];
+  const title = titleInput?.value.trim();
+  if (!file) return showRecMsg('Choose a video file first.', 'err');
+  if (!title) return showRecMsg('Add a title.', 'err');
+
+  const blobUpload = window._blobUpload;
+  if (!blobUpload) return showRecMsg('Upload not ready. Refresh and try again.', 'err');
+
+  const btn = document.getElementById('rec-upload-btn');
+  const progress = document.getElementById('rec-progress');
+  const fill = document.getElementById('rec-progress-fill');
+  const ptext = document.getElementById('rec-progress-text');
+  btn.disabled = true; btn.textContent = 'Uploading...';
+  progress.style.display = 'block';
+
+  const ext = file.name.split('.').pop() ?? 'mp4';
+  const pathname = `recordings/video/rec_${Date.now()}.${ext}`;
+  const date = new Date().toLocaleDateString('en-ZA', { month: 'short', year: 'numeric' });
+
+  try {
+    await blobUpload(pathname, file, {
+      access: 'public',
+      handleUploadUrl: '/api/admin/blob-upload-token',
+      clientPayload: JSON.stringify({ title, date }),
+      headers: H,
+      onUploadProgress: ({ percentage }) => {
+        fill.style.width = percentage + '%';
+        ptext.textContent = percentage < 100 ? `Uploading ${Math.round(percentage)}%` : 'Processing...';
+      },
+    });
+    showRecMsg('Uploaded. Recording is now live.', 'ok');
+    fileInput.value = '';
+    document.getElementById('rec-file-name').textContent = '';
+    titleInput.value = '';
+    recLoaded = false;
+    loadRecordings();
+  } catch (e) {
+    showRecMsg(e.message ?? 'Upload failed', 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Upload Recording';
+    progress.style.display = 'none';
+    fill.style.width = '0';
+  }
+}
+
+async function deleteRecording(id, btn) {
+  if (!confirm('Remove this recording?')) return;
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    const r = await fetch('/api/admin/upload-recording', {
+      method: 'DELETE',
+      headers: H,
+      body: JSON.stringify({ id }),
+    }).then(r => r.json());
+    if (r.ok) { recLoaded = false; loadRecordings(); }
+    else { btn.textContent = 'Remove'; btn.disabled = false; }
+  } catch {
+    btn.textContent = 'Remove'; btn.disabled = false;
+  }
+}
+
+function showRecMsg(msg, type) {
+  const el = document.getElementById('rec-msg');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.color = type === 'ok' ? '#3ecf8e' : '#e05555';
+  el.style.background = type === 'ok' ? 'rgba(62,207,142,0.08)' : 'rgba(224,85,85,0.08)';
+  el.style.border = type === 'ok' ? '1px solid rgba(62,207,142,0.2)' : '1px solid rgba(224,85,85,0.2)';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+window.uploadRecording = uploadRecording;
+window.deleteRecording = deleteRecording;
+
+// ── CT Leads ──
+const EVENT_DATE = new Date('2026-10-10T00:00:00+02:00');
+
+function ctFmt(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' });
+}
+
+function ctDaysSince(iso) {
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+}
+
+function ctTierBadge(tier) {
+  const colors = { Hot: '#e05555', Warm: '#e08c2e', Cold: '#4a7a9b' };
+  return `<span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:${colors[tier]||'var(--silver-dim)'};border:1px solid ${colors[tier]||'var(--border)'};padding:2px 6px;">${tier}</span>`;
+}
+
+function ctStatusBadge(status) {
+  const map = {
+    New:          ['var(--silver-dim)', 'var(--border)'],
+    Contacted:    ['#3ecf8e',           'rgba(62,207,142,0.3)'],
+    'Timing Issue':['#e08c2e',          'rgba(224,140,46,0.3)'],
+    'Link Sent':  ['#7cb9e8',           'rgba(124,185,232,0.3)'],
+    Paid:         ['#3ecf8e',           'rgba(62,207,142,0.5)'],
+    Declined:     ['#e05555',           'rgba(224,85,85,0.3)'],
+    '2nd Touch':  ['#e08c2e',           'rgba(224,140,46,0.3)'],
+  };
+  const [c, b] = map[status] || ['var(--silver-dim)', 'var(--border)'];
+  return `<span style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:${c};border:1px solid ${b};padding:2px 6px;">${esc(status)}</span>`;
+}
+
+function ctActionBadge(action) {
+  const map = {
+    contact:        ['#ffd97d', 'rgba(255,217,125,0.25)', 'First contact'],
+    follow_up:      ['#7cb9e8', 'rgba(124,185,232,0.25)', 'Follow up'],
+    switch_channel: ['#e08c2e', 'rgba(224,140,46,0.25)',  'Switch channel'],
+  };
+  if (!map[action]) return '';
+  const [c, b, label] = map[action];
+  return `<span style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:${c};border:1px solid ${b};padding:2px 6px;">${label}</span>`;
+}
+
+function ctLeadCard(lead) {
+  const daysSince = lead.status === 'New' ? lead.daysSinceLead : lead.daysSinceChange;
+  const overdueBadge = lead.overdue ? `<span style="font-size:9px;color:#e05555;letter-spacing:1px;text-transform:uppercase;border:1px solid rgba(224,85,85,0.4);padding:2px 6px;">Overdue</span>` : '';
+  const daysLabel = daysSince > 0 ? `${daysSince}d ${lead.status === 'New' ? 'in' : 'since contact'}` : 'Today';
+  const sub = [lead.email, lead.ticket, lead.business].filter(Boolean).map(esc).join(' · ');
+  return `<div style="border:1px solid var(--border);padding:14px 16px;background:rgba(168,184,200,0.03);">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:14px;color:var(--cream);">${esc(lead.name)}</span>
+          ${ctTierBadge(lead.tier)}
+          ${ctStatusBadge(lead.status)}
+          ${lead.action !== 'none' ? ctActionBadge(lead.action) : ''}
+          ${overdueBadge}
+        </div>
+        ${sub ? `<div style="font-size:12px;color:var(--silver-dim);">${sub}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+        <span style="font-size:11px;color:var(--silver-dim);">${daysLabel}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function loadCTLeads() {
+  const errEl         = document.getElementById('ctleads-err');
+  const setupEl       = document.getElementById('ctleads-setup');
+  const todaySec      = document.getElementById('ctleads-today-section');
+  const switchSec     = document.getElementById('ctleads-switch-section');
+  const communitySec  = document.getElementById('ctleads-community-section');
+  const allList       = document.getElementById('ctleads-all-list');
+  const todayList     = document.getElementById('ctleads-today-list');
+  const switchList    = document.getElementById('ctleads-switch-list');
+  const communityList = document.getElementById('ctleads-community-list');
+  const todayCnt      = document.getElementById('ctleads-today-count');
+  const totalCnt      = document.getElementById('ctleads-total-count');
+  const communityCnt  = document.getElementById('ctleads-community-count');
+
+  errEl.style.display = 'none';
+  setupEl.style.display = 'none';
+  allList.innerHTML = '<div style="font-size:12px;color:var(--silver-dim);padding:16px 0;">Loading...</div>';
+  todaySec.style.display = 'none';
+  switchSec.style.display = 'none';
+  communitySec.style.display = 'none';
+
+  try {
+    const res  = await fetch('/api/admin/leads-slack', { headers: H });
+    const data = await res.json();
+
+    if (!res.ok) { errEl.textContent = data.error || 'Failed to load leads'; errEl.style.display = 'block'; allList.innerHTML = ''; return; }
+    if (!data.configured) { setupEl.style.display = 'block'; allList.innerHTML = ''; return; }
+
+    const leads = data.leads || [];
+    if (!leads.length) { allList.innerHTML = '<div style="font-size:12px;color:var(--silver-dim);padding:16px 0;">No leads found in the last 45 days.</div>'; return; }
+
+    const communityLeads = leads.filter(l => l.isCommunityLead);
+    const eventLeads     = leads.filter(l => !l.isCommunityLead);
+    const switchNeeded   = eventLeads.filter(l => l.action === 'switch_channel');
+    const today          = eventLeads.filter(l => l.dueToday && l.action !== 'switch_channel');
+
+    if (today.length) {
+      todayList.innerHTML = today.map(l => ctLeadCard(l)).join('');
+      todayCnt.textContent = today.length;
+      todaySec.style.display = 'block';
+    }
+
+    if (switchNeeded.length) {
+      switchList.innerHTML = switchNeeded.map(l => ctLeadCard(l)).join('');
+      switchSec.style.display = 'block';
+    }
+
+    if (communityLeads.length) {
+      communityList.innerHTML = communityLeads.map(l =>
+        `<div style="border:1px solid rgba(124,185,232,0.2);padding:14px 16px;background:rgba(124,185,232,0.03);">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span style="font-size:14px;color:var(--cream);">${esc(l.name)}</span>
+                <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#7cb9e8;border:1px solid rgba(124,185,232,0.4);padding:2px 6px;">Community</span>
+                ${ctStatusBadge(l.status)}
+              </div>
+              ${[l.email, l.business].filter(Boolean).map(esc).join(' · ') ? `<div style="font-size:12px;color:var(--silver-dim);">${[l.email, l.business].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
+            </div>
+            <span style="font-size:11px;color:var(--silver-dim);flex-shrink:0;">${ctDaysSince(l.initialDate)}d ago</span>
+          </div>
+        </div>`
+      ).join('');
+      communityCnt.textContent = `${communityLeads.length}`;
+      communitySec.style.display = 'block';
+    }
+
+    totalCnt.textContent = `${eventLeads.length} lead${eventLeads.length !== 1 ? 's' : ''}`;
+    allList.innerHTML = eventLeads.length
+      ? eventLeads.map(l => ctLeadCard(l)).join('')
+      : '<div style="font-size:12px;color:var(--silver-dim);padding:16px 0;">No event leads.</div>';
+  } catch (e) {
+    errEl.textContent = e.message || 'Unexpected error';
+    errEl.style.display = 'block';
+    allList.innerHTML = '';
+  }
+}
+
+window.loadCTLeads = loadCTLeads;
+
+async function sendDailySummary() {
+  const btn = document.getElementById('ctleads-send-btn');
+  const msgEl = document.getElementById('ctleads-send-msg');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  msgEl.style.display = 'none';
+  try {
+    const res  = await fetch('/api/admin/leads-daily-summary', { method: 'POST', headers: H });
+    const data = await res.json();
+    if (data.ok) {
+      msgEl.textContent = 'Summary posted to Slack.';
+      msgEl.style.color = '#3ecf8e';
+      msgEl.style.background = 'rgba(62,207,142,0.08)';
+      msgEl.style.border = '1px solid rgba(62,207,142,0.2)';
+    } else {
+      msgEl.textContent = data.error || 'Failed to send.';
+      msgEl.style.color = '#e05555';
+      msgEl.style.background = 'rgba(224,85,85,0.08)';
+      msgEl.style.border = '1px solid rgba(224,85,85,0.2)';
+    }
+    msgEl.style.display = 'block';
+    setTimeout(() => { msgEl.style.display = 'none'; }, 5000);
+  } catch(e) {
+    msgEl.textContent = e.message || 'Unexpected error';
+    msgEl.style.color = '#e05555';
+    msgEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send Now';
+  }
+}
+
+window.sendDailySummary = sendDailySummary;
+</script>
+
+<script>
+  import { upload as blobUpload } from '@vercel/blob/client';
+  (window as any)._blobUpload = blobUpload;
 </script>
 </body>
 </html>

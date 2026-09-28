@@ -1,0 +1,77 @@
+---
+export const prerender = false;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cape Town · VVIP Experience · Private Victories Club</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #08111f; --navy: #0a1628; --cream: #ece6da; --white: #ffffff;
+      --silver: #a8b8c8; --silver-dim: #4a5666; --silver-light: #dde4ec;
+      --muted: rgba(236,230,218,0.45);
+    }
+    html, body { min-height: 100vh; }
+    body { background: var(--navy); color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.6; }
+    .top-bar { height: 2px; background: var(--silver); }
+    nav { max-width: 680px; margin: 0 auto; padding: 32px 24px 0; }
+    .nav-brand { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); text-decoration: none; }
+    .nav-brand:hover { color: var(--silver); }
+    .wrap { max-width: 680px; margin: 0 auto; padding: 72px 24px 120px; }
+    .eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--silver); margin-bottom: 20px; }
+    h1 { font-family: 'Syne', sans-serif; font-size: clamp(42px, 8vw, 72px); font-weight: 300; line-height: 1.0; color: var(--white); margin-bottom: 8px; }
+    .tier-badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--black); background: var(--silver); padding: 5px 12px; margin-bottom: 48px; }
+    .includes { margin-bottom: 52px; }
+    .includes-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 16px; }
+    .includes ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .includes li { display: flex; align-items: flex-start; gap: 14px; font-size: 15px; color: rgba(236,230,218,0.75); }
+    .includes li::before { content: '·'; color: var(--silver); flex-shrink: 0; }
+    .contact-note { font-size: 13px; color: var(--silver); line-height: 1.7; margin-bottom: 48px; padding: 20px 24px; border-left: 2px solid rgba(168,184,200,0.3); }
+    .divider { height: 1px; background: rgba(168,184,200,0.15); margin-bottom: 48px; }
+    .serious-label { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 20px; }
+    .ig-btn { display: flex; align-items: center; justify-content: center; width: 100%; background: var(--silver); color: var(--black); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; padding: 18px 40px; text-decoration: none; transition: background 0.2s, transform 0.15s; }
+    .ig-btn:hover { background: var(--silver-light); transform: translateY(-1px); }
+    footer { max-width: 680px; margin: 0 auto; padding: 32px 24px; border-top: 1px solid rgba(168,184,200,0.1); font-size: 11px; color: var(--silver-dim); letter-spacing: 1px; }
+    footer a { color: var(--silver-dim); text-decoration: none; }
+    footer a:hover { color: var(--silver); }
+  </style>
+</head>
+<body>
+<div class="top-bar"></div>
+<nav><a href="/" class="nav-brand">Private Victories Club</a></nav>
+<div class="wrap">
+  <div class="eyebrow">Cape Town · Private Dinner</div>
+  <h1>VVIP<br />Experience</h1>
+  <div class="tier-badge">By Application Only</div>
+
+  <div class="contact-note">
+    This tier is not open to the public. If you are serious about joining at the VVIP level, send me a DM on Instagram. Tell me who you are and why you want to be in the room.
+  </div>
+
+  <div class="includes">
+    <div class="includes-label">What's included</div>
+    <ul>
+      <li>Everything in VIP</li>
+      <li>Private 1-on-1 time with Lliam</li>
+      <li>Priority seating</li>
+      <li>Post-event follow-up session</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="serious-label">Serious applicants only</div>
+  <a class="ig-btn" href="https://www.instagram.com/lliam.humphrey/" target="_blank" rel="noopener">DM on Instagram</a>
+</div>
+<footer><a href="/legal">Terms &amp; Conditions</a> · <a href="/legal#privacy">Privacy Policy</a> · <a href="/legal#refunds">Refund Policy</a></footer>
+</body>
+</html>

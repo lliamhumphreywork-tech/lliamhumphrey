@@ -1003,7 +1003,7 @@ function renderLeads() {
   if (!f.length) { document.getElementById('lead-list').innerHTML = '<div class="loading">No leads in this stage</div>'; return; }
   document.getElementById('lead-list').innerHTML = f.map((lead, i) => {
     const email = lead.e || '', fn = (lead.n || '').split(' ')[0];
-    const initials = esc((lead.n || '?').split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase());
+    const initials = esc((lead.n || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase());
     const tierHtml  = lead.t ? `<span class="tier-badge tier-${esc(lead.t)}">${esc(lead.t)}</span>` : '';
     const tagsHtml  = (lead.type || []).map(t => `<span class="expand-tag">${esc(t)}</span>`).join('');
     const goalsHtml = lead.w ? `<div class="expand-goals"><div class="expand-goals-label">Goals</div>${esc(lead.w)}</div>` : '';

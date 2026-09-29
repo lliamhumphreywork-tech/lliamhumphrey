@@ -361,6 +361,27 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
       color: #111827; cursor: pointer; outline: none;
     }
     .status-select:focus { border-color: var(--blue); }
+
+    /* ── TABLE — better row separation ── */
+    tbody tr { border-bottom: 1px solid #e5e7eb; }
+    tbody td { padding: 14px 16px; }
+
+    /* ── DELETE BUTTON ── */
+    .delete-btn {
+      background: none; border: none; cursor: pointer; font-size: 15px;
+      color: #d1d5db; padding: 4px 6px; border-radius: 4px;
+      transition: color 0.15s, background 0.15s; line-height: 1;
+    }
+    .delete-btn:hover { color: var(--red); background: #fff0f0; }
+
+    /* ── ANALYTICS FORM CARDS ── */
+    .form-stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .form-stat-card { background: #fff; border-radius: 8px; border: 1px solid #e5e7eb; padding: 20px; }
+    .form-stat-name { font-family: var(--g); font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
+    .form-stat-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f3f4f6; }
+    .form-stat-row:last-child { border-bottom: none; }
+    .form-stat-label { font-size: 11px; color: #6b7280; }
+    .form-stat-val { font-family: var(--g); font-size: 14px; font-weight: 700; color: var(--navy); }
   </style>
 </head>
 <body>
@@ -505,6 +526,25 @@ function patchAPI(pageId, props) {
   });
 }
 
+function deleteEntry(pageId, rowEl) {
+  if (!confirm('Archive this entry? It will be removed from the view but stays in Notion.')) return;
+  fetch('/api/admin/delete', {
+    method: 'DELETE',
+    headers: { 'x-admin-key': ADMIN_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pageId: pageId }),
+  }).then(function(r) {
+    if (!r.ok) throw new Error('Delete failed ' + r.status);
+    toast('Entry archived');
+    if (rowEl) {
+      rowEl.style.transition = 'opacity 0.3s';
+      rowEl.style.opacity = '0';
+      setTimeout(function() { rowEl.remove(); }, 300);
+    }
+  }).catch(function(e) {
+    toast('Failed: ' + e.message, true);
+  });
+}
+
 // ── Formatters ──
 function fmt(n) {
   if (n >= 1000000) return 'R' + (n / 1000000).toFixed(1) + 'M';
@@ -630,7 +670,7 @@ function renderApplications(leads, filter) {
 
   var rows = filtered.map(function(l) {
     var types = (l.type || []).join(', ');
-    return '<tr>' +
+    return '<tr id="row-' + l.id + '">' +
       '<td class="td-name">' + esc(l.n) + '</td>' +
       '<td class="td-muted">' + esc(l.b) + '</td>' +
       '<td>' + esc(l.r) + '</td>' +
@@ -640,6 +680,7 @@ function renderApplications(leads, filter) {
       '<td class="notes-cell">' +
         '<span class="editable" onclick="editNotes(this, \'' + l.id + '\')">' + (esc(l.w) || '<span style="color:#9ca3af">Add notes...</span>') + '</span>' +
       '</td>' +
+      '<td><button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + l.id + '\', document.getElementById(\'row-' + l.id + '\'))">✕</button></td>' +
     '</tr>';
   }).join('');
 
@@ -653,7 +694,7 @@ function renderApplications(leads, filter) {
       '<span class="count-tag">' + filtered.length + ' entries</span>' +
       '<button class="refresh-btn" onclick="loaded.applications=false; loadApplications()">Refresh</button>' +
     '</div>' +
-    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Business</th><th>Revenue</th><th>Tier</th><th>Form</th><th>Status</th><th>Notes</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No applications found</p></div>');
+    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Business</th><th>Revenue</th><th>Tier</th><th>Form</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No applications found</p></div>');
 }
 
 // ── CRM ──
@@ -675,7 +716,7 @@ function renderCRM(leads, q) {
   }) : leads;
 
   var rows = filtered.map(function(l) {
-    return '<tr>' +
+    return '<tr id="crm-' + l.id + '">' +
       '<td class="td-name">' + esc(l.n) + '</td>' +
       '<td>' + esc(l.b) + '</td>' +
       '<td class="td-muted">' + esc(l.e) + '</td>' +
@@ -687,6 +728,7 @@ function renderCRM(leads, q) {
       '<td class="notes-cell">' +
         '<span class="editable" onclick="editNotes(this, \'' + l.id + '\')">' + (esc(l.w) || '<span style="color:#9ca3af">—</span>') + '</span>' +
       '</td>' +
+      '<td><button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + l.id + '\', document.getElementById(\'crm-' + l.id + '\'))">✕</button></td>' +
     '</tr>';
   }).join('');
 
@@ -698,7 +740,7 @@ function renderCRM(leads, q) {
       '<span class="count-tag">' + filtered.length + ' of ' + leads.length + '</span>' +
       '<button class="refresh-btn" onclick="loaded.crm=false; loadCRM()">Refresh</button>' +
     '</div>' +
-    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Business</th><th>Email</th><th>Phone</th><th>Revenue</th><th>Tier</th><th>Type</th><th>Status</th><th>Notes / Goals</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No results</p></div>');
+    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Business</th><th>Email</th><th>Phone</th><th>Revenue</th><th>Tier</th><th>Type</th><th>Status</th><th>Notes / Goals</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No results</p></div>');
 }
 
 // ── Analytics ──
@@ -716,9 +758,24 @@ function renderAnalytics(data) {
   var el    = document.getElementById('tab-analytics');
   var crm   = data.crmStats || {};
   var camps = data.campaigns || [];
+  var forms = data.tallyForms || [];
 
-  // ─ Form stats ─
-  var byTypeMax = Math.max(1, Math.max.apply(null, Object.values(crm.byType || {1:1})));
+  // ─ Tally form stats ─
+  var formCardsHTML = forms.map(function(f) {
+    var hasData = f.views !== null || f.responses !== null;
+    return '<div class="form-stat-card">' +
+      '<div class="form-stat-name">' + esc(f.name) + '</div>' +
+      (hasData
+        ? '<div class="form-stat-row"><span class="form-stat-label">Views</span><span class="form-stat-val">' + (f.views !== null ? f.views.toLocaleString() : '—') + '</span></div>' +
+          '<div class="form-stat-row"><span class="form-stat-label">Responses</span><span class="form-stat-val">' + (f.responses !== null ? f.responses.toLocaleString() : '—') + '</span></div>' +
+          '<div class="form-stat-row"><span class="form-stat-label">Conversion</span><span class="form-stat-val">' + (f.conversionRate !== null ? pct(f.conversionRate) : '—') + '</span></div>'
+        : '<div style="font-size:12px;color:#9ca3af;padding:8px 0">Add TALLY_API_KEY in Vercel to see form stats</div>'
+      ) +
+    '</div>';
+  }).join('');
+
+  // ─ CRM submission stats ─
+  var byTypeMax = Math.max(1, Math.max.apply(null, Object.values(crm.byType || { _: 1 })));
   var byTypeHTML = Object.entries(crm.byType || {}).sort(function(a,b) { return b[1]-a[1]; }).map(function(kv) {
     var w = Math.round((kv[1] / byTypeMax) * 100);
     return '<div class="bar-row"><div class="bar-label">' + esc(kv[0]) + '</div><div class="bar-track"><div class="bar-fill" style="width:' + w + '%"></div></div><div class="bar-count">' + kv[1] + '</div></div>';
@@ -731,21 +788,28 @@ function renderAnalytics(data) {
   // ─ Brevo campaigns ─
   var campsHTML = camps.map(function(c) {
     return '<tr>' +
-      '<td class="td-name" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(c.name) + '</td>' +
+      '<td class="td-name" style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(c.name) + '</td>' +
       '<td class="td-muted" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(c.subject) + '</td>' +
       '<td class="td-muted">' + esc(c.sentAt ? c.sentAt.slice(0,10) : '—') + '</td>' +
-      '<td style="font-variant-numeric:tabular-nums">' + (c.delivered || '—') + '</td>' +
+      '<td style="font-variant-numeric:tabular-nums">' + (c.sent ? c.sent.toLocaleString() : '—') + '</td>' +
+      '<td style="font-variant-numeric:tabular-nums">' + (c.delivered ? c.delivered.toLocaleString() : '—') + '</td>' +
+      '<td>' + (c.opens ? c.opens.toLocaleString() : '—') + '</td>' +
       '<td><span class="badge badge-green">' + pct(c.openRate || 0) + '</span></td>' +
       '<td><span class="badge badge-blue">' + pct(c.clickRate || 0) + '</span></td>' +
+      '<td class="td-muted">' + (c.unsubscribed || 0) + '</td>' +
     '</tr>';
   }).join('');
 
   el.innerHTML =
     '<div class="page-title">Analytics</div>' +
-    '<div class="page-sub">Form submissions and email performance</div>' +
+    '<div class="page-sub">Form performance and email campaign metrics</div>' +
+    '<div class="card" style="margin-bottom:24px">' +
+      '<div class="card-title">Tally Forms</div>' +
+      '<div class="form-stat-grid">' + (formCardsHTML || '<p class="td-muted">No forms configured</p>') + '</div>' +
+    '</div>' +
     '<div class="two-col">' +
       '<div class="card">' +
-        '<div class="card-title">Form Submissions by Type</div>' +
+        '<div class="card-title">CRM Leads by Type</div>' +
         '<div class="bar-chart">' + (byTypeHTML || '<p class="td-muted">No data</p>') + '</div>' +
       '</div>' +
       '<div class="card">' +
@@ -755,7 +819,7 @@ function renderAnalytics(data) {
     '</div>' +
     '<div class="card" style="margin-bottom:24px">' +
       '<div class="card-title">Email Campaigns — Brevo</div>' +
-      (camps.length ? '<div class="table-wrap"><table><thead><tr><th>Campaign</th><th>Subject</th><th>Sent</th><th>Delivered</th><th>Open Rate</th><th>Click Rate</th></tr></thead><tbody>' + campsHTML + '</tbody></table></div>' : '<div class="empty-state" style="padding:20px"><p>No campaign data — check Brevo API key</p></div>') +
+      (camps.length ? '<div class="table-wrap"><table><thead><tr><th>Campaign</th><th>Subject</th><th>Date</th><th>Sent</th><th>Delivered</th><th>Opens</th><th>Open Rate</th><th>Click Rate</th><th>Unsub</th></tr></thead><tbody>' + campsHTML + '</tbody></table></div>' : '<div class="empty-state" style="padding:20px"><p>No campaign data yet — check BREVO_API_KEY in Vercel</p></div>') +
     '</div>';
 }
 
@@ -778,8 +842,11 @@ function renderTalent(data, view) {
     var skillsHTML = (e.skills || []).filter(Boolean).map(function(s) {
       return '<span class="skill-tag">' + esc(s) + '</span>';
     }).join('');
-    return '<div class="talent-card">' +
-      '<div class="talent-name">' + esc(e.n) + '</div>' +
+    return '<div class="talent-card" id="tal-' + e.id + '">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
+        '<div class="talent-name">' + esc(e.n) + '</div>' +
+        '<button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + e.id + '\', document.getElementById(\'tal-' + e.id + '\'))">✕</button>' +
+      '</div>' +
       (skillsHTML ? '<div class="talent-skills">' + skillsHTML + '</div>' : '') +
       '<div class="talent-info">' +
         (e.industry ? '<span>' + esc(e.industry) + '</span>' : '') +
@@ -821,7 +888,7 @@ function renderMembers(members, q) {
   }) : members;
 
   var rows = filtered.map(function(m) {
-    return '<tr>' +
+    return '<tr id="mem-' + m.id + '">' +
       '<td class="td-name">' + esc(m.n) + '</td>' +
       '<td>' + esc(m.b) + '</td>' +
       '<td class="td-muted">' + esc(m.e) + '</td>' +
@@ -831,6 +898,7 @@ function renderMembers(members, q) {
       '<td>' + (m.tier ? '<span class="badge badge-blue">' + esc(m.tier) + '</span>' : '—') + '</td>' +
       '<td>' + statusSelect(m.id, m.status, MEMBER_STATUSES) + '</td>' +
       '<td class="notes-cell"><span class="editable" onclick="editNotes(this, \'' + m.id + '\')">' + (esc(m.notes) || '<span style="color:#9ca3af">—</span>') + '</span></td>' +
+      '<td><button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + m.id + '\', document.getElementById(\'mem-' + m.id + '\'))">✕</button></td>' +
     '</tr>';
   }).join('');
 
@@ -842,7 +910,7 @@ function renderMembers(members, q) {
       '<span class="count-tag">' + filtered.length + ' of ' + members.length + '</span>' +
       '<button class="refresh-btn" onclick="loaded.members=false; loadMembers()">Refresh</button>' +
     '</div>' +
-    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Business</th><th>Email</th><th>Phone</th><th>IG</th><th>Revenue</th><th>Tier</th><th>Status</th><th>Notes</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No members found</p></div>');
+    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Business</th><th>Email</th><th>Phone</th><th>IG</th><th>Revenue</th><th>Tier</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No members found</p></div>');
 }
 
 // ── SOPs ──
@@ -859,10 +927,13 @@ function loadSOPs() {
 function renderSOPs(sops) {
   var el = document.getElementById('tab-sops');
   var cards = sops.map(function(s) {
-    return '<div class="sop-card">' +
+    return '<div class="sop-card" id="sop-' + s.id + '">' +
       '<div class="sop-card-header">' +
         '<div class="sop-card-title">' + esc(s.title) + '</div>' +
-        (s.status ? '<span class="badge badge-green">' + esc(s.status) + '</span>' : '') +
+        '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0">' +
+          (s.status ? '<span class="badge badge-green">' + esc(s.status) + '</span>' : '') +
+          '<button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + s.id + '\', document.getElementById(\'sop-' + s.id + '\'))">✕</button>' +
+        '</div>' +
       '</div>' +
       (s.category ? '<span class="badge badge-default">' + esc(s.category) + '</span>' : '') +
       (s.description ? '<div class="sop-card-desc">' + esc(s.description) + '</div>' : '') +

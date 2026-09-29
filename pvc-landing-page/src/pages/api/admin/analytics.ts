@@ -1,10 +1,17 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 
-const NOTION_TOKEN    = import.meta.env.NOTION_TOKEN;
-const NOTION_CRM_DB   = '872bd20eee31468f91bed1cd472e157a';
-const BREVO_API_KEY   = import.meta.env.BREVO_API_KEY;
-const ADMIN_KEY       = import.meta.env.ADMIN_KEY;
+const NOTION_TOKEN   = import.meta.env.NOTION_TOKEN;
+const NOTION_CRM_DB  = '872bd20eee31468f91bed1cd472e157a';
+const BREVO_API_KEY  = import.meta.env.BREVO_API_KEY;
+const TALLY_API_KEY  = import.meta.env.TALLY_API_KEY;
+const ADMIN_KEY      = import.meta.env.ADMIN_KEY;
+
+const TALLY_FORMS = [
+  { id: 'J94gk4', name: 'CT Mastermind Application' },
+  { id: 'jarg7Y', name: 'Membership Application' },
+  { id: 'dWJdNz', name: 'Talent Network' },
+];
 
 function auth(req: Request) {
   return ADMIN_KEY !== '' && req.headers.get('x-admin-key') === ADMIN_KEY;
@@ -39,7 +46,6 @@ async function getCrmStats() {
     const types  = (page.properties['Type']?.multi_select ?? []).map((s: any) => s.name);
     const status = page.properties['Status']?.select?.name ?? 'Unknown';
     const month  = page.created_time?.slice(0, 7) ?? '';
-
     for (const t of types) byType[t] = (byType[t] ?? 0) + 1;
     byStatus[status] = (byStatus[status] ?? 0) + 1;
     if (month) byMonth[month] = (byMonth[month] ?? 0) + 1;
@@ -51,32 +57,67 @@ async function getCrmStats() {
 async function getBrevoStats() {
   if (!BREVO_API_KEY) return [];
   try {
-    const res = await fetch('https://api.brevo.com/v3/emailCampaigns?type=classic&status=sent&limit=10', {
+    const res = await fetch('https://api.brevo.com/v3/emailCampaigns?type=classic&status=sent&limit=15', {
       headers: { 'api-key': BREVO_API_KEY, Accept: 'application/json' },
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return (data.campaigns ?? []).map((c: any) => ({
-      id:           c.id,
-      name:         c.name,
-      subject:      c.subject,
-      sentAt:       c.sentDate ?? '',
-      delivered:    c.statistics?.globalStats?.delivered ?? 0,
-      openRate:     c.statistics?.globalStats?.openRate ?? 0,
-      clickRate:    c.statistics?.globalStats?.clickRate ?? 0,
-      unsubscribed: c.statistics?.globalStats?.unsubscribed ?? 0,
-    }));
+    return (data.campaigns ?? []).map((c: any) => {
+      const gs        = c.statistics?.globalStats ?? {};
+      const delivered = gs.delivered ?? 0;
+      const opens     = gs.uniqueViews ?? 0;
+      const clicks    = gs.clickers ?? 0;
+      return {
+        id:           c.id,
+        name:         c.name,
+        subject:      c.subject,
+        sentAt:       c.sentDate ?? '',
+        sent:         gs.sent ?? 0,
+        delivered,
+        opens,
+        clicks,
+        openRate:     delivered > 0 ? opens / delivered : 0,
+        clickRate:    delivered > 0 ? clicks / delivered : 0,
+        unsubscribed: gs.unsubscriptions ?? 0,
+        bounces:      (gs.softBounces ?? 0) + (gs.hardBounces ?? 0),
+      };
+    });
   } catch {
     return [];
   }
 }
 
+async function getTallyStats() {
+  if (!TALLY_API_KEY) {
+    return TALLY_FORMS.map(f => ({ ...f, views: null, responses: null, conversionRate: null }));
+  }
+  return Promise.all(TALLY_FORMS.map(async (form) => {
+    try {
+      const res = await fetch(`https://api.tally.so/forms/${form.id}`, {
+        headers: { Authorization: `Bearer ${TALLY_API_KEY}` },
+      });
+      if (!res.ok) return { ...form, views: null, responses: null, conversionRate: null };
+      const data = await res.json();
+      const views     = data.numberOfViews ?? data.views ?? null;
+      const responses = data.numberOfResponses ?? null;
+      const rate      = views && responses && views > 0 ? responses / views : null;
+      return { id: form.id, name: form.name, views, responses, conversionRate: rate };
+    } catch {
+      return { ...form, views: null, responses: null, conversionRate: null };
+    }
+  }));
+}
+
 export const GET: APIRoute = async ({ request }) => {
   if (!auth(request)) return new Response('Unauthorized', { status: 401 });
 
-  const [crmStats, campaigns] = await Promise.all([getCrmStats(), getBrevoStats()]);
+  const [crmStats, campaigns, tallyForms] = await Promise.all([
+    getCrmStats(),
+    getBrevoStats(),
+    getTallyStats(),
+  ]);
 
-  return new Response(JSON.stringify({ crmStats, campaigns }), {
+  return new Response(JSON.stringify({ crmStats, campaigns, tallyForms }), {
     headers: { 'Content-Type': 'application/json' },
   });
 };

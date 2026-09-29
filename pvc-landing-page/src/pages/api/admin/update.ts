@@ -26,6 +26,9 @@ export const PATCH: APIRoute = async ({ request }) => {
   if (props.attended   !== undefined) properties['Attended?']       = { checkbox: props.attended };
   if (props.type       !== undefined) properties['Type']            = { multi_select: props.type.map((n: string) => ({ name: n })) };
   if (props.notes      !== undefined) properties['Notes']           = { rich_text: [{ text: { content: props.notes } }] };
+  if (props.status     !== undefined) properties['Status']          = { select: { name: props.status } };
+  if (props.tier       !== undefined) properties['Tier']            = { select: { name: props.tier } };
+  if (props.revenue    !== undefined) properties['Revenue']         = { select: { name: props.revenue } };
 
   const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
     method: 'PATCH',

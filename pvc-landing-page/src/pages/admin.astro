@@ -904,22 +904,22 @@ function renderTalent(data, view) {
   var entries = view === 'supply' ? (data.supply || []) : (data.demand || []);
 
   var cards = entries.map(function(e) {
-    var skillsHTML = (e.skills || []).filter(Boolean).map(function(s) {
-      return '<span class="skill-tag">' + esc(s) + '</span>';
-    }).join('');
     return '<div class="talent-card" id="tal-' + e.id + '">' +
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
-        '<div class="talent-name">' + esc(e.n) + '</div>' +
-        '<button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + e.id + '\', document.getElementById(\'tal-' + e.id + '\'))">✕</button>' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
+        '<div>' +
+          '<div class="talent-name">' + esc(e.n) + '</div>' +
+          (e.skill ? '<div style="font-size:12px;color:#6b7280;margin-top:2px">' + esc(e.skill) + '</div>' : '') +
+        '</div>' +
+        '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0">' +
+          (e.member ? '<span class="badge badge-blue" style="font-size:8px">PVC</span>' : '') +
+          (e.status ? '<span class="badge badge-green" style="font-size:8px">' + esc(e.status) + '</span>' : '') +
+          '<button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + e.id + '\', document.getElementById(\'tal-' + e.id + '\'))">✕</button>' +
+        '</div>' +
       '</div>' +
-      (skillsHTML ? '<div class="talent-skills">' + skillsHTML + '</div>' : '') +
-      '<div class="talent-info">' +
-        (e.industry ? '<span>' + esc(e.industry) + '</span>' : '') +
-        (e.i ? '<span>@' + esc(e.i) + '</span>' : '') +
-        (e.e ? '<a href="mailto:' + esc(e.e) + '" style="color:#3a7bd5;text-decoration:none">' + esc(e.e) + '</a>' : '') +
-        (e.p ? '<span>' + esc(e.p) + '</span>' : '') +
-      '</div>' +
-      (e.notes ? '<div style="font-size:12px;color:#374151;line-height:1.5">' + esc(e.notes) + '</div>' : '') +
+      (e.rate ? '<div style="font-size:13px;font-weight:600;color:var(--navy)">' + esc(e.rate) + '</div>' : '') +
+      (e.proof ? '<div style="font-size:12px;color:#374151;line-height:1.5;border-left:2px solid #e5e7eb;padding-left:10px;margin-top:4px">' + esc(e.proof) + '</div>' : '') +
+      (e.notes ? '<div style="font-size:12px;color:#6b7280;line-height:1.5;margin-top:4px">' + esc(e.notes) + '</div>' : '') +
+      (e.contact ? '<div style="font-size:12px;color:#6b7280">Contact: ' + esc(e.contact) + '</div>' : '') +
       '<a href="' + esc(e.url) + '" target="_blank" class="notion-link">Open in Notion →</a>' +
     '</div>';
   }).join('');

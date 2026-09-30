@@ -723,9 +723,17 @@ function loadApplications() {
 function renderApplications(leads, filter) {
   var el = document.getElementById('tab-applications');
   var filtered = leads;
-  if (filter === 'mastermind') filtered = leads.filter(function(l) { return (l.type || []).some(function(t) { return t.toLowerCase().includes('mastermind') || t.toLowerCase().includes('cape town'); }); });
-  else if (filter === 'membership') filtered = leads.filter(function(l) { return (l.type || []).some(function(t) { return t.toLowerCase().includes('membership') || t.toLowerCase().includes('member'); }); });
-  else if (filter === 'dinner') filtered = leads.filter(function(l) { return (l.type || []).some(function(t) { return t.toLowerCase().includes('dinner'); }); });
+  if (filter === 'events') filtered = leads.filter(function(l) {
+    return (l.type || []).some(function(t) {
+      var lc = t.toLowerCase();
+      return lc.includes('mastermind') || lc.includes('cape town') || lc.includes('dinner') || lc.includes('event');
+    });
+  });
+  else if (filter === 'membership') filtered = leads.filter(function(l) {
+    return (l.type || []).some(function(t) {
+      return t.toLowerCase().includes('membership') || t.toLowerCase().includes('member');
+    });
+  });
 
   var rows = filtered.map(function(l) {
     return '<tr class="clickable-row" data-id="' + l.id + '" data-rowtype="app" id="row-' + l.id + '">' +
@@ -746,9 +754,8 @@ function renderApplications(leads, filter) {
     '<div class="page-sub">All event applications — click a row to see full details</div>' +
     '<div class="toolbar">' +
       '<button class="filter-btn' + (filter === 'all' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'all\')">All</button>' +
-      '<button class="filter-btn' + (filter === 'mastermind' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'mastermind\')">CT Mastermind</button>' +
+      '<button class="filter-btn' + (filter === 'events' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'events\')">Events</button>' +
       '<button class="filter-btn' + (filter === 'membership' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'membership\')">Membership</button>' +
-      '<button class="filter-btn' + (filter === 'dinner' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'dinner\')">Dinners</button>' +
       '<span class="count-tag">' + filtered.length + ' entries</span>' +
       '<button class="refresh-btn" onclick="loaded.applications=false; loadApplications()">Refresh</button>' +
     '</div>' +
@@ -951,9 +958,8 @@ function renderMembers(members, q) {
     return '<tr class="clickable-row" data-id="' + m.id + '" data-rowtype="member" id="mem-' + m.id + '">' +
       '<td><div class="td-name">' + esc(m.n) + '</div><div style="font-size:11px;color:#6b7280;margin-top:2px">' + esc(m.b) + '</div></td>' +
       '<td>' + esc(m.r) + '</td>' +
-      '<td>' + (m.tier ? '<span class="badge badge-blue">' + esc(m.tier) + '</span>' : '—') + '</td>' +
-      '<td class="td-muted" style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(m.bottleneck || '—') + '</td>' +
-      '<td>' + statusSelect(m.id, m.status, MEMBER_STATUSES) + '</td>' +
+      '<td>' + (m.tier ? '<span class="badge badge-blue" style="white-space:nowrap">' + esc(m.tier) + '</span>' : '—') + '</td>' +
+      '<td class="td-muted" style="font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(m.bottleneck || '—') + '</td>' +
       '<td class="notes-cell"><span class="editable" onclick="editNotes(this, \'' + m.id + '\')">' + (esc(m.notes) || '<span style="color:#9ca3af">—</span>') + '</span></td>' +
       '<td><button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + m.id + '\', document.getElementById(\'mem-' + m.id + '\'))">✕</button></td>' +
     '</tr>';
@@ -967,7 +973,7 @@ function renderMembers(members, q) {
       '<span class="count-tag">' + filtered.length + ' of ' + members.length + '</span>' +
       '<button class="refresh-btn" onclick="loaded.members=false; loadMembers()">Refresh</button>' +
     '</div>' +
-    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Member</th><th>Revenue</th><th>Tier</th><th>Current Bottleneck</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No members found</p></div>');
+    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Member</th><th>Revenue</th><th>Tier</th><th>Current Bottleneck</th><th>Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No members found</p></div>');
 }
 
 // ── SOPs ──

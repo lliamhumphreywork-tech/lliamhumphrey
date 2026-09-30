@@ -152,21 +152,29 @@ const introText = isVIP
   var itemName = isVIP ? 'Cape Town Event: VIP Experience' : 'Cape Town Event: General Admission';
   var redirectTier = isVIP ? 'vip' : 'ga';
 
-  // Secure now button — opens Paystack inline
+  // Secure now button
   document.getElementById('secure-now-btn').addEventListener('click', function () {
-    var handler = PaystackPop.setup({
-      key: PS_KEY,
-      email: email || '',
-      amount: amount,
-      currency: 'ZAR',
-      ref: 'pvc_reserve_' + Date.now(),
-      metadata: { item_name: itemName },
-      callback: function () {
-        window.location.href = '/cape-town-welcome?tier=' + redirectTier;
-      },
-      onClose: function () {},
-    });
-    handler.openIframe();
+    if (isVIP) {
+      // VIP — inline Paystack checkout
+      var handler = PaystackPop.setup({
+        key: PS_KEY,
+        email: email || '',
+        amount: amount,
+        currency: 'ZAR',
+        ref: 'pvc_reserve_' + Date.now(),
+        metadata: { item_name: itemName },
+        callback: function () {
+          window.location.href = '/cape-town-welcome?tier=' + redirectTier;
+        },
+        onClose: function () {},
+      });
+      handler.openIframe();
+    } else {
+      // GA — Paystack split payment link (revenue split handled server-side)
+      var gaLink = 'https://paystack.com/buy/cape-town-event-ga-split-nskpdw';
+      if (email) gaLink += '?email=' + encodeURIComponent(email);
+      window.location.href = gaLink;
+    }
   });
 
   // WhatsApp details button — pre-filled message to Lliam

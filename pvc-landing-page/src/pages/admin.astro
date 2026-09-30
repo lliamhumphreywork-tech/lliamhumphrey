@@ -893,46 +893,58 @@ function loadTalent() {
   var el = document.getElementById('tab-talent');
   api('/api/admin/talent').then(function(data) {
     appData.talent = data;
-    renderTalent(data, 'supply');
+    renderTalent(data);
   }).catch(function(e) {
     el.innerHTML = '<div class="empty-state"><p>' + esc(e.message) + '</p></div>';
   });
 }
 
-function renderTalent(data, view) {
+function renderTalent(data) {
   var el      = document.getElementById('tab-talent');
-  var entries = view === 'supply' ? (data.supply || []) : (data.demand || []);
+  var entries = data.supply || [];
+
+  if (data.noKey) {
+    el.innerHTML =
+      '<div class="page-title">Talent Network</div>' +
+      '<div class="page-sub">Form submissions from tally.so/r/dWJdNz</div>' +
+      '<div class="empty-state"><p style="font-size:14px">Add <strong>TALLY_API_KEY</strong> in Vercel → Settings → Environment Variables to load submissions.</p></div>';
+    return;
+  }
 
   var cards = entries.map(function(e) {
+    var extraHTML = (e.extra || []).map(function(x) {
+      return '<div style="font-size:12px;color:#6b7280"><span style="font-family:var(--g);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#9ca3af">' + esc(x.label) + ':</span> ' + esc(x.value) + '</div>';
+    }).join('');
+
     return '<div class="talent-card" id="tal-' + e.id + '">' +
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
         '<div>' +
           '<div class="talent-name">' + esc(e.n) + '</div>' +
-          (e.skill ? '<div style="font-size:12px;color:#6b7280;margin-top:2px">' + esc(e.skill) + '</div>' : '') +
+          (e.skills ? '<div style="font-size:12px;color:#6b7280;margin-top:2px">' + esc(e.skills) + '</div>' : '') +
         '</div>' +
         '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0">' +
-          (e.member ? '<span class="badge badge-blue" style="font-size:8px">PVC</span>' : '') +
-          (e.status ? '<span class="badge badge-green" style="font-size:8px">' + esc(e.status) + '</span>' : '') +
-          '<button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + e.id + '\', document.getElementById(\'tal-' + e.id + '\'))">✕</button>' +
+          (e.since ? '<span style="font-size:11px;color:#9ca3af">' + esc(e.since) + '</span>' : '') +
         '</div>' +
       '</div>' +
-      (e.rate ? '<div style="font-size:13px;font-weight:600;color:var(--navy)">' + esc(e.rate) + '</div>' : '') +
-      (e.proof ? '<div style="font-size:12px;color:#374151;line-height:1.5;border-left:2px solid #e5e7eb;padding-left:10px;margin-top:4px">' + esc(e.proof) + '</div>' : '') +
+      (e.rate ? '<div style="font-size:13px;font-weight:600;color:var(--navy);margin-top:4px">' + esc(e.rate) + '</div>' : '') +
+      (e.proof ? '<div style="font-size:12px;color:#374151;line-height:1.5;border-left:2px solid #e5e7eb;padding-left:10px;margin-top:6px">' + esc(e.proof) + '</div>' : '') +
       (e.notes ? '<div style="font-size:12px;color:#6b7280;line-height:1.5;margin-top:4px">' + esc(e.notes) + '</div>' : '') +
-      (e.contact ? '<div style="font-size:12px;color:#6b7280">Contact: ' + esc(e.contact) + '</div>' : '') +
-      '<a href="' + esc(e.url) + '" target="_blank" class="notion-link">Open in Notion →</a>' +
+      extraHTML +
+      '<div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">' +
+        (e.e ? '<a href="mailto:' + esc(e.e) + '" style="font-size:12px;color:var(--blue);text-decoration:none">' + esc(e.e) + '</a>' : '') +
+        (e.p ? '<span style="font-size:12px;color:#6b7280">' + esc(e.p) + '</span>' : '') +
+        (e.ig ? '<span style="font-size:12px;color:#6b7280">@' + esc(e.ig) + '</span>' : '') +
+      '</div>' +
     '</div>';
   }).join('');
 
   el.innerHTML =
     '<div class="page-title">Talent Network</div>' +
-    '<div class="page-sub">People offering or seeking services within the PVC network</div>' +
-    '<div class="subtab-row">' +
-      '<button class="subtab-btn' + (view === 'supply' ? ' active' : '') + '" onclick="renderTalent(appData.talent, \'supply\')">Supply (' + (data.supply || []).length + ')</button>' +
-      '<button class="subtab-btn' + (view === 'demand' ? ' active' : '') + '" onclick="renderTalent(appData.talent, \'demand\')">Demand (' + (data.demand || []).length + ')</button>' +
-      '<button class="refresh-btn" style="margin-left:auto" onclick="loaded.talent=false; loadTalent()">Refresh</button>' +
+    '<div class="page-sub">Form submissions from the PVC Talent Network form — ' + entries.length + ' entries</div>' +
+    '<div style="display:flex;justify-content:flex-end;margin-bottom:16px">' +
+      '<button class="refresh-btn" onclick="loaded.talent=false; loadTalent()">Refresh</button>' +
     '</div>' +
-    (entries.length ? '<div class="talent-grid">' + cards + '</div>' : '<div class="empty-state"><p>No entries</p></div>');
+    (entries.length ? '<div class="talent-grid">' + cards + '</div>' : '<div class="empty-state"><p>No submissions yet</p></div>');
 }
 
 // ── Members ──

@@ -95,15 +95,15 @@ async function getTallyStats() {
   }
   return Promise.all(TALLY_FORMS.map(async (form) => {
     try {
-      const res = await fetch(`https://api.tally.so/forms/${form.id}`, {
+      // Use submissions endpoint — totalNumberOfSubmissionsPerFilter is always present
+      const res = await fetch(`https://api.tally.so/forms/${form.id}/submissions?page=1&limit=1`, {
         headers: { Authorization: `Bearer ${TALLY_API_KEY}` },
       });
       if (!res.ok) return { ...form, views: null, responses: null, conversionRate: null };
       const data = await res.json();
-      const views     = data.numberOfViews ?? data.views ?? null;
-      const responses = data.numberOfResponses ?? null;
-      const rate      = views && responses && views > 0 ? responses / views : null;
-      return { id: form.id, name: form.name, views, responses, conversionRate: rate };
+      const responses = data.totalNumberOfSubmissionsPerFilter ?? data.total ?? null;
+      // Tally's API does not expose view counts; skip conversion rate
+      return { id: form.id, name: form.name, views: null, responses, conversionRate: null };
     } catch {
       return { ...form, views: null, responses: null, conversionRate: null };
     }

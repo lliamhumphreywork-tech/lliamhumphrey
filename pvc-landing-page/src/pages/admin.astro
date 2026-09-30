@@ -355,6 +355,19 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
 
     /* ── NOTES CELL ── */
     .notes-cell { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #6b7280; font-size: 12px; }
+
+    /* ── CRM CARDS ── */
+    .crm-grid { display: flex; flex-direction: column; gap: 10px; }
+    .crm-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px 18px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; display: flex; align-items: flex-start; gap: 16px; }
+    .crm-card:hover { border-color: #a3b3c8; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .crm-card-main { flex: 1; min-width: 0; }
+    .crm-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+    .crm-card-name { font-weight: 700; font-size: 14px; color: var(--navy); white-space: nowrap; }
+    .crm-card-biz { font-size: 12px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
+    .crm-card-email { font-size: 11px; color: #9ca3af; margin-bottom: 10px; }
+    .crm-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .crm-card-notes { margin-top: 10px; font-size: 12px; color: #6b7280; line-height: 1.45; border-top: 1px solid #f3f4f6; padding-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .crm-card-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
     .status-select {
       font-size: 12px; font-family: var(--s); padding: 3px 6px;
       border: 1px solid #e5e7eb; border-radius: 4px; background: #fff;
@@ -783,30 +796,39 @@ function renderCRM(leads, q) {
     return s.includes(q.toLowerCase());
   }) : leads;
 
-  var rows = filtered.map(function(l) {
-    return '<tr class="clickable-row" data-id="' + l.id + '" data-rowtype="crm" id="crm-' + l.id + '">' +
-      '<td><div class="td-name">' + esc(l.n) + '</div></td>' +
-      '<td>' + esc(l.b) + '</td>' +
-      '<td class="td-muted" style="font-size:12px">' + esc(l.e) + '</td>' +
-      '<td>' + esc(l.r) + '</td>' +
-      '<td>' + tierBadge(l.t) + '</td>' +
-      '<td>' + statusSelect(l.id, l.status, CRM_STATUSES) + '</td>' +
-      '<td class="notes-cell">' +
-        '<span class="editable" onclick="editNotes(this, \'' + l.id + '\')">' + (esc(l.w) || '<span style="color:#9ca3af">Add notes...</span>') + '</span>' +
-      '</td>' +
-      '<td><button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + l.id + '\', document.getElementById(\'crm-' + l.id + '\'))">✕</button></td>' +
-    '</tr>';
+  var cards = filtered.map(function(l) {
+    var notesHTML = l.w
+      ? '<div class="crm-card-notes">' + esc(l.w) + '</div>'
+      : '';
+    return '<div class="crm-card" id="crm-' + l.id + '" onclick="openCRMDrawer(appData.leads.find(function(x){return x.id===\'' + l.id + '\';}))">' +
+      '<div class="crm-card-main">' +
+        '<div class="crm-card-top">' +
+          '<span class="crm-card-name">' + esc(l.n) + '</span>' +
+          tierBadge(l.t) +
+        '</div>' +
+        '<div class="crm-card-biz">' + esc(l.b) + '</div>' +
+        '<div class="crm-card-email">' + esc(l.e) + '</div>' +
+        '<div class="crm-card-meta">' +
+          '<span class="badge badge-default" style="font-size:11px">' + esc(l.r) + '</span>' +
+          statusSelect(l.id, l.status, CRM_STATUSES) +
+        '</div>' +
+        notesHTML +
+      '</div>' +
+      '<div class="crm-card-actions" onclick="event.stopPropagation()">' +
+        '<button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + l.id + '\', document.getElementById(\'crm-' + l.id + '\'))">✕</button>' +
+      '</div>' +
+    '</div>';
   }).join('');
 
   el.innerHTML =
     '<div class="page-title">CRM</div>' +
-    '<div class="page-sub">All leads — click a row to see full info, click notes to edit inline</div>' +
+    '<div class="page-sub">All leads — click a card to see full info</div>' +
     '<div class="toolbar">' +
       '<input class="search-input" type="text" placeholder="Search name, business, email..." value="' + esc(q) + '" oninput="renderCRM(appData.leads, this.value)" />' +
       '<span class="count-tag">' + filtered.length + ' of ' + leads.length + '</span>' +
       '<button class="refresh-btn" onclick="loaded.crm=false; loadCRM()">Refresh</button>' +
     '</div>' +
-    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Business</th><th>Email</th><th>Revenue</th><th>Tier</th><th>Status</th><th>Goals / Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No results</p></div>');
+    (filtered.length ? '<div class="crm-grid">' + cards + '</div>' : '<div class="empty-state"><p>No results</p></div>');
 }
 
 // ── Analytics ──

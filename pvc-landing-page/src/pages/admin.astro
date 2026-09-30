@@ -834,19 +834,24 @@ function renderCRM(leads, q) {
 // ── Analytics ──
 function loadAnalytics() {
   var el = document.getElementById('tab-analytics');
-  api('/api/admin/analytics').then(function(data) {
-    appData.analytics = data;
-    renderAnalytics(data);
+  Promise.all([
+    api('/api/admin/analytics'),
+    api('/api/admin/posthog').catch(function() { return { noKey: true }; }),
+  ]).then(function(results) {
+    appData.analytics = results[0];
+    appData.posthog   = results[1];
+    renderAnalytics(results[0], results[1]);
   }).catch(function(e) {
     el.innerHTML = '<div class="empty-state"><p>' + esc(e.message) + '</p></div>';
   });
 }
 
-function renderAnalytics(data) {
+function renderAnalytics(data, ph) {
   var el    = document.getElementById('tab-analytics');
   var crm   = data.crmStats || {};
   var camps = data.campaigns || [];
   var forms = data.tallyForms || [];
+  ph = ph || {};
 
   // ─ Tally form stats ─
   var formCardsHTML = forms.map(function(f) {
@@ -888,9 +893,52 @@ function renderAnalytics(data) {
     '</tr>';
   }).join('');
 
+  // ─ PostHog website analytics ─
+  var phHTML;
+  if (ph.noKey) {
+    phHTML = '<div class="empty-state" style="padding:20px"><p>Add <code>POSTHOG_API_KEY</code> in Vercel to see website analytics</p></div>';
+  } else if (ph.error) {
+    phHTML = '<div class="empty-state" style="padding:20px"><p>PostHog error: ' + esc(ph.error) + '</p></div>';
+  } else {
+    var trendMax = Math.max(1, Math.max.apply(null, (ph.trend7 || []).map(function(d) { return d.count; })));
+    var trendBars = (ph.trend7 || []).map(function(d) {
+      var h = Math.max(4, Math.round((d.count / trendMax) * 52));
+      var label = d.date ? d.date.slice(5) : '';
+      return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">' +
+        '<div style="font-size:10px;color:#9ca3af;font-variant-numeric:tabular-nums">' + d.count + '</div>' +
+        '<div style="width:100%;background:var(--navy);border-radius:3px 3px 0 0;height:' + h + 'px"></div>' +
+        '<div style="font-size:9px;color:#9ca3af">' + label + '</div>' +
+      '</div>';
+    }).join('');
+
+    var topPagesHTML = (ph.topPages || []).map(function(p) {
+      return '<div class="bar-row">' +
+        '<div class="bar-label" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(p.page) + '</div>' +
+        '<div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + Math.round((p.count / Math.max(1, ph.pageviews30)) * 100) + '%"></div></div>' +
+        '<div class="bar-count">' + p.count + '</div>' +
+      '</div>';
+    }).join('');
+
+    phHTML =
+      '<div class="stat-grid" style="margin-bottom:20px">' +
+        '<div class="stat-card"><div class="stat-label">Pageviews (7d)</div><div class="stat-num">' + (ph.pageviews7 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Pageviews (30d)</div><div class="stat-num">' + (ph.pageviews30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Daily visitors (7d avg)</div><div class="stat-num">' + (ph.visitors7 ? Math.round(ph.visitors7 / 7) : 0) + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Apply modal opens (30d)</div><div class="stat-num">' + (ph.applyModal30 || 0).toLocaleString() + '</div></div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:flex-end;gap:4px;height:72px;margin-bottom:8px;padding:0 2px">' + trendBars + '</div>' +
+      '<div style="font-size:10px;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px">Daily pageviews — last 7 days</div>' +
+      '<div class="bar-chart">' + (topPagesHTML || '<p class="td-muted">No page data</p>') + '</div>' +
+      '<div style="font-size:10px;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;margin-top:8px">Top pages — last 30 days</div>';
+  }
+
   el.innerHTML =
     '<div class="page-title">Analytics</div>' +
-    '<div class="page-sub">Form performance and email campaign metrics</div>' +
+    '<div class="page-sub">Website, forms, and email campaign metrics</div>' +
+    '<div class="card" style="margin-bottom:24px">' +
+      '<div class="card-title">Website — PostHog</div>' +
+      phHTML +
+    '</div>' +
     '<div class="card" style="margin-bottom:24px">' +
       '<div class="card-title">Tally Forms</div>' +
       '<div class="form-stat-grid">' + (formCardsHTML || '<p class="td-muted">No forms configured</p>') + '</div>' +

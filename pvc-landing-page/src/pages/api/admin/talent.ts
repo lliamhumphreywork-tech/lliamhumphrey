@@ -21,22 +21,25 @@ function match(label: string, keywords: string[]): boolean {
 }
 
 function parseResponses(questions: any[], responses: any[]) {
-  // Build key → label map from the questions schema
+  // Build key/id → label map from the questions schema (cover all key variants)
   const keyLabel: Record<string, string> = {};
   for (const q of questions) {
-    if (q.key) keyLabel[q.key] = q.label ?? q.title ?? q.key;
-    // multi-column questions have nested fields
+    const lbl = q.label ?? q.title ?? q.name ?? '';
+    if (q.key) keyLabel[q.key] = lbl || q.key;
+    if (q.id)  keyLabel[q.id]  = lbl || q.id;
     for (const f of q.fields ?? []) {
-      if (f.key) keyLabel[f.key] = f.label ?? q.label ?? f.key;
+      const fl = f.label ?? q.label ?? '';
+      if (f.key) keyLabel[f.key] = fl || f.key;
+      if (f.id)  keyLabel[f.id]  = fl || f.id;
     }
   }
 
   return responses.map((resp: any) => {
-    // Each response field has key+value but no label — resolve from map
+    // Prefer f.label if Tally includes it directly; fall back to map lookup
     const fields: Array<{ label: string; value: string; key: string }> =
       (resp.fields ?? []).map((f: any) => ({
-        key:   f.key ?? '',
-        label: keyLabel[f.key] ?? f.key ?? '',
+        key:   f.key ?? f.id ?? '',
+        label: f.label ?? f.title ?? keyLabel[f.key] ?? keyLabel[f.id] ?? keyLabel[f.questionId] ?? f.key ?? '',
         value: val(f.value),
       })).filter((f: any) => f.value);
 

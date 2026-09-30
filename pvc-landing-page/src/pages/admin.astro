@@ -944,10 +944,9 @@ function renderTalent(data) {
         (e.since ? '<span style="font-size:11px;color:#9ca3af;flex-shrink:0">' + esc(e.since) + '</span>' : '') +
       '</div>' +
 
-      // Category pill + PVC badge
+      // Category pill
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' +
         (e.skills ? '<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;background:' + col.bg + ';color:' + col.text + '">' + esc(e.skills) + '</span>' : '') +
-        (isPVC ? '<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dbeafe;color:#1d4ed8">PVC Member</span>' : '') +
       '</div>' +
 
       // Rate
@@ -1263,7 +1262,7 @@ function openTalentDrawer(e) {
     : '';
 
   var body =
-    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">' + categoryBadge + pvcBadge + '</div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">' + categoryBadge + '</div>' +
     dField('Date Joined', esc(e.since)) +
     dField('Email', e.e ? '<a href="mailto:' + esc(e.e) + '">' + esc(e.e) + '</a>' : '') +
     dField('WhatsApp', e.p ? '<a href="tel:' + esc(e.p) + '">' + esc(e.p) + '</a>' : '') +

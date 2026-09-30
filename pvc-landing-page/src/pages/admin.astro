@@ -596,6 +596,7 @@ function deleteEntry(pageId, rowEl) {
       rowEl.style.opacity = '0';
       setTimeout(function() { rowEl.remove(); }, 300);
     }
+    invalidateLeadData();
   }).catch(function(e) {
     toast('Failed: ' + e.message, true);
   });
@@ -1104,11 +1105,28 @@ function renderRevenue(data) {
 }
 
 // ── Inline edit helpers ──
+// After any write, bust the cache for every tab that shows lead data
+// so the next visit to those tabs fetches fresh data from Notion.
+function invalidateLeadData() {
+  loaded.overview     = false;
+  loaded.applications = false;
+  loaded.crm          = false;
+  loaded.members      = false;
+  loaded.revenue      = false;
+  // If overview is currently visible, reload it right away
+  var activePanel = document.querySelector('.tab-panel.active');
+  if (activePanel && activePanel.id === 'tab-overview') {
+    loaded.overview = true;
+    loadOverview();
+  }
+}
+
 function updateStatus(sel) {
   var pageId = sel.dataset.page;
   var val    = sel.value;
   patchAPI(pageId, { status: val }).then(function() {
     toast('Status updated');
+    invalidateLeadData();
   }).catch(function(e) {
     toast('Failed: ' + e.message, true);
   });

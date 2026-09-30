@@ -9,50 +9,56 @@ function auth(req: Request) {
   return ADMIN_KEY !== '' && req.headers.get('x-admin-key') === ADMIN_KEY;
 }
 
-function matchLabel(label: string, keywords: string[]) {
-  const l = label.toLowerCase();
+function getLabel(f: any): string {
+  // Tally may use label, question, or title depending on field type
+  return (f.label ?? f.question ?? f.title ?? '').toLowerCase();
+}
+
+function matchLabel(f: any, keywords: string[]) {
+  const l = getLabel(f);
   return keywords.some(k => l.includes(k));
+}
+
+function fieldValue(f: any): string {
+  if (!f) return '';
+  if (Array.isArray(f.value)) return f.value.join(', ');
+  return String(f.value ?? '');
 }
 
 function parseSubmissions(submissions: any[]) {
   return submissions.map((sub: any) => {
     const fields: any[] = sub.fields ?? [];
     const get = (keywords: string[]) => {
-      const f = fields.find((f: any) => matchLabel(f.label ?? '', keywords));
-      if (!f) return '';
-      if (Array.isArray(f.value)) return f.value.join(', ');
-      return String(f.value ?? '');
+      const f = fields.find((f: any) => matchLabel(f, keywords));
+      return fieldValue(f);
     };
 
-    const name    = get(['name', 'full name', 'your name', 'first name', 'surname', 'who are you', 'introduce']);
-    const email   = get(['email']);
-    const phone   = get(['phone', 'whatsapp', 'number', 'contact']);
-    const ig      = get(['instagram', 'ig ', '@']);
-    const skills  = get(['skill', 'service', 'offer', 'what do you do', 'expertise', 'speciali']);
-    const rate    = get(['rate', 'budget', 'price', 'cost', 'charge', 'fee']);
-    const proof   = get(['portfolio', 'proof', 'link', 'website', 'work', 'example']);
-    const notes   = get(['note', 'additional', 'about', 'describe', 'tell us', 'anything else']);
+    // Exact Tally form field labels for dWJdNz
+    const name   = get(['full name', 'name']);
+    const email  = get(['email']);
+    const phone  = get(['whatsapp', 'phone', 'number', 'contact']);
+    const skills = get(['what do you do', 'skill', 'service', 'offer', 'expertise']);
+    const proof  = get(['portfolio', 'proof of work', 'link only']);
+    const notes  = get(['tell us about a recent client', 'recent client', 'outcome', 'tell us', 'about']);
+    const rate   = get(['rate/pricing', 'rate', 'pricing', 'budget', 'price', 'fee']);
+    const capacity = get(['how many clients', 'capacity', 'realistically take']);
+    const member = get(['private victories member', 'currently a', 'pvc member']);
 
-    // collect remaining non-empty fields not already captured
-    const used = new Set([name, email, phone, ig, skills, rate, proof, notes].filter(Boolean));
+    const used = new Set([name, email, phone, skills, proof, notes, rate, capacity, member].filter(Boolean));
     const extra = fields
       .filter((f: any) => {
-        const v = Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? '');
-        return v && !used.has(v) && f.type !== 'HIDDEN_FIELDS';
+        const v = fieldValue(f);
+        return v && !used.has(v) && f.type !== 'HIDDEN_FIELDS' && f.type !== 'CALCULATED_FIELDS';
       })
-      .map((f: any) => {
-        const v = Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? '');
-        return { label: f.label ?? '', value: v };
-      });
+      .map((f: any) => ({ label: f.label ?? f.question ?? '', value: fieldValue(f) }));
 
-    // fallback: first non-empty text field if no name keyword matched
+    // fallback: first non-empty field if name still empty
     const firstText = !name ? (() => {
       const f = fields.find((f: any) => {
-        const v = Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? '');
+        const v = fieldValue(f);
         return v && f.type !== 'HIDDEN_FIELDS' && f.type !== 'CALCULATED_FIELDS';
       });
-      if (!f) return '';
-      return Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? '');
+      return fieldValue(f);
     })() : '';
 
     return {
@@ -60,11 +66,12 @@ function parseSubmissions(submissions: any[]) {
       n:      name || firstText || 'Unknown',
       e:      email,
       p:      phone,
-      ig,
       skills,
       rate,
       proof,
       notes,
+      capacity,
+      member,
       extra,
       since:  sub.createdAt?.slice(0, 10) ?? '',
       url:    `https://tally.so/forms/${TALENT_FORM}/submissions`,

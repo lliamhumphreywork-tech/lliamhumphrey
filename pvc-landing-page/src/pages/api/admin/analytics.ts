@@ -57,28 +57,30 @@ async function getCrmStats() {
 async function getBrevoStats() {
   if (!BREVO_API_KEY) return [];
   try {
-    const res = await fetch('https://api.brevo.com/v3/emailCampaigns?type=classic&status=sent&limit=15', {
+    const res = await fetch('https://api.brevo.com/v3/emailCampaigns?type=classic&status=sent&limit=15&statistics=globalStats', {
       headers: { 'api-key': BREVO_API_KEY, Accept: 'application/json' },
     });
     if (!res.ok) return [];
     const data = await res.json();
     return (data.campaigns ?? []).map((c: any) => {
-      const gs        = c.statistics?.globalStats ?? {};
-      const delivered = gs.delivered ?? 0;
-      const opens     = gs.uniqueViews ?? 0;
-      const clicks    = gs.clickers ?? 0;
+      // Brevo returns stats under statistics.globalStats or directly at top-level stats
+      const gs        = c.statistics?.globalStats ?? c.statistics ?? {};
+      const sent      = gs.sent ?? gs.messagesSent ?? c.statistics?.sent ?? 0;
+      const delivered = gs.delivered ?? gs.deliveredCount ?? sent;
+      const opens     = gs.uniqueViews ?? gs.uniqueOpens ?? gs.opened ?? 0;
+      const clicks    = gs.clickers ?? gs.uniqueClicks ?? 0;
       return {
         id:           c.id,
         name:         c.name,
         subject:      c.subject,
         sentAt:       c.sentDate ?? '',
-        sent:         gs.sent ?? 0,
+        sent,
         delivered,
         opens,
         clicks,
         openRate:     delivered > 0 ? opens / delivered : 0,
         clickRate:    delivered > 0 ? clicks / delivered : 0,
-        unsubscribed: gs.unsubscriptions ?? 0,
+        unsubscribed: gs.unsubscriptions ?? gs.unsubscribed ?? 0,
         bounces:      (gs.softBounces ?? 0) + (gs.hardBounces ?? 0),
       };
     });

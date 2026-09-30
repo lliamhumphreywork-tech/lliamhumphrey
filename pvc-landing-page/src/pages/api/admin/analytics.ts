@@ -101,8 +101,11 @@ async function getTallyStats() {
       });
       if (!res.ok) return { ...form, views: null, responses: null, conversionRate: null };
       const data = await res.json();
-      const responses = data.totalNumberOfSubmissionsPerFilter ?? data.total ?? null;
-      // Tally's API does not expose view counts; skip conversion rate
+      // totalNumberOfSubmissionsPerFilter is an object {all, completed, partial}
+      const raw = data.totalNumberOfSubmissionsPerFilter;
+      const responses = raw !== null && typeof raw === 'object'
+        ? (raw.completed ?? raw.all ?? null)
+        : (raw ?? null);
       return { id: form.id, name: form.name, views: null, responses, conversionRate: null };
     } catch {
       return { ...form, views: null, responses: null, conversionRate: null };

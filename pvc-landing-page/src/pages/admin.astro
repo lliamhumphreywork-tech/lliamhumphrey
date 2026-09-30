@@ -899,6 +899,26 @@ function loadTalent() {
   });
 }
 
+function talentCategoryColor(skills) {
+  if (!skills) return { bg: '#f3f4f6', text: '#6b7280', border: '#d1d5db' };
+  var s = skills.toLowerCase();
+  if (s.includes('sales') || s.includes('closer') || s.includes('setter'))
+    return { bg: '#ede9fe', text: '#7c3aed', border: '#7c3aed' };
+  if (s.includes('ads') || s.includes('media buy') || s.includes('paid'))
+    return { bg: '#fff7ed', text: '#c2410c', border: '#f97316' };
+  if (s.includes('edit') || s.includes('video') || s.includes('content'))
+    return { bg: '#ecfdf5', text: '#065f46', border: '#10b981' };
+  if (s.includes('dev') || s.includes('web') || s.includes('code') || s.includes('tech'))
+    return { bg: '#eff6ff', text: '#1d4ed8', border: '#3b82f6' };
+  if (s.includes('design') || s.includes('graphic') || s.includes('brand'))
+    return { bg: '#fdf2f8', text: '#9d174d', border: '#ec4899' };
+  if (s.includes('copy') || s.includes('writ'))
+    return { bg: '#fefce8', text: '#854d0e', border: '#eab308' };
+  if (s.includes('market') || s.includes('growth') || s.includes('seo'))
+    return { bg: '#f0fdf4', text: '#166534', border: '#22c55e' };
+  return { bg: '#f3f4f6', text: '#6b7280', border: '#d1d5db' };
+}
+
 function renderTalent(data) {
   var el      = document.getElementById('tab-talent');
   var entries = data.supply || [];
@@ -912,30 +932,44 @@ function renderTalent(data) {
   }
 
   var cards = entries.map(function(e) {
-    var extraHTML = (e.extra || []).map(function(x) {
-      return '<div style="font-size:12px;color:#6b7280"><span style="font-family:var(--g);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#9ca3af">' + esc(x.label) + ':</span> ' + esc(x.value) + '</div>';
-    }).join('');
+    var col = talentCategoryColor(e.skills);
+    var isPVC = e.member && e.member.toLowerCase().includes('yes');
 
-    return '<div class="talent-card" id="tal-' + e.id + '">' +
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
-        '<div>' +
-          '<div class="talent-name">' + esc(e.n) + '</div>' +
-          (e.skills ? '<div style="font-size:12px;color:#6b7280;margin-top:2px">' + esc(e.skills) + '</div>' : '') +
-        '</div>' +
-        '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0">' +
-          (e.since ? '<span style="font-size:11px;color:#9ca3af">' + esc(e.since) + '</span>' : '') +
-        '</div>' +
+    // Truncate notes to ~200 chars
+    var notesShort = e.notes && e.notes.length > 200 ? e.notes.slice(0, 200) + '…' : e.notes;
+
+    return '<div class="talent-card" id="tal-' + e.id + '" style="border-top:3px solid ' + col.border + ';padding-top:14px">' +
+
+      // Header: name + date
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">' +
+        '<div class="talent-name">' + esc(e.n) + '</div>' +
+        (e.since ? '<span style="font-size:11px;color:#9ca3af;flex-shrink:0">' + esc(e.since) + '</span>' : '') +
       '</div>' +
-      (e.rate ? '<div style="font-size:13px;font-weight:600;color:var(--navy);margin-top:4px">' + esc(e.rate) + '</div>' : '') +
-      (e.proof ? '<div style="font-size:12px;color:#374151;line-height:1.5;border-left:2px solid #e5e7eb;padding-left:10px;margin-top:6px">' + esc(e.proof) + '</div>' : '') +
-      (e.notes ? '<div style="font-size:12px;color:#374151;line-height:1.5;border-left:2px solid #e5e7eb;padding-left:10px;margin-top:6px">' + esc(e.notes) + '</div>' : '') +
-      (e.capacity ? '<div style="font-size:12px;color:#6b7280;margin-top:4px">Capacity: ' + esc(e.capacity) + '</div>' : '') +
-      (e.member ? '<div style="font-size:12px;margin-top:4px"><span class="badge badge-' + (e.member.toLowerCase().includes('yes') ? 'blue' : 'gray') + '" style="font-size:10px">PVC Member: ' + esc(e.member) + '</span></div>' : '') +
-      extraHTML +
-      '<div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">' +
+
+      // Category pill + PVC badge
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' +
+        (e.skills ? '<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;background:' + col.bg + ';color:' + col.text + '">' + esc(e.skills) + '</span>' : '') +
+        (isPVC ? '<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dbeafe;color:#1d4ed8">PVC Member</span>' : '') +
+      '</div>' +
+
+      // Rate
+      (e.rate ? '<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px">' + esc(e.rate) + '</div>' : '') +
+
+      // Notes (truncated)
+      (notesShort ? '<div style="font-size:12px;color:#374151;line-height:1.6;margin-bottom:8px">' + esc(notesShort) + '</div>' : '') +
+
+      // Portfolio link
+      (e.proof ? '<div style="margin-bottom:8px"><a href="' + esc(e.proof) + '" target="_blank" rel="noopener" style="font-size:11px;color:var(--blue);text-decoration:none;word-break:break-all">' + esc(e.proof.length > 45 ? e.proof.slice(0, 45) + '…' : e.proof) + '</a></div>' : '') +
+
+      // Capacity
+      (e.capacity ? '<div style="font-size:11px;color:#9ca3af;margin-bottom:8px">Capacity: ' + esc(e.capacity) + '</div>' : '') +
+
+      // Contact footer
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:8px;border-top:1px solid #f3f4f6">' +
         (e.e ? '<a href="mailto:' + esc(e.e) + '" style="font-size:12px;color:var(--blue);text-decoration:none">' + esc(e.e) + '</a>' : '') +
-        (e.p ? '<span style="font-size:12px;color:#6b7280">' + esc(e.p) + '</span>' : '') +
+        (e.p ? '<span style="font-size:12px;color:#9ca3af">' + esc(e.p) + '</span>' : '') +
       '</div>' +
+
     '</div>';
   }).join('');
 

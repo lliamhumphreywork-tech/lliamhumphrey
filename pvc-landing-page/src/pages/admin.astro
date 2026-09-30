@@ -935,10 +935,7 @@ function renderTalent(data) {
     var col = talentCategoryColor(e.skills);
     var isPVC = e.member && e.member.toLowerCase().includes('yes');
 
-    // Truncate notes to ~200 chars
-    var notesShort = e.notes && e.notes.length > 200 ? e.notes.slice(0, 200) + '…' : e.notes;
-
-    return '<div class="talent-card" id="tal-' + e.id + '" style="border-top:3px solid ' + col.border + ';padding-top:14px">' +
+    return '<div class="talent-card" id="tal-' + e.id + '" onclick="openTalentDrawer(appData.talent.supply.find(function(x){return x.id===\'' + e.id + '\'}))" style="border-top:3px solid ' + col.border + ';padding-top:14px;cursor:pointer">' +
 
       // Header: name + date
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">' +
@@ -953,20 +950,11 @@ function renderTalent(data) {
       '</div>' +
 
       // Rate
-      (e.rate ? '<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px">' + esc(e.rate) + '</div>' : '') +
-
-      // Notes (truncated)
-      (notesShort ? '<div style="font-size:12px;color:#374151;line-height:1.6;margin-bottom:8px">' + esc(notesShort) + '</div>' : '') +
-
-      // Portfolio link
-      (e.proof ? '<div style="margin-bottom:8px"><a href="' + esc(e.proof) + '" target="_blank" rel="noopener" style="font-size:11px;color:var(--blue);text-decoration:none;word-break:break-all">' + esc(e.proof.length > 45 ? e.proof.slice(0, 45) + '…' : e.proof) + '</a></div>' : '') +
-
-      // Capacity
-      (e.capacity ? '<div style="font-size:11px;color:#9ca3af;margin-bottom:8px">Capacity: ' + esc(e.capacity) + '</div>' : '') +
+      (e.rate ? '<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">' + esc(e.rate) + '</div>' : '') +
 
       // Contact footer
-      '<div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:8px;border-top:1px solid #f3f4f6">' +
-        (e.e ? '<a href="mailto:' + esc(e.e) + '" style="font-size:12px;color:var(--blue);text-decoration:none">' + esc(e.e) + '</a>' : '') +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:8px;border-top:1px solid #f3f4f6;margin-top:auto">' +
+        (e.e ? '<span style="font-size:12px;color:var(--blue)">' + esc(e.e) + '</span>' : '') +
         (e.p ? '<span style="font-size:12px;color:#9ca3af">' + esc(e.p) + '</span>' : '') +
       '</div>' +
 
@@ -1243,6 +1231,34 @@ function openAppDrawer(l) {
     dField('Source', esc(l.src)) +
     (l.url ? '<div class="d-field"><div class="d-label">Notion</div><div class="d-value"><a href="' + esc(l.url) + '" target="_blank">Open in Notion →</a></div></div>' : '');
   openDrawer(l.n || 'Applicant', body);
+}
+
+function openTalentDrawer(e) {
+  if (!e) return;
+  var col = talentCategoryColor(e.skills);
+  var isPVC = e.member && e.member.toLowerCase().includes('yes');
+  var categoryBadge = e.skills
+    ? '<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;background:' + col.bg + ';color:' + col.text + '">' + esc(e.skills) + '</span>'
+    : '';
+  var pvcBadge = isPVC
+    ? '<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dbeafe;color:#1d4ed8">PVC Member</span>'
+    : '';
+
+  var body =
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">' + categoryBadge + pvcBadge + '</div>' +
+    dField('Date Joined', esc(e.since)) +
+    dField('Email', e.e ? '<a href="mailto:' + esc(e.e) + '">' + esc(e.e) + '</a>' : '') +
+    dField('WhatsApp', e.p ? '<a href="tel:' + esc(e.p) + '">' + esc(e.p) + '</a>' : '') +
+    '<div class="d-section">Work & Rates</div>' +
+    dField('What they do', esc(e.skills)) +
+    dField('Rate / Pricing', esc(e.rate)) +
+    dField('Capacity', esc(e.capacity)) +
+    '<div class="d-section">Proof of Work</div>' +
+    dField('Portfolio / Link', e.proof ? '<a href="' + esc(e.proof) + '" target="_blank" rel="noopener">' + esc(e.proof) + '</a>' : '') +
+    dField('Recent client & outcome', esc(e.notes)) +
+    (e.url ? '<div class="d-section">Tally</div>' + dField('Submission', '<a href="' + esc(e.url) + '" target="_blank">View in Tally →</a>') : '');
+
+  openDrawer(e.n || 'Talent', body);
 }
 
 // Click-to-open row delegation

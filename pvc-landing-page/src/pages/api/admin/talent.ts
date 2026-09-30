@@ -24,7 +24,7 @@ function parseSubmissions(submissions: any[]) {
       return String(f.value ?? '');
     };
 
-    const name    = get(['name', 'full name', 'your name']);
+    const name    = get(['name', 'full name', 'your name', 'first name', 'surname', 'who are you', 'introduce']);
     const email   = get(['email']);
     const phone   = get(['phone', 'whatsapp', 'number', 'contact']);
     const ig      = get(['instagram', 'ig ', '@']);
@@ -45,9 +45,19 @@ function parseSubmissions(submissions: any[]) {
         return { label: f.label ?? '', value: v };
       });
 
+    // fallback: first non-empty text field if no name keyword matched
+    const firstText = !name ? (() => {
+      const f = fields.find((f: any) => {
+        const v = Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? '');
+        return v && f.type !== 'HIDDEN_FIELDS' && f.type !== 'CALCULATED_FIELDS';
+      });
+      if (!f) return '';
+      return Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? '');
+    })() : '';
+
     return {
       id:     sub.id,
-      n:      name || 'Unknown',
+      n:      name || firstText || 'Unknown',
       e:      email,
       p:      phone,
       ig,

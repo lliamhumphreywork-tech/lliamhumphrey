@@ -32,11 +32,11 @@ export const GET: APIRoute = async ({ request }) => {
 
     return {
       id:          page.id,
-      title:       getTitle('Name') || getTitle('Title'),
-      description: getText('Description') || getText('Notes') || getText('Summary'),
+      title:       getTitle('SOP Name') || getTitle('Name') || getTitle('Title'),
+      description: getText('Description') || getText('Notes') || getText('Summary') || getText('Owner'),
       category:    p['Category']?.select?.name ?? p['Type']?.select?.name ?? '',
       status:      p['Status']?.select?.name ?? '',
-      updated:     page.last_edited_time?.slice(0, 10) ?? '',
+      updated:     p['Last Updated']?.date?.start ?? page.last_edited_time?.slice(0, 10) ?? '',
       url:         page.url,
     };
   });

@@ -40,6 +40,8 @@ function parseApplicant(page: any) {
     status: p['Status']?.select?.name ?? '',
     type: (p['Type']?.multi_select ?? []).map((s: any) => s.name),
     src: sourceMatch ? sourceMatch[1].trim() : '',
+    notes: notes,
+    url: page.url,
   };
 }
 

@@ -15,18 +15,24 @@ function parseMember(page: any) {
   const getTitle = (k: string) => (p[k]?.title     ?? []).map((t: any) => t.plain_text).join('');
 
   return {
-    id:     page.id,
-    n:      getTitle('Name') || getTitle('Full Name'),
-    b:      getText('Business') || getText('Company'),
-    r:      p['Revenue']?.select?.name ?? p['Stage']?.select?.name ?? '',
-    i:      getText('IG') || getText('Instagram'),
-    p:      p['Phone']?.phone_number ?? '',
-    e:      p['Email']?.email ?? getText('Email'),
-    status: p['Status']?.select?.name ?? p['Membership Status']?.select?.name ?? '',
-    tier:   p['Tier']?.select?.name ?? p['Ticket']?.select?.name ?? '',
-    notes:  getText('Notes'),
-    since:  p['Member Since']?.date?.start ?? p['Date']?.date?.start ?? page.created_time?.slice(0, 10) ?? '',
-    url:    page.url,
+    id:         page.id,
+    n:          getTitle('Member') || getTitle('Name') || getTitle('Full Name'),
+    b:          getText('Business') || getText('Company'),
+    r:          p['Revenue Stage']?.select?.name ?? p['Revenue']?.select?.name ?? p['Stage']?.select?.name ?? '',
+    i:          getText('IG') || getText('Instagram'),
+    p:          p['Phone']?.phone_number ?? '',
+    e:          p['Email']?.email ?? getText('Email'),
+    status:     p['Status']?.select?.name ?? p['Membership Status']?.select?.name ?? '',
+    tier:       p['Tier']?.select?.name ?? p['Ticket']?.select?.name ?? '',
+    notes:      getText('Notes'),
+    bottleneck: getText('Current Bottleneck'),
+    goal:       getText('Goal (3 months)'),
+    result:     getText('Result'),
+    connection: getText('Connection Made'),
+    action:     getText('Action Taken'),
+    checkin:    p['Last Check-in']?.date?.start ?? '',
+    since:      p['Member Since']?.date?.start ?? p['Date']?.date?.start ?? page.created_time?.slice(0, 10) ?? '',
+    url:        page.url,
   };
 }
 

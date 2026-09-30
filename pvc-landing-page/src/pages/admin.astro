@@ -382,6 +382,52 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     .form-stat-row:last-child { border-bottom: none; }
     .form-stat-label { font-size: 11px; color: #6b7280; }
     .form-stat-val { font-family: var(--g); font-size: 14px; font-weight: 700; color: var(--navy); }
+
+    /* ── HORIZONTAL SCROLL FIX ── */
+    .tab-content { overflow-x: hidden; }
+    .tab-panel { min-width: 0; }
+
+    /* ── EXTRA BADGES ── */
+    .badge-amber { background: #fff7ed; color: #9a3412; }
+    .badge-mastermind { background: #eef2ff; color: #3730a3; }
+    .badge-dinner { background: #fff7ed; color: #9a3412; }
+
+    /* ── CLICKABLE ROW ── */
+    .clickable-row { cursor: pointer; }
+    .clickable-row:hover td { background: #f0f6ff !important; }
+
+    /* ── DETAIL DRAWER ── */
+    .drawer-overlay {
+      position: fixed; inset: 0; background: rgba(8,17,31,0.45);
+      z-index: 200; opacity: 0; transition: opacity 0.25s; pointer-events: none;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 480px; max-width: 96vw;
+      background: #fff; z-index: 201; transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); overflow-y: auto;
+      border-left: 1px solid #e5e7eb;
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer-header {
+      padding: 20px 24px; border-bottom: 1px solid #e5e7eb;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; background: #fff; z-index: 1;
+    }
+    .drawer-name { font-family: var(--g); font-size: 20px; font-weight: 700; color: var(--navy); }
+    .drawer-close {
+      background: none; border: none; cursor: pointer; font-size: 16px;
+      color: #9ca3af; padding: 6px 8px; border-radius: 4px; transition: all 0.15s; line-height: 1;
+    }
+    .drawer-close:hover { color: var(--navy); background: #f3f4f6; }
+    .drawer-body { padding: 24px; display: flex; flex-direction: column; }
+    .d-field { padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+    .d-field:last-child { border-bottom: none; }
+    .d-label { font-family: var(--g); font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #9ca3af; margin-bottom: 3px; }
+    .d-value { font-size: 14px; color: #111827; line-height: 1.5; }
+    .d-value a { color: var(--blue); text-decoration: none; }
+    .d-value a:hover { text-decoration: underline; }
+    .d-section { font-family: var(--g); font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--navy); padding: 16px 0 4px; border-bottom: 2px solid var(--navy); margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -453,6 +499,16 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
 </div>
 
 <div id="toast"></div>
+
+<!-- DETAIL DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-name" id="drawer-name">—</div>
+    <button class="drawer-close" id="drawer-close-btn">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</div>
 
 <script is:inline>
 // ── Firebase SDK ──
@@ -656,6 +712,8 @@ function loadApplications() {
   var el = document.getElementById('tab-applications');
   api('/api/admin/applicants').then(function(leads) {
     appData.leads = leads;
+    appData.leadsMap = {};
+    leads.forEach(function(l) { appData.leadsMap[l.id] = l; });
     renderApplications(leads, 'all');
   }).catch(function(e) {
     el.innerHTML = '<div class="empty-state"><p>' + esc(e.message) + '</p></div>';
@@ -667,15 +725,14 @@ function renderApplications(leads, filter) {
   var filtered = leads;
   if (filter === 'mastermind') filtered = leads.filter(function(l) { return (l.type || []).some(function(t) { return t.toLowerCase().includes('mastermind') || t.toLowerCase().includes('cape town'); }); });
   else if (filter === 'membership') filtered = leads.filter(function(l) { return (l.type || []).some(function(t) { return t.toLowerCase().includes('membership') || t.toLowerCase().includes('member'); }); });
+  else if (filter === 'dinner') filtered = leads.filter(function(l) { return (l.type || []).some(function(t) { return t.toLowerCase().includes('dinner'); }); });
 
   var rows = filtered.map(function(l) {
-    var types = (l.type || []).join(', ');
-    return '<tr id="row-' + l.id + '">' +
-      '<td class="td-name">' + esc(l.n) + '</td>' +
-      '<td class="td-muted">' + esc(l.b) + '</td>' +
+    return '<tr class="clickable-row" data-id="' + l.id + '" data-rowtype="app" id="row-' + l.id + '">' +
+      '<td><div class="td-name">' + esc(l.n) + '</div><div style="margin-top:3px;font-size:11px;color:#6b7280">' + esc(l.b) + '</div></td>' +
+      '<td>' + eventBadge(l.type) + '</td>' +
       '<td>' + esc(l.r) + '</td>' +
       '<td>' + tierBadge(l.t) + '</td>' +
-      '<td><span class="td-muted" style="font-size:11px">' + esc(types) + '</span></td>' +
       '<td>' + statusSelect(l.id, l.status, CRM_STATUSES) + '</td>' +
       '<td class="notes-cell">' +
         '<span class="editable" onclick="editNotes(this, \'' + l.id + '\')">' + (esc(l.w) || '<span style="color:#9ca3af">Add notes...</span>') + '</span>' +
@@ -686,15 +743,16 @@ function renderApplications(leads, filter) {
 
   el.innerHTML =
     '<div class="page-title">Applications</div>' +
-    '<div class="page-sub">Form submissions from CT Mastermind and Membership</div>' +
+    '<div class="page-sub">All event applications — click a row to see full details</div>' +
     '<div class="toolbar">' +
       '<button class="filter-btn' + (filter === 'all' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'all\')">All</button>' +
       '<button class="filter-btn' + (filter === 'mastermind' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'mastermind\')">CT Mastermind</button>' +
       '<button class="filter-btn' + (filter === 'membership' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'membership\')">Membership</button>' +
+      '<button class="filter-btn' + (filter === 'dinner' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'dinner\')">Dinners</button>' +
       '<span class="count-tag">' + filtered.length + ' entries</span>' +
       '<button class="refresh-btn" onclick="loaded.applications=false; loadApplications()">Refresh</button>' +
     '</div>' +
-    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Business</th><th>Revenue</th><th>Tier</th><th>Form</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No applications found</p></div>');
+    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Applicant</th><th>Event</th><th>Revenue</th><th>Tier</th><th>Status</th><th>Goals / Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No applications found</p></div>');
 }
 
 // ── CRM ──
@@ -702,6 +760,8 @@ function loadCRM() {
   var el = document.getElementById('tab-crm');
   api('/api/admin/applicants').then(function(leads) {
     appData.leads = leads;
+    appData.leadsMap = {};
+    leads.forEach(function(l) { appData.leadsMap[l.id] = l; });
     renderCRM(leads, '');
   }).catch(function(e) {
     el.innerHTML = '<div class="empty-state"><p>' + esc(e.message) + '</p></div>';
@@ -716,17 +776,15 @@ function renderCRM(leads, q) {
   }) : leads;
 
   var rows = filtered.map(function(l) {
-    return '<tr id="crm-' + l.id + '">' +
-      '<td class="td-name">' + esc(l.n) + '</td>' +
+    return '<tr class="clickable-row" data-id="' + l.id + '" data-rowtype="crm" id="crm-' + l.id + '">' +
+      '<td><div class="td-name">' + esc(l.n) + '</div></td>' +
       '<td>' + esc(l.b) + '</td>' +
-      '<td class="td-muted">' + esc(l.e) + '</td>' +
-      '<td class="td-muted">' + (l.p ? '<a href="tel:' + esc(l.p) + '" style="color:inherit;text-decoration:none">' + esc(l.p) + '</a>' : '—') + '</td>' +
+      '<td class="td-muted" style="font-size:12px">' + esc(l.e) + '</td>' +
       '<td>' + esc(l.r) + '</td>' +
       '<td>' + tierBadge(l.t) + '</td>' +
-      '<td><span class="td-muted" style="font-size:11px">' + esc((l.type || []).join(', ')) + '</span></td>' +
       '<td>' + statusSelect(l.id, l.status, CRM_STATUSES) + '</td>' +
       '<td class="notes-cell">' +
-        '<span class="editable" onclick="editNotes(this, \'' + l.id + '\')">' + (esc(l.w) || '<span style="color:#9ca3af">—</span>') + '</span>' +
+        '<span class="editable" onclick="editNotes(this, \'' + l.id + '\')">' + (esc(l.w) || '<span style="color:#9ca3af">Add notes...</span>') + '</span>' +
       '</td>' +
       '<td><button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + l.id + '\', document.getElementById(\'crm-' + l.id + '\'))">✕</button></td>' +
     '</tr>';
@@ -734,13 +792,13 @@ function renderCRM(leads, q) {
 
   el.innerHTML =
     '<div class="page-title">CRM</div>' +
-    '<div class="page-sub">All leads. Click status or notes to edit inline.</div>' +
+    '<div class="page-sub">All leads — click a row to see full info, click notes to edit inline</div>' +
     '<div class="toolbar">' +
       '<input class="search-input" type="text" placeholder="Search name, business, email..." value="' + esc(q) + '" oninput="renderCRM(appData.leads, this.value)" />' +
       '<span class="count-tag">' + filtered.length + ' of ' + leads.length + '</span>' +
       '<button class="refresh-btn" onclick="loaded.crm=false; loadCRM()">Refresh</button>' +
     '</div>' +
-    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Business</th><th>Email</th><th>Phone</th><th>Revenue</th><th>Tier</th><th>Type</th><th>Status</th><th>Notes / Goals</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No results</p></div>');
+    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Business</th><th>Email</th><th>Revenue</th><th>Tier</th><th>Status</th><th>Goals / Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No results</p></div>');
 }
 
 // ── Analytics ──
@@ -875,6 +933,8 @@ function loadMembers() {
   var el = document.getElementById('tab-members');
   api('/api/admin/members').then(function(members) {
     appData.members = members;
+    appData.membersMap = {};
+    members.forEach(function(m) { appData.membersMap[m.id] = m; });
     renderMembers(members, '');
   }).catch(function(e) {
     el.innerHTML = '<div class="empty-state"><p>' + esc(e.message) + '</p></div>';
@@ -888,14 +948,11 @@ function renderMembers(members, q) {
   }) : members;
 
   var rows = filtered.map(function(m) {
-    return '<tr id="mem-' + m.id + '">' +
-      '<td class="td-name">' + esc(m.n) + '</td>' +
-      '<td>' + esc(m.b) + '</td>' +
-      '<td class="td-muted">' + esc(m.e) + '</td>' +
-      '<td class="td-muted">' + (m.p ? '<a href="tel:' + esc(m.p) + '" style="color:inherit;text-decoration:none">' + esc(m.p) + '</a>' : '—') + '</td>' +
-      '<td class="td-muted">' + (m.i ? '@' + esc(m.i) : '—') + '</td>' +
+    return '<tr class="clickable-row" data-id="' + m.id + '" data-rowtype="member" id="mem-' + m.id + '">' +
+      '<td><div class="td-name">' + esc(m.n) + '</div><div style="font-size:11px;color:#6b7280;margin-top:2px">' + esc(m.b) + '</div></td>' +
       '<td>' + esc(m.r) + '</td>' +
       '<td>' + (m.tier ? '<span class="badge badge-blue">' + esc(m.tier) + '</span>' : '—') + '</td>' +
+      '<td class="td-muted" style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(m.bottleneck || '—') + '</td>' +
       '<td>' + statusSelect(m.id, m.status, MEMBER_STATUSES) + '</td>' +
       '<td class="notes-cell"><span class="editable" onclick="editNotes(this, \'' + m.id + '\')">' + (esc(m.notes) || '<span style="color:#9ca3af">—</span>') + '</span></td>' +
       '<td><button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + m.id + '\', document.getElementById(\'mem-' + m.id + '\'))">✕</button></td>' +
@@ -904,13 +961,13 @@ function renderMembers(members, q) {
 
   el.innerHTML =
     '<div class="page-title">Member Intelligence</div>' +
-    '<div class="page-sub">All PVC members. Click status or notes to edit.</div>' +
+    '<div class="page-sub">All PVC members — click a row to see full details</div>' +
     '<div class="toolbar">' +
-      '<input class="search-input" type="text" placeholder="Search name, business, email..." value="' + esc(q) + '" oninput="renderMembers(appData.members, this.value)" />' +
+      '<input class="search-input" type="text" placeholder="Search name, business..." value="' + esc(q) + '" oninput="renderMembers(appData.members, this.value)" />' +
       '<span class="count-tag">' + filtered.length + ' of ' + members.length + '</span>' +
       '<button class="refresh-btn" onclick="loaded.members=false; loadMembers()">Refresh</button>' +
     '</div>' +
-    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Business</th><th>Email</th><th>Phone</th><th>IG</th><th>Revenue</th><th>Tier</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No members found</p></div>');
+    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Member</th><th>Revenue</th><th>Tier</th><th>Current Bottleneck</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No members found</p></div>');
 }
 
 // ── SOPs ──
@@ -1057,6 +1114,105 @@ function editNotes(el, pageId) {
       inp.parentNode.replaceChild(span, inp);
     }
   });
+}
+
+// ── Drawer ──
+document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
+document.getElementById('drawer-close-btn').addEventListener('click', closeDrawer);
+
+function openDrawer(name, bodyHTML) {
+  document.getElementById('drawer-name').textContent = name;
+  document.getElementById('drawer-body').innerHTML = bodyHTML;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+function dField(label, value) {
+  if (value === null || value === undefined || value === '') return '';
+  return '<div class="d-field"><div class="d-label">' + label + '</div><div class="d-value">' + value + '</div></div>';
+}
+
+function openMemberDrawer(m) {
+  var body =
+    dField('Business', esc(m.b)) +
+    dField('Revenue Stage', esc(m.r)) +
+    (m.tier ? '<div class="d-field"><div class="d-label">Tier</div><div class="d-value"><span class="badge badge-blue">' + esc(m.tier) + '</span></div></div>' : '') +
+    dField('Email', m.e ? '<a href="mailto:' + esc(m.e) + '">' + esc(m.e) + '</a>' : '') +
+    dField('Phone', m.p ? '<a href="tel:' + esc(m.p) + '">' + esc(m.p) + '</a>' : '') +
+    dField('Instagram', m.i ? '@' + esc(m.i) : '') +
+    '<div class="d-section">Member Intelligence</div>' +
+    dField('Current Bottleneck', esc(m.bottleneck)) +
+    dField('Goal (3 months)', esc(m.goal)) +
+    dField('Recent Result', esc(m.result)) +
+    dField('Connection Made', esc(m.connection)) +
+    dField('Action Taken', esc(m.action)) +
+    dField('Notes', esc(m.notes)) +
+    dField('Last Check-in', esc(m.checkin)) +
+    dField('Member Since', esc(m.since)) +
+    (m.url ? '<div class="d-field"><div class="d-label">Notion</div><div class="d-value"><a href="' + esc(m.url) + '" target="_blank">Open in Notion →</a></div></div>' : '');
+  openDrawer(m.n || 'Member', body);
+}
+
+function openCRMDrawer(l) {
+  var body =
+    dField('Business', esc(l.b)) +
+    dField('Revenue Stage', esc(l.r)) +
+    (l.t ? '<div class="d-field"><div class="d-label">Tier</div><div class="d-value">' + tierBadge(l.t) + '</div></div>' : '') +
+    dField('Email', l.e ? '<a href="mailto:' + esc(l.e) + '">' + esc(l.e) + '</a>' : '') +
+    dField('Phone', l.p ? '<a href="tel:' + esc(l.p) + '">' + esc(l.p) + '</a>' : '') +
+    dField('Instagram', l.i ? '@' + esc(l.i) : '') +
+    '<div class="d-section">Details</div>' +
+    dField('Goals / What they want', esc(l.w)) +
+    dField('Raw Notes', esc(l.notes)) +
+    dField('Event / Type', esc((l.type || []).join(', '))) +
+    dField('Source', esc(l.src)) +
+    (l.url ? '<div class="d-field"><div class="d-label">Notion</div><div class="d-value"><a href="' + esc(l.url) + '" target="_blank">Open in Notion →</a></div></div>' : '');
+  openDrawer(l.n || 'Lead', body);
+}
+
+function openAppDrawer(l) {
+  var body =
+    dField('Business', esc(l.b)) +
+    dField('Revenue Stage', esc(l.r)) +
+    (l.t ? '<div class="d-field"><div class="d-label">Tier</div><div class="d-value">' + tierBadge(l.t) + '</div></div>' : '') +
+    dField('Email', l.e ? '<a href="mailto:' + esc(l.e) + '">' + esc(l.e) + '</a>' : '') +
+    dField('Phone', l.p ? '<a href="tel:' + esc(l.p) + '">' + esc(l.p) + '</a>' : '') +
+    dField('Instagram', l.i ? '@' + esc(l.i) : '') +
+    '<div class="d-section">Application</div>' +
+    dField('Goals / What they want', esc(l.w)) +
+    dField('Notes', esc(l.notes)) +
+    dField('Event Applied For', eventBadge(l.type)) +
+    dField('Source', esc(l.src)) +
+    (l.url ? '<div class="d-field"><div class="d-label">Notion</div><div class="d-value"><a href="' + esc(l.url) + '" target="_blank">Open in Notion →</a></div></div>' : '');
+  openDrawer(l.n || 'Applicant', body);
+}
+
+// Click-to-open row delegation
+document.addEventListener('click', function(e) {
+  var row = e.target.closest('tr.clickable-row');
+  if (!row) return;
+  if (e.target.closest('button,select,.editable,.edit-input')) return;
+  var id   = row.dataset.id;
+  var type = row.dataset.rowtype;
+  if (type === 'member' && appData.membersMap && appData.membersMap[id]) openMemberDrawer(appData.membersMap[id]);
+  else if (type === 'crm' && appData.leadsMap && appData.leadsMap[id]) openCRMDrawer(appData.leadsMap[id]);
+  else if (type === 'app' && appData.leadsMap && appData.leadsMap[id]) openAppDrawer(appData.leadsMap[id]);
+});
+
+function eventBadge(types) {
+  return (types || []).map(function(t) {
+    var lc = t.toLowerCase();
+    var cls = 'badge-default';
+    if (lc.includes('mastermind') || lc.includes('cape town')) cls = 'badge-mastermind';
+    else if (lc.includes('dinner')) cls = 'badge-dinner';
+    else if (lc.includes('membership') || lc.includes('member')) cls = 'badge-green';
+    return '<span class="badge ' + cls + '">' + esc(t) + '</span>';
+  }).join(' ');
 }
 
 // ── Firebase init ──

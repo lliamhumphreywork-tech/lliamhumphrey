@@ -12,26 +12,15 @@ export const GET: APIRoute = async ({ request }) => {
     'https://api.tally.so/forms/dWJdNz/submissions?page=1&limit=1',
     { headers: { Authorization: `Bearer ${TALLY_API_KEY}` } }
   );
-  const text = await res.text();
-  // Return a trimmed structural peek so we can see field shapes
-  try {
-    const data = JSON.parse(text);
-    const peek: any = {
-      status: res.status,
-      topLevelKeys: Object.keys(data),
-      totalSubmissions: data.totalNumberOfSubmissionsPerFilter ?? data.total ?? '?',
-      questionsCount: (data.questions ?? []).length,
-      question0: data.questions?.[0] ?? null,
-      responsesCount: (data.responses ?? data.submissions ?? []).length,
-      response0keys: Object.keys((data.responses ?? data.submissions ?? [])[0] ?? {}),
-      response0field0: (data.responses ?? data.submissions ?? [])[0]?.fields?.[0] ?? null,
-    };
-    return new Response(JSON.stringify(peek, null, 2), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch {
-    return new Response(JSON.stringify({ status: res.status, raw: text.slice(0, 500) }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  const data = await res.json();
+  const sub = (data.submissions ?? data.responses ?? [])[0] ?? {};
+  const answers = sub.responses ?? sub.fields ?? [];
+  return new Response(JSON.stringify({
+    topKeys: Object.keys(data),
+    question0: data.questions?.[0] ?? null,
+    submissionKeys: Object.keys(sub),
+    answersCount: answers.length,
+    answer0: answers[0] ?? null,
+    answer1: answers[1] ?? null,
+  }, null, 2), { headers: { 'Content-Type': 'application/json' } });
 };

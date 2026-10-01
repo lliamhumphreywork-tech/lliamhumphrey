@@ -163,6 +163,7 @@ const introText = isVIP
 
   // Secure now button — opens Paystack inline
   document.getElementById('secure-now-btn').addEventListener('click', function () {
+    if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { value: isVIP ? 7000 : 4000, currency: 'ZAR' });
     var handler = PaystackPop.setup({
       key: PS_KEY,
       email: email || '',

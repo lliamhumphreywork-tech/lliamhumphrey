@@ -422,6 +422,7 @@ const NOISE = (id: string) => `
     modal?.classList.add('open');
     document.body.style.overflow = 'hidden';
     if (typeof (window as any).Tally !== 'undefined') (window as any).Tally.loadEmbeds();
+    if (typeof (window as any).fbq !== 'undefined') (window as any).fbq('track', 'Lead');
   };
   const closeModal = () => { modal?.classList.remove('open'); document.body.style.overflow = ''; };
   document.querySelectorAll('.apply-trigger').forEach((btn) => btn.addEventListener('click', openModal));
@@ -436,6 +437,10 @@ const NOISE = (id: string) => `
   const CONSENT_KEY = 'pvc_cookie_consent';
 
   function loadTracking() {
+    // Meta Pixel
+    !function(f: any,b: any,e: any,v: any,n: any,t: any,s: any){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    (window as any).fbq('init', '2322669691834876');
+    (window as any).fbq('track', 'PageView');
     // Whop pixel
     !function(w: any,d: any,s: any,u: any,n: any,a: any,b: any){if(w[n])return;a=w[n]={q:[],t:+new Date,s:[],o:u,track:function(){a.q.push([+new Date].concat([].slice.call(arguments)))},setScope:function(){a.s=[].slice.call(arguments).filter(function(x: any){return typeof x==="string"});a.q.push([+new Date,"setScope"].concat(a.s))},scope:function(){var c=[].slice.call(arguments);return{track:function(){a.q.push([+new Date].concat([].slice.call(arguments)).concat([{__scope:c}]))}}}};b=d.createElement(s);b.async=1;b.src=u+"/s.js";d.getElementsByTagName(s)[0].parentNode.insertBefore(b,d.getElementsByTagName(s)[0])}(window,document,"script","https://t.whop.tw","whop");(window as any).whop.setScope("biz_wgGZg1FUySAA37");(window as any).whop.track("page");
     // PostHog
@@ -461,6 +466,15 @@ const NOISE = (id: string) => `
   cookieDecline?.addEventListener('click', () => {
     localStorage.setItem(CONSENT_KEY, 'declined');
     cookieBanner?.classList.remove('visible');
+  });
+
+  // Meta Pixel — fire CompleteRegistration when Tally membership form submits
+  window.addEventListener('message', (e: MessageEvent) => {
+    if (e.data?.event === 'Tally.FormSubmitted' || e.data?.name === 'tally-form-submitted') {
+      if (typeof (window as any).fbq !== 'undefined') {
+        (window as any).fbq('track', 'CompleteRegistration');
+      }
+    }
   });
 
   // FAQ accordion

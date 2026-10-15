@@ -16,10 +16,44 @@ type PostComposerProps = {
   composerAvatar?: string | null
 }
 
+async function compressImage(file: File): Promise<Blob> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      const maxDim = 1920
+      let { width, height } = img
+      if (width > maxDim || height > maxDim) {
+        const ratio = Math.min(maxDim / width, maxDim / height)
+        width = Math.round(width * ratio)
+        height = Math.round(height * ratio)
+      }
+      const canvas = document.createElement("canvas")
+      canvas.width = width
+      canvas.height = height
+      canvas.getContext("2d")!.drawImage(img, 0, 0, width, height)
+      URL.revokeObjectURL(url)
+      canvas.toBlob((blob) => resolve(blob!), "image/jpeg", 0.82)
+    }
+    img.src = url
+  })
+}
+
 async function uploadFile(file: File, onProgress?: (pct: number) => void): Promise<Attachment> {
-  const isImage = file.type.startsWith("image/")
+  if (file.type.startsWith("image/")) {
+    onProgress?.(10)
+    const compressed = await compressImage(file)
+    onProgress?.(50)
+    const fd = new FormData()
+    fd.append("file", compressed, file.name.replace(/\.[^.]+$/, ".jpg"))
+    const res = await fetch("/api/upload-image", { method: "POST", body: fd })
+    if (!res.ok) throw new Error("Upload failed")
+    const { url } = await res.json()
+    onProgress?.(100)
+    return { url, name: file.name, type: "image/jpeg", size: compressed.size }
+  }
   const blob = await upload(file.name, file, {
-    access: isImage ? "public" : "private",
+    access: "private",
     handleUploadUrl: "/api/upload",
     onUploadProgress: ({ percentage }) => onProgress?.(Math.round(percentage)),
   })

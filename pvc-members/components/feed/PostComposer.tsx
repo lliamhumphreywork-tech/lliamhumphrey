@@ -17,8 +17,9 @@ type PostComposerProps = {
 }
 
 async function uploadFile(file: File): Promise<Attachment> {
+  const isImage = file.type.startsWith("image/")
   const blob = await upload(file.name, file, {
-    access: "private",
+    access: isImage ? "public" : "private",
     handleUploadUrl: "/api/upload",
   })
   return { url: blob.url, name: file.name, type: file.type, size: file.size }

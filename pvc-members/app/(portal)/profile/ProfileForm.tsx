@@ -15,7 +15,7 @@ import type { User } from "@prisma/client"
 async function uploadAvatar(file: File): Promise<string> {
   const { upload } = await import("@vercel/blob/client")
   const blob = await upload(file.name, file, {
-    access: "private",
+    access: "public",
     handleUploadUrl: "/api/upload",
   })
   return blob.url

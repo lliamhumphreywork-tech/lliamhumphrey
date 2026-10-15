@@ -294,7 +294,7 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
         {/* Attachments */}
         {!isEditing && (post as any).attachments?.length > 0 && (() => {
           const atts: string[] = (post as any).attachments
-          const imgs = atts.filter(u => /\.(jpg|jpeg|png|gif|webp|avif)$/i.test(u))
+          const imgs = atts.filter(u => /\.(jpg|jpeg|png|gif|webp|avif)(\?|$)/i.test(u))
           const docs = atts.filter(u => !imgs.includes(u))
           return (
             <div style={{ marginBottom: 14 }}>

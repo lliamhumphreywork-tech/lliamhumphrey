@@ -16,11 +16,12 @@ type PostComposerProps = {
   composerAvatar?: string | null
 }
 
-async function uploadFile(file: File): Promise<Attachment> {
+async function uploadFile(file: File, onProgress?: (pct: number) => void): Promise<Attachment> {
   const isImage = file.type.startsWith("image/")
   const blob = await upload(file.name, file, {
     access: isImage ? "public" : "private",
     handleUploadUrl: "/api/upload",
+    onUploadProgress: ({ percentage }) => onProgress?.(Math.round(percentage)),
   })
   return { url: blob.url, name: file.name, type: file.type, size: file.size }
 }
@@ -36,6 +37,7 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
   const [content, setContent] = useState("")
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [expanded, setExpanded] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState("")
@@ -48,14 +50,18 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
   async function handleFiles(files: File[], imagesOnly = false) {
     if (!files.length) return
     setUploading(true)
+    setUploadProgress(0)
     setError("")
     try {
-      const uploaded = await Promise.all(files.slice(0, 4).map(uploadFile))
+      const uploaded = await Promise.all(
+        files.slice(0, 4).map((f) => uploadFile(f, (pct) => setUploadProgress(pct)))
+      )
       setAttachments((prev) => [...prev, ...uploaded].slice(0, 8))
     } catch {
       setError("Upload failed. Try again.")
     } finally {
       setUploading(false)
+      setUploadProgress(0)
     }
   }
 
@@ -192,8 +198,13 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
           )}
 
           {uploading && (
-            <div style={{ padding: "0 16px 10px 62px", fontSize: 12, color: "var(--text-muted)" }}>
-              Uploading...
+            <div style={{ padding: "0 16px 10px 62px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ flex: 1, height: 3, background: "var(--border)", borderRadius: 2, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${uploadProgress}%`, background: "var(--accent)", borderRadius: 2, transition: "width 0.2s ease" }} />
+                </div>
+                <span style={{ fontSize: 11, color: "var(--text-muted)", flexShrink: 0 }}>{uploadProgress}%</span>
+              </div>
             </div>
           )}
 

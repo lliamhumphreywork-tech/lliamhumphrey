@@ -1,12 +1,3 @@
 {
-  "version": 2,
-  "installCommand": "cd pvc-landing-page && npm install",
-  "buildCommand": "cd pvc-landing-page && npm run build",
-  "outputDirectory": "pvc-landing-page/dist",
-  "crons": [
-    {
-      "path": "/api/admin/leads-daily-summary",
-      "schedule": "0 6 * * *"
-    }
-  ]
+  "version": 2
 }

@@ -1,0 +1,110 @@
+"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useState } from "react"
+import { Home, Users, Calendar, MessageSquare, Grid2x2, X, Trophy, BookOpen, Network } from "lucide-react"
+
+const mainItems = [
+  { href: "/feed", icon: Home, label: "Feed" },
+  { href: "/members", icon: Users, label: "Members" },
+  { href: "/events", icon: Calendar, label: "Events" },
+  { href: "/messages", icon: MessageSquare, label: "Messages" },
+]
+
+const spaceItems = [
+  { href: "/spaces/wins", icon: Trophy, label: "Wins" },
+  { href: "/spaces/resources", icon: BookOpen, label: "Info Library" },
+  { href: "/spaces/talent-network", icon: Network, label: "Talent" },
+]
+
+export function MobileNav() {
+  const pathname = usePathname()
+  const [showSpaces, setShowSpaces] = useState(false)
+  const isInSpaces = pathname.startsWith("/spaces")
+
+  return (
+    <>
+      {/* Spaces drawer */}
+      {showSpaces && (
+        <>
+          <div
+            onClick={() => setShowSpaces(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 48, background: "rgba(0,0,0,0.5)" }}
+          />
+          <div style={{
+            position: "fixed", bottom: 60, left: 0, right: 0, zIndex: 49,
+            background: "var(--bg-surface)", borderTop: "1px solid var(--border)",
+            padding: "8px 0 4px",
+          }}>
+            {spaceItems.map(({ href, icon: Icon, label }) => {
+              const active = pathname.startsWith(href)
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setShowSpaces(false)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 14,
+                    padding: "14px 24px",
+                    color: active ? "var(--text-primary)" : "var(--text-secondary)",
+                    textDecoration: "none", fontSize: 15, fontWeight: active ? 600 : 400,
+                    borderLeft: active ? "2px solid var(--nav-accent)" : "2px solid transparent",
+                  }}
+                >
+                  <Icon size={18} style={{ opacity: active ? 1 : 0.5 }} />
+                  {label}
+                </Link>
+              )
+            })}
+          </div>
+        </>
+      )}
+
+      <nav
+        style={{
+          position: "fixed", bottom: 0, left: 0, right: 0,
+          height: 60,
+          background: "var(--bg-surface)",
+          borderTop: "1px solid var(--border)",
+          zIndex: 50,
+        }}
+        className="mobile-nav"
+      >
+        {mainItems.map(({ href, icon: Icon, label }) => {
+          const active = pathname.startsWith(href)
+          return (
+            <Link
+              key={href}
+              href={href}
+              style={{
+                flex: 1, display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center", gap: 3,
+                color: active ? "var(--nav-accent)" : "var(--text-muted)",
+                textDecoration: "none", fontSize: 10, fontWeight: active ? 600 : 400,
+              }}
+            >
+              <Icon size={20} />
+              {label}
+            </Link>
+          )
+        })}
+
+        {/* Spaces toggle */}
+        <button
+          onClick={() => setShowSpaces(s => !s)}
+          style={{
+            flex: 1, display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center", gap: 3,
+            color: (isInSpaces || showSpaces) ? "var(--nav-accent)" : "var(--text-muted)",
+            background: "none", border: "none", cursor: "pointer",
+            fontSize: 10, fontWeight: (isInSpaces || showSpaces) ? 600 : 400,
+          }}
+        >
+          {showSpaces ? <X size={20} /> : <Grid2x2 size={20} />}
+          Spaces
+        </button>
+      </nav>
+    </>
+  )
+}

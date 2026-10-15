@@ -1,0 +1,240 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  GA
+  VIP
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  bio           String?
+  avatar        String?
+  role          Role      @default(GA)
+  location      String?
+  website       String?
+  twitter       String?
+  instagram     String?
+  linkedin      String?
+  skills        String?
+  seeking       String?
+  isOnline      Boolean   @default(false)
+  lastSeen      DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]
+  comments      Comment[]
+  reactions     Reaction[]
+  resources     Resource[]     @relation("UserResources")
+  talentEntries ManualTalentEntry[] @relation("ManualTalentEntries")
+  spaceMembers  SpaceMember[]
+  eventRSVPs    EventRSVP[]
+  sentMessages      Message[]      @relation("SentMessages")
+  receivedMessages  Message[]      @relation("ReceivedMessages")
+  notifications     Notification[] @relation("NotificationRecipient")
+  actedNotifications Notification[] @relation("NotificationActor")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Space {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  description  String?
+  emoji        String   @default("💬")
+  coverImage   String?
+  accentColor  String?
+  isPrivate    Boolean  @default(false)
+  vipOnly      Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  posts   Post[]
+  members SpaceMember[]
+}
+
+model SpaceMember {
+  id      String   @id @default(cuid())
+  userId  String
+  spaceId String
+  joinedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, spaceId])
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  content     String   @db.Text
+  authorId    String
+  spaceId     String?
+  isPinned    Boolean  @default(false)
+  attachments String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  space         Space?         @relation(fields: [spaceId], references: [id])
+  comments      Comment[]
+  reactions     Reaction[]
+  notifications Notification[]
+}
+
+model ManualTalentEntry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  skills    String   @default("Sales")
+  proof     String?
+  notes     String?  @db.Text
+  rate      String?
+  capacity  String?
+  location  String?
+  source    String   @default("import")
+  createdAt DateTime @default(now())
+  addedById String
+  addedBy   User     @relation("ManualTalentEntries", fields: [addedById], references: [id])
+}
+
+model Resource {
+  id           String   @id @default(cuid())
+  type         String   @default("file")  // "file" | "link" | "text"
+  title        String
+  description  String?  @db.Text
+  fileUrl      String?
+  fileName     String?
+  fileType     String?
+  fileSize     Int?
+  uploadedById String
+  createdAt    DateTime @default(now())
+
+  uploadedBy User @relation("UserResources", fields: [uploadedById], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  authorId  String
+  postId    String
+  createdAt DateTime @default(now())
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  emoji     String
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId, emoji])
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?   @db.Text
+  location    String?
+  isOnline    Boolean   @default(false)
+  meetingUrl  String?
+  coverImage  String?
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+
+  rsvps EventRSVP[]
+}
+
+model EventRSVP {
+  id        String   @id @default(cuid())
+  userId    String
+  eventId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  actorId   String?
+  type      String
+  message   String
+  postId    String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user  User  @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  actor User? @relation("NotificationActor", fields: [actorId], references: [id])
+  post  Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  content    String   @db.Text
+  senderId   String
+  receiverId String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+}

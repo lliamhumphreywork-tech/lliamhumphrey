@@ -17,10 +17,20 @@ function seedGradient(seed: string): string {
   return `linear-gradient(135deg, hsl(${hue},60%,40%), hsl(${hue2},70%,55%))`
 }
 
+function proxySrc(src?: string | null): string | undefined {
+  if (!src) return undefined
+  if (src.startsWith("/api/img")) return src
+  if (src.includes("blob.vercel-storage.com") && !src.includes(".public.blob.vercel-storage.com")) {
+    return `/api/img?url=${encodeURIComponent(src)}`
+  }
+  return src
+}
+
 export function Avatar({ src, name, size = 36, online, role }: AvatarProps) {
   const initials = getInitials(name)
   const ringColor = role === "ADMIN" ? "var(--accent)" : "transparent"
   const bg = name ? seedGradient(name) : "var(--bg-elevated)"
+  const imgSrc = proxySrc(src)
 
   return (
     <div style={{ position: "relative", flexShrink: 0 }}>
@@ -30,7 +40,7 @@ export function Avatar({ src, name, size = 36, online, role }: AvatarProps) {
           height: size,
           borderRadius: "50%",
           overflow: "hidden",
-          background: src ? "var(--bg-elevated)" : bg,
+          background: imgSrc ? "var(--bg-elevated)" : bg,
           border: `2px solid ${ringColor}`,
           display: "flex",
           alignItems: "center",
@@ -38,10 +48,10 @@ export function Avatar({ src, name, size = 36, online, role }: AvatarProps) {
           flexShrink: 0,
         }}
       >
-        {src ? (
+        {imgSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={src}
+            src={imgSrc}
             alt={name ?? "Avatar"}
             style={{ objectFit: "cover", width: "100%", height: "100%" }}
           />

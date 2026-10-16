@@ -36,6 +36,15 @@ export function EventCard({ event, currentUserId, isAdmin }: EventCardProps) {
         marginBottom: 12,
       }}
     >
+      {/* Cover image */}
+      {event.coverImage && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={event.coverImage}
+          alt=""
+          style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
+        />
+      )}
       {/* Date stripe */}
       <div
         style={{

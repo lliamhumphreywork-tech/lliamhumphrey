@@ -34,6 +34,7 @@ export async function POST(req: Request) {
       meetingUrl: data.meetingUrl || null,
       startDate: new Date(data.startDate),
       endDate: data.endDate ? new Date(data.endDate) : null,
+      coverImage: data.coverImage || null,
     },
   })
 

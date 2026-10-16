@@ -294,7 +294,15 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
         {/* Attachments */}
         {!isEditing && (post as any).attachments?.length > 0 && (() => {
           const atts: string[] = (post as any).attachments
-          const imgs = atts.filter(u => /\.(jpg|jpeg|png|gif|webp|avif)(\?|$)/i.test(u))
+          // Proxy any private Vercel Blob URLs (no ".public." in hostname)
+          function imgSrc(url: string) {
+            if (url.startsWith("/api/img")) return url
+            if (url.includes("blob.vercel-storage.com") && !url.includes(".public.blob.vercel-storage.com")) {
+              return `/api/img?url=${encodeURIComponent(url)}`
+            }
+            return url
+          }
+          const imgs = atts.filter(u => /\.(jpg|jpeg|png|gif|webp|avif)(\?|$)/i.test(u) || u.startsWith("/api/img"))
           const docs = atts.filter(u => !imgs.includes(u))
           return (
             <div style={{ marginBottom: 14 }}>
@@ -302,9 +310,9 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
                 <div className="post-images" style={{ cursor: "zoom-in" }}>
                   {imgs.map((src, i) => (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img key={i} src={src} alt="" className="post-image"
+                    <img key={i} src={imgSrc(src)} alt="" className="post-image"
                       style={{ borderRadius: "var(--radius)", border: "1px solid var(--border-subtle)" }}
-                      onClick={() => setLightboxSrc(src)}
+                      onClick={() => setLightboxSrc(imgSrc(src))}
                     />
                   ))}
                 </div>

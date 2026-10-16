@@ -11,8 +11,9 @@ export async function POST(req: Request) {
   if (!file) return NextResponse.json({ error: "No file" }, { status: 400 })
 
   const blob = await put(file.name, file, {
-    access: "public",
+    access: "private",
     token: process.env.BLOB_READ_WRITE_TOKEN,
   })
-  return NextResponse.json({ url: blob.url })
+  const proxyUrl = `/api/img?url=${encodeURIComponent(blob.url)}`
+  return NextResponse.json({ url: proxyUrl })
 }

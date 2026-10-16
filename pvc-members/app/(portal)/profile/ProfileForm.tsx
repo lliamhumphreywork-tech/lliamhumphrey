@@ -3,14 +3,14 @@
 import { useState, useTransition, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
+import { Camera } from "lucide-react"
+import type { User } from "@prisma/client"
 import { Avatar } from "@/components/ui/Avatar"
+import { Badge } from "@/components/ui/Badge"
 
 function broadcastAvatar(src: string) {
   window.dispatchEvent(new CustomEvent("pvc:avatar-updated", { detail: src }))
 }
-import { Badge } from "@/components/ui/Badge"
-import { Camera } from "lucide-react"
-import type { User } from "@prisma/client"
 
 async function uploadAvatar(file: File): Promise<string> {
   const img = new Image()

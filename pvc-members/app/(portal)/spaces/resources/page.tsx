@@ -466,14 +466,19 @@ function ResourceRow({ resource: r, userId, userRole, onDelete }: {
               <ExternalLink size={11} /> Open
             </a>
           )}
-          {r.type === "file" && r.fileUrl && (
-            <a href={r.fileUrl} target="_blank" rel="noopener noreferrer" download
-              style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", fontSize: 12, color: "var(--text-secondary)", textDecoration: "none", fontFamily: "Plus Jakarta Sans, sans-serif" }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--accent)")}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border)")}>
-              <Download size={11} /> Download
-            </a>
-          )}
+          {r.type === "file" && r.fileUrl && (() => {
+            const dlHref = r.fileUrl.includes("blob.vercel-storage.com")
+              ? `/api/dl?url=${encodeURIComponent(r.fileUrl)}&name=${encodeURIComponent(r.fileName ?? "file")}`
+              : r.fileUrl
+            return (
+              <a href={dlHref} target="_blank" rel="noopener noreferrer" download
+                style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", fontSize: 12, color: "var(--text-secondary)", textDecoration: "none", fontFamily: "Plus Jakarta Sans, sans-serif" }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--accent)")}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border)")}>
+                <Download size={11} /> Download
+              </a>
+            )
+          })()}
           {isOwner && (
             <button onClick={() => onDelete(r.id)}
               style={{ display: "flex", padding: "5px 8px", background: "none", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text-muted)", cursor: "pointer" }}

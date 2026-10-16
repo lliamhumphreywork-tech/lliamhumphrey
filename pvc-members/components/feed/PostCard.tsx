@@ -321,8 +321,11 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
                 <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: imgs.length > 0 ? 8 : 0 }}>
                   {docs.map((url, i) => {
                     const name = decodeURIComponent(url.split("/").pop()?.split("?")[0] ?? "File")
+                    const dlHref = url.includes("blob.vercel-storage.com")
+                      ? `/api/dl?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}`
+                      : url
                     return (
-                      <a key={i} href={url} target="_blank" rel="noopener noreferrer" download
+                      <a key={i} href={dlHref} target="_blank" rel="noopener noreferrer" download
                         style={{
                           display: "flex", alignItems: "center", gap: 8,
                           padding: "8px 12px", borderRadius: "var(--radius-sm)",

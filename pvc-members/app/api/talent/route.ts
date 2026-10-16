@@ -5,6 +5,17 @@ import { db } from "@/lib/db"
 const LANDING_URL = "https://privatevictoriesclub.com"
 const MEMBERS_API_TOKEN = process.env.MEMBERS_API_TOKEN
 
+export async function DELETE(req: Request) {
+  const session = await auth()
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const role = (session.user as any).role
+  if (role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
+  const { id } = await req.json()
+  await db.manualTalentEntry.delete({ where: { id } })
+  return NextResponse.json({ success: true })
+}
+
 export async function GET() {
   const session = await auth()
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -42,6 +53,7 @@ export async function GET() {
       capacity: e.capacity ?? "",
       location: e.location ?? "",
       source: e.source,
+      _manual: true,
     }))
 
   return NextResponse.json([...(tallyEntries as any[]), ...normalised])

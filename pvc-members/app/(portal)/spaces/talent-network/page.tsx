@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ExternalLink, Mail, Phone, Search } from "lucide-react"
+import { ExternalLink, Mail, Search, Trash2 } from "lucide-react"
+import { useSession } from "next-auth/react"
 
 type TalentEntry = {
   id: string
@@ -15,6 +16,7 @@ type TalentEntry = {
   capacity: string
   member: string
   since: string
+  _manual?: boolean
 }
 
 const ROLES: { key: string; label: string; color: string; bg: string; border: string }[] = [
@@ -46,6 +48,8 @@ function proofUrl(proof: string) {
 }
 
 export default function TalentNetworkPage() {
+  const { data: session } = useSession()
+  const isAdmin = (session?.user as any)?.role === "ADMIN"
   const [entries, setEntries] = useState<TalentEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState("")
@@ -57,6 +61,12 @@ export default function TalentNetworkPage() {
       .then(data => { setEntries(Array.isArray(data) ? data : []); setLoading(false) })
       .catch(() => setLoading(false))
   }, [])
+
+  async function deleteEntry(id: string) {
+    if (!confirm("Remove this entry?")) return
+    await fetch("/api/talent", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) })
+    setEntries(prev => prev.filter(e => e.id !== id))
+  }
 
   const q = filter.toLowerCase()
   const filtered = entries.filter(e => {
@@ -134,7 +144,7 @@ export default function TalentNetworkPage() {
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
-            {filtered.map(entry => <TalentCard key={entry.id} entry={entry} />)}
+            {filtered.map(entry => <TalentCard key={entry.id} entry={entry} isAdmin={isAdmin} onDelete={deleteEntry} />)}
           </div>
         )}
       </div>
@@ -144,7 +154,7 @@ export default function TalentNetworkPage() {
   )
 }
 
-function TalentCard({ entry }: { entry: TalentEntry }) {
+function TalentCard({ entry, isAdmin, onDelete }: { entry: TalentEntry; isAdmin: boolean; onDelete: (id: string) => void }) {
   const role = getRole(entry.skills)
   const ini = initials(entry.name)
   const url = proofUrl(entry.proof)
@@ -249,6 +259,15 @@ function TalentCard({ entry }: { entry: TalentEntry }) {
           >
             <ExternalLink size={11} /> View portfolio
           </a>
+        )}
+        {isAdmin && entry._manual && (
+          <button onClick={() => onDelete(entry.id)}
+            style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 4, display: "flex", alignItems: "center", flexShrink: 0 }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--danger)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}
+          >
+            <Trash2 size={13} />
+          </button>
         )}
       </div>
     </div>

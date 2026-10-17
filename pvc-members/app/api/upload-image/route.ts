@@ -10,7 +10,14 @@ export async function POST(req: Request) {
   const file = formData.get("file") as File
   if (!file) return NextResponse.json({ error: "No file" }, { status: 400 })
 
-  const blob = await put(file.name, file, {
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return NextResponse.json({ error: "Invalid file type" }, { status: 400 })
+  }
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").replace(/\.{2,}/g, "_")
+
+  const blob = await put(safeName, file, {
     access: "private",
     token: process.env.BLOB_READ_WRITE_TOKEN,
   })

@@ -1,8 +1,23 @@
 import { NextRequest, NextResponse } from "next/server"
+import { createHmac } from "crypto"
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
+    const rawBody = await req.text()
+
+    const secret = process.env.CAL_WEBHOOK_SECRET
+    if (secret) {
+      const sig = req.headers.get("X-Cal-Signature-256") ?? ""
+      const expected = createHmac("sha256", secret).update(rawBody).digest("hex")
+      if (sig !== expected) {
+        console.error("[cal-booking] Invalid signature")
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
+    } else {
+      console.warn("[cal-booking] CAL_WEBHOOK_SECRET not set — running unauthenticated")
+    }
+
+    const body = JSON.parse(rawBody)
 
     if (body.triggerEvent !== "BOOKING_CREATED") {
       return NextResponse.json({ ok: true })

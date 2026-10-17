@@ -3,6 +3,9 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 
 export async function GET(_req: Request, { params }: { params: { slug: string } }) {
+  const session = await auth()
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
   const space = await db.space.findUnique({ where: { slug: params.slug } })
   if (!space) return NextResponse.json({ error: "Not found" }, { status: 404 })
   return NextResponse.json(space)

@@ -22,10 +22,22 @@ export async function PATCH(req: Request) {
   if (role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   const { userId, role: newRole } = await req.json()
+
+  const target = await db.user.findUnique({ where: { id: userId }, select: { role: true } })
+
   const updated = await db.user.update({
     where: { id: userId },
     data: { role: newRole },
   })
+
+  console.log(JSON.stringify({
+    event: "role_change",
+    actorId: session.user.id,
+    targetId: userId,
+    oldRole: target?.role,
+    newRole,
+    at: new Date().toISOString(),
+  }))
 
   return NextResponse.json(updated)
 }

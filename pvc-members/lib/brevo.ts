@@ -19,19 +19,45 @@ export async function sendMagicLink({
       to: [{ email }],
       subject: "Your sign-in link for PVC Members",
       htmlContent: `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif">
-  <div style="max-width:480px;margin:0 auto;padding:52px 32px">
-    <p style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#a8b8c8;margin:0 0 40px;font-weight:600">Private Victories Club</p>
-    <h1 style="font-size:28px;font-weight:700;color:#f5f5f5;margin:0 0 14px;line-height:1.25;letter-spacing:-0.01em">Your sign-in link</h1>
-    <p style="font-size:15px;line-height:1.75;color:#aaaaaa;margin:0 0 36px">Click the button below to access your members portal. This link expires in 24 hours and can only be used once.</p>
-    <a href="${url}" style="display:inline-block;background:#c9a84c;color:#000000;padding:15px 36px;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.04em;text-transform:uppercase">Access Portal</a>
-    <div style="margin-top:48px;padding-top:24px;border-top:1px solid #1e1e1e">
-      <p style="font-size:12px;color:#555;margin:0;line-height:1.7">If you didn't request this link, you can safely ignore this email. Your account remains secure.</p>
-    </div>
-  </div>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" type="text/css" />
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f4;font-family:'DM Sans',Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f4f4f4">
+  <tr>
+    <td align="center" valign="top" style="padding:32px 16px">
+      <table width="480" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;border:1px solid #e8e8e8;border-radius:8px;overflow:hidden">
+        <tr>
+          <td style="padding:28px 40px;border-bottom:1px solid #e8e8e8">
+            <span style="font-family:'Syne',Georgia,serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#0a0a0a">Private Victories</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:36px 40px">
+            <h1 style="font-family:'Syne',Georgia,serif;font-size:24px;font-weight:800;line-height:1.25;color:#0a0a0a;margin:0 0 16px">Your sign-in link</h1>
+            <p style="font-family:'DM Sans',Arial,sans-serif;font-size:15px;line-height:1.7;color:#0a0a0a;margin:0 0 28px">Click the button below to access your members portal. This link expires in 24 hours and can only be used once.</p>
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="border-radius:4px;background-color:#0a0a0a">
+                  <a href="${url}" style="font-family:'Syne',Georgia,serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#ffffff;text-decoration:none;padding:14px 28px;display:inline-block;border-radius:4px">Access Portal</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:22px 40px;border-top:1px solid #e8e8e8;background-color:#f7f7f7">
+            <p style="font-family:'DM Sans',Arial,sans-serif;font-size:12px;line-height:1.6;color:#9ca3af;margin:0">If you didn't request this link, you can safely ignore this email. Your account remains secure.</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
 </body>
 </html>
       `.trim(),

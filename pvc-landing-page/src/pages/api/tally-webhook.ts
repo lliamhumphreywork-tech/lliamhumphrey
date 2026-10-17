@@ -166,11 +166,10 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response('NOTION_TOKEN not set', { status: 500 });
   }
 
-  if (TALLY_WEBHOOK_SECRET) {
+  if (!TALLY_WEBHOOK_SECRET) return new Response('Server misconfiguration', { status: 500 });
+  {
     const sig = request.headers.get('tally-webhook-secret');
     if (sig !== TALLY_WEBHOOK_SECRET) return new Response('Unauthorized', { status: 401 });
-  } else {
-    console.warn('[tally-webhook] TALLY_WEBHOOK_SECRET not set — webhook is unauthenticated');
   }
 
   let payload: any;

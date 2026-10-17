@@ -1,20 +1,14 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? process.env.ADMIN_KEY;
 const FIREBASE_PROJECT_ID = 'pvc-workspace';
 const ADMIN_EMAILS = ['lliam@privatevictoriesclub.com'];
 
-function decodeJwt(token: string): any {
-  try {
-    const payload = token.split('.')[1];
-    if (!payload) return null;
-    const json = Buffer.from(payload, 'base64url').toString('utf8');
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-}
+const JWKS = createRemoteJWKSet(
+  new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com')
+);
 
 export const GET: APIRoute = async ({ request }) => {
   if (!ADMIN_KEY) {
@@ -26,17 +20,20 @@ export const GET: APIRoute = async ({ request }) => {
   const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
   if (!idToken) return new Response('Unauthorized', { status: 401 });
 
-  const claims = decodeJwt(idToken);
-  if (!claims) return new Response('Unauthorized', { status: 401 });
+  let claims: any;
+  try {
+    const { payload } = await jwtVerify(idToken, JWKS, {
+      issuer: `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`,
+      audience: FIREBASE_PROJECT_ID,
+    });
+    claims = payload;
+  } catch (err) {
+    console.error('[admin/session] JWT verification failed:', err);
+    return new Response('Unauthorized', { status: 401 });
+  }
 
-  const now = Math.floor(Date.now() / 1000);
-  const validIss = claims.iss === `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`;
-  const validAud = claims.aud === FIREBASE_PROJECT_ID;
-  const notExpired = claims.exp > now;
-  const isAdmin = ADMIN_EMAILS.includes(claims.email);
-
-  if (!validIss || !validAud || !notExpired || !isAdmin) {
-    console.error(`[admin/session] Token check failed: iss=${validIss} aud=${validAud} exp=${notExpired} admin=${isAdmin}`);
+  if (!ADMIN_EMAILS.includes(claims.email as string)) {
+    console.error(`[admin/session] Not an admin email: ${claims.email}`);
     return new Response('Unauthorized', { status: 401 });
   }
 

@@ -6,6 +6,7 @@ import { waitUntil } from '@vercel/functions';
 const NOTION_TOKEN         = import.meta.env.NOTION_TOKEN;
 const NOTION_CRM_DB_ID     = '872bd20eee31468f91bed1cd472e157a';
 const BREVO_API_KEY        = import.meta.env.BREVO_API_KEY;
+const TALLY_WEBHOOK_SECRET = import.meta.env.TALLY_WEBHOOK_SECRET;
 
 const BREVO_LIST_EVENTS = 6;
 const TEMPLATE_CT_MASTERMIND_APPLICATION = 30;
@@ -183,6 +184,10 @@ async function createNotionEntry(data: {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  if (!TALLY_WEBHOOK_SECRET) return new Response('Server misconfiguration', { status: 500 });
+  const sig = request.headers.get('tally-webhook-secret');
+  if (sig !== TALLY_WEBHOOK_SECRET) return new Response('Unauthorized', { status: 401 });
+
   let payload: any;
   try { payload = await request.json(); } catch { return new Response('Invalid JSON', { status: 400 }); }
 

@@ -45,8 +45,8 @@ const NOISE = (id: string) => `
     <div class="hero-eyebrow reveal">Africa's Private Members Club</div>
     <h1 class="hero-title reveal d1">PRIVATE<br />VICTORIES<br /><span class="lt">CLUB</span></h1>
     <p class="hero-tagline reveal d2">Build in private. Win in public.</p>
-    <p class="hero-line reveal d3">Africa's private network for entrepreneurs scaling their businesses.</p>
-    <a href="#doors" class="cta-btn reveal d4">Apply for Membership</a>
+    <p class="hero-line reveal d3">Africa's private network for founders scaling their businesses. The room changes everything.</p>
+    <a href="#" class="cta-btn reveal d4 apply-trigger">Apply for Membership</a>
     <div class="cta-note reveal d4">By application only.</div>
   </div>
 
@@ -98,24 +98,26 @@ const NOISE = (id: string) => `
   </div>
 </section>
 
-<!-- ═══ 02 · THE FOUNDER ═══ -->
-<section id="founder" data-screen-label="02 Founder">
-  <div class="founder-inner">
-    <div class="founder-portrait reveal">
-      <img src="/images/founder-portrait.jpg" alt="Lliam Humphrey, founder of Private Victories Club" />
-    </div>
-    <div>
-      <div class="founder-label reveal d1">02 · The Founder</div>
-      <div class="founder-story">
-        <p class="reveal d1">I didn't want to do this alone.</p>
-        <p class="reveal d2">The journey gets lonely. But I noticed something. Having people next to you who are winning makes you work harder. And having people ahead of you who've already figured it out shows you how far you can actually go.</p>
-        <p class="reveal d3">I'm 20. I'm a student. I'm building multiple things simultaneously. And I built PVC because I needed this room to exist and it didn't.</p>
-        <p class="reveal d4">The ones ahead of me showed me what was possible. The ones next to me made me push harder. All while actually enjoying it.</p>
-        <p class="reveal d4">That's what money can't buy. And that's why I built <em>PVC</em>.</p>
+<!-- ═══ 02 · THE THREE PILLARS ═══ -->
+<section id="pillars" data-screen-label="02 Pillars">
+  <div class="pillars-inner">
+    <div class="section-label reveal"><span class="section-num">02</span> What PVC is built on</div>
+    <h2 class="pillars-headline reveal d1">Three things that <em>actually</em> move the needle.</h2>
+    <div class="pillars-grid">
+      <div class="pillar reveal d1">
+        <div class="pillar-num">01</div>
+        <div class="pillar-title">The Network</div>
+        <p class="pillar-body">A private, curated community of founders who are actually building. Real conversation, genuine accountability, and connections that compound over time. Not a group chat. A room that stays.</p>
       </div>
-      <div class="founder-sign reveal d4">
-        <span class="founder-sign-name">Lliam Humphrey</span>
-        <span class="founder-sign-role">Founder</span>
+      <div class="pillar reveal d2">
+        <div class="pillar-num">02</div>
+        <div class="pillar-title">The Masterclasses</div>
+        <p class="pillar-body">Operators who have actually built, not theorists who've read about it. Board Q&As and masterclasses where you can ask the real questions to people who've already figured it out.</p>
+      </div>
+      <div class="pillar reveal d3">
+        <div class="pillar-num">03</div>
+        <div class="pillar-title">The Board</div>
+        <p class="pillar-body">Access to operators ahead of you who can see around corners you can't yet. People who've already solved the problems you're facing right now, willing to share the shortcut.</p>
       </div>
     </div>
   </div>
@@ -159,98 +161,152 @@ const NOISE = (id: string) => `
   </div>
 </section>
 
-<!-- ═══ 04 · THE PROOF ═══ -->
-<section id="proof" data-screen-label="04 The Proof">
-  <div class="proof-inner">
-    <div class="section-label reveal"><span class="section-num">04</span> The Proof</div>
-    <h2 class="proof-headline reveal d1">172 applications. 15 seats. <em class="serif">One table.</em></h2>
-    <p class="proof-body reveal d2">On August 8th we ran our founding dinner. No speakers, no panels, just founders actually talking. By the end of the night, members were planning content shoots, partnerships, and the next trip together. Unprompted.</p>
-    <div class="proof-photo reveal d3">
-      <img src="/images/dinner-table.jpg" alt="PVC Founding Dinner, founders around one table at The Grillhouse" />
-    </div>
-    <div class="proof-quote-wrap reveal d4">
-      <div class="proof-quote-bar"></div>
-      <blockquote class="proof-quote">
-        <p>"I've been to networking events before. All of them were terrible. This is different."</p>
-        <cite>a founder in the room</cite>
-      </blockquote>
-    </div>
-    <p class="proof-closer reveal d5">This wasn't staged. This is what happens when the room is right.</p>
-    <p class="proof-body reveal" style="margin-top:44px;">It didn't stop at one night. The community's been running ever since. Weekly calls, real accountability, members actually connecting, sharing insights, jumping on calls together outside the group. One member needed help with ads, connected same day to someone from our network who could actually help.</p>
-    <p class="proof-closer reveal" style="margin-top:32px; color: var(--silver-light); font-weight: 400;">The dinner was the proof of concept. Every week since has been the proof it's real.</p>
-  </div>
-</section>
-
-<!-- ═══ 05 · BECOME A MEMBER ═══ -->
-<section id="doors" data-screen-label="05 The Club">
+<!-- ═══ 04 · WHAT YOU GET ═══ -->
+<section id="access" data-screen-label="04 Access">
   <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('n5')} />
-  <div class="member-inner">
-    <div class="section-label reveal"><span class="section-num">05</span> Membership</div>
-    <h2 class="member-headline reveal d1">Become a <em>Member.</em></h2>
-    <div class="member-card reveal d2">
-
-      <div class="member-card-left">
-        <div class="member-badge">Inside</div>
-        <div class="member-card-title">ROOM 01.</div>
-        <div class="member-card-hint">Enter.</div>
-        <div class="member-card-wm" aria-hidden="true">PVC</div>
+  <div class="access-inner">
+    <div class="access-top">
+      <div>
+        <div class="section-label reveal"><span class="section-num">04</span> Membership</div>
+        <h2 class="access-headline reveal d1">What you get <em>access to.</em></h2>
       </div>
-
-      <div class="member-card-right">
-        <ul class="member-list">
-          <li class="member-list-item">
-            <span class="mli-num">01</span>
-            <span class="mli-text">Members-only WhatsApp community, live around the clock</span>
-          </li>
-          <li class="member-list-item">
-            <span class="mli-num">02</span>
-            <span class="mli-text">Weekly community calls with founders you're building alongside</span>
-          </li>
-          <li class="member-list-item">
-            <span class="mli-num">03</span>
-            <span class="mli-text">Board Q&amp;As and masterclasses, led by operators not theorists</span>
-          </li>
-          <li class="member-list-item">
-            <span class="mli-num">04</span>
-            <span class="mli-text">Founder dinners and curated events (172 applications, 15 seats)</span>
-          </li>
-          <li class="member-list-item">
-            <span class="mli-num">05</span>
-            <span class="mli-text">Talent Network: vetted editors, videographers, and sales reps</span>
-          </li>
-          <li class="member-list-item">
-            <span class="mli-num">06</span>
-            <span class="mli-text">Resource library and recordings, every masterclass on file</span>
-          </li>
-        </ul>
-        <div class="member-card-cta">
-          <a href="#" class="cta-btn member-cta-btn apply-trigger">Apply for Membership</a>
-          <span class="member-cta-meta">Membership<br />Applications reviewed manually</span>
+      <p class="access-sub reveal d2">Everything inside is designed to accelerate what you're already building. No fluff, no filler. The things that actually move the needle.</p>
+    </div>
+    <div class="access-grid">
+      <div class="access-item reveal d1">
+        <span class="access-num">01</span>
+        <div class="access-text">
+          Members-only community
+          <span>Private network of vetted founders, active around the clock. Real conversation, genuine accountability.</span>
         </div>
       </div>
-
+      <div class="access-item reveal d2">
+        <span class="access-num">02</span>
+        <div class="access-text">
+          Weekly community calls
+          <span>Get on calls with founders who are building alongside you. Momentum is contagious.</span>
+        </div>
+      </div>
+      <div class="access-item reveal d3">
+        <span class="access-num">03</span>
+        <div class="access-text">
+          Board Q&As and masterclasses
+          <span>Led by operators who've actually built, not theorists. Ask the questions you actually need answered.</span>
+        </div>
+      </div>
+      <div class="access-item reveal d4">
+        <span class="access-num">04</span>
+        <div class="access-text">
+          Founder dinners and curated events
+          <span>Private rooms with people who are serious about building. These are where the real connections happen.</span>
+        </div>
+      </div>
+      <div class="access-item reveal d4">
+        <span class="access-num">05</span>
+        <div class="access-text">
+          Talent network
+          <span>Vetted editors, videographers, and sales reps. People you can actually trust to plug into your business.</span>
+        </div>
+      </div>
+      <div class="access-item reveal d4">
+        <span class="access-num">06</span>
+        <div class="access-text">
+          Resource library
+          <span>Every masterclass recording, every breakdown, all on file. Reference it when you need it.</span>
+        </div>
+      </div>
+    </div>
+    <div class="access-cta reveal">
+      <a href="#" class="cta-btn apply-trigger">Apply for Membership</a>
+      <div class="cta-note">By application only · Applications reviewed manually</div>
     </div>
   </div>
 </section>
 
-<!-- ═══ 06 · THE MISSION ═══ -->
-<section id="mission" data-screen-label="06 Mission">
-  <div class="photo-slot mission-photo">
-    <img src="/images/mission-city.jpg" alt="Modern building with infinity pool at golden hour" />
+<!-- ═══ 05 · EVENTS GALLERY ═══ -->
+<section id="events" data-screen-label="05 Events">
+  <div class="events-inner">
+    <div class="events-header">
+      <div>
+        <div class="section-label reveal"><span class="section-num">05</span> The Proof</div>
+        <h2 class="events-headline reveal d1">What it looks like <em>in the room.</em></h2>
+      </div>
+      <p class="events-sub reveal d2">172 applications. 15 seats. One table. On August 8th we ran our founding dinner. No speakers, no panels. Just founders actually talking. By the end of the night, members were planning content shoots, partnerships, and the next trip together. Unprompted.</p>
+    </div>
+    <div class="events-grid reveal d1">
+      <div class="event-photo">
+        <img src="/images/dinner-atmosphere-final.jpg" alt="PVC founding dinner atmosphere" />
+      </div>
+      <div class="event-photo">
+        <img src="/images/dinner-venue-final.jpg" alt="PVC dinner venue" />
+      </div>
+      <div class="event-photo">
+        <img src="/images/dinner-table.jpg" alt="Founders around the table at the PVC founding dinner" />
+      </div>
+    </div>
+    <div class="events-quote reveal d2">
+      <p>"I've been to networking events before. All of them were terrible. This is different."</p>
+      <cite>A founder in the room · PVC Founding Dinner, August 2025</cite>
+    </div>
   </div>
-  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:5" set:html={NOISE('n7')} />
-  <div class="mission-inner">
-    <div class="section-label mission-label reveal"><span class="section-num">06</span> The Mission</div>
-    <h2 class="mission-headline reveal d1">We exist to accelerate <span>more winners in Africa.</span></h2>
-    <p class="mission-body reveal d2">Built in Africa, for the people building it. <b>Open to anyone dialled in, from anywhere.</b> The standard is the only filter. Every member who wins pulls the next one further.</p>
-    <p class="mission-signal reveal d3">Built in Africa. The rest is coming.</p>
+</section>
+
+<!-- ═══ 06 · TESTIMONIALS ═══ -->
+<section id="testimonials" data-screen-label="06 Testimonials">
+  <div class="testimonials-inner">
+    <div class="section-label testimonials-label reveal"><span class="section-num">06</span> From the members</div>
+    <div class="testimonials-grid">
+      <div class="testimonial reveal d1">
+        <p class="testimonial-quote">The connections I made at the first dinner alone were worth more than a year of cold outreach. These are people who actually want to see you win.</p>
+        <div class="testimonial-meta">
+          <div class="testimonial-name">PVC Member</div>
+          <div class="testimonial-role">Cape Town</div>
+        </div>
+      </div>
+      <div class="testimonial reveal d2">
+        <p class="testimonial-quote">One intro from the network and I closed a partnership I'd been chasing for months. This is what being in the right room does.</p>
+        <div class="testimonial-meta">
+          <div class="testimonial-name">PVC Member</div>
+          <div class="testimonial-role">Johannesburg</div>
+        </div>
+      </div>
+      <div class="testimonial reveal d3">
+        <p class="testimonial-quote">First week in. Already on a call with someone two steps ahead of me who gave me clarity on a problem I'd been sitting with for weeks.</p>
+        <div class="testimonial-meta">
+          <div class="testimonial-name">PVC Member</div>
+          <div class="testimonial-role">Nairobi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 07 · THE FOUNDER ═══ -->
+<section id="founder" data-screen-label="07 Founder">
+  <div class="founder-inner">
+    <div class="founder-portrait reveal">
+      <img src="/images/founder-portrait.jpg" alt="Lliam Humphrey, founder of Private Victories Club" />
+    </div>
+    <div>
+      <div class="founder-label reveal d1">The Founder</div>
+      <div class="founder-story">
+        <p class="reveal d1">I didn't want to do this alone.</p>
+        <p class="reveal d2">The journey gets lonely. But I noticed something. Having people next to you who are winning makes you work harder. And having people ahead of you who've already figured it out shows you how far you can actually go.</p>
+        <p class="reveal d3">I'm 20. I'm a student. I'm building multiple things simultaneously. And I built PVC because I needed this room to exist and it didn't.</p>
+        <p class="reveal d4">The ones ahead of me showed me what was possible. The ones next to me made me push harder. All while actually enjoying it.</p>
+        <p class="reveal d4">That's what money can't buy. And that's why I built <em>PVC</em>.</p>
+      </div>
+      <div class="founder-sign reveal d4">
+        <span class="founder-sign-name">Lliam Humphrey</span>
+        <span class="founder-sign-role">Founder</span>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ═══ FAQ ═══ -->
 <section id="faq" data-screen-label="FAQ">
   <div class="faq-inner">
-    <div class="section-label reveal">FAQ</div>
     <div class="faq-header">
       <h2 class="faq-label reveal d1">Common<br /><em>Questions.</em></h2>
       <p class="faq-intro reveal d1">Everything you need to know about membership, how it works, and who it's for.</p>
@@ -262,7 +318,7 @@ const NOISE = (id: string) => `
           <span class="faq-icon">+</span>
         </button>
         <div class="faq-answer">
-          <p>It starts with a real conversation, we get on a call, understand where you're at, what you're building, what your goals are, and what's actually in your way. From there we plug you into the network and make your first introduction to a member or board operator who can directly help with what you're working on right now. You're in the community, the masterclasses, and the calls before your first week is out. You get real value before you've had time to wonder if this was worth it.</p>
+          <p>It starts with a real conversation. We get on a call, understand where you're at, what you're building, what your goals are, and what's actually in your way. From there we plug you into the network and make your first introduction to a member or board operator who can directly help with what you're working on right now. You're in the community, the masterclasses, and the calls before your first week is out. You get real value before you've had time to wonder if this was worth it.</p>
         </div>
       </div>
       <div class="faq-item reveal d2">
@@ -374,13 +430,6 @@ const NOISE = (id: string) => `
   setTimeout(() => {
     document.querySelectorAll('#hero .reveal').forEach((el) => el.classList.add('visible'));
   }, 120);
-
-  // Member card reveal
-  const memberCard = document.querySelector('.member-card');
-  const memberLeft = document.querySelector('.member-card-left');
-  memberLeft?.addEventListener('click', () => {
-    if (!memberCard?.classList.contains('open')) memberCard?.classList.add('open');
-  });
 
   // Tally page-change fade animation
   window.addEventListener('message', (e) => {

@@ -100,25 +100,41 @@ const NOISE = (id: string) => `
 
 <!-- ═══ 02 · THE THREE PILLARS ═══ -->
 <section id="pillars" data-screen-label="02 Pillars">
-  <div class="pillars-inner">
+  <div class="pillars-header">
     <div class="section-label reveal"><span class="section-num">02</span> What PVC is built on</div>
     <h2 class="pillars-headline reveal d1">Three things that <em>actually</em> move the needle.</h2>
-    <div class="pillars-grid">
-      <div class="pillar reveal d1">
-        <div class="pillar-num">01</div>
-        <div class="pillar-title">The Network</div>
-        <p class="pillar-body">A private, curated community of founders who are actually building. Real conversation, genuine accountability, and connections that compound over time. Not a group chat. A room that stays.</p>
-      </div>
-      <div class="pillar reveal d2">
-        <div class="pillar-num">02</div>
-        <div class="pillar-title">The Masterclasses</div>
-        <p class="pillar-body">Operators who have actually built, not theorists who've read about it. Board Q&As and masterclasses where you can ask the real questions to people who've already figured it out.</p>
-      </div>
-      <div class="pillar reveal d3">
-        <div class="pillar-num">03</div>
-        <div class="pillar-title">The Board</div>
-        <p class="pillar-body">Access to operators ahead of you who can see around corners you can't yet. People who've already solved the problems you're facing right now, willing to share the shortcut.</p>
-      </div>
+  </div>
+
+  <div class="pillar-split reveal">
+    <div class="pillar-split-photo">
+      <img src="/images/dinner-atmosphere-final.jpg" alt="PVC founders at a private dinner" />
+    </div>
+    <div class="pillar-split-content">
+      <div class="pillar-num">01</div>
+      <div class="pillar-title">The Network</div>
+      <p class="pillar-body">A private, curated community of founders who are actually building. Real conversation, genuine accountability, and connections that compound over time. Not a group chat. A room that stays.</p>
+    </div>
+  </div>
+
+  <div class="pillar-split pillar-split-reverse reveal">
+    <div class="pillar-split-photo">
+      <img src="/images/dinner-venue-final.jpg" alt="PVC private dinner venue" />
+    </div>
+    <div class="pillar-split-content">
+      <div class="pillar-num">02</div>
+      <div class="pillar-title">The Masterclasses</div>
+      <p class="pillar-body">Operators who have actually built, not theorists who've read about it. Board Q&amp;As and masterclasses where you can ask the real questions to people who've already figured it out.</p>
+    </div>
+  </div>
+
+  <div class="pillar-split reveal">
+    <div class="pillar-split-photo">
+      <img src="/images/dinner-table.jpg" alt="Founders around the dinner table" />
+    </div>
+    <div class="pillar-split-content">
+      <div class="pillar-num">03</div>
+      <div class="pillar-title">The Board</div>
+      <p class="pillar-body">Access to operators ahead of you who can see around corners you can't yet. People who've already solved the problems you're facing right now, willing to share the shortcut.</p>
     </div>
   </div>
 </section>
@@ -164,61 +180,50 @@ const NOISE = (id: string) => `
 <!-- ═══ 04 · WHAT YOU GET ═══ -->
 <section id="access" data-screen-label="04 Access">
   <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('n5')} />
-  <div class="access-inner">
-    <div class="access-top">
-      <div>
-        <div class="section-label reveal"><span class="section-num">04</span> Membership</div>
-        <h2 class="access-headline reveal d1">What you get <em>access to.</em></h2>
+  <div class="member-inner">
+    <div class="section-label reveal"><span class="section-num">04</span> Membership</div>
+    <h2 class="member-headline reveal d1">Become a <em>Member.</em></h2>
+    <div class="member-card reveal d2">
+
+      <div class="member-card-left">
+        <div class="member-badge">Inside</div>
+        <div class="member-card-title">ROOM 01.</div>
+        <div class="member-card-wm" aria-hidden="true">PVC</div>
       </div>
-      <p class="access-sub reveal d2">Everything inside is designed to accelerate what you're already building. No fluff, no filler. The things that actually move the needle.</p>
-    </div>
-    <div class="access-grid">
-      <div class="access-item reveal d1">
-        <span class="access-num">01</span>
-        <div class="access-text">
-          Members-only community
-          <span>Private network of vetted founders, active around the clock. Real conversation, genuine accountability.</span>
+
+      <div class="member-card-right">
+        <ul class="member-list">
+          <li class="member-list-item">
+            <span class="mli-num">01</span>
+            <span class="mli-text">Members-only community, live around the clock</span>
+          </li>
+          <li class="member-list-item">
+            <span class="mli-num">02</span>
+            <span class="mli-text">Weekly community calls with founders you're building alongside</span>
+          </li>
+          <li class="member-list-item">
+            <span class="mli-num">03</span>
+            <span class="mli-text">Board Q&amp;As and masterclasses, led by operators not theorists</span>
+          </li>
+          <li class="member-list-item">
+            <span class="mli-num">04</span>
+            <span class="mli-text">Founder dinners and curated events</span>
+          </li>
+          <li class="member-list-item">
+            <span class="mli-num">05</span>
+            <span class="mli-text">Talent Network: vetted editors, videographers, and sales reps</span>
+          </li>
+          <li class="member-list-item">
+            <span class="mli-num">06</span>
+            <span class="mli-text">Resource library and recordings, every masterclass on file</span>
+          </li>
+        </ul>
+        <div class="member-card-cta">
+          <a href="#" class="cta-btn apply-trigger">Apply for Membership</a>
+          <span class="member-cta-meta">By application only<br />Applications reviewed manually</span>
         </div>
       </div>
-      <div class="access-item reveal d2">
-        <span class="access-num">02</span>
-        <div class="access-text">
-          Weekly community calls
-          <span>Get on calls with founders who are building alongside you. Momentum is contagious.</span>
-        </div>
-      </div>
-      <div class="access-item reveal d3">
-        <span class="access-num">03</span>
-        <div class="access-text">
-          Board Q&As and masterclasses
-          <span>Led by operators who've actually built, not theorists. Ask the questions you actually need answered.</span>
-        </div>
-      </div>
-      <div class="access-item reveal d4">
-        <span class="access-num">04</span>
-        <div class="access-text">
-          Founder dinners and curated events
-          <span>Private rooms with people who are serious about building. These are where the real connections happen.</span>
-        </div>
-      </div>
-      <div class="access-item reveal d4">
-        <span class="access-num">05</span>
-        <div class="access-text">
-          Talent network
-          <span>Vetted editors, videographers, and sales reps. People you can actually trust to plug into your business.</span>
-        </div>
-      </div>
-      <div class="access-item reveal d4">
-        <span class="access-num">06</span>
-        <div class="access-text">
-          Resource library
-          <span>Every masterclass recording, every breakdown, all on file. Reference it when you need it.</span>
-        </div>
-      </div>
-    </div>
-    <div class="access-cta reveal">
-      <a href="#" class="cta-btn apply-trigger">Apply for Membership</a>
-      <div class="cta-note">By application only · Applications reviewed manually</div>
+
     </div>
   </div>
 </section>

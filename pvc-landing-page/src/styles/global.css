@@ -305,8 +305,8 @@ nav.scrolled {
 }
 
 .member-card-title {
-  font-size: clamp(32px, 4vw, 52px); font-weight: 800; letter-spacing: -2.5px;
-  text-transform: uppercase; color: var(--blush-ink); line-height: 0.9; margin-bottom: auto;
+  font-size: clamp(26px, 2.8vw, 40px); font-weight: 800; letter-spacing: -2px;
+  text-transform: uppercase; color: var(--blush-ink); line-height: 0.95; margin-bottom: auto;
 }
 
 .member-card-wm {

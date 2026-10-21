@@ -34,7 +34,7 @@ const NOISE = (id: string) => `
       <div class="nav-lock-2">A private network for entrepreneurs building meaningful businesses.</div>
     </div>
   </a>
-  <a href="#" class="nav-apply apply-trigger">Apply for Membership</a>
+  <a href="#access" class="nav-apply scroll-to-membership">Apply for Membership</a>
 </nav>
 
 <!-- ═══ HERO ═══ -->
@@ -51,7 +51,7 @@ const NOISE = (id: string) => `
     <h1 class="hero-title reveal d1">PRIVATE<br />VICTORIES<br /><span class="lt">CLUB</span></h1>
     <p class="hero-tagline reveal d2">Build in private. Win in public.</p>
     <p class="hero-line reveal d3">A private network for entrepreneurs building meaningful businesses across Africa.</p>
-    <a href="#" class="cta-btn reveal d4 apply-trigger">Apply for Membership</a>
+    <a href="#access" class="cta-btn reveal d4 scroll-to-membership">Apply for Membership</a>
     <div class="cta-note reveal d4">By application only.</div>
   </div>
 
@@ -96,6 +96,37 @@ const NOISE = (id: string) => `
     </div>
   </div>
 </section>
+
+<!-- ═══ INDUSTRY TICKER ═══ -->
+<div class="industry-ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="ticker-item">E-Commerce</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Software</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Real Estate</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Sales &amp; Agency</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Content &amp; Media</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Finance</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Health &amp; Wellness</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Logistics</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Consulting</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Tech Startups</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Events &amp; Hospitality</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Marketing</span><span class="ticker-dot">·</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item">E-Commerce</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Software</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Real Estate</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Sales &amp; Agency</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Content &amp; Media</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Finance</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Health &amp; Wellness</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Logistics</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Consulting</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Tech Startups</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Events &amp; Hospitality</span><span class="ticker-dot">·</span>
+    <span class="ticker-item">Marketing</span><span class="ticker-dot">·</span>
+  </div>
+</div>
 
 <!-- ═══ 02 · THE THREE PILLARS ═══ -->
 <section id="pillars" data-screen-label="02 Pillars">
@@ -642,6 +673,10 @@ const NOISE = (id: string) => `
   };
   const closeModal = () => { modal?.classList.remove('open'); document.body.style.overflow = ''; };
   document.querySelectorAll('.apply-trigger').forEach((btn) => btn.addEventListener('click', openModal));
+  document.querySelectorAll('.scroll-to-membership').forEach((btn) => btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('access')?.scrollIntoView({ behavior: 'smooth' });
+  }));
   modalOverlay?.addEventListener('click', closeModal);
   modalClose?.addEventListener('click', closeModal);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });

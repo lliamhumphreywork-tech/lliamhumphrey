@@ -92,29 +92,32 @@ nav.scrolled {
 /* ═══════════ HERO ═══════════ */
 #hero {
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 55% 45%;
+  position: relative;
   background: var(--pure-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .hero-top-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--plum); z-index: 10; }
-.hero-left {
-  padding: 120px 80px 100px;
-  display: flex; flex-direction: column; justify-content: center;
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0; overflow: hidden;
+}
+.hero-bg img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  filter: contrast(1.05) saturate(0.7) brightness(0.6);
+  object-position: center top;
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.7) 100%);
+}
+.hero-content {
   position: relative; z-index: 4;
-  background: var(--pure-black);
-  border-right: 1px solid rgba(196,184,192,0.07);
-}
-.hero-right {
-  position: relative;
-  overflow: hidden;
-  background: var(--charcoal-mid);
-}
-#hero .hero-photo::after {
-  content: ''; position: absolute; inset: 0; z-index: 2;
-  background:
-    linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.55) 100%),
-    radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.45) 100%);
-  pointer-events: none;
+  text-align: center;
+  padding: 160px 48px 120px;
+  max-width: 860px;
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center;
 }
 .hero-float-card {
   position: absolute; bottom: 52px; right: 44px; z-index: 6;
@@ -142,11 +145,11 @@ nav.scrolled {
   font-size: clamp(18px, 1.8vw, 24px); color: rgba(232,224,230,0.65); letter-spacing: 0.3px; margin-bottom: 20px;
 }
 .hero-line {
-  max-width: 380px; margin-bottom: 48px; font-size: 15px;
-  font-weight: 300; color: rgba(196,184,192,0.55); line-height: 1.75;
+  max-width: 480px; margin-bottom: 48px; font-size: 15px;
+  font-weight: 300; color: rgba(196,184,192,0.6); line-height: 1.75;
 }
 .hero-scroll {
-  position: absolute; bottom: 34px; left: 27.5%; transform: translateX(-50%); z-index: 6;
+  position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%); z-index: 6;
   font-size: 8.5px; letter-spacing: 4px; text-transform: uppercase; color: var(--lavender-dim);
   display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
@@ -643,9 +646,6 @@ footer {
   .criteria { grid-template-columns: repeat(2, 1fr); }
   .testimonials-grid { grid-template-columns: 1fr; }
   .events-video-strip { grid-template-columns: repeat(3, 1fr); }
-  .events-grid { grid-template-columns: repeat(2, 1fr); }
-  .events-grid .event-photo:first-child { grid-column: span 2; }
-  .events-grid .event-photo:last-child { display: none; }
 }
 
 @media (max-width: 880px) {
@@ -664,19 +664,15 @@ footer {
   .pvc-modal { padding: 12px; align-items: flex-end; }
   .pvc-modal-panel { padding: 20px; max-height: 92vh; border-radius: 24px 24px 16px 16px; }
   .pvc-modal-close { width: 44px; height: 44px; top: 16px; right: 16px; }
-  #hero { grid-template-columns: 1fr; grid-template-rows: 45vh auto; min-height: auto; }
-  .hero-right { order: -1; height: 45vh; }
+  #hero { min-height: 100vh; }
   .hero-float-card { display: none; }
-  .hero-left { padding: 56px 24px 80px; }
-  .hero-scroll { left: 50%; position: relative; bottom: auto; transform: none; margin: 32px auto 0; }
+  .hero-content { padding: 140px 24px 100px; }
+  .hero-scroll { left: 50%; position: absolute; bottom: 34px; transform: translateX(-50%); margin: 0; }
   .premise-inner { grid-template-columns: 1fr; }
   .premise-stats { border-left: none; padding-left: 0; border-top: 1px solid rgba(196,184,192,0.07); padding-top: 44px; }
   .premise-body { gap: 18px; }
   .testimonials-grid { grid-template-columns: 1fr; }
   .events-video-strip { grid-template-columns: repeat(3, 1fr); }
-  .events-grid { grid-template-columns: 1fr; }
-  .events-grid .event-photo:first-child { grid-column: span 1; }
-  .events-grid .event-photo:last-child { display: block; }
   .pillar-split { grid-template-columns: 1fr; min-height: auto; }
   .pillar-split-photo { aspect-ratio: 16/9; }
   .pillar-split-reverse .pillar-split-photo { order: 0; }

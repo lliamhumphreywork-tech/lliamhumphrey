@@ -40,8 +40,13 @@ const NOISE = (id: string) => `
 <!-- ═══ HERO ═══ -->
 <section id="hero" data-screen-label="Hero">
   <div class="hero-top-bar"></div>
+  <div class="hero-bg">
+    <img src="/images/hero-bg.jpg" alt="PVC members at the Cape Town Mastermind" />
+    <div class="hero-overlay"></div>
+    <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('n1')} />
+  </div>
 
-  <div class="hero-left">
+  <div class="hero-content">
     <div class="hero-eyebrow reveal">A Private Entrepreneurial Network</div>
     <h1 class="hero-title reveal d1">PRIVATE<br />VICTORIES<br /><span class="lt">CLUB</span></h1>
     <p class="hero-tagline reveal d2">Build in private. Win in public.</p>
@@ -50,15 +55,9 @@ const NOISE = (id: string) => `
     <div class="cta-note reveal d4">By application only.</div>
   </div>
 
-  <div class="hero-right">
-    <div class="photo-slot hero-photo">
-      <img src="/images/hero-skyline.jpg" alt="Modern city skyline lit up at night" />
-    </div>
-    <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:5" set:html={NOISE('n1')} />
-    <div class="hero-float-card">
-      <div class="hero-float-eyebrow">The premise</div>
-      <div class="hero-float-text">The room you're in determines how far you go. The right people show you what's possible and make you push harder.</div>
-    </div>
+  <div class="hero-float-card">
+    <div class="hero-float-eyebrow">The premise</div>
+    <div class="hero-float-text">The room you're in determines how far you go. The right people show you what's possible and make you push harder.</div>
   </div>
 
   <div class="hero-scroll reveal d5">
@@ -107,7 +106,7 @@ const NOISE = (id: string) => `
 
   <div class="pillar-split reveal">
     <div class="pillar-split-photo">
-      <img src="/images/dinner-atmosphere-final.jpg" alt="PVC founders at a private dinner" />
+      <img src="/images/pillar-network.jpg" alt="PVC founders at the dinner table" />
     </div>
     <div class="pillar-split-content">
       <div class="pillar-num">01</div>
@@ -118,7 +117,7 @@ const NOISE = (id: string) => `
 
   <div class="pillar-split pillar-split-reverse reveal">
     <div class="pillar-split-photo">
-      <img src="/images/dinner-venue-final.jpg" alt="PVC private dinner venue" />
+      <img src="/images/pillar-experience.jpg" alt="PVC members at the Cape Town beach" />
     </div>
     <div class="pillar-split-content">
       <div class="pillar-num">02</div>
@@ -129,7 +128,7 @@ const NOISE = (id: string) => `
 
   <div class="pillar-split reveal">
     <div class="pillar-split-photo">
-      <img src="/images/dinner-table.jpg" alt="Founders around the dinner table" />
+      <img src="/images/pillar-opportunity.jpg" alt="Founders at the PVC dinner" />
     </div>
     <div class="pillar-split-content">
       <div class="pillar-num">03</div>
@@ -255,18 +254,7 @@ const NOISE = (id: string) => `
         </video>
       </div>
     </div>
-    <div class="events-grid reveal d2">
-      <div class="event-photo">
-        <img src="/images/dinner-atmosphere-final.jpg" alt="PVC founding dinner atmosphere" />
-      </div>
-      <div class="event-photo">
-        <img src="/images/dinner-venue-final.jpg" alt="PVC dinner venue" />
-      </div>
-      <div class="event-photo">
-        <img src="/images/dinner-table.jpg" alt="Founders around the table at the PVC founding dinner" />
-      </div>
-    </div>
-    <div class="events-quote reveal d3">
+    <div class="events-quote reveal d2">
       <p>"I've been to networking events before. All of them were terrible. This is different."</p>
       <cite>A founder in the room · PVC Founding Dinner, August 2025</cite>
     </div>

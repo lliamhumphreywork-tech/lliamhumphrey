@@ -38,6 +38,7 @@ export function AdminClient({ members, events }: Props) {
   const [eventForm, setEventForm] = useState({
     title: "",
     description: "",
+    eventType: "event",
     location: "",
     isOnline: false,
     meetingUrl: "",
@@ -49,6 +50,7 @@ export function AdminClient({ members, events }: Props) {
   const [editForm, setEditForm] = useState({
     title: "",
     description: "",
+    eventType: "event",
     location: "",
     isOnline: false,
     meetingUrl: "",
@@ -142,6 +144,7 @@ export function AdminClient({ members, events }: Props) {
     setEditForm({
       title: event.title,
       description: event.description ?? "",
+      eventType: (event as any).eventType ?? "event",
       location: event.location ?? "",
       isOnline: event.isOnline,
       meetingUrl: event.meetingUrl ?? "",
@@ -173,7 +176,7 @@ export function AdminClient({ members, events }: Props) {
         body: JSON.stringify(eventForm),
       })
       setShowEventForm(false)
-      setEventForm({ title: "", description: "", location: "", isOnline: false, meetingUrl: "", startDate: "", endDate: "", coverImage: "" })
+      setEventForm({ title: "", description: "", eventType: "event", location: "", isOnline: false, meetingUrl: "", startDate: "", endDate: "", coverImage: "" })
       router.refresh()
     })
   }
@@ -322,6 +325,13 @@ export function AdminClient({ members, events }: Props) {
                   </button>
                 )}
                 <input style={inputStyle} placeholder="Event title *" value={eventForm.title} onChange={(e) => setEventForm((f) => ({ ...f, title: e.target.value }))} required />
+                <div>
+                  <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 4 }}>Type</label>
+                  <select style={inputStyle} value={eventForm.eventType} onChange={(e) => setEventForm((f) => ({ ...f, eventType: e.target.value }))}>
+                    <option value="event">In-person / online event</option>
+                    <option value="call">Community call</option>
+                  </select>
+                </div>
                 <textarea style={{ ...inputStyle, resize: "vertical", minHeight: 80 }} placeholder="Description" value={eventForm.description} onChange={(e) => setEventForm((f) => ({ ...f, description: e.target.value }))} />
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div>
@@ -379,6 +389,13 @@ export function AdminClient({ members, events }: Props) {
                         </button>
                       )}
                       <input style={inputStyle} placeholder="Event title *" value={editForm.title} onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))} required />
+                      <div>
+                        <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 4 }}>Type</label>
+                        <select style={inputStyle} value={editForm.eventType} onChange={(e) => setEditForm((f) => ({ ...f, eventType: e.target.value }))}>
+                          <option value="event">In-person / online event</option>
+                          <option value="call">Community call</option>
+                        </select>
+                      </div>
                       <textarea style={{ ...inputStyle, resize: "vertical", minHeight: 80 }} placeholder="Description" value={editForm.description} onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))} />
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                         <div>

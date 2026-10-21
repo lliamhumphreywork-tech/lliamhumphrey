@@ -7,45 +7,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  GA
-  VIP
-  ADMIN
-}
-
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified DateTime?
-  name          String?
-  bio           String?
-  avatar        String?
-  role          Role      @default(GA)
-  location      String?
-  website       String?
-  twitter       String?
-  instagram     String?
-  linkedin      String?
-  skills        String?
-  seeking       String?
-  isOnline      Boolean   @default(false)
-  lastSeen      DateTime  @default(now())
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts      Account[]
-  sessions      Session[]
-  posts         Post[]
-  comments      Comment[]
-  reactions     Reaction[]
-  resources     Resource[]     @relation("UserResources")
-  talentEntries ManualTalentEntry[] @relation("ManualTalentEntries")
-  spaceMembers  SpaceMember[]
-  eventRSVPs    EventRSVP[]
-  sentMessages      Message[]      @relation("SentMessages")
-  receivedMessages  Message[]      @relation("ReceivedMessages")
-  notifications     Notification[] @relation("NotificationRecipient")
-  actedNotifications Notification[] @relation("NotificationActor")
+  id                 String              @id @default(cuid())
+  email              String              @unique
+  emailVerified      DateTime?
+  name               String?
+  bio                String?
+  avatar             String?
+  role               Role                @default(GA)
+  location           String?
+  website            String?
+  twitter            String?
+  instagram          String?
+  linkedin           String?
+  isOnline           Boolean             @default(false)
+  lastSeen           DateTime            @default(now())
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  seeking            String?
+  skills             String?
+  accounts           Account[]
+  comments           Comment[]
+  eventRSVPs         EventRSVP[]
+  talentEntries      ManualTalentEntry[] @relation("ManualTalentEntries")
+  receivedMessages   Message[]           @relation("ReceivedMessages")
+  sentMessages       Message[]           @relation("SentMessages")
+  actedNotifications Notification[]      @relation("NotificationActor")
+  notifications      Notification[]      @relation("NotificationRecipient")
+  posts              Post[]
+  reactions          Reaction[]
+  resources          Resource[]          @relation("UserResources")
+  sessions           Session[]
+  spaceMembers       SpaceMember[]
 }
 
 model Account {
@@ -54,15 +47,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -84,49 +76,46 @@ model VerificationToken {
 }
 
 model Space {
-  id           String   @id @default(cuid())
-  name         String
-  slug         String   @unique
-  description  String?
-  emoji        String   @default("💬")
-  coverImage   String?
-  accentColor  String?
-  isPrivate    Boolean  @default(false)
-  vipOnly      Boolean  @default(false)
-  sortOrder    Int      @default(0)
-  createdAt    DateTime @default(now())
-
-  posts   Post[]
-  members SpaceMember[]
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  emoji       String        @default("💬")
+  isPrivate   Boolean       @default(false)
+  vipOnly     Boolean       @default(false)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  accentColor String?
+  coverImage  String?
+  posts       Post[]
+  members     SpaceMember[]
 }
 
 model SpaceMember {
-  id      String   @id @default(cuid())
-  userId  String
-  spaceId String
+  id       String   @id @default(cuid())
+  userId   String
+  spaceId  String
   joinedAt DateTime @default(now())
-
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  space    Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, spaceId])
 }
 
 model Post {
-  id          String   @id @default(cuid())
-  content     String   @db.Text
-  authorId    String
-  spaceId     String?
-  isPinned    Boolean  @default(false)
-  attachments String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
+  id            String         @id @default(cuid())
+  content       String
+  authorId      String
+  spaceId       String?
+  isPinned      Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  attachments   String[]
+  comments      Comment[]
+  notifications Notification[]
   author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   space         Space?         @relation(fields: [spaceId], references: [id])
-  comments      Comment[]
   reactions     Reaction[]
-  notifications Notification[]
 }
 
 model ManualTalentEntry {
@@ -136,7 +125,7 @@ model ManualTalentEntry {
   phone     String?
   skills    String   @default("Sales")
   proof     String?
-  notes     String?  @db.Text
+  notes     String?
   rate      String?
   capacity  String?
   location  String?
@@ -148,28 +137,26 @@ model ManualTalentEntry {
 
 model Resource {
   id           String   @id @default(cuid())
-  type         String   @default("file")  // "file" | "link" | "text"
   title        String
-  description  String?  @db.Text
+  description  String?
   fileUrl      String?
   fileName     String?
   fileType     String?
   fileSize     Int?
   uploadedById String
   createdAt    DateTime @default(now())
-
-  uploadedBy User @relation("UserResources", fields: [uploadedById], references: [id], onDelete: Cascade)
+  type         String   @default("file")
+  uploadedBy   User     @relation("UserResources", fields: [uploadedById], references: [id], onDelete: Cascade)
 }
 
 model Comment {
   id        String   @id @default(cuid())
-  content   String   @db.Text
+  content   String
   authorId  String
   postId    String
   createdAt DateTime @default(now())
-
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
 model Reaction {
@@ -178,26 +165,25 @@ model Reaction {
   userId    String
   postId    String
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId, emoji])
 }
 
 model Event {
-  id          String    @id @default(cuid())
+  id          String      @id @default(cuid())
   title       String
-  description String?   @db.Text
+  description String?
+  eventType   String      @default("event")
   location    String?
-  isOnline    Boolean   @default(false)
+  isOnline    Boolean     @default(false)
   meetingUrl  String?
   coverImage  String?
   startDate   DateTime
   endDate     DateTime?
-  createdAt   DateTime  @default(now())
-
-  rsvps EventRSVP[]
+  createdAt   DateTime    @default(now())
+  rsvps       EventRSVP[]
 }
 
 model EventRSVP {
@@ -205,9 +191,8 @@ model EventRSVP {
   userId    String
   eventId   String
   createdAt DateTime @default(now())
-
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, eventId])
 }
@@ -221,20 +206,24 @@ model Notification {
   postId    String?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
-
-  user  User  @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
-  actor User? @relation("NotificationActor", fields: [actorId], references: [id])
-  post  Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  actor     User?    @relation("NotificationActor", fields: [actorId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Message {
   id         String   @id @default(cuid())
-  content    String   @db.Text
+  content    String
   senderId   String
   receiverId String
   read       Boolean  @default(false)
   createdAt  DateTime @default(now())
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+}
 
-  sender   User @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+enum Role {
+  GA
+  VIP
+  ADMIN
 }

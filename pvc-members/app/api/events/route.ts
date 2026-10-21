@@ -29,6 +29,7 @@ export async function POST(req: Request) {
     data: {
       title: data.title,
       description: data.description || null,
+      eventType: data.eventType ?? "event",
       location: data.location || null,
       isOnline: data.isOnline ?? false,
       meetingUrl: data.meetingUrl || null,

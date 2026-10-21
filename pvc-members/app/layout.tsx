@@ -8,6 +8,14 @@ export const metadata: Metadata = {
     template: "%s — PVC Members",
   },
   description: "Private Victories Club — Africa's private network for founders scaling businesses.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.png", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+  },
 }
 
 export default function RootLayout({

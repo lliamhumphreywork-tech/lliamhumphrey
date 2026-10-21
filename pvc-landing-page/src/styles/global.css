@@ -509,6 +509,53 @@ nav.scrolled {
 .testimonial-name { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--white); }
 .testimonial-role { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--lavender-dim); margin-top: 4px; }
 
+/* ═══════════ PATH ═══════════ */
+#path { background: var(--black); padding: 140px 80px; border-top: 1px solid rgba(196,184,192,0.06); }
+.path-inner {
+  max-width: 1300px; margin: 0 auto;
+  display: grid; grid-template-columns: 360px 1fr; gap: 100px; align-items: start;
+}
+.path-left { position: sticky; top: 80px; }
+.path-eyebrow {
+  font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--lavender-dim); opacity: 0.6; margin-bottom: 28px;
+}
+.path-headline {
+  font-size: clamp(32px, 3.5vw, 50px); font-weight: 700; letter-spacing: -2px;
+  color: var(--white); line-height: 1.05; margin-bottom: 48px;
+}
+.path-headline em { font-family: var(--s); font-style: italic; font-weight: 300; color: var(--lavender); letter-spacing: -0.5px; }
+.path-cta {
+  display: inline-block; background: transparent; color: var(--white);
+  border: 1px solid rgba(196,184,192,0.25); font-size: 10px; font-weight: 600;
+  letter-spacing: 2.5px; text-transform: uppercase; padding: 16px 32px;
+  text-decoration: none; transition: border-color 0.2s, color 0.2s; cursor: pointer;
+}
+.path-cta:hover { border-color: var(--lavender); color: var(--lavender); }
+.path-steps { display: flex; flex-direction: column; }
+.path-step {
+  display: grid; grid-template-columns: 56px 1fr; gap: 28px;
+  padding: 40px 0; border-top: 1px solid rgba(196,184,192,0.06); align-items: start;
+}
+.path-step:last-child { border-bottom: 1px solid rgba(196,184,192,0.06); }
+.path-step-num {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--lavender-dim);
+  opacity: 0.4; padding-top: 6px;
+}
+.path-step-body p {
+  font-family: var(--s); font-size: clamp(15px, 1.5vw, 17px); font-weight: 300;
+  color: rgba(196,184,192,0.65); line-height: 1.8; max-width: 58ch;
+}
+
+@media (max-width: 1100px) {
+  .path-inner { grid-template-columns: 1fr; gap: 64px; }
+  .path-left { position: static; }
+}
+@media (max-width: 768px) {
+  #path { padding: 100px 24px; }
+  .path-step { grid-template-columns: 40px 1fr; gap: 20px; padding: 32px 0; }
+}
+
 /* ═══════════ FOUNDER ═══════════ */
 #founder { background: var(--blush); color: var(--blush-ink); padding: 140px 80px; position: relative; }
 #founder::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--plum); }

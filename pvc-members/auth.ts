@@ -29,6 +29,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       server: "smtp://localhost:25",
       from: process.env.BREVO_FROM_EMAIL ?? "lliam@privatevictoriesclub.com",
       sendVerificationRequest: async ({ identifier: email, url }) => {
+        // Invite-only: only send the magic link if the user already exists in the DB
+        const existing = await db.user.findUnique({ where: { email }, select: { id: true } })
+        if (!existing) return // silently skip — login page still shows "check your inbox"
         await sendMagicLink({ email, url })
       },
     }),

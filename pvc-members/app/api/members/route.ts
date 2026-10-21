@@ -32,7 +32,7 @@ export async function PATCH(req: Request) {
 
   console.log(JSON.stringify({
     event: "role_change",
-    actorId: session.user.id,
+    actorId: session.user?.id,
     targetId: userId,
     oldRole: target?.role,
     newRole,

@@ -225,7 +225,7 @@ nav.scrolled {
 }
 
 /* ═══════════ PILLARS (A-Players style) ═══════════ */
-#pillars { background: var(--charcoal); border-top: 1px solid rgba(196,184,192,0.06); }
+#pillars { background: var(--charcoal); border-top: 1px solid rgba(196,184,192,0.06); padding-bottom: 60px; }
 .pillars-header { padding: 100px 80px 0; max-width: 1300px; margin: 0 auto; }
 .pillars-headline {
   font-size: clamp(36px, 5vw, 64px); font-weight: 700; letter-spacing: -2px;

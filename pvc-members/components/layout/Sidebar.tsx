@@ -78,7 +78,6 @@ export function Sidebar() {
     <aside
       className="sidebar"
       style={{
-        display: "flex",
         flexDirection: "column",
         height: "100%",
         background: "var(--bg-surface)",

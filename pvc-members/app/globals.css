@@ -166,11 +166,6 @@ input, textarea {
     padding-right: 16px !important;
   }
 
-  /* Bottom nav clearance for all scrollable content */
-  main {
-    padding-bottom: 72px !important;
-  }
-
   /* Members grid: 1 column on phone */
   .members-grid {
     grid-template-columns: 1fr !important;
@@ -267,6 +262,9 @@ input, textarea {
 
 /* Active sidebar nav items handled via inline styles */
 
+/* Sidebar base display — must be here so media query can override it */
+.sidebar { display: flex; }
+
 /* No shimmer — clean dark */
 .sidebar::before { display: none; }
 
@@ -278,6 +276,11 @@ input, textarea {
 @media (max-width: 768px) {
   .mobile-nav {
     display: flex;
+    min-height: 60px;
+  }
+  /* Bottom nav clearance including safe area */
+  main {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 

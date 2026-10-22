@@ -6,6 +6,7 @@ const config = {
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
   },
+  generateBuildId: async () => "build-" + Date.now(),
 }
 
 export default config

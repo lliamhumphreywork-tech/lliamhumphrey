@@ -189,6 +189,12 @@ input, textarea {
   .talent-search input {
     width: 100% !important;
   }
+
+  /* Events: stack columns on mobile */
+  .events-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
 }
 
 /* Rich text editor */

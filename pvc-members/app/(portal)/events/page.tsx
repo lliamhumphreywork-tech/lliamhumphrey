@@ -69,7 +69,7 @@ export default async function EventsPage() {
       </div>
 
       {/* Two-column layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+      <div className="events-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
         {/* Left: In-person / online events */}
         <div>
           <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: 15, fontWeight: 700, marginBottom: 16, letterSpacing: "0.02em" }}>

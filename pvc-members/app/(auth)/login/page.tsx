@@ -45,7 +45,7 @@ export default async function LoginPage({
         <LoginForm />
 
         <p style={{ textAlign: "center", marginTop: 32, fontSize: 11, letterSpacing: "0.06em", color: "var(--text-muted)" }}>
-          Access by invitation only.
+          For PVC members only.
         </p>
       </div>
     </div>

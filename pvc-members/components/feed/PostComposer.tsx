@@ -264,7 +264,6 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
             </button>
             <div style={{ flex: 1 }} />
             {error && <span style={{ fontSize: 13, color: "var(--danger)" }}>{error}</span>}
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>⌘+Enter</span>
             <button type="button" onClick={reset}
               style={{
                 padding: "7px 14px", background: "none", border: "1px solid var(--border)",

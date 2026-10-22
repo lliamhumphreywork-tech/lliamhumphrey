@@ -447,7 +447,7 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
               style={{
                 flex: 1, background: "var(--bg-surface)",
                 border: "1px solid var(--border)", borderRadius: "var(--radius-full)",
-                padding: "8px 14px", fontSize: 13, color: "var(--text-primary)",
+                padding: "8px 14px", fontSize: 16, color: "var(--text-primary)",
                 outline: "none", fontFamily: "Plus Jakarta Sans, sans-serif",
               }}
             />

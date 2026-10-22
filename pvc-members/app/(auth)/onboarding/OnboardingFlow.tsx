@@ -4,6 +4,7 @@ import { useState, useTransition, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Camera, Users, Trophy, Calendar, Briefcase, BookOpen } from "lucide-react"
 import { uploadAvatar } from "@/lib/uploadAvatar"
+import { AvatarCropper } from "@/components/ui/AvatarCropper"
 
 const STEPS = ["Welcome", "About you", "Socials", "Your community"]
 
@@ -91,6 +92,7 @@ export function OnboardingFlow({ email }: { email: string }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState("")
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [cropFile, setCropFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [form, setForm] = useState({
@@ -113,19 +115,25 @@ export function OnboardingFlow({ email }: { email: string }) {
     setForm((f) => ({ ...f, [key]: value }))
   }
 
-  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    setCropFile(file)
+    e.target.value = ""
+  }
+
+  async function handleCropConfirm(blob: Blob) {
+    setCropFile(null)
     setUploadingAvatar(true)
     setError("")
     try {
-      const url = await uploadAvatar(file)
+      const croppedFile = new File([blob], "avatar.jpg", { type: "image/jpeg" })
+      const url = await uploadAvatar(croppedFile)
       setForm((f) => ({ ...f, avatar: url }))
     } catch (err) {
       setError(err instanceof Error ? err.message : "Photo upload failed. Try a different image.")
     } finally {
       setUploadingAvatar(false)
-      e.target.value = ""
     }
   }
 
@@ -211,7 +219,11 @@ export function OnboardingFlow({ email }: { email: string }) {
                   >
                     {form.avatar ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={form.avatar} alt="Your photo" className="ob-avatar-img" />
+                      <img
+                        src={form.avatar.includes("blob.vercel-storage.com") && !form.avatar.includes(".public.blob.") ? `/api/img?url=${encodeURIComponent(form.avatar)}` : form.avatar}
+                        alt="Your photo"
+                        className="ob-avatar-img"
+                      />
                     ) : uploadingAvatar ? (
                       <div className="ob-spinner" />
                     ) : (
@@ -318,6 +330,14 @@ export function OnboardingFlow({ email }: { email: string }) {
 
         <p className="ob-footer-note">You can update all of this later in your profile settings.</p>
       </div>
+
+      {cropFile && (
+        <AvatarCropper
+          file={cropFile}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropFile(null)}
+        />
+      )}
 
       <style>{`
         .ob-root {

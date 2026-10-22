@@ -3,6 +3,7 @@
 import { useState, useTransition, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Camera, Users, Trophy, Calendar, Briefcase, BookOpen } from "lucide-react"
+import { uploadAvatar } from "@/lib/uploadAvatar"
 
 const STEPS = ["Welcome", "About you", "Socials", "Your community"]
 
@@ -54,28 +55,6 @@ function FieldInput({
       />
     </div>
   )
-}
-
-async function uploadAvatar(file: File): Promise<string> {
-  const img = new Image()
-  const objectUrl = URL.createObjectURL(file)
-  await new Promise<void>((resolve) => { img.onload = () => resolve(); img.src = objectUrl })
-  const size = Math.min(img.width, img.height, 400)
-  const canvas = document.createElement("canvas")
-  canvas.width = size
-  canvas.height = size
-  const ctx = canvas.getContext("2d")!
-  const sx = (img.width - size) / 2
-  const sy = (img.height - size) / 2
-  ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size)
-  URL.revokeObjectURL(objectUrl)
-  const blob: Blob = await new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/jpeg", 0.88))
-  const fd = new FormData()
-  fd.append("file", blob, "avatar.jpg")
-  const res = await fetch("/api/upload-image", { method: "POST", body: fd })
-  if (!res.ok) throw new Error("Upload failed")
-  const { url } = await res.json()
-  return url
 }
 
 const TOUR_SECTIONS = [
@@ -138,11 +117,12 @@ export function OnboardingFlow({ email }: { email: string }) {
     const file = e.target.files?.[0]
     if (!file) return
     setUploadingAvatar(true)
+    setError("")
     try {
       const url = await uploadAvatar(file)
       setForm((f) => ({ ...f, avatar: url }))
-    } catch {
-      // silent — they can update later in profile
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Photo upload failed. Try a different image.")
     } finally {
       setUploadingAvatar(false)
       e.target.value = ""

@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   MessageCircle, Flame, Dumbbell, HandMetal, Lightbulb, Heart,
-  Plus, Trash2, Paperclip, Download, Pencil, Check, X,
+  Trash2, Paperclip, Download, Pencil, Check, X,
 } from "lucide-react"
 import { Avatar } from "@/components/ui/Avatar"
 import { Badge } from "@/components/ui/Badge"
@@ -32,7 +32,6 @@ type PostCardProps = {
 
 export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps) {
   const [showComments, setShowComments] = useState(false)
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [comment, setComment] = useState("")
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -356,13 +355,12 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
           borderTop: "1px solid var(--border-subtle)",
           display: "flex",
           alignItems: "center",
-          gap: 6,
+          gap: 4,
           flexWrap: "wrap",
         }}
       >
         {REACTIONS.map(({ emoji, label, Icon }) => {
           const { count, reacted } = reactionCounts[emoji]
-          if (count === 0 && !showEmojiPicker) return null
           return (
             <button
               key={emoji}
@@ -370,36 +368,37 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
               title={label}
               style={{
                 display: "flex", alignItems: "center", gap: 4,
-                padding: "3px 9px",
-                background: reacted ? "var(--accent-dim)" : "var(--bg-elevated)",
-                border: `1px solid ${reacted ? "var(--accent)" : "var(--border)"}`,
+                padding: count > 0 ? "4px 10px" : "4px 8px",
+                background: reacted ? "var(--accent-dim)" : count > 0 ? "var(--bg-elevated)" : "transparent",
+                border: `1px solid ${reacted ? "var(--accent)" : count > 0 ? "var(--border)" : "transparent"}`,
                 borderRadius: "var(--radius-full)",
                 cursor: "pointer",
                 color: reacted ? "var(--accent)" : "var(--text-muted)",
-                transition: "all 0.1s",
+                transition: "all 0.15s",
+                opacity: count === 0 && !reacted ? 0.55 : 1,
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget
+                if (!reacted) {
+                  el.style.opacity = "1"
+                  el.style.background = "var(--bg-elevated)"
+                  el.style.borderColor = "var(--border)"
+                }
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget
+                if (!reacted) {
+                  el.style.opacity = count > 0 ? "1" : "0.55"
+                  el.style.background = count > 0 ? "var(--bg-elevated)" : "transparent"
+                  el.style.borderColor = count > 0 ? "var(--border)" : "transparent"
+                }
               }}
             >
-              <Icon size={12} />
+              <Icon size={14} />
               {count > 0 && <span style={{ fontSize: 11, fontWeight: 600, fontFamily: "Plus Jakarta Sans, sans-serif" }}>{count}</span>}
             </button>
           )
         })}
-
-        <button
-          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          title="React"
-          style={{
-            display: "flex", alignItems: "center", padding: "3px 6px",
-            background: showEmojiPicker ? "var(--accent-dim)" : "transparent",
-            border: `1px solid ${showEmojiPicker ? "var(--accent)" : "var(--border)"}`,
-            borderRadius: "var(--radius-full)",
-            cursor: "pointer",
-            color: showEmojiPicker ? "var(--accent)" : "var(--text-muted)",
-            transition: "all 0.1s",
-          }}
-        >
-          <Plus size={12} />
-        </button>
 
         <div style={{ flex: 1 }} />
 

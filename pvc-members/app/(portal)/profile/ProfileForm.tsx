@@ -7,31 +7,10 @@ import { Camera } from "lucide-react"
 import type { User } from "@prisma/client"
 import { Avatar } from "@/components/ui/Avatar"
 import { Badge } from "@/components/ui/Badge"
+import { uploadAvatar } from "@/lib/uploadAvatar"
 
 function broadcastAvatar(src: string) {
   window.dispatchEvent(new CustomEvent("pvc:avatar-updated", { detail: src }))
-}
-
-async function uploadAvatar(file: File): Promise<string> {
-  const img = new Image()
-  const objectUrl = URL.createObjectURL(file)
-  await new Promise<void>((resolve) => { img.onload = () => resolve(); img.src = objectUrl })
-  const size = Math.min(img.width, img.height, 400)
-  const canvas = document.createElement("canvas")
-  canvas.width = size
-  canvas.height = size
-  const ctx = canvas.getContext("2d")!
-  const sx = (img.width - size) / 2
-  const sy = (img.height - size) / 2
-  ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size)
-  URL.revokeObjectURL(objectUrl)
-  const blob: Blob = await new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/jpeg", 0.88))
-  const fd = new FormData()
-  fd.append("file", blob, "avatar.jpg")
-  const res = await fetch("/api/upload-image", { method: "POST", body: fd })
-  if (!res.ok) throw new Error("Avatar upload failed")
-  const { url } = await res.json()
-  return url
 }
 
 const field = {
@@ -70,6 +49,7 @@ export function ProfileForm({ user }: { user: User }) {
     const file = e.target.files?.[0]
     if (!file) return
     setUploadingAvatar(true)
+    setError("")
     try {
       const url = await uploadAvatar(file)
       const res = await fetch("/api/profile", {
@@ -80,7 +60,11 @@ export function ProfileForm({ user }: { user: User }) {
       if (res.ok) {
         setForm((f) => ({ ...f, avatar: url }))
         broadcastAvatar(url)
+      } else {
+        setError("Failed to save photo. Try again.")
       }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Photo upload failed. Try again.")
     } finally {
       setUploadingAvatar(false)
       e.target.value = ""

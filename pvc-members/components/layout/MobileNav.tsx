@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { Home, Users, Calendar, MessageSquare, Grid2x2, X, Trophy, BookOpen, Network } from "lucide-react"
+import { Home, Users, Calendar, MessageSquare, Grid2x2, X, Trophy, BookOpen, Network, MessageCircle } from "lucide-react"
 
 const mainItems = [
   { href: "/feed", icon: Home, label: "Feed" },
@@ -57,6 +57,38 @@ export function MobileNav() {
                 </Link>
               )
             })}
+
+            {/* Arthur partner card */}
+            <div style={{ padding: "8px 16px 4px" }}>
+              <div style={{ height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 8 }} />
+              <a
+                href="https://chat.whatsapp.com/Dkq2UYM0pt45pZMvQWi4u5?mode=gi_t"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setShowSpaces(false)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 12,
+                  padding: "12px 14px",
+                  borderRadius: "var(--radius)",
+                  background: "var(--bg-elevated)",
+                  border: "1px solid var(--border)",
+                  textDecoration: "none",
+                }}
+              >
+                <div style={{
+                  width: 34, height: 34, borderRadius: "50%",
+                  background: "var(--nav-accent-dim)", border: "1px solid var(--nav-accent)",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "var(--nav-accent)", fontFamily: "Syne, sans-serif" }}>A</span>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>Arthur</div>
+                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Financial Advisor</div>
+                </div>
+                <MessageCircle size={15} style={{ color: "var(--nav-accent)", flexShrink: 0 }} />
+              </a>
+            </div>
           </div>
         </>
       )}

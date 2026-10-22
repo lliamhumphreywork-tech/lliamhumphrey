@@ -22,7 +22,8 @@ export async function POST(req: Request) {
     })
     return NextResponse.json({ url: blob.url })
   } catch (err) {
-    console.error("Avatar upload error:", err)
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 })
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error("Avatar upload error:", msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

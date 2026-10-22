@@ -60,11 +60,13 @@ export function ProfileForm({ user }: { user: User }) {
       if (res.ok) {
         setForm((f) => ({ ...f, avatar: url }))
         broadcastAvatar(url)
+        router.refresh()
       } else {
-        setError("Failed to save photo. Try again.")
+        const body = await res.json().catch(() => ({}))
+        setError(body.error ?? "Failed to save photo. Try again.")
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Photo upload failed. Try again.")
+      setError(err instanceof Error ? err.message : "Photo upload failed. Try a different image.")
     } finally {
       setUploadingAvatar(false)
       e.target.value = ""
@@ -162,8 +164,11 @@ export function ProfileForm({ user }: { user: User }) {
               Member since {new Date(user.createdAt).toLocaleDateString("en-ZA", { month: "long", year: "numeric" })}
             </p>
             <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
-              Click your photo to change it
+              {uploadingAvatar ? "Uploading..." : "Click your photo to change it"}
             </p>
+            {error && (
+              <p style={{ fontSize: 13, color: "var(--danger)", marginTop: 6 }}>{error}</p>
+            )}
           </div>
         </div>
       </div>
@@ -250,8 +255,6 @@ export function ProfileForm({ user }: { user: User }) {
           </Row>
         ))}
       </div>
-
-      {error && <p style={{ color: "var(--danger)", fontSize: 14, marginBottom: 12 }}>{error}</p>}
 
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <button

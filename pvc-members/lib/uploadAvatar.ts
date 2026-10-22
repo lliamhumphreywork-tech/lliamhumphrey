@@ -19,7 +19,7 @@ export async function uploadAvatar(file: File): Promise<string> {
   if (!blob) throw new Error("Failed to process image")
   const fd = new FormData()
   fd.append("file", blob, "avatar.jpg")
-  const res = await fetch("/api/upload-image", { method: "POST", body: fd })
+  const res = await fetch("/api/upload-avatar", { method: "POST", body: fd })
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
     throw new Error(body.error ?? "Upload failed")

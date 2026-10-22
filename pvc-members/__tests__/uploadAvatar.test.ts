@@ -90,12 +90,12 @@ describe("uploadAvatar — bug regressions", () => {
     })
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ url: "/api/img?url=https%3A%2F%2Fblob.example.com%2Favatar.jpg" }),
+      json: async () => ({ url: "https://abc.public.blob.vercel-storage.com/avatars/user-123.jpg" }),
     }))
 
     const file = new File(["data"], "photo.jpg", { type: "image/jpeg" })
     const url = await uploadAvatar(file)
-    expect(url).toMatch(/^\/api\/img/)
+    expect(url).toMatch(/public\.blob\.vercel-storage\.com/)
   })
 
   it("falls back to 'Upload failed' when API returns non-ok with no error body", async () => {

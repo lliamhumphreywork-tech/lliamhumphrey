@@ -137,6 +137,10 @@ input, textarea {
   overflow: hidden;
 }
 
+.sidebar {
+  display: flex;
+}
+
 @media (max-width: 1100px) {
   .portal-layout {
     grid-template-columns: var(--sidebar-width) 1fr;
@@ -261,9 +265,6 @@ input, textarea {
 }
 
 /* Active sidebar nav items handled via inline styles */
-
-/* Sidebar base display — must be here so media query can override it */
-.sidebar { display: flex; }
 
 /* No shimmer — clean dark */
 .sidebar::before { display: none; }

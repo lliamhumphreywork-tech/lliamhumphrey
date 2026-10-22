@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import "./globals.css"
 import { SessionProvider } from "@/components/auth/SessionProvider"
+import { AutoUpdater } from "@/components/AutoUpdater"
 
 export const metadata: Metadata = {
   title: {
@@ -26,7 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <AutoUpdater />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   )

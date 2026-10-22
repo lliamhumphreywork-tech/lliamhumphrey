@@ -7,6 +7,7 @@ import { Camera } from "lucide-react"
 import type { User } from "@prisma/client"
 import { Avatar } from "@/components/ui/Avatar"
 import { Badge } from "@/components/ui/Badge"
+import { AvatarCropper } from "@/components/ui/AvatarCropper"
 import { uploadAvatar } from "@/lib/uploadAvatar"
 
 function broadcastAvatar(src: string) {
@@ -40,18 +41,26 @@ export function ProfileForm({ user }: { user: User }) {
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState("")
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [cropFile, setCropFile] = useState<File | null>(null)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const { update: updateSession } = useSession()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    setCropFile(file)
+    e.target.value = ""
+  }
+
+  async function handleCropConfirm(blob: Blob) {
+    setCropFile(null)
     setUploadingAvatar(true)
     setError("")
     try {
-      const url = await uploadAvatar(file)
+      const croppedFile = new File([blob], "avatar.jpg", { type: "image/jpeg" })
+      const url = await uploadAvatar(croppedFile)
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -69,7 +78,6 @@ export function ProfileForm({ user }: { user: User }) {
       setError(err instanceof Error ? err.message : "Photo upload failed. Try a different image.")
     } finally {
       setUploadingAvatar(false)
-      e.target.value = ""
     }
   }
 
@@ -279,6 +287,13 @@ export function ProfileForm({ user }: { user: User }) {
           <span style={{ fontSize: 14, color: "var(--success)" }}>Saved</span>
         )}
       </div>
+      {cropFile && (
+        <AvatarCropper
+          file={cropFile}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropFile(null)}
+        />
+      )}
     </form>
   )
 }

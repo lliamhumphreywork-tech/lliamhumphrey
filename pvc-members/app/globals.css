@@ -137,9 +137,8 @@ input, textarea {
   overflow: hidden;
 }
 
-.sidebar {
-  display: flex;
-}
+.sidebar { display: flex; }
+.right-rail { display: flex; }
 
 @media (max-width: 1100px) {
   .portal-layout {

@@ -41,7 +41,6 @@ export async function RightRail() {
         borderLeft: "1px solid var(--border-subtle)",
         overflow: "auto",
         padding: "24px 16px",
-        display: "flex",
         flexDirection: "column",
         gap: 32,
         minHeight: 0,

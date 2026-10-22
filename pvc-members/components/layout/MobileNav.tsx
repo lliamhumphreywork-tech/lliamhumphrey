@@ -33,7 +33,7 @@ export function MobileNav() {
             style={{ position: "fixed", inset: 0, zIndex: 48, background: "rgba(0,0,0,0.5)" }}
           />
           <div style={{
-            position: "fixed", bottom: 60, left: 0, right: 0, zIndex: 49,
+            position: "fixed", bottom: "calc(60px + env(safe-area-inset-bottom, 0px))", left: 0, right: 0, zIndex: 49,
             background: "var(--bg-surface)", borderTop: "1px solid var(--border)",
             padding: "8px 0 4px",
           }}>

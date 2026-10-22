@@ -106,7 +106,7 @@ export default function TalentNetworkPage() {
                   paddingLeft: 30, paddingRight: 12, paddingTop: 7, paddingBottom: 7,
                   borderRadius: "var(--radius-sm)", border: "1px solid var(--border)",
                   background: "var(--bg-elevated)", color: "var(--text-primary)",
-                  fontSize: 13, outline: "none", width: 200,
+                  fontSize: 16, outline: "none", width: 200,
                 }}
               />
             </div>

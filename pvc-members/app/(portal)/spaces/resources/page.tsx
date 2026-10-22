@@ -166,7 +166,7 @@ export default function ResourcesPage() {
     width: "100%", padding: "8px 12px",
     background: "var(--bg-elevated)", border: "1px solid var(--border)",
     borderRadius: "var(--radius-sm)", color: "var(--text-primary)",
-    fontSize: 13, outline: "none", fontFamily: "Plus Jakarta Sans, sans-serif",
+    fontSize: 16, outline: "none", fontFamily: "Plus Jakarta Sans, sans-serif",
     boxSizing: "border-box",
   }
 

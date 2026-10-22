@@ -271,7 +271,7 @@ export function MessagesClient({
                   border: "1px solid var(--border)",
                   borderRadius: "var(--radius-full)",
                   color: "var(--text-primary)",
-                  fontSize: 14,
+                  fontSize: 16,
                   outline: "none",
                   fontFamily: "Plus Jakarta Sans, sans-serif",
                 }}

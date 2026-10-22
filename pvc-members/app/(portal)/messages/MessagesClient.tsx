@@ -42,6 +42,13 @@ export function MessagesClient({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  // Poll for new messages every 10s when a thread is open
+  useEffect(() => {
+    if (!activePartner) return
+    const interval = setInterval(() => router.refresh(), 10_000)
+    return () => clearInterval(interval)
+  }, [activePartner, router])
+
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault()
     if (!text.trim() || !activePartner) return

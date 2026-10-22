@@ -19,23 +19,20 @@ type TalentEntry = {
   _manual?: boolean
 }
 
-const ROLES: { key: string; label: string; color: string; bg: string; border: string }[] = [
-  { key: "sales",                label: "Sales",     color: "#a78bfa", bg: "rgba(167,139,250,0.10)", border: "rgba(167,139,250,0.25)" },
-  { key: "setter",               label: "Sales",     color: "#a78bfa", bg: "rgba(167,139,250,0.10)", border: "rgba(167,139,250,0.25)" },
-  { key: "closer",               label: "Sales",     color: "#a78bfa", bg: "rgba(167,139,250,0.10)", border: "rgba(167,139,250,0.25)" },
-  { key: "ads",                  label: "Ads",       color: "#fb923c", bg: "rgba(251,146,60,0.10)",  border: "rgba(251,146,60,0.25)"  },
-  { key: "editor",               label: "Editor",    color: "#34d399", bg: "rgba(52,211,153,0.10)",  border: "rgba(52,211,153,0.25)"  },
-  { key: "developer (web etc.)", label: "Dev",       color: "#60a5fa", bg: "rgba(96,165,250,0.10)",  border: "rgba(96,165,250,0.25)"  },
-  { key: "developer",            label: "Dev",       color: "#60a5fa", bg: "rgba(96,165,250,0.10)",  border: "rgba(96,165,250,0.25)"  },
-  { key: "designer",             label: "Design",    color: "#f472b6", bg: "rgba(244,114,182,0.10)", border: "rgba(244,114,182,0.25)" },
-  { key: "copywriter",           label: "Copy",      color: "#fbbf24", bg: "rgba(251,191,36,0.10)",  border: "rgba(251,191,36,0.25)"  },
+const ROLES: { keys: string[]; label: string; color: string; bg: string; border: string }[] = [
+  { keys: ["sales", "setter", "closer"], label: "Sales",  color: "#a78bfa", bg: "rgba(167,139,250,0.10)", border: "rgba(167,139,250,0.25)" },
+  { keys: ["ads"],                       label: "Ads",    color: "#fb923c", bg: "rgba(251,146,60,0.10)",  border: "rgba(251,146,60,0.25)"  },
+  { keys: ["editor"],                    label: "Editor", color: "#34d399", bg: "rgba(52,211,153,0.10)",  border: "rgba(52,211,153,0.25)"  },
+  { keys: ["developer"],                 label: "Dev",    color: "#60a5fa", bg: "rgba(96,165,250,0.10)",  border: "rgba(96,165,250,0.25)"  },
+  { keys: ["designer"],                  label: "Design", color: "#f472b6", bg: "rgba(244,114,182,0.10)", border: "rgba(244,114,182,0.25)" },
+  { keys: ["copywriter"],                label: "Copy",   color: "#fbbf24", bg: "rgba(251,191,36,0.10)",  border: "rgba(251,191,36,0.25)"  },
 ]
 
 const DEFAULT_ROLE = { label: "Other", color: "#a8b8c8", bg: "rgba(168,184,200,0.08)", border: "rgba(168,184,200,0.20)" }
 
 function getRole(skills: string) {
   const s = skills.toLowerCase()
-  return ROLES.find(r => s.includes(r.key)) ?? DEFAULT_ROLE
+  return ROLES.find(r => r.keys.some(k => s.includes(k))) ?? DEFAULT_ROLE
 }
 
 function initials(name: string) {
@@ -74,12 +71,11 @@ export default function TalentNetworkPage() {
       e.name.toLowerCase().includes(q) ||
       e.skills.toLowerCase().includes(q) ||
       e.notes.toLowerCase().includes(q)
-    const matchesRole = !activeRole || e.skills.toLowerCase().includes(activeRole)
+    const matchesRole = !activeRole || activeRole.split(",").some(k => e.skills.toLowerCase().includes(k))
     return matchesSearch && matchesRole
   })
 
-  const roleOptions = ROLES.filter(r => entries.some(e => e.skills.toLowerCase().includes(r.key)))
-  const uniqueRoles = roleOptions.filter((r, i) => roleOptions.findIndex(x => x.label === r.label) === i)
+  const uniqueRoles = ROLES.filter(r => entries.some(e => r.keys.some(k => e.skills.toLowerCase().includes(k))))
 
   return (
     <div style={{ minHeight: "100vh" }}>
@@ -111,12 +107,12 @@ export default function TalentNetworkPage() {
               />
             </div>
             {uniqueRoles.map(r => (
-              <button key={r.label} onClick={() => setActiveRole(activeRole === r.key ? null : r.key)}
+              <button key={r.label} onClick={() => setActiveRole(activeRole === r.keys.join(",") ? null : r.keys.join(","))}
                 style={{
                   padding: "5px 12px", borderRadius: 99, fontSize: 12, fontWeight: 600,
-                  border: `1px solid ${activeRole === r.key ? r.color : "var(--border)"}`,
-                  background: activeRole === r.key ? r.bg : "transparent",
-                  color: activeRole === r.key ? r.color : "var(--text-muted)",
+                  border: `1px solid ${activeRole === r.keys.join(",") ? r.color : "var(--border)"}`,
+                  background: activeRole === r.keys.join(",") ? r.bg : "transparent",
+                  color: activeRole === r.keys.join(",") ? r.color : "var(--text-muted)",
                   cursor: "pointer", fontFamily: "Plus Jakarta Sans, sans-serif", transition: "all 0.1s",
                 }}>
                 {r.label}

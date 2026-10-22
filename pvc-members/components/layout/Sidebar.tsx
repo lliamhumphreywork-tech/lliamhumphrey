@@ -238,38 +238,6 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* Partner — also inside nav so it scrolls */}
-      <div style={{ padding: "8px 12px 12px" }}>
-        <div style={{ height: 1, background: "var(--border-subtle)", margin: "0 4px 10px" }} />
-        <a
-          href="https://chat.whatsapp.com/Dkq2UYM0pt45pZMvQWi4u5?mode=gi_t"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "flex", alignItems: "center", gap: 10,
-            padding: "10px 12px",
-            borderRadius: "var(--radius)",
-            background: "var(--bg-elevated)",
-            border: "1px solid var(--border)",
-            textDecoration: "none", transition: "border-color 0.1s",
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--nav-accent)" }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)" }}
-        >
-          <div style={{
-            width: 32, height: 32, borderRadius: "50%",
-            background: "var(--nav-accent-dim)", border: "1px solid var(--nav-accent)",
-            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-          }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--nav-accent)", fontFamily: "Syne, sans-serif" }}>A</span>
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", lineHeight: 1.3 }}>Arthur</div>
-            <div style={{ fontSize: 11, color: "var(--text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Financial Advisor</div>
-          </div>
-          <MessageCircle size={13} style={{ color: "var(--nav-accent)", flexShrink: 0 }} />
-        </a>
-      </div>
       </nav>
 
       {/* User footer — always visible, pinned to bottom outside the scroll region */}

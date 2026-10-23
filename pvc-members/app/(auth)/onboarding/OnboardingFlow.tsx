@@ -153,8 +153,7 @@ export function OnboardingFlow({ email }: { email: string }) {
         body: JSON.stringify(form),
       })
       if (res.ok) {
-        router.push("/feed")
-        router.refresh()
+        window.location.href = "/feed"
       } else {
         setError("Something went wrong. Please try again.")
       }

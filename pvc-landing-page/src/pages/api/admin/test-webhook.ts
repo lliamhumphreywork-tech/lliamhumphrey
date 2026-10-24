@@ -8,8 +8,9 @@ import type { APIRoute } from 'astro';
 import crypto from 'crypto';
 
 export const POST: APIRoute = async ({ request }) => {
-  const adminKey = import.meta.env.ADMIN_KEY ?? import.meta.env.WEBHOOK_TEST_KEY;
-  if (!adminKey || request.headers.get('x-admin-key') !== adminKey) {
+  const provided = request.headers.get('x-admin-key');
+  const validKeys = [import.meta.env.ADMIN_KEY, import.meta.env.WEBHOOK_TEST_KEY].filter(Boolean);
+  if (!provided || !validKeys.includes(provided)) {
     return new Response('Unauthorized', { status: 401 });
   }
 

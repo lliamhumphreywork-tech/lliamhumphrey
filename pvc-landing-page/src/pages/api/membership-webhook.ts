@@ -253,6 +253,27 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response('Missing required fields', { status: 400 });
   }
 
+  // Dedup: check if this email already has a CRM entry (guards against Tally retries)
+  const dedupRes = await fetch(`https://api.notion.com/v1/databases/${NOTION_DB_ID}/query`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${NOTION_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Notion-Version': '2022-06-28',
+    },
+    body: JSON.stringify({
+      filter: { property: 'Email', email: { equals: email } },
+      page_size: 1,
+    }),
+  });
+  if (dedupRes.ok) {
+    const dedupData = await dedupRes.json();
+    if ((dedupData.results?.length ?? 0) > 0) {
+      console.log(`[membership-webhook] Duplicate submission for ${email} — skipping`);
+      return new Response('OK', { status: 200 });
+    }
+  }
+
   const nameParts = name.trim().split(' ');
   const firstName = nameParts[0] ?? '';
   const lastName  = nameParts.slice(1).join(' ');

@@ -7,7 +7,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PVC — Admin</title>
+  <title>PVC CRM</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
   <link rel="shortcut icon" href="/favicon.ico" />
@@ -18,33 +18,33 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --black:         #08111f;
-      --navy:          #0a1628;
-      --navy-mid:      #0d1e35;
-      --surface:       #0f1f38;
-      --border:        rgba(168,184,200,0.1);
-      --border-mid:    rgba(168,184,200,0.18);
-      --border-bright: rgba(168,184,200,0.35);
-      --silver:        #a8b8c8;
-      --silver-dim:    #4a5a6a;
-      --silver-light:  #dde4ec;
-      --white:         #f4f5f6;
-      --cream:         #ece6da;
+      --black:         #000000;
+      --navy:          #2d0f29;
+      --navy-mid:      #3a1535;
+      --surface:       #1a0d18;
+      --border:        rgba(196,184,192,0.12);
+      --border-mid:    rgba(196,184,192,0.22);
+      --border-bright: rgba(196,184,192,0.4);
+      --silver:        #C4B8C0;
+      --silver-dim:    #6B6068;
+      --silver-light:  #e8dfe6;
+      --white:         #F0EBF0;
+      --cream:         #F0EBF0;
       --green:         #2da878;
       --red:           #c94a5c;
-      --blue:          #3a7bd5;
+      --blue:          #7c3f8a;
       --amber:         #d4a017;
       --g: 'Syne', sans-serif;
       --s: 'DM Sans', sans-serif;
 
       /* light-side tokens */
-      --bg:            #f2f4f7;
+      --bg:            #faf8fa;
       --surface-l:     #ffffff;
-      --border-l:      #e8eaed;
-      --border-ll:     #f0f2f5;
-      --text-primary:  #0a1628;
-      --text-secondary:#5a6475;
-      --text-muted:    #9ba3ae;
+      --border-l:      #eedde8;
+      --border-ll:     #f7f0f5;
+      --text-primary:  #1A0F18;
+      --text-secondary:#6B6068;
+      --text-muted:    #9b8f99;
     }
 
     html { -webkit-font-smoothing: antialiased; }
@@ -192,7 +192,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     }
     tbody tr { border-bottom: 1px solid var(--border-ll); }
     tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: #f7f9fc; }
+    tbody tr:hover { background: #faf4f9; }
     tbody td { padding: 13px 16px; color: var(--text-primary); vertical-align: top; }
     .td-name { font-weight: 600; color: var(--text-primary); }
     .td-muted { color: var(--text-secondary); }
@@ -217,6 +217,11 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     .badge-amber    { background: #fff7ed; color: #9a3412; }
     .badge-mastermind { background: #eef2ff; color: #3730a3; }
     .badge-dinner   { background: #fff7ed; color: #9a3412; }
+    .badge-pending  { background: #f5ecf4; color: #2d0f29; }
+    .badge-accepted { background: #edfaf3; color: #1a7a52; }
+    .badge-rejected { background: #fef2f2; color: #b91c1c; }
+    .badge-conversation { background: #fff7ed; color: #9a3412; }
+    .badge-free-funnel  { background: #f3f0ff; color: #5b21b6; }
 
     /* ── INLINE EDIT ── */
     .editable { cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: background 0.15s; display: inline-block; min-width: 60px; }
@@ -396,7 +401,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
 
     /* ── CLICKABLE ROW ── */
     .clickable-row { cursor: pointer; }
-    .clickable-row:hover td { background: #f5f8fc !important; }
+    .clickable-row:hover td { background: #f8f3f7 !important; }
 
     /* ── ANALYTICS FORM CARDS ── */
     .form-stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
@@ -444,6 +449,17 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     .d-value a { color: var(--blue); text-decoration: none; }
     .d-value a:hover { text-decoration: underline; }
     .d-section { font-family: var(--g); font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--navy); padding: 16px 0 4px; border-bottom: 2px solid var(--navy); margin-bottom: 4px; }
+    .drawer-actions { display: flex; gap: 10px; padding: 20px 24px; border-top: 1px solid var(--border-l); background: var(--bg); }
+    .action-btn {
+      flex: 1; padding: 13px; font-family: var(--g); font-size: 10px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; border: none; cursor: pointer;
+      border-radius: 6px; transition: opacity 0.15s, transform 0.1s;
+    }
+    .action-btn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+    .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .action-btn-accept { background: var(--navy); color: var(--white); }
+    .action-btn-reject { background: var(--border-ll); color: var(--red); border: 1px solid var(--red); }
+    .action-btn-conversation { background: var(--border-ll); color: var(--text-secondary); border: 1px solid var(--border-l); }
   </style>
 </head>
 <body>
@@ -460,7 +476,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
           <div class="auth-mark-icon"></div>
           <span class="auth-mark-text">Private Victories Club</span>
         </div>
-        <div class="auth-title" style="margin-top:16px">Admin Portal</div>
+        <div class="auth-title" style="margin-top:16px">PVC CRM</div>
         <div class="auth-sub" style="margin-top:8px">Sign in with your PVC account to continue.</div>
       </div>
       <div class="auth-fields">
@@ -485,7 +501,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
   <header class="app-header">
     <div class="app-logo">
       <div class="mark"></div>
-      PVC <span>Admin</span>
+      PVC <span>CRM</span>
     </div>
     <nav class="tab-nav" id="tab-nav">
       <button class="tab-btn active" data-tab="overview">Overview</button>
@@ -626,15 +642,20 @@ function fmt(n) {
 }
 function pct(v) { return (v * 100).toFixed(1) + '%'; }
 function badge(status) {
-  if (!status) return '<span class="badge badge-default">—</span>';
+  if (!status) return '<span class="badge badge-default">-</span>';
   var s = status.toLowerCase().replace(/\s+/g, '-');
   var cls = 'badge-default';
-  if (s === 'applied')   cls = 'badge-applied';
-  else if (s === 'invited') cls = 'badge-invited';
-  else if (s === 'confirmed') cls = 'badge-confirmed';
-  else if (s === 'paid') cls = 'badge-paid';
-  else if (s === 'active') cls = 'badge-green';
-  else if (s === 'vip')  cls = 'badge-blue';
+  if (s === 'applied')            cls = 'badge-applied';
+  else if (s === 'invited')       cls = 'badge-invited';
+  else if (s === 'confirmed')     cls = 'badge-confirmed';
+  else if (s === 'paid')          cls = 'badge-paid';
+  else if (s === 'active')        cls = 'badge-green';
+  else if (s === 'vip')           cls = 'badge-blue';
+  else if (s === 'pending-review') cls = 'badge-pending';
+  else if (s === 'accepted')      cls = 'badge-accepted';
+  else if (s === 'rejected')      cls = 'badge-rejected';
+  else if (s === 'in-conversation') cls = 'badge-conversation';
+  else if (s === 'free-community-funnel') cls = 'badge-free-funnel';
   return '<span class="badge ' + cls + '">' + esc(status) + '</span>';
 }
 function tierBadge(t) {
@@ -646,7 +667,7 @@ function esc(s) {
 }
 
 // ── Status select HTML ──
-var CRM_STATUSES = ['Applied','Invited','Confirmed','Paid','Attended','No-Show','Rejected'];
+var CRM_STATUSES = ['Pending Review','In Conversation','Accepted','Rejected','Free Community Funnel','Applied','Invited','Confirmed','Paid','Attended','No-Show'];
 var MEMBER_STATUSES = ['Active','Alumni','Churned','Paused'];
 
 function statusSelect(id, current, options) {
@@ -1267,7 +1288,7 @@ function closeDrawer() {
 }
 
 function dField(label, value) {
-  if (value === null || value === undefined || value === '') return '';
+  if (value === null || value === undefined || value === '' || value === 'undefined') return '';
   return '<div class="d-field"><div class="d-label">' + label + '</div><div class="d-value">' + value + '</div></div>';
 }
 
@@ -1310,20 +1331,87 @@ function openCRMDrawer(l) {
 }
 
 function openAppDrawer(l) {
+  var isMembership = (l.type || []).some(function(t) { return t.toLowerCase().includes('member'); });
   var body =
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">' +
+      badge(l.status) +
+      (l.submitted ? '<span style="font-size:11px;color:var(--text-muted)">Applied ' + esc(l.submitted) + '</span>' : '') +
+    '</div>' +
     dField('Business', esc(l.b)) +
     dField('Revenue Stage', esc(l.r)) +
-    (l.t ? '<div class="d-field"><div class="d-label">Tier</div><div class="d-value">' + tierBadge(l.t) + '</div></div>' : '') +
     dField('Email', l.e ? '<a href="mailto:' + esc(l.e) + '">' + esc(l.e) + '</a>' : '') +
     dField('Phone', l.p ? '<a href="tel:' + esc(l.p) + '">' + esc(l.p) + '</a>' : '') +
     dField('Instagram', l.i ? '@' + esc(l.i) : '') +
-    '<div class="d-section">Application</div>' +
-    dField('Goals / What they want', esc(l.w)) +
-    dField('Notes', esc(l.notes)) +
-    dField('Event Applied For', eventBadge(l.type)) +
+    dField('Commitment', esc(l.commitment)) +
+    (isMembership
+      ? '<div class="d-section">Application Answers</div>' +
+        dField('What prompted you to apply?', esc(l.w)) +
+        dField('3-month tangible result', esc(l.tangible_result)) +
+        dField('What you will contribute and gain', esc(l.contribute_gain)) +
+        dField('What you are currently working on', esc(l.working_on)) +
+        dField('Key business needs', esc(l.business_needs)) +
+        dField('What a winning 12 months looks like', esc(l.winning_looks_like))
+      : '<div class="d-section">Application</div>' +
+        dField('Goals / What they want', esc(l.w)) +
+        dField('Event Applied For', eventBadge(l.type))
+    ) +
     dField('Source', esc(l.src)) +
-    (l.url ? '<div class="d-field"><div class="d-label">Notion</div><div class="d-value"><a href="' + esc(l.url) + '" target="_blank">Open in Notion →</a></div></div>' : '');
-  openDrawer(l.n || 'Applicant', body);
+    (l.url ? '<div class="d-field"><div class="d-label">Notion</div><div class="d-value"><a href="' + esc(l.url) + '" target="_blank">Open in Notion</a></div></div>' : '');
+
+  document.getElementById('drawer-name').textContent = l.n || 'Applicant';
+  document.getElementById('drawer-body').innerHTML = body;
+
+  var old = document.getElementById('drawer-actions');
+  if (old) old.remove();
+
+  if (isMembership && l.status !== 'Accepted' && l.status !== 'Rejected') {
+    var firstName = esc((l.n || '').split(' ')[0]);
+    var email = esc(l.e || '');
+    var actions = document.createElement('div');
+    actions.id = 'drawer-actions';
+    actions.className = 'drawer-actions';
+    actions.innerHTML =
+      '<button class="action-btn action-btn-accept" onclick="decideApplication(\'' + l.id + '\',\'accept\',\'' + email + '\',\'' + firstName + '\',this.closest(\'.drawer-actions\'))">Accept</button>' +
+      '<button class="action-btn action-btn-conversation" onclick="decideApplication(\'' + l.id + '\',\'conversation\',\'' + email + '\',\'' + firstName + '\',this.closest(\'.drawer-actions\'))">In Conversation</button>' +
+      '<button class="action-btn action-btn-reject" onclick="decideApplication(\'' + l.id + '\',\'reject\',\'' + email + '\',\'' + firstName + '\',this.closest(\'.drawer-actions\'))">Reject</button>';
+    document.getElementById('drawer').appendChild(actions);
+  }
+
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+
+function decideApplication(pageId, decision, email, firstName, actionsEl) {
+  var btns = actionsEl ? actionsEl.querySelectorAll('button') : [];
+  btns.forEach(function(b) { b.disabled = true; });
+  var statusMap = { accept: 'accept', conversation: 'conversation', reject: 'reject' };
+  var notionStatus = decision === 'accept' ? 'Accepted' : decision === 'reject' ? 'Rejected' : 'In Conversation';
+
+  if (decision === 'conversation') {
+    patchAPI(pageId, { status: 'In Conversation' }).then(function() {
+      toast('Status updated to In Conversation');
+      if (actionsEl) actionsEl.remove();
+      invalidateLeadData();
+    }).catch(function(e) {
+      toast('Failed: ' + e.message, true);
+      btns.forEach(function(b) { b.disabled = false; });
+    });
+    return;
+  }
+
+  fetch('/api/admin/decision', {
+    method: 'POST',
+    headers: { 'x-admin-key': ADMIN_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pageId: pageId, decision: decision, email: email, firstName: firstName }),
+  }).then(function(r) {
+    if (!r.ok) return r.text().then(function(t) { throw new Error(t); });
+    toast(decision === 'accept' ? 'Accepted and email sent' : 'Rejected and email sent');
+    if (actionsEl) actionsEl.remove();
+    invalidateLeadData();
+  }).catch(function(e) {
+    toast('Failed: ' + e.message, true);
+    btns.forEach(function(b) { b.disabled = false; });
+  });
 }
 
 function openTalentDrawer(e) {

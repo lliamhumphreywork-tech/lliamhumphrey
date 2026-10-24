@@ -146,64 +146,8 @@ async function sendPaymentConfirmation(email: string, firstName: string) {
   }
 }
 
-export const POST: APIRoute = async ({ request }) => {
-  let body: string;
-  try {
-    body = await request.text();
-  } catch {
-    return new Response('Invalid body', { status: 400 });
-  }
-
-  // Parse URL-encoded form data from PayFast
-  const params: Record<string, string> = {};
-  for (const [key, value] of new URLSearchParams(body)) {
-    params[key] = value;
-  }
-
-  // Verify merchant ID
-  if (params['merchant_id'] !== PAYFAST_MERCHANT_ID) {
-    console.warn('[payfast-webhook] Merchant ID mismatch');
-    return new Response('Unauthorized', { status: 401 });
-  }
-
-  // Verify signature
-  if (!verifySignature(params, PAYFAST_PASSPHRASE)) {
-    console.warn('[payfast-webhook] Signature verification failed');
-    return new Response('Unauthorized', { status: 401 });
-  }
-
-  const paymentStatus = params['payment_status'];
-  if (paymentStatus !== 'COMPLETE') {
-    console.log(`[payfast-webhook] Payment status: ${paymentStatus} — no action`);
-    return new Response('OK', { status: 200 });
-  }
-
-  const name      = `${params['name_first'] ?? ''} ${params['name_last'] ?? ''}`.trim();
-  const email     = params['email_address'] ?? '';
-  const amount    = params['amount_gross'] ?? '0';
-  const paymentId = params['pf_payment_id'] ?? '';
-  const itemName  = params['item_name'] ?? '';
-
-  // Determine payment type from item name
-  const lowerItem = itemName.toLowerCase();
-  const paymentType: 'Membership' | 'Event' | 'Other' =
-    lowerItem.includes('membership') || lowerItem.includes('member') ? 'Membership' :
-    lowerItem.includes('event') || lowerItem.includes('dinner') || lowerItem.includes('ticket') ? 'Event' :
-    'Other';
-
-  const firstName = params['name_first'] ?? name.split(' ')[0] ?? '';
-
-  console.log(`[payfast-webhook] Payment complete — ${name} (${email}) R${amount} | ${paymentType}`);
-
-  // Run all side effects in parallel, don't block the 200 response
-  Promise.all([
-    createFinanceEntry({ name, email, amount, paymentId, itemName, paymentType, status: 'Complete' }),
-    updateCRMPaymentStatus(email, paymentType),
-    sendPaymentConfirmation(email, firstName),
-    notifySlackFinance({ name, email, amount, itemName, paymentType, paymentId }),
-  ]).catch((err: any) => {
-    console.error('[payfast-webhook] Background error:', err.message);
-  });
-
-  return new Response('OK', { status: 200 });
+export const POST: APIRoute = async () => {
+  // PayFast is no longer used — all payments go through Paystack.
+  console.log('[payfast-webhook] Endpoint disabled — returning 410 Gone');
+  return new Response('Gone', { status: 410 });
 };

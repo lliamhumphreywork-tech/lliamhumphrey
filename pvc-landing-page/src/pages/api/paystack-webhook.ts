@@ -15,6 +15,8 @@ const TEMPLATE_MEMBERSHIP_ONBOARDING = 28;
 const TEMPLATE_EVENT_CONFIRMATION    = 29;
 const BREVO_LIST_4MONTH              = 14;
 const BREVO_BASE                     = 'https://api.brevo.com/v3';
+const MEMBERS_PORTAL_URL             = 'https://members.privatevictoriesclub.com';
+const MEMBERS_API_TOKEN              = import.meta.env.MEMBERS_API_TOKEN;
 
 function verifyPaystackSignature(body: string, signature: string | null, secret: string | undefined): boolean {
   if (!secret) return false;
@@ -97,6 +99,17 @@ async function tag4MonthRenewal(email: string, name: string) {
   });
 }
 
+async function provisionPortalAccount(email: string, name: string) {
+  if (!MEMBERS_API_TOKEN || !email) return;
+  const res = await fetch(`${MEMBERS_PORTAL_URL}/api/admin/invite`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${MEMBERS_API_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, name }),
+  });
+  if (!res.ok) console.error(`[paystack-webhook] Portal invite error ${res.status}: ${await res.text()}`);
+  else console.log(`[paystack-webhook] Portal account provisioned for ${email}`);
+}
+
 async function sendPaymentConfirmation(email: string, firstName: string, paymentType: 'Membership' | 'Event' | 'Other', itemName: string) {
   if (!BREVO_API_KEY || !email) return;
   if (paymentType === 'Other') return;
@@ -167,6 +180,7 @@ export const POST: APIRoute = async ({ request }) => {
       updateCRMPaymentStatus(email, paymentType),
       sendPaymentConfirmation(email, firstName, paymentType, itemName),
       notifySlackFinance({ name, email, amount: amountRands, itemName, paymentType, paymentId }),
+      ...(paymentType === 'Membership' ? [provisionPortalAccount(email, name)] : []),
       ...(is4Month ? [tag4MonthRenewal(email, name)] : []),
     ]).catch((err: any) => console.error('[paystack-webhook] Error:', err.message))
   );

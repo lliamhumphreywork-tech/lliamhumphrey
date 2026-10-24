@@ -42,6 +42,13 @@ function parseApplicant(page: any) {
     src: sourceMatch ? sourceMatch[1].trim() : '',
     notes: notes,
     url: page.url,
+    commitment: p['Commitment']?.select?.name ?? '',
+    submitted: p['Submission Date']?.date?.start ?? '',
+    tangible_result:    notes.match(/3-month result:\s*([^\n]+)/)?.[1]?.trim() ?? '',
+    contribute_gain:    notes.match(/Contribute\/gain:\s*([^\n]+)/)?.[1]?.trim() ?? '',
+    working_on:         notes.match(/Working on:\s*([^\n]+)/)?.[1]?.trim() ?? '',
+    business_needs:     notes.match(/Needs:\s*([^\n]+)/)?.[1]?.trim() ?? '',
+    winning_looks_like: notes.match(/12-month win:\s*([^\n]+)/)?.[1]?.trim() ?? '',
   };
 }
 

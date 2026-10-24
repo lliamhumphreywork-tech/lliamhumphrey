@@ -1,5 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
+import { logAdminAction } from '../../../lib/audit';
 
 const NOTION_TOKEN = import.meta.env.NOTION_TOKEN;
 const ADMIN_KEY    = import.meta.env.ADMIN_KEY;
@@ -33,5 +34,6 @@ export const DELETE: APIRoute = async ({ request }) => {
   });
 
   if (!res.ok) return new Response(await res.text(), { status: res.status });
+  logAdminAction('delete_contact', { pageId });
   return new Response('OK', { status: 200 });
 };

@@ -149,60 +149,8 @@ async function notifySlackFinance(data: { name: string; email: string; amount: s
   });
 }
 
-export const POST: APIRoute = async ({ request }) => {
-  const body = await request.text();
-  const signature    = request.headers.get('webhook-signature');
-  const webhookId    = request.headers.get('webhook-id');
-  const webhookTs    = request.headers.get('webhook-timestamp');
-
-  console.log('[yoco-webhook] Headers — sig:', signature?.slice(0,30), 'id:', webhookId, 'ts:', webhookTs);
-
-  const sigResult = verifyYocoSignature(body, signature, webhookId, webhookTs, YOCO_SECRET);
-  if (sigResult !== 'ok') {
-    console.warn('[yoco-webhook] Rejecting request — sig result:', sigResult);
-    return new Response('Unauthorized', { status: 401 });
-  }
-
-  let payload: any;
-  try { payload = JSON.parse(body); } catch { return new Response('Invalid JSON', { status: 400 }); }
-
-  const eventType = payload.type ?? '';
-  if (!eventType.includes('payment.succeeded') && !eventType.includes('checkout.completed')) {
-    console.log(`[yoco-webhook] Event ${eventType} — no action`);
-    return new Response('OK', { status: 200 });
-  }
-
-  const data = payload.payload ?? payload;
-  const amountCents: number = data.amountInCents ?? data.amount ?? 0;
-  const amountRands = (amountCents / 100).toFixed(2);
-  const paymentId   = data.id ?? data.checkoutId ?? '';
-  const metadata    = data.metadata ?? {};
-  const itemName    = metadata.item_name ?? data.checkoutId ?? 'PVC Payment';
-  const email       = metadata.email ?? '';
-  const name        = metadata.name ?? '';
-  const firstName   = name.split(' ')[0] ?? '';
-
-  const lower = itemName.toLowerCase();
-  const paymentType: 'Membership' | 'Event' | 'Other' =
-    lower.includes('membership') || lower.includes('member') ? 'Membership' :
-    lower.includes('event') || lower.includes('dinner') || lower.includes('ticket') ? 'Event' :
-    'Other';
-
-  console.log(`[yoco-webhook] ${eventType} — ${name} R${amountRands} | ${paymentType}`);
-
-  if (await isAlreadyProcessed(paymentId)) {
-    console.log(`[yoco-webhook] Duplicate — ${paymentId} already processed, skipping`);
-    return new Response('OK', { status: 200 });
-  }
-
-  waitUntil(
-    Promise.all([
-      createFinanceEntry({ name, email, amount: amountRands, paymentId, itemName, paymentType }),
-      updateCRMPaymentStatus(email, paymentType),
-      sendPaymentConfirmation(email, firstName, paymentType, itemName),
-      notifySlackFinance({ name, email, amount: amountRands, itemName, paymentType, paymentId }),
-    ]).catch((err: any) => console.error('[yoco-webhook] Error:', err.message))
-  );
-
-  return new Response('OK', { status: 200 });
+export const POST: APIRoute = async () => {
+  // Yoco is no longer used — all payments go through Paystack.
+  console.log('[yoco-webhook] Endpoint disabled — returning 410 Gone');
+  return new Response('Gone', { status: 410 });
 };

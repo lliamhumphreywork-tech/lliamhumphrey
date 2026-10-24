@@ -1,5 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
+import { logAdminAction } from '../../../lib/audit';
 
 const NOTION_TOKEN = import.meta.env.NOTION_TOKEN;
 const ADMIN_KEY = import.meta.env.ADMIN_KEY;
@@ -42,5 +43,6 @@ export const PATCH: APIRoute = async ({ request }) => {
 
   const data = await res.json();
   if (!res.ok) return new Response(JSON.stringify(data), { status: res.status });
+  logAdminAction('update_contact', { pageId, props });
   return new Response('OK', { status: 200 });
 };

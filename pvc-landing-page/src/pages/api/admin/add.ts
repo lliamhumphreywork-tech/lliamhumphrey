@@ -1,5 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
+import { logAdminAction } from '../../../lib/audit';
 
 const NOTION_TOKEN = import.meta.env.NOTION_TOKEN;
 const NOTION_DB_ID = '872bd20eee31468f91bed1cd472e157a';
@@ -44,6 +45,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const data = await res.json();
   if (!res.ok) return new Response(JSON.stringify(data), { status: res.status });
+  logAdminAction('add_contact', { name, insta, biz, notionId: data.id });
   return new Response(JSON.stringify({ id: data.id }), {
     status: 201,
     headers: { 'Content-Type': 'application/json' },

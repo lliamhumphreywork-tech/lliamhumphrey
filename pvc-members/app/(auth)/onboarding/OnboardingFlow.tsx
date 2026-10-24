@@ -94,6 +94,7 @@ export function OnboardingFlow({ email }: { email: string }) {
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [cropFile, setCropFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
 
   const [form, setForm] = useState({
     name: "",
@@ -106,9 +107,8 @@ export function OnboardingFlow({ email }: { email: string }) {
     website: "",
   })
 
-  // scroll to top on step change
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" })
+    rootRef.current?.scrollTo({ top: 0, behavior: "smooth" })
   }, [step])
 
   function set(key: string, value: string) {
@@ -174,7 +174,7 @@ export function OnboardingFlow({ email }: { email: string }) {
   ]
 
   return (
-    <div className="ob-root">
+    <div className="ob-root" ref={rootRef}>
       <div className="ob-inner">
 
         {/* Header */}
@@ -340,7 +340,8 @@ export function OnboardingFlow({ email }: { email: string }) {
 
       <style>{`
         .ob-root {
-          min-height: 100dvh;
+          height: 100dvh;
+          overflow-y: auto;
           background: var(--bg-base);
           padding: 24px 16px 40px;
           box-sizing: border-box;

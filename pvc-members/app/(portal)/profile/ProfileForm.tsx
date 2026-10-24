@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useTransition, useRef } from "react"
-import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Camera } from "lucide-react"
 import type { User } from "@prisma/client"
@@ -9,6 +8,18 @@ import { Avatar } from "@/components/ui/Avatar"
 import { Badge } from "@/components/ui/Badge"
 import { AvatarCropper } from "@/components/ui/AvatarCropper"
 import { uploadAvatar } from "@/lib/uploadAvatar"
+
+function Label({ children }: { children: string }) {
+  return (
+    <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
+      {children}
+    </label>
+  )
+}
+
+function Row({ children }: { children: React.ReactNode }) {
+  return <div style={{ marginBottom: 20 }}>{children}</div>
+}
 
 function broadcastAvatar(src: string) {
   window.dispatchEvent(new CustomEvent("pvc:avatar-updated", { detail: src }))
@@ -43,7 +54,6 @@ export function ProfileForm({ user }: { user: User }) {
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [cropFile, setCropFile] = useState<File | null>(null)
   const [isPending, startTransition] = useTransition()
-  const router = useRouter()
   const { update: updateSession } = useSession()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -69,7 +79,6 @@ export function ProfileForm({ user }: { user: User }) {
       if (res.ok) {
         setForm((f) => ({ ...f, avatar: url }))
         broadcastAvatar(url)
-        router.refresh()
       } else {
         const body = await res.json().catch(() => ({}))
         setError(body.error ?? "Failed to save photo. Try again.")
@@ -104,16 +113,6 @@ export function ProfileForm({ user }: { user: User }) {
       }
     })
   }
-
-  const Label = ({ children }: { children: string }) => (
-    <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
-      {children}
-    </label>
-  )
-
-  const Row = ({ children }: { children: React.ReactNode }) => (
-    <div style={{ marginBottom: 20 }}>{children}</div>
-  )
 
   return (
     <form onSubmit={handleSubmit}>

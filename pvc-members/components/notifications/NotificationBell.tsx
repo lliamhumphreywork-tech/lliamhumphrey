@@ -26,7 +26,9 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(false)
+  const [dropdownPos, setDropdownPos] = useState<{ bottom: number; left: number } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
+  const bellRef = useRef<HTMLButtonElement>(null)
 
   const unread = notifications.filter((n) => !n.read).length
 
@@ -69,7 +71,14 @@ export function NotificationBell() {
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <button
-        onClick={() => setOpen(!open)}
+        ref={bellRef}
+        onClick={() => {
+          if (!open && bellRef.current) {
+            const rect = bellRef.current.getBoundingClientRect()
+            setDropdownPos({ bottom: window.innerHeight - rect.top + 8, left: rect.left })
+          }
+          setOpen(!open)
+        }}
         style={{
           position: "relative",
           display: "flex",
@@ -104,12 +113,12 @@ export function NotificationBell() {
         )}
       </button>
 
-      {open && (
+      {open && dropdownPos && (
         <div
           style={{
-            position: "absolute",
-            bottom: "calc(100% + 8px)",
-            left: 0,
+            position: "fixed",
+            bottom: dropdownPos.bottom,
+            left: dropdownPos.left,
             width: 320,
             background: "var(--bg-elevated)",
             border: "1px solid var(--border)",

@@ -10,14 +10,22 @@ export async function POST(req: Request) {
   const { email, name } = await req.json()
   if (!email) return NextResponse.json({ error: "email required" }, { status: 400 })
 
-  const user = await prisma.user.upsert({
-    where: { email: email.toLowerCase().trim() },
-    update: { name: name || undefined },
-    create: {
-      email: email.toLowerCase().trim(),
-      name: name || null,
-      role: "GA",
-    },
+  const normalised = email.toLowerCase().trim()
+
+  const existing = await prisma.user.findUnique({
+    where: { email: normalised },
+    select: { id: true, email: true },
+  })
+
+  if (existing) {
+    if (name) {
+      await prisma.user.update({ where: { id: existing.id }, data: { name } })
+    }
+    return NextResponse.json({ id: existing.id, email: existing.email, created: false })
+  }
+
+  const user = await prisma.user.create({
+    data: { email: normalised, name: name || null, role: "GA" },
   })
 
   return NextResponse.json({ id: user.id, email: user.email, created: true })

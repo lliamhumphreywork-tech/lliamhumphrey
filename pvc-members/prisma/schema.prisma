@@ -175,7 +175,6 @@ model Event {
   id          String      @id @default(cuid())
   title       String
   description String?
-  eventType   String      @default("event")
   location    String?
   isOnline    Boolean     @default(false)
   meetingUrl  String?
@@ -183,6 +182,7 @@ model Event {
   startDate   DateTime
   endDate     DateTime?
   createdAt   DateTime    @default(now())
+  eventType   String      @default("event")
   rsvps       EventRSVP[]
 }
 

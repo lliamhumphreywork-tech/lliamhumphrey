@@ -79,7 +79,8 @@ async function updateCRMPaymentStatus(email: string, paymentType: 'Membership' |
   const { results } = await searchRes.json();
   if (!results?.length) return null;
   const pageId = results[0].id;
-  const newStatus = paymentType === 'Membership' ? 'Active Member' : 'Event Attendee';
+  if (paymentType !== 'Membership') return null; // no generic event-attendee status exists in CRM
+  const newStatus = 'Member';
   const patchRes = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
     method: 'PATCH',
     headers: NOTION_HEADERS,

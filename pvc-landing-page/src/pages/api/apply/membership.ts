@@ -8,6 +8,7 @@ const NOTION_TOKEN      = import.meta.env.NOTION_TOKEN;
 const NOTION_DB_ID      = '872bd20eee31468f91bed1cd472e157a';
 const BREVO_API_KEY     = import.meta.env.BREVO_API_KEY;
 const SLACK_LEADS_URL   = import.meta.env.SLACK_LEADS_URL;
+const ANTHROPIC_API_KEY = import.meta.env.ANTHROPIC_API_KEY;
 
 const BREVO_LIST_ALL      = 10;
 const BREVO_LIST_NURTURE  = 11;
@@ -50,15 +51,99 @@ async function isDuplicate(email: string): Promise<boolean> {
   return (data.results?.length ?? 0) > 0;
 }
 
+async function scoreApplication(data: {
+  name: string; business: string; revenue: string;
+  tangible_result: string; contribute_gain: string; working_on: string;
+  business_needs: string; winning_looks_like: string; commitment: string;
+}): Promise<{ score: number; verdict: string } | null> {
+  if (!ANTHROPIC_API_KEY) return null;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-5-5',
+        max_tokens: 120,
+        messages: [{
+          role: 'user',
+          content: `You are screening applicants for Private Victories Club (PVC), a high-performance business community for South African entrepreneurs doing R20k–R500k+/month. The room is curated — people who show up, contribute, and are serious about growth.
+
+Score this applicant 1–10 and write a one-sentence verdict. Return ONLY valid JSON: {"score": <number>, "verdict": "<sentence>"}
+
+Scoring guide:
+- 8–10: R50k+/month, clear specific goals, wants to contribute not just take, strong commitment
+- 5–7: R20k–R50k/month, reasonable goals, some ambition
+- 2–4: Pre-revenue or vague/generic answers
+- 1: Clearly not a fit
+
+Applicant:
+Name: ${data.name}
+Business: ${data.business}
+Revenue: ${data.revenue}
+Working on: ${data.working_on || 'not provided'}
+3-month goal: ${data.tangible_result || 'not provided'}
+Contribute/gain: ${data.contribute_gain || 'not provided'}
+Needs: ${data.business_needs || 'not provided'}
+12-month win: ${data.winning_looks_like || 'not provided'}
+Commitment: ${data.commitment || 'not provided'}`,
+        }],
+      }),
+    });
+    if (!res.ok) { console.error(`[apply/membership] AI score ${res.status}`); return null; }
+    const ai = await res.json();
+    const parsed = JSON.parse(ai.content?.[0]?.text ?? '{}');
+    if (typeof parsed.score === 'number' && typeof parsed.verdict === 'string') {
+      return { score: Math.min(10, Math.max(1, Math.round(parsed.score))), verdict: parsed.verdict };
+    }
+    return null;
+  } catch (e: any) {
+    console.error('[apply/membership] AI score error:', e.message);
+    return null;
+  }
+}
+
+async function patchApplicationScore(pageId: string, score: number, verdict: string, baseNotes: string) {
+  if (!NOTION_TOKEN) return;
+  const updatedNotes = (`AI: ${score}/10 — ${verdict}\n` + baseNotes).slice(0, 2000);
+  const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${NOTION_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Notion-Version': '2022-06-28',
+    },
+    body: JSON.stringify({
+      properties: {
+        'Application Score': { number: score },
+        Notes: { rich_text: [{ text: { content: updatedNotes } }] },
+      },
+    }),
+  });
+  if (!res.ok) console.error(`[apply/membership] Score patch error ${res.status}`);
+}
+
 async function createNotionEntry(data: {
   name: string; email: string; phone: string; instagram: string;
   business: string; revenue: string; prompt: string; commitment: string;
   tag: string; notion_revenue: string; source: string;
   tangible_result: string; contribute_gain: string; working_on: string;
   business_needs: string; winning_looks_like: string;
-}) {
+}): Promise<{ pageId: string; notesText: string }> {
   const notionCommitment = COMMITMENT_MAP[data.commitment] ?? data.commitment;
   const isPreRevenue = data.revenue === 'R0 – R20k/month';
+
+  const notesText = [
+    `Tag: ${data.tag}${data.source ? ' | Source: ' + data.source : ''}`,
+    data.tangible_result    ? `\n3-month result: ${data.tangible_result}`    : '',
+    data.contribute_gain    ? `\nContribute/gain: ${data.contribute_gain}`   : '',
+    data.working_on         ? `\nWorking on: ${data.working_on}`             : '',
+    data.business_needs     ? `\nNeeds: ${data.business_needs}`              : '',
+    data.winning_looks_like ? `\n12-month win: ${data.winning_looks_like}`   : '',
+  ].join('').slice(0, 2000);
 
   const body = {
     parent: { database_id: NOTION_DB_ID },
@@ -74,14 +159,7 @@ async function createNotionEntry(data: {
       'Submission Date': { date: { start: new Date().toISOString().split('T')[0] } },
       Status:            { select: { name: isPreRevenue ? 'Free Community Funnel' : 'Pending Review' } },
       Type:              { multi_select: [{ name: 'Membership Applicant' }] },
-      Notes:             { rich_text: [{ text: { content: [
-        `Tag: ${data.tag}${data.source ? ' | Source: ' + data.source : ''}`,
-        data.tangible_result    ? `\n3-month result: ${data.tangible_result}`    : '',
-        data.contribute_gain    ? `\nContribute/gain: ${data.contribute_gain}`   : '',
-        data.working_on         ? `\nWorking on: ${data.working_on}`             : '',
-        data.business_needs     ? `\nNeeds: ${data.business_needs}`              : '',
-        data.winning_looks_like ? `\n12-month win: ${data.winning_looks_like}`   : '',
-      ].join('').slice(0, 2000) } }] },
+      Notes:             { rich_text: [{ text: { content: notesText } }] },
     },
   };
 
@@ -99,6 +177,9 @@ async function createNotionEntry(data: {
     const err = await res.text();
     throw new Error(`Notion error ${res.status}: ${err}`);
   }
+
+  const page = await res.json();
+  return { pageId: page.id, notesText };
 }
 
 async function addToBrevo(data: {
@@ -193,9 +274,14 @@ export const POST: APIRoute = async ({ request }) => {
 
   console.log(`[apply/membership] New application: ${name} (${email}) — ${revenue} | ${tag}`);
 
+  const appData = { name: name.trim(), email: email.trim().toLowerCase(), phone: phone ?? '', instagram: instagram ?? '', business: business ?? '', revenue, prompt: prompt.trim(), commitment: commitment ?? '', tag, notion_revenue, source, tangible_result: tangible_result ?? '', contribute_gain: contribute_gain ?? '', working_on: working_on ?? '', business_needs: business_needs ?? '', winning_looks_like: winning_looks_like ?? '' };
+
   waitUntil(
     Promise.all([
-      createNotionEntry({ name: name.trim(), email: email.trim().toLowerCase(), phone: phone ?? '', instagram: instagram ?? '', business: business ?? '', revenue, prompt: prompt.trim(), commitment: commitment ?? '', tag, notion_revenue, source, tangible_result: tangible_result ?? '', contribute_gain: contribute_gain ?? '', working_on: working_on ?? '', business_needs: business_needs ?? '', winning_looks_like: winning_looks_like ?? '' }),
+      createNotionEntry(appData).then(async ({ pageId, notesText }) => {
+        const ai = await scoreApplication({ name: appData.name, business: appData.business, revenue: appData.revenue, tangible_result: appData.tangible_result, contribute_gain: appData.contribute_gain, working_on: appData.working_on, business_needs: appData.business_needs, winning_looks_like: appData.winning_looks_like, commitment: appData.commitment });
+        if (ai) await patchApplicationScore(pageId, ai.score, ai.verdict, notesText);
+      }),
       addToBrevo({ firstName, lastName, email: email.trim().toLowerCase(), phone: phone ?? '', listIds, tag }),
       sendBrevoTemplate(email, firstName, TEMPLATE_CONFIRMATION),
       ...(isPreRevenue ? [sendBrevoTemplate(email, firstName, TEMPLATE_NURTURE)] : []),

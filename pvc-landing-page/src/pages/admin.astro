@@ -669,7 +669,7 @@ function esc(s) {
 }
 
 // ── Status select HTML ──
-var CRM_STATUSES = ['Pending Review','In Conversation','Accepted','Rejected','Member','Free Community Funnel','Applied','Invited','Confirmed','Paid','Attended','No-Show','Daily Briefing'];
+var CRM_STATUSES = ['Pending Review','In Conversation','Accepted','Call Booked','Call Done','Rejected','Member','Free Community Funnel','Applied','Invited','Confirmed','Paid','Attended','No-Show','Daily Briefing'];
 var MEMBER_STATUSES = ['Active','Alumni','Churned','Paused'];
 
 function statusSelect(id, current, options) {
@@ -1470,7 +1470,7 @@ function openTalentDrawer(e) {
     '<div class="d-section">Proof of Work</div>' +
     dField('Portfolio / Link', e.proof ? '<a href="' + esc(e.proof) + '" target="_blank" rel="noopener">' + esc(e.proof) + '</a>' : '') +
     dField('Recent client & outcome', esc(e.notes)) +
-    (e.url ? '<div class="d-section">Tally</div>' + dField('Submission', '<a href="' + esc(e.url) + '" target="_blank">View in Tally →</a>') : '');
+    (e.url ? '<div class="d-section">Submission</div>' + dField('Source', '<a href="' + esc(e.url) + '" target="_blank">View original →</a>') : '');
 
   openDrawer(e.n || 'Talent', body);
 }

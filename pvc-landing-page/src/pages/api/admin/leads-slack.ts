@@ -36,7 +36,7 @@ const STATUS_PRIORITY: Record<string, number> = {
   'Link Sent': 3, '2nd Touch': 2, 'Contacted': 1, 'New': 0,
 };
 
-const TERMINAL   = new Set(['Declined', 'Paid', 'Timing Issue']);
+const TERMINAL   = new Set(['Declined', 'Paid', 'Timing Issue', 'Call Booked', 'Call Done', 'Member']);
 const CACHE_PATH = 'leads/reaction-cache.json';
 
 type CacheEntry = { status: string; lastChangedAt: string };

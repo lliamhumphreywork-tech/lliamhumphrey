@@ -41,7 +41,7 @@ async function getHistory(limit = 12): Promise<ChatMessage[]> {
       .reverse()
       .map((pg: any) => ({
         role:    (getSelect(pg.properties, 'Role') || 'user') as 'user' | 'assistant',
-        content: getTitle(pg.properties, 'Message'),
+        content: getText(pg.properties, 'Body') || getTitle(pg.properties, 'Message'),
       }))
       .filter((m: ChatMessage) => m.content);
   } catch { return []; }
@@ -50,7 +50,8 @@ async function getHistory(limit = 12): Promise<ChatMessage[]> {
 async function saveMessage(role: 'user' | 'assistant', content: string): Promise<void> {
   try {
     await notionCreate(BARBARA_HISTORY_DB, {
-      'Message': titleProp(content.slice(0, 2000)), // Notion title limit
+      'Message': titleProp(content.slice(0, 2000)),
+      'Body':    textProp(content),
       'Role':    selectProp(role),
     });
   } catch (e: any) {
@@ -58,9 +59,29 @@ async function saveMessage(role: 'user' | 'assistant', content: string): Promise
   }
 }
 
+// ── Open tasks ────────────────────────────────────────────────────────────────
+
+async function getOpenTasksSummary(): Promise<string> {
+  if (!BARBARA_TASKS_DB) return '';
+  try {
+    const pages = await notionQuery(BARBARA_TASKS_DB, {
+      property: 'Status', select: { does_not_equal: 'Done' },
+    });
+    if (!pages.length) return 'No open tasks.';
+    return pages.map((pg: any) => {
+      const p = pg.properties;
+      const title  = getTitle(p, 'Task') || getTitle(p, 'Name') || '';
+      const due    = getDate(p, 'Due Date') || '';
+      const status = getSelect(p, 'Status') || 'Open';
+      if (!title) return null;
+      return `- ${title}${due ? ` (due ${due})` : ''}${status !== 'Open' ? ` [${status}]` : ''}`;
+    }).filter(Boolean).join('\n');
+  } catch { return ''; }
+}
+
 // ── Barbara's system prompt ───────────────────────────────────────────────────
 
-function buildSystemPrompt(): string {
+function buildSystemPrompt(openTasks?: string): string {
   const today = new Date().toLocaleDateString('en-ZA', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Johannesburg',
   });
@@ -87,12 +108,12 @@ How you communicate:
 
 If he asks you to add a task: acknowledge it and let him know you've noted it (tasks are saved to his Barbara Tasks board in Notion).
 If he asks what's on his calendar: let him know calendar isn't connected yet but you can work from what he tells you.
-If he asks about Susan: be honest that you don't have her latest run data in real-time, but explain what Susan does (daily member intel sweep — flags overdue check-ins, finds connection opportunities, posts to #member-intelligence). Tell him to check that channel for her latest output, or that you can pull a preview if he wants to trigger a run.`;
+If he asks about Susan: be honest that you don't have her latest run data in real-time, but explain what Susan does (daily member intel sweep — flags overdue check-ins, finds connection opportunities, posts to #member-intelligence). Tell him to check that channel for her latest output, or that you can pull a preview if he wants to trigger a run.${openTasks ? `\n\nHis current open tasks (from Notion):\n${openTasks}\n\nUse this to answer questions about his tasks, priorities, or what's on his plate this week.` : ''}`;
 }
 
 // ── Claude call ───────────────────────────────────────────────────────────────
 
-async function askBarbara(history: ChatMessage[], userMessage: string): Promise<string> {
+async function askBarbara(history: ChatMessage[], userMessage: string, openTasks?: string): Promise<string> {
   const messages: ChatMessage[] = [...history, { role: 'user', content: userMessage }];
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -104,7 +125,7 @@ async function askBarbara(history: ChatMessage[], userMessage: string): Promise<
     body: JSON.stringify({
       model:      'claude-haiku-5-5',
       max_tokens: 1024,
-      system:     buildSystemPrompt(),
+      system:     buildSystemPrompt(openTasks),
       messages,
     }),
   });
@@ -199,8 +220,8 @@ export const POST: APIRoute = async ({ request }) => {
   // Return 200 immediately (Slack requires < 3s), keep function alive with waitUntil
   waitUntil((async () => {
     try {
-      const history = await getHistory(10);
-      const reply   = await askBarbara(history, userMessage);
+      const [history, openTasks] = await Promise.all([getHistory(10), getOpenTasksSummary()]);
+      const reply   = await askBarbara(history, userMessage, openTasks);
 
       await Promise.all([
         postMessage(event.channel, reply),

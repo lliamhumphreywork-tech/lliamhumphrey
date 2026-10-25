@@ -5,7 +5,7 @@ import { postWebhook } from '../../../lib/slack';
 
 const NOTION_CRM_DB     = '872bd20eee31468f91bed1cd472e157a';
 const NOTION_MEMBERS_DB = import.meta.env.NOTION_MEMBERS_DB_ID ?? 'd7f078c6-fd75-4feb-aba1-6d5d41d5c956';
-const SLACK_FINANCE_URL = import.meta.env.SLACK_FINANCE_URL ?? '';
+const SLACK_BRIEF_URL   = import.meta.env.SLACK_MEMBER_INTEL_URL ?? import.meta.env.SLACK_FINANCE_URL ?? '';
 const ADMIN_KEY         = import.meta.env.ADMIN_KEY ?? '';
 
 const RENEWAL_WINDOW_DAYS   = 30;
@@ -182,7 +182,7 @@ async function run() {
     lines.push('\n✅ Clean slate — nothing needs attention today.');
   }
 
-  await postWebhook(SLACK_FINANCE_URL, lines.join('\n')).catch(() => {});
+  await postWebhook(SLACK_BRIEF_URL, lines.join('\n')).catch(() => {});
 
   return { apps, pending, renewals, atRisk, priority };
 }

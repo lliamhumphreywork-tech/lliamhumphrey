@@ -25,6 +25,10 @@
     {
       "path": "/api/admin/member-intel-sweep",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/barbara/brief",
+      "schedule": "0 5 * * *"
     }
   ]
 }

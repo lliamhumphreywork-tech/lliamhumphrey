@@ -160,7 +160,7 @@ async function tag4MonthRenewal(email: string, name: string) {
     headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       email,
-      attributes: { FIRSTNAME: name.split(' ')[0], RENEWAL_DUE: renewalStr },
+      attributes: { FIRSTNAME: name.split(' ')[0], RENEWAL_DUE: renewalStr, MEMBER_SINCE: new Date().toISOString().split('T')[0] },
       listIds: [BREVO_LIST_4MONTH],
       updateEnabled: true,
     }),

@@ -87,7 +87,7 @@ How you communicate:
 
 If he asks you to add a task: acknowledge it and let him know you've noted it (tasks are saved to his Barbara Tasks board in Notion).
 If he asks what's on his calendar: let him know calendar isn't connected yet but you can work from what he tells you.
-If he asks about Susan or PVC: you know the system — brief him accurately.`;
+If he asks about Susan: be honest that you don't have her latest run data in real-time, but explain what Susan does (daily member intel sweep — flags overdue check-ins, finds connection opportunities, posts to #member-intelligence). Tell him to check that channel for her latest output, or that you can pull a preview if he wants to trigger a run.`;
 }
 
 // ── Claude call ───────────────────────────────────────────────────────────────
@@ -113,7 +113,11 @@ async function askBarbara(history: ChatMessage[], userMessage: string): Promise<
     throw new Error(`Claude API error ${res.status}: ${err}`);
   }
   const data = await res.json();
-  return data.content?.[0]?.text?.trim() ?? '(no response)';
+  const text = data.content?.find((b: any) => b.type === 'text')?.text?.trim();
+  if (!text) {
+    console.error('[barbara/slack] Empty Claude response:', JSON.stringify(data).slice(0, 500));
+  }
+  return text || "I hit a snag on my end. Try again?";
 }
 
 // ── Task detection ────────────────────────────────────────────────────────────

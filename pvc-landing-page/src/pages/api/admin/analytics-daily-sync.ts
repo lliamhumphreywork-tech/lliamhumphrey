@@ -111,7 +111,7 @@ async function upsertNotionRecord(date: string, counts: EventCounts): Promise<vo
   }
 }
 
-export const POST: APIRoute = async ({ request }) => {
+async function runSync(request: Request): Promise<Response> {
   const isCron = request.headers.get('x-vercel-cron') === '1';
   if (!isCron && (!ADMIN_KEY || request.headers.get('x-admin-key') !== ADMIN_KEY)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -140,4 +140,7 @@ export const POST: APIRoute = async ({ request }) => {
       status: 500, headers: { 'Content-Type': 'application/json' },
     });
   }
-};
+}
+
+export const GET: APIRoute  = ({ request }) => runSync(request);
+export const POST: APIRoute = ({ request }) => runSync(request);

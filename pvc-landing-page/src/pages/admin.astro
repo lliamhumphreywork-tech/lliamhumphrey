@@ -543,6 +543,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     </div>
     <nav class="tab-nav" id="tab-nav">
       <button class="tab-btn active" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="brief">Brief</button>
       <button class="tab-btn" data-tab="applications">Applications</button>
       <button class="tab-btn" data-tab="crm">CRM</button>
       <button class="tab-btn" data-tab="analytics">Analytics</button>
@@ -558,6 +559,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
 
   <main class="tab-content">
     <div id="tab-overview"     class="tab-panel active"><div class="spinner"></div></div>
+    <div id="tab-brief"        class="tab-panel"><div class="spinner"></div></div>
     <div id="tab-applications" class="tab-panel"><div class="spinner"></div></div>
     <div id="tab-crm"          class="tab-panel"><div class="spinner"></div></div>
     <div id="tab-analytics"    class="tab-panel"><div class="spinner"></div></div>
@@ -624,6 +626,7 @@ function showTab(id) {
 function loadTab(id) {
   switch (id) {
     case 'overview':     loadOverview();     break;
+    case 'brief':        loadBrief();        break;
     case 'applications': loadApplications(); break;
     case 'crm':          loadCRM();          break;
     case 'analytics':    loadAnalytics();    break;
@@ -715,6 +718,117 @@ function statusSelect(id, current, options) {
   });
   html += '</select>';
   return html;
+}
+
+// ── Morning Brief ──
+function loadBrief() {
+  var el = document.getElementById('tab-brief');
+  el.innerHTML = '<div class="spinner"></div>';
+  api('/api/admin/members-morning-brief').then(function(d) {
+    var s = '';
+
+    // Priority action — always at top
+    s += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:20px 24px;margin-bottom:24px;">' +
+         '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Priority Today</div>' +
+         '<div style="font-size:16px;font-weight:600;">' + esc(d.priority) + '</div>' +
+         '</div>';
+
+    var cols = '';
+
+    // New applications
+    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:20px 24px;">';
+    cols += '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">New Applications</div>';
+    if (d.apps && d.apps.length) {
+      d.apps.forEach(function(a) {
+        var score = a.score !== null ? '<span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;background:' + (a.score >= 8 ? '#edfaf3;color:#065f46' : a.score >= 5 ? '#fffbeb;color:#92400e' : '#fef2f2;color:#b91c1c') + '">' + a.score + '/10</span>' : '';
+        var flag = a.score !== null && a.score >= 5 ? ' 🔥' : '';
+        cols += '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border-ll);">' +
+                '<span style="font-weight:600;font-size:13px;flex:1;">' + esc(a.name) + flag + '</span>' +
+                score +
+                (a.revenue ? '<span style="font-size:11px;color:var(--muted);">' + esc(a.revenue) + '</span>' : '') +
+                '</div>';
+      });
+    } else {
+      cols += '<div style="color:var(--muted);font-size:13px;">No new applications this week</div>';
+    }
+    cols += '</div>';
+
+    // Pending decisions
+    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:20px 24px;">';
+    cols += '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Accepted — No Payment</div>';
+    if (d.pending && d.pending.length) {
+      d.pending.forEach(function(p) {
+        var urgency = p.daysWaiting >= 14 ? '#b91c1c' : p.daysWaiting >= 7 ? '#b45309' : '#374151';
+        cols += '<div style="padding:7px 0;border-bottom:1px solid var(--border-ll);">' +
+                '<span style="font-weight:600;font-size:13px;">' + esc(p.name) + '</span>' +
+                '<span style="font-size:11px;margin-left:8px;color:' + urgency + ';">' + p.daysWaiting + 'd waiting</span>' +
+                '</div>';
+      });
+    } else {
+      cols += '<div style="color:var(--muted);font-size:13px;">No pending decisions</div>';
+    }
+    cols += '</div>';
+
+    // Renewals
+    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:20px 24px;">';
+    cols += '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Renewals — Next 30 Days</div>';
+    if (d.renewals && d.renewals.length) {
+      d.renewals.forEach(function(r) {
+        var dot = r.daysLeft <= 3 ? '🔴' : r.daysLeft <= 7 ? '🟡' : '🟢';
+        cols += '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border-ll);">' +
+                '<span style="font-size:13px;">' + dot + '</span>' +
+                '<span style="font-weight:600;font-size:13px;flex:1;">' + esc(r.name) + (r.tier ? ' — ' + esc(r.tier) : '') + '</span>' +
+                '<span style="font-size:11px;color:var(--muted);">' + r.daysLeft + 'd</span>' +
+                '</div>';
+      });
+    } else {
+      cols += '<div style="color:var(--muted);font-size:13px;">No renewals due in 30 days</div>';
+    }
+    cols += '</div>';
+
+    // At-risk
+    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:20px 24px;">';
+    cols += '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">At-Risk Members (60+ days)</div>';
+    if (d.atRisk && d.atRisk.length) {
+      d.atRisk.forEach(function(m) {
+        cols += '<div style="padding:7px 0;border-bottom:1px solid var(--border-ll);">' +
+                '<span style="font-weight:600;font-size:13px;">' + esc(m.name) + (m.tier ? ' — ' + esc(m.tier) : '') + '</span>' +
+                '<span style="font-size:11px;color:#b91c1c;margin-left:8px;">' + m.daysSince + 'd</span>' +
+                '</div>';
+      });
+    } else {
+      cols += '<div style="color:var(--muted);font-size:13px;">All members checked in recently</div>';
+    }
+    cols += '</div>';
+
+    s += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">' + cols + '</div>';
+
+    // Post to Slack button
+    s += '<div style="margin-top:20px;display:flex;gap:10px;align-items:center;">' +
+         '<button class="review-btn review-btn-approve" onclick="postBriefToSlack(this)" style="font-size:10px;">Post to Slack</button>' +
+         '<span id="brief-slack-status" style="font-size:12px;color:var(--muted);"></span>' +
+         '</div>';
+
+    el.innerHTML = s;
+  }).catch(function(e) {
+    el.innerHTML = '<div class="empty-state"><p>' + esc(e.message) + '</p></div>';
+  });
+}
+
+function postBriefToSlack(btn) {
+  btn.disabled = true;
+  document.getElementById('brief-slack-status').textContent = 'Posting…';
+  fetch('/api/admin/members-morning-brief', {
+    method: 'POST',
+    headers: { 'x-admin-key': ADMIN_KEY },
+  }).then(function(r) {
+    if (!r.ok) throw new Error('API error ' + r.status);
+    document.getElementById('brief-slack-status').textContent = 'Posted to Slack';
+    btn.disabled = false;
+  }).catch(function(e) {
+    document.getElementById('brief-slack-status').textContent = 'Failed: ' + e.message;
+    btn.disabled = false;
+  });
 }
 
 // ── Overview ──

@@ -3,12 +3,20 @@
   "buildCommand": "npm run build",
   "crons": [
     {
+      "path": "/api/admin/members-morning-brief",
+      "schedule": "0 5 * * *"
+    },
+    {
       "path": "/api/admin/leads-daily-summary",
       "schedule": "0 6 * * *"
     },
     {
       "path": "/api/admin/analytics-daily-sync",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/admin/portal-invite-check",
+      "schedule": "0 8 * * *"
     }
   ]
 }

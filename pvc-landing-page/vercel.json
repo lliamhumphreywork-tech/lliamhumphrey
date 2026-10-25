@@ -17,6 +17,10 @@
     {
       "path": "/api/admin/portal-invite-check",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/admin/whatsapp-export-reminder",
+      "schedule": "0 7 * * 1"
     }
   ]
 }

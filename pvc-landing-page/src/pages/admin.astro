@@ -951,7 +951,9 @@ function renderAnalytics(data, ph) {
         '<div class="stat-card"><div class="stat-label">Pageviews (7d)</div><div class="stat-num">' + (ph.pageviews7 || 0).toLocaleString() + '</div></div>' +
         '<div class="stat-card"><div class="stat-label">Pageviews (30d)</div><div class="stat-num">' + (ph.pageviews30 || 0).toLocaleString() + '</div></div>' +
         '<div class="stat-card"><div class="stat-label">Visitors / day (7d)</div><div class="stat-num">' + (ph.visitors7 ? Math.round(ph.visitors7 / 7) : 0) + '</div></div>' +
-        '<div class="stat-card"><div class="stat-label">Apply modal opens (30d)</div><div class="stat-num">' + (ph.applyModal30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Apply CTA scrolled (30d)</div><div class="stat-num">' + (ph.ctaScrolled30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Apply page visits (30d)</div><div class="stat-num">' + (ph.applyPageVisits30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Applications submitted (30d)</div><div class="stat-num">' + (ph.submitted30 || 0).toLocaleString() + '</div></div>' +
       '</div>' +
       '<div style="font-family:var(--g);font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">Daily pageviews — last 7 days</div>' +
       '<div style="display:flex;align-items:stretch;gap:0;padding:0;margin-bottom:24px;background:var(--bg);border-radius:8px;padding:12px 8px">' + trendBars + '</div>' +
@@ -967,7 +969,8 @@ function renderAnalytics(data, ph) {
       phHTML +
     '</div>' +
     '<div class="card" style="margin-bottom:24px">' +
-      '<div class="card-title">Tally Forms</div>' +
+      '<div class="card-title">Other Forms — Tally</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">PVC membership applications use the custom /apply form — see Applications submitted above.</div>' +
       '<div class="form-stat-grid">' + (formCardsHTML || '<p class="td-muted">No forms configured</p>') + '</div>' +
     '</div>' +
     '<div class="two-col">' +

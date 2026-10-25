@@ -9,7 +9,6 @@ const ADMIN_KEY      = import.meta.env.ADMIN_KEY;
 
 const TALLY_FORMS = [
   { id: 'J94gk4', name: 'CT Mastermind Application' },
-  { id: 'jarg7Y', name: 'Membership Application' },
   { id: 'dWJdNz', name: 'Talent Network' },
 ];
 

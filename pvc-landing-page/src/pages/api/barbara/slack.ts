@@ -1,5 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
+import { waitUntil } from '@vercel/functions';
 import { notionQuery, notionCreate, getTitle, getSelect, titleProp, selectProp } from '../../../lib/notion';
 import { postMessage } from '../../../lib/slack-bot';
 
@@ -191,12 +192,11 @@ export const POST: APIRoute = async ({ request }) => {
   const userMessage = (event.text ?? '').trim();
   if (!userMessage) return new Response('OK', { status: 200 });
 
-  // Respond async — Slack requires 200 within 3s
-  // We fire-and-forget the actual processing
-  (async () => {
+  // Return 200 immediately (Slack requires < 3s), keep function alive with waitUntil
+  waitUntil((async () => {
     try {
-      const [history] = await Promise.all([getHistory(12)]);
-      const reply     = await askBarbara(history, userMessage);
+      const history = await getHistory(12);
+      const reply   = await askBarbara(history, userMessage);
 
       await Promise.all([
         postMessage(event.channel, reply),
@@ -208,7 +208,7 @@ export const POST: APIRoute = async ({ request }) => {
       console.error('[barbara/slack] Processing error:', e.message);
       await postMessage(event.channel, `Something went wrong on my end. Try again in a moment.`).catch(() => {});
     }
-  })();
+  })());
 
   return new Response('OK', { status: 200 });
 };

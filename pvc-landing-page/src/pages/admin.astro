@@ -393,6 +393,42 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     }
     .status-select:focus { border-color: var(--navy); }
 
+    /* ── REVIEW CARDS ── */
+    .review-grid { display: flex; flex-direction: column; gap: 16px; }
+    .review-card {
+      background: var(--surface-l); border: 1px solid var(--border-l); border-radius: 14px;
+      padding: 24px 28px; box-shadow: 0 1px 3px rgba(10,22,40,0.04);
+    }
+    .review-card-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 18px; }
+    .review-score-box {
+      width: 64px; height: 64px; border-radius: 12px; flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-family: var(--g); font-weight: 800; border: 2px solid;
+    }
+    .review-score-box.score-high  { background: #edfaf3; border-color: #34d399; color: #065f46; }
+    .review-score-box.score-mid   { background: #fffbeb; border-color: #fbbf24; color: #92400e; }
+    .review-score-box.score-low   { background: #fef2f2; border-color: #f87171; color: #b91c1c; }
+    .review-score-num  { font-size: 26px; line-height: 1; }
+    .review-score-denom { font-size: 10px; letter-spacing: 1px; opacity: 0.6; }
+    .review-card-info  { flex: 1; min-width: 0; }
+    .review-card-name  { font-family: var(--g); font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+    .review-card-meta  { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .review-verdict    { font-size: 13px; color: var(--text-secondary); line-height: 1.5; font-style: italic; margin-bottom: 0; }
+    .review-answers    { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; margin-bottom: 18px; border-top: 1px solid var(--border-ll); padding-top: 16px; }
+    @media (max-width: 700px) { .review-answers { grid-template-columns: 1fr; } }
+    .review-ans-item   {}
+    .review-ans-label  { font-family: var(--g); font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .review-ans-text   { font-size: 13px; color: var(--text-primary); line-height: 1.5; }
+    .review-actions    { display: flex; align-items: center; gap: 10px; padding-top: 16px; border-top: 1px solid var(--border-ll); }
+    .review-btn { padding: 10px 24px; border: none; border-radius: 8px; font-family: var(--g); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+    .review-btn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+    .review-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .review-btn-approve { background: #065f46; color: #fff; }
+    .review-btn-reject  { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .review-done { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; }
+    .review-done-accepted { color: #065f46; }
+    .review-done-rejected { color: #b91c1c; }
+
     /* ── DELETE BUTTON ── */
     .delete-btn {
       background: none; border: none; cursor: pointer; font-size: 13px;
@@ -754,10 +790,20 @@ function loadApplications() {
     appData.leads = leads;
     appData.leadsMap = {};
     leads.forEach(function(l) { appData.leadsMap[l.id] = l; });
-    renderApplications(leads, 'all');
+    var hasPending = leads.some(function(l) {
+      return (l.type || []).some(function(t) { return t.toLowerCase().includes('membership'); }) && l.status === 'Pending Review';
+    });
+    renderApplications(leads, hasPending ? 'review' : 'all');
   }).catch(function(e) {
     el.innerHTML = '<div class="empty-state"><p>' + esc(e.message) + '</p></div>';
   });
+}
+
+function parseAIAssessment(notes) {
+  if (!notes) return null;
+  var m = notes.match(/^AI:\s*(\d+)\/10\s*[—\-–]+\s*(.+)/m);
+  if (!m) return null;
+  return { score: parseInt(m[1]), verdict: m[2].trim() };
 }
 
 function renderApplications(leads, filter) {
@@ -774,32 +820,123 @@ function renderApplications(leads, filter) {
       return t.toLowerCase().includes('membership') || t.toLowerCase().includes('member');
     });
   });
+  else if (filter === 'review') filtered = leads.filter(function(l) {
+    var isMembership = (l.type || []).some(function(t) {
+      return t.toLowerCase().includes('membership') || t.toLowerCase().includes('member');
+    });
+    return isMembership && l.status === 'Pending Review';
+  });
 
-  var rows = filtered.map(function(l) {
-    return '<tr class="clickable-row" data-id="' + l.id + '" data-rowtype="app" id="row-' + l.id + '">' +
-      '<td><div class="td-name">' + esc(l.n) + '</div><div style="margin-top:3px;font-size:11px;color:#6b7280">' + esc(l.b) + '</div></td>' +
-      '<td>' + eventBadge(l.type) + '</td>' +
-      '<td>' + esc(l.r) + '</td>' +
-      '<td>' + tierBadge(l.t) + '</td>' +
-      '<td>' + statusSelect(l.id, l.status, CRM_STATUSES) + '</td>' +
-      '<td class="notes-cell">' +
-        '<span class="editable" onclick="editNotes(this, \'' + l.id + '\')">' + (esc(l.w) || '<span style="color:#9ca3af">Add notes...</span>') + '</span>' +
-      '</td>' +
-      '<td><button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + l.id + '\', document.getElementById(\'row-' + l.id + '\'))">✕</button></td>' +
-    '</tr>';
-  }).join('');
+  var pendingCount = leads.filter(function(l) {
+    return (l.type || []).some(function(t) { return t.toLowerCase().includes('membership'); }) && l.status === 'Pending Review';
+  }).length;
+
+  var content;
+  if (filter === 'review') {
+    if (!filtered.length) {
+      content = '<div class="empty-state"><p>No pending membership applications</p></div>';
+    } else {
+      content = '<div class="review-grid">' + filtered.map(function(l) {
+        var ai = parseAIAssessment(l.notes);
+        var score = ai ? ai.score : l.s;
+        var verdict = ai ? ai.verdict : '';
+        var scoreCls = score >= 7 ? 'score-high' : score >= 5 ? 'score-mid' : 'score-low';
+        var scoreBox = score != null
+          ? '<div class="review-score-box ' + scoreCls + '"><div class="review-score-num">' + score + '</div><div class="review-score-denom">/10</div></div>'
+          : '<div class="review-score-box score-low" style="font-size:11px;color:#9ca3af">No score</div>';
+
+        var answerFields = [
+          { label: 'Working on', val: l.working_on },
+          { label: '3-month goal', val: l.tangible_result },
+          { label: 'Contribute / gain', val: l.contribute_gain },
+          { label: 'Business needs', val: l.business_needs },
+          { label: '12-month win', val: l.winning_looks_like },
+          { label: 'Commitment', val: l.commitment },
+        ].filter(function(f) { return f.val; });
+
+        var answersHTML = answerFields.map(function(f) {
+          return '<div class="review-ans-item"><div class="review-ans-label">' + esc(f.label) + '</div><div class="review-ans-text">' + esc(f.val) + '</div></div>';
+        }).join('');
+
+        var firstName = esc((l.n || '').split(' ')[0]);
+        return '<div class="review-card" id="review-' + l.id + '">' +
+          '<div class="review-card-header">' +
+            scoreBox +
+            '<div class="review-card-info">' +
+              '<div class="review-card-name">' + esc(l.n) + '</div>' +
+              '<div class="review-card-meta">' +
+                '<span class="badge badge-default" style="font-size:11px">' + esc(l.r) + '</span>' +
+                '<span style="font-size:12px;color:var(--text-muted)">' + esc(l.b) + '</span>' +
+                '<span style="font-size:11px;color:var(--text-muted)">' + esc(l.e) + '</span>' +
+              '</div>' +
+              (verdict ? '<div class="review-verdict">"' + esc(verdict) + '"</div>' : '') +
+            '</div>' +
+          '</div>' +
+          (answersHTML ? '<div class="review-answers">' + answersHTML + '</div>' : '') +
+          '<div class="review-actions" id="review-actions-' + l.id + '">' +
+            '<button class="review-btn review-btn-approve" onclick="makeDecision(\'' + l.id + '\', \'' + esc(l.e) + '\', \'' + firstName + '\', \'accept\')">Accept</button>' +
+            '<button class="review-btn review-btn-reject"  onclick="makeDecision(\'' + l.id + '\', \'' + esc(l.e) + '\', \'' + firstName + '\', \'reject\')">Decline</button>' +
+            '<span style="flex:1"></span>' +
+            statusSelect(l.id, l.status, CRM_STATUSES) +
+          '</div>' +
+        '</div>';
+      }).join('') + '</div>';
+    }
+  } else {
+    var rows = filtered.map(function(l) {
+      var ai = parseAIAssessment(l.notes);
+      var scoreTag = (ai || l.s != null)
+        ? '<span class="badge ' + ((ai ? ai.score : l.s) >= 7 ? 'badge-green' : (ai ? ai.score : l.s) >= 5 ? 'badge-amber' : 'badge-red') + '" style="font-size:10px">' + (ai ? ai.score : l.s) + '/10</span>'
+        : '';
+      return '<tr class="clickable-row" data-id="' + l.id + '" data-rowtype="app" id="row-' + l.id + '">' +
+        '<td><div class="td-name">' + esc(l.n) + '</div><div style="margin-top:3px;font-size:11px;color:#6b7280">' + esc(l.b) + '</div></td>' +
+        '<td>' + eventBadge(l.type) + '</td>' +
+        '<td>' + esc(l.r) + '</td>' +
+        '<td>' + tierBadge(l.t) + (scoreTag ? ' ' + scoreTag : '') + '</td>' +
+        '<td>' + statusSelect(l.id, l.status, CRM_STATUSES) + '</td>' +
+        '<td class="notes-cell">' +
+          '<span class="editable" onclick="editNotes(this, \'' + l.id + '\')">' + (esc(l.w) || '<span style="color:#9ca3af">Add notes...</span>') + '</span>' +
+        '</td>' +
+        '<td><button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + l.id + '\', document.getElementById(\'row-' + l.id + '\'))">✕</button></td>' +
+      '</tr>';
+    }).join('');
+    content = filtered.length
+      ? '<div class="table-wrap"><table><thead><tr><th>Applicant</th><th>Event</th><th>Revenue</th><th>Tier / Score</th><th>Status</th><th>Goals / Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+      : '<div class="empty-state"><p>No applications found</p></div>';
+  }
 
   el.innerHTML =
     '<div class="page-title">Applications</div>' +
-    '<div class="page-sub">All event applications — click a row to see full details</div>' +
+    '<div class="page-sub">' + (filter === 'review' ? 'Pending membership applications — AI-scored and ready for your decision' : 'All applications — click a row to see full details') + '</div>' +
     '<div class="toolbar">' +
       '<button class="filter-btn' + (filter === 'all' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'all\')">All</button>' +
       '<button class="filter-btn' + (filter === 'events' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'events\')">Events</button>' +
       '<button class="filter-btn' + (filter === 'membership' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'membership\')">Membership</button>' +
+      '<button class="filter-btn' + (filter === 'review' ? ' active' : '') + '" onclick="renderApplications(appData.leads, \'review\')" style="' + (pendingCount > 0 ? 'font-weight:700' : '') + '">Review' + (pendingCount > 0 ? ' <span style="background:#c94a5c;color:#fff;border-radius:10px;padding:1px 6px;font-size:9px;margin-left:4px">' + pendingCount + '</span>' : '') + '</button>' +
       '<span class="count-tag">' + filtered.length + ' entries</span>' +
       '<button class="refresh-btn" onclick="loaded.applications=false; loadApplications()">Refresh</button>' +
     '</div>' +
-    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Applicant</th><th>Event</th><th>Revenue</th><th>Tier</th><th>Status</th><th>Goals / Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No applications found</p></div>');
+    content;
+}
+
+function makeDecision(id, email, firstName, decision) {
+  var actionsEl = document.getElementById('review-actions-' + id);
+  if (!actionsEl) return;
+  actionsEl.querySelectorAll('button').forEach(function(b) { b.disabled = true; });
+  api('/api/admin/decision', {
+    method: 'POST',
+    body: JSON.stringify({ pageId: id, decision: decision, email: email, firstName: firstName }),
+  }).then(function() {
+    var label = decision === 'accept' ? 'Accepted' : 'Declined';
+    var cls = decision === 'accept' ? 'review-done-accepted' : 'review-done-rejected';
+    actionsEl.innerHTML = '<div class="review-done ' + cls + '">' + label + ' — email sent to ' + esc(email) + '</div>';
+    toast((decision === 'accept' ? 'Accepted' : 'Declined') + ': ' + firstName);
+    var lead = (appData.leads || []).find(function(l) { return l.id === id; });
+    if (lead) lead.status = decision === 'accept' ? 'Accepted' : 'Rejected';
+  }).catch(function(e) {
+    actionsEl.querySelectorAll('button').forEach(function(b) { b.disabled = false; });
+    toast('Failed: ' + e.message, true);
+  });
 }
 
 // ── CRM ──

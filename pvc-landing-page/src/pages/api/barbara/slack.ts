@@ -50,7 +50,7 @@ async function getHistory(limit = 12): Promise<ChatMessage[]> {
 async function saveMessage(role: 'user' | 'assistant', content: string): Promise<void> {
   try {
     await notionCreate(BARBARA_HISTORY_DB, {
-      'Message': titleProp(content.slice(0, 2000)),
+      'Message': titleProp(content.slice(0, 2000)), // Notion title limit
       'Role':    selectProp(role),
     });
   } catch (e: any) {
@@ -103,7 +103,7 @@ async function askBarbara(history: ChatMessage[], userMessage: string): Promise<
     },
     body: JSON.stringify({
       model:      'claude-haiku-5-5',
-      max_tokens: 600,
+      max_tokens: 1024,
       system:     buildSystemPrompt(),
       messages,
     }),
@@ -199,7 +199,7 @@ export const POST: APIRoute = async ({ request }) => {
   // Return 200 immediately (Slack requires < 3s), keep function alive with waitUntil
   waitUntil((async () => {
     try {
-      const history = await getHistory(12);
+      const history = await getHistory(10);
       const reply   = await askBarbara(history, userMessage);
 
       await Promise.all([

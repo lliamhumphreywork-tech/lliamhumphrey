@@ -206,7 +206,9 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     .badge-hot      { background: #fef2f2; color: #b91c1c; }
     .badge-warm     { background: #fffbeb; color: #92400e; }
     .badge-cold     { background: #f5f6f8; color: #6b7280; }
+    .badge-red      { background: #fef2f2; color: #b91c1c; }
     .badge-green    { background: #edfaf3; color: #1a7a52; }
+    .status-select  { border: none; background: transparent; font-size: 11px; font-weight: 600; cursor: pointer; padding: 3px 6px; border-radius: 4px; outline: none; }
     .badge-blue     { background: #eef4ff; color: #1d4ed8; }
     .badge-navy     { background: #eef4ff; color: var(--navy); }
     .badge-applied  { background: #eef4ff; color: #1d4ed8; }
@@ -1090,8 +1092,13 @@ function renderMembers(members, q) {
   }) : members;
 
   var rows = filtered.map(function(m) {
+    var statusColor = { Active: 'badge-green', Alumni: 'badge-blue', Churned: 'badge-red', Paused: 'badge-default' }[m.status] || 'badge-default';
+    var statusOpts = ['Active','Paused','Alumni','Churned'].map(function(s) {
+      return '<option value="' + s + '"' + (m.status === s ? ' selected' : '') + '>' + s + '</option>';
+    }).join('');
     return '<tr class="clickable-row" data-id="' + m.id + '" data-rowtype="member" id="mem-' + m.id + '">' +
       '<td><div class="td-name">' + esc(m.n) + '</div><div style="font-size:11px;color:#6b7280;margin-top:2px">' + esc(m.b) + '</div></td>' +
+      '<td onclick="event.stopPropagation()"><select class="status-select ' + statusColor + '" onchange="updateMemberStatus(\'' + m.id + '\', this)">' + statusOpts + '</select></td>' +
       '<td>' + esc(m.r) + '</td>' +
       '<td>' + (m.tier ? '<span class="badge badge-blue" style="white-space:nowrap">' + esc(m.tier) + '</span>' : '—') + '</td>' +
       '<td class="td-muted" style="font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(m.bottleneck || '—') + '</td>' +
@@ -1108,7 +1115,27 @@ function renderMembers(members, q) {
       '<span class="count-tag">' + filtered.length + ' of ' + members.length + '</span>' +
       '<button class="refresh-btn" onclick="loaded.members=false; loadMembers()">Refresh</button>' +
     '</div>' +
-    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Member</th><th>Revenue</th><th>Tier</th><th>Current Bottleneck</th><th>Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No members found</p></div>');
+    (filtered.length ? '<div class="table-wrap"><table><thead><tr><th>Member</th><th>Status</th><th>Revenue</th><th>Tier</th><th>Current Bottleneck</th><th>Notes</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p>No members found</p></div>');
+}
+
+function updateMemberStatus(pageId, selectEl) {
+  var status = selectEl.value;
+  var prev = selectEl.dataset.prev || selectEl.value;
+  selectEl.dataset.prev = status;
+  selectEl.disabled = true;
+  api('/api/admin/members', { method: 'PATCH', body: JSON.stringify({ pageId: pageId, status: status }) })
+    .then(function() {
+      toast('Status updated to ' + status);
+      selectEl.disabled = false;
+      selectEl.dataset.prev = status;
+      // update local data
+      if (appData.membersMap && appData.membersMap[pageId]) appData.membersMap[pageId].status = status;
+    })
+    .catch(function(e) {
+      toast('Failed: ' + e.message, true);
+      selectEl.value = prev;
+      selectEl.disabled = false;
+    });
 }
 
 // ── SOPs ──

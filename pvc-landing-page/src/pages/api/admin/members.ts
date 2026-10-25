@@ -36,6 +36,39 @@ function parseMember(page: any) {
   };
 }
 
+const ALLOWED_STATUSES = ['Active', 'Paused', 'Alumni', 'Churned'];
+const PAGE_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$|^[0-9a-f]{32}$/i;
+
+export const PATCH: APIRoute = async ({ request }) => {
+  if (!auth(request)) return new Response('Unauthorized', { status: 401 });
+
+  let body: any;
+  try { body = await request.json(); } catch {
+    return new Response('Invalid JSON', { status: 400 });
+  }
+
+  const { pageId, status } = body;
+  if (!pageId || !PAGE_ID_RE.test(pageId)) return new Response('Invalid pageId', { status: 400 });
+  if (!status || !ALLOWED_STATUSES.includes(status)) return new Response('Invalid status', { status: 400 });
+
+  const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${NOTION_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Notion-Version': '2022-06-28',
+    },
+    body: JSON.stringify({ properties: { Status: { select: { name: status } } } }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    return new Response(JSON.stringify({ error: text }), { status: res.status, headers: { 'Content-Type': 'application/json' } });
+  }
+
+  return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } });
+};
+
 export const GET: APIRoute = async ({ request }) => {
   if (!auth(request)) return new Response('Unauthorized', { status: 401 });
 

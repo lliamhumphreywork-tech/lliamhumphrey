@@ -684,13 +684,32 @@ const NOISE = (id: string) => `
     iframe.src = url.toString();
   }
 
+  const phCapture = (event: string, props?: Record<string, any>) => {
+    if (typeof (window as any).posthog !== 'undefined') (window as any).posthog.capture(event, props);
+  };
+
+  const getUtmProps = () => {
+    const params = new URLSearchParams(window.location.search);
+    const referrer = document.referrer
+      ? (() => { try { return new URL(document.referrer).hostname; } catch { return document.referrer; } })()
+      : 'direct';
+    return {
+      utm_source:   params.get('utm_source')   || undefined,
+      utm_medium:   params.get('utm_medium')   || undefined,
+      utm_campaign: params.get('utm_campaign') || undefined,
+      referrer,
+    };
+  };
+
   const openModal = (e: Event) => {
     e.preventDefault();
+    const trigger = (e.currentTarget as HTMLElement)?.dataset?.trigger || 'unknown';
     injectSourceIntoTally('.pvc-modal-form iframe');
     modal?.classList.add('open');
     document.body.style.overflow = 'hidden';
     if (typeof (window as any).Tally !== 'undefined') (window as any).Tally.loadEmbeds();
     if (typeof (window as any).fbq !== 'undefined') (window as any).fbq('track', 'Lead');
+    phCapture('apply_modal_opened', { source: trigger, ...getUtmProps() });
   };
   const closeModal = () => { modal?.classList.remove('open'); document.body.style.overflow = ''; };
   document.querySelectorAll('.apply-trigger').forEach((btn) => btn.addEventListener('click', openModal));
@@ -720,6 +739,7 @@ const NOISE = (id: string) => `
     if (ph) {
       !function(t: any,e: any){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i: any,s: any,a: any){function g(t: any,e: any){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t: any){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));
       (window as any).posthog.init(ph, {api_host: 'https://eu.posthog.com', capture_pageview: true});
+      (window as any).posthog.capture('page_viewed', getUtmProps());
     }
   }
 
@@ -740,7 +760,7 @@ const NOISE = (id: string) => `
     cookieBanner?.classList.remove('visible');
   });
 
-  // Meta Pixel — fire CompleteRegistration when Tally membership form submits
+  // Meta Pixel — fire CompleteRegistration when Tally membership form submits (modal fallback)
   window.addEventListener('message', (e: MessageEvent) => {
     if (e.data?.event === 'Tally.FormSubmitted' || e.data?.name === 'tally-form-submitted') {
       if (typeof (window as any).fbq !== 'undefined') {
@@ -748,6 +768,20 @@ const NOISE = (id: string) => `
       }
     }
   });
+
+  // CTA scroll depth — fire once when the apply section enters the viewport
+  const accessSection = document.getElementById('access');
+  if (accessSection) {
+    const ctaObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          phCapture('apply_cta_scrolled_past', getUtmProps());
+          ctaObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+    ctaObserver.observe(accessSection);
+  }
 
   // FAQ accordion
   document.querySelectorAll('.faq-question').forEach((btn) => {

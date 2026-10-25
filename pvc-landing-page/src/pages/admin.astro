@@ -773,92 +773,113 @@ function statusSelect(id, current, options) {
 }
 
 // ── Morning Brief ──
+function briefStatusBadge(status) {
+  var map = {
+    'Pending Review':  'background:#fef3c7;color:#92400e',
+    'Accepted':        'background:#d1fae5;color:#065f46',
+    'Member':          'background:#ede9fe;color:#5b21b6',
+    'Rejected':        'background:#fee2e2;color:#991b1b',
+    'In Conversation': 'background:#dbeafe;color:#1e40af',
+    'Call Booked':     'background:#dbeafe;color:#1e40af',
+    'Call Done':       'background:#d1fae5;color:#065f46',
+  };
+  var s = map[status] || 'background:var(--border-ll);color:var(--text-secondary)';
+  return '<span style="font-size:10px;font-weight:700;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;' + s + '">' + esc(status) + '</span>';
+}
+
 function loadBrief() {
   var el = document.getElementById('tab-brief');
   el.innerHTML = '<div class="spinner"></div>';
   api('/api/admin/members-morning-brief').then(function(d) {
     var s = '';
 
-    // Priority action — always at top
-    s += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:20px 24px;margin-bottom:24px;">' +
-         '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Priority Today</div>' +
-         '<div style="font-size:16px;font-weight:600;">' + esc(d.priority) + '</div>' +
+    // Priority — dark card, big text
+    var priorityIsAllClear = (d.priority || '').toLowerCase().includes('all clear') || (d.priority || '').toLowerCase().includes('clean slate');
+    s += '<div style="background:' + (priorityIsAllClear ? 'var(--surface-l)' : 'var(--navy)') + ';border:1px solid ' + (priorityIsAllClear ? 'var(--border-l)' : 'transparent') + ';border-radius:14px;padding:24px 28px;margin-bottom:28px;">' +
+         '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:' + (priorityIsAllClear ? 'var(--text-muted)' : 'rgba(255,255,255,0.5)') + ';margin-bottom:10px;">Priority Today</div>' +
+         '<div style="font-size:20px;font-weight:700;line-height:1.3;color:' + (priorityIsAllClear ? 'var(--text-primary)' : 'var(--white)') + ';">' + esc(d.priority) + '</div>' +
          '</div>';
 
     var cols = '';
 
-    // New applications
-    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:20px 24px;">';
-    cols += '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">New Applications</div>';
+    // New applications (last 14 days, all statuses)
+    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:22px 24px;">';
+    cols += '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:16px;">New Applications <span style="font-weight:400;color:var(--text-muted);font-size:10px;margin-left:4px;">(14 days)</span></div>';
     if (d.apps && d.apps.length) {
       d.apps.forEach(function(a) {
-        var score = a.score !== null ? '<span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;background:' + (a.score >= 8 ? '#edfaf3;color:#065f46' : a.score >= 5 ? '#fffbeb;color:#92400e' : '#fef2f2;color:#b91c1c') + '">' + a.score + '/10</span>' : '';
-        var flag = a.score !== null && a.score >= 5 ? ' 🔥' : '';
-        cols += '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border-ll);">' +
-                '<span style="font-weight:600;font-size:13px;flex:1;">' + esc(a.name) + flag + '</span>' +
+        var score = a.score !== null ? '<span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;background:' + (a.score >= 8 ? '#d1fae5;color:#065f46' : a.score >= 5 ? '#fef3c7;color:#92400e' : '#fee2e2;color:#991b1b') + '">' + a.score + '/10</span>' : '';
+        cols += '<div style="padding:9px 0;border-bottom:1px solid var(--border-ll);display:flex;flex-direction:column;gap:4px;">' +
+                '<div style="display:flex;align-items:center;gap:8px;">' +
+                '<span style="font-weight:600;font-size:14px;color:var(--text-primary);flex:1;">' + esc(a.name) + '</span>' +
                 score +
-                (a.revenue ? '<span style="font-size:11px;color:var(--muted);">' + esc(a.revenue) + '</span>' : '') +
+                '</div>' +
+                '<div style="display:flex;align-items:center;gap:6px;">' +
+                (a.status ? briefStatusBadge(a.status) : '') +
+                (a.revenue ? '<span style="font-size:11px;color:var(--text-muted);">' + esc(a.revenue) + '</span>' : '') +
+                '</div>' +
                 '</div>';
       });
     } else {
-      cols += '<div style="color:var(--muted);font-size:13px;">No new applications this week</div>';
+      cols += '<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">No new applications in the last 14 days</div>';
     }
     cols += '</div>';
 
     // Pending decisions
-    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:20px 24px;">';
-    cols += '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Accepted — No Payment</div>';
+    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:22px 24px;">';
+    cols += '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:16px;">Accepted — No Payment</div>';
     if (d.pending && d.pending.length) {
       d.pending.forEach(function(p) {
-        var urgency = p.daysWaiting >= 14 ? '#b91c1c' : p.daysWaiting >= 7 ? '#b45309' : '#374151';
-        cols += '<div style="padding:7px 0;border-bottom:1px solid var(--border-ll);">' +
-                '<span style="font-weight:600;font-size:13px;">' + esc(p.name) + '</span>' +
-                '<span style="font-size:11px;margin-left:8px;color:' + urgency + ';">' + p.daysWaiting + 'd waiting</span>' +
+        var urgColor = p.daysWaiting >= 14 ? '#dc2626' : p.daysWaiting >= 7 ? '#d97706' : 'var(--text-secondary)';
+        cols += '<div style="padding:9px 0;border-bottom:1px solid var(--border-ll);">' +
+                '<div style="font-weight:600;font-size:14px;color:var(--text-primary);margin-bottom:3px;">' + esc(p.name) + '</div>' +
+                '<span style="font-size:12px;color:' + urgColor + ';font-weight:600;">' + p.daysWaiting + ' days waiting</span>' +
+                (p.email ? '<span style="font-size:11px;color:var(--text-muted);margin-left:8px;">' + esc(p.email) + '</span>' : '') +
                 '</div>';
       });
     } else {
-      cols += '<div style="color:var(--muted);font-size:13px;">No pending decisions</div>';
+      cols += '<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">No pending decisions</div>';
     }
     cols += '</div>';
 
     // Renewals
-    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:20px 24px;">';
-    cols += '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Renewals — Next 30 Days</div>';
+    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:22px 24px;">';
+    cols += '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:16px;">Renewals — Next 30 Days</div>';
     if (d.renewals && d.renewals.length) {
       d.renewals.forEach(function(r) {
         var dot = r.daysLeft <= 3 ? '🔴' : r.daysLeft <= 7 ? '🟡' : '🟢';
-        cols += '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border-ll);">' +
-                '<span style="font-size:13px;">' + dot + '</span>' +
-                '<span style="font-weight:600;font-size:13px;flex:1;">' + esc(r.name) + (r.tier ? ' — ' + esc(r.tier) : '') + '</span>' +
-                '<span style="font-size:11px;color:var(--muted);">' + r.daysLeft + 'd</span>' +
+        cols += '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-ll);">' +
+                '<span style="font-size:14px;">' + dot + '</span>' +
+                '<div style="flex:1;">' +
+                '<div style="font-weight:600;font-size:14px;color:var(--text-primary);">' + esc(r.name) + (r.tier ? ' <span style="font-weight:400;color:var(--text-muted);">— ' + esc(r.tier) + '</span>' : '') + '</div>' +
+                '</div>' +
+                '<span style="font-size:12px;font-weight:700;color:' + (r.daysLeft <= 7 ? '#dc2626' : 'var(--text-muted)') + ';">' + r.daysLeft + 'd</span>' +
                 '</div>';
       });
     } else {
-      cols += '<div style="color:var(--muted);font-size:13px;">No renewals due in 30 days</div>';
+      cols += '<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">No renewals due in 30 days</div>';
     }
     cols += '</div>';
 
     // At-risk
-    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:20px 24px;">';
-    cols += '<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">At-Risk Members (60+ days)</div>';
+    cols += '<div style="background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:22px 24px;">';
+    cols += '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:16px;">At-Risk Members <span style="font-weight:400;color:var(--text-muted);font-size:10px;margin-left:4px;">(60+ days)</span></div>';
     if (d.atRisk && d.atRisk.length) {
       d.atRisk.forEach(function(m) {
-        cols += '<div style="padding:7px 0;border-bottom:1px solid var(--border-ll);">' +
-                '<span style="font-weight:600;font-size:13px;">' + esc(m.name) + (m.tier ? ' — ' + esc(m.tier) : '') + '</span>' +
-                '<span style="font-size:11px;color:#b91c1c;margin-left:8px;">' + m.daysSince + 'd</span>' +
+        cols += '<div style="padding:9px 0;border-bottom:1px solid var(--border-ll);">' +
+                '<div style="font-weight:600;font-size:14px;color:var(--text-primary);margin-bottom:3px;">' + esc(m.name) + (m.tier ? ' <span style="font-weight:400;color:var(--text-muted);">— ' + esc(m.tier) + '</span>' : '') + '</div>' +
+                '<span style="font-size:12px;color:#dc2626;font-weight:600;">' + m.daysSince + ' days no check-in</span>' +
                 '</div>';
       });
     } else {
-      cols += '<div style="color:var(--muted);font-size:13px;">All members checked in recently</div>';
+      cols += '<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">All members checked in recently</div>';
     }
     cols += '</div>';
 
-    s += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">' + cols + '</div>';
+    s += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">' + cols + '</div>';
 
-    // Post to Slack button
-    s += '<div style="margin-top:20px;display:flex;gap:10px;align-items:center;">' +
+    s += '<div style="margin-top:24px;display:flex;gap:10px;align-items:center;">' +
          '<button class="review-btn review-btn-approve" onclick="postBriefToSlack(this)" style="font-size:10px;">Post to Slack</button>' +
-         '<span id="brief-slack-status" style="font-size:12px;color:var(--muted);"></span>' +
+         '<span id="brief-slack-status" style="font-size:12px;color:var(--text-muted);"></span>' +
          '</div>';
 
     el.innerHTML = s;

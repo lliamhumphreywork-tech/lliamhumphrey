@@ -17,24 +17,26 @@ function daysBetween(a: Date, b: Date) {
   return Math.floor((b.getTime() - a.getTime()) / 86400000);
 }
 
-// 1. New applications this week (CRM, Pending Review, last 7 days)
+// 1. New applications this week — all statuses, last 14 days, sorted newest first
 async function getNewApplications(today: Date) {
-  const cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 7);
+  const cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 14);
   const pages  = await notionQuery(NOTION_CRM_DB, {
-    and: [
-      { property: 'Status', select: { equals: 'Pending Review' } },
-      { property: 'Submission Date', date: { on_or_after: cutoff.toISOString().split('T')[0] } },
-    ],
+    property: 'Submission Date', date: { on_or_after: cutoff.toISOString().split('T')[0] },
   });
-  return pages.map((pg: any) => {
-    const p = pg.properties;
-    return {
-      name:    getTitle(p, 'Name'),
-      revenue: getText(p, 'Monthly Revenue') || getSelect(p, 'Revenue Stage'),
-      score:   p['Application Score']?.number ?? null,
-      type:    (p['Type']?.multi_select ?? []).map((t: any) => t.name).join(', '),
-    };
-  });
+  return pages
+    .map((pg: any) => {
+      const p = pg.properties;
+      return {
+        name:      getTitle(p, 'Name'),
+        revenue:   getText(p, 'Monthly Revenue') || getSelect(p, 'Revenue Stage'),
+        score:     p['Application Score']?.number ?? null,
+        status:    getSelect(p, 'Status'),
+        submitted: p['Submission Date']?.date?.start ?? '',
+        type:      (p['Type']?.multi_select ?? []).map((t: any) => t.name).join(', '),
+      };
+    })
+    .filter((a: any) => a.submitted)
+    .sort((a: any, b: any) => b.submitted.localeCompare(a.submitted));
 }
 
 // 2. Pending decisions: Accepted status, no payment for 5+ days

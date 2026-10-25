@@ -598,7 +598,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
       <button class="tab-btn" data-tab="analytics">Analytics</button>
       <button class="tab-btn" data-tab="talent">Talent Network</button>
       <button class="tab-btn" data-tab="members">Members</button>
-      <button class="tab-btn" data-tab="agent">Agent</button>
+      <button class="tab-btn" data-tab="agent">AI Team</button>
       <button class="tab-btn" data-tab="sops">SOPs</button>
       <button class="tab-btn" data-tab="revenue">Revenue</button>
     </nav>
@@ -1742,17 +1742,23 @@ function openAppDrawer(l) {
   var old = document.getElementById('drawer-actions');
   if (old) old.remove();
 
-  if (isMembership && l.status !== 'Accepted' && l.status !== 'Rejected') {
+  if (isMembership) {
     var firstName = esc((l.n || '').split(' ')[0]);
     var email = esc(l.e || '');
     var actions = document.createElement('div');
     actions.id = 'drawer-actions';
     actions.className = 'drawer-actions';
-    actions.innerHTML =
-      '<button class="action-btn action-btn-accept" onclick="decideApplication(\'' + l.id + '\',\'accept\',\'' + email + '\',\'' + firstName + '\',this.closest(\'.drawer-actions\'))">Accept</button>' +
-      '<button class="action-btn action-btn-conversation" onclick="decideApplication(\'' + l.id + '\',\'conversation\',\'' + email + '\',\'' + firstName + '\',this.closest(\'.drawer-actions\'))">In Conversation</button>' +
-      '<button class="action-btn action-btn-reject" onclick="decideApplication(\'' + l.id + '\',\'reject\',\'' + email + '\',\'' + firstName + '\',this.closest(\'.drawer-actions\'))">Reject</button>';
-    document.getElementById('drawer').appendChild(actions);
+    if (l.status === 'Accepted') {
+      actions.innerHTML =
+        '<button class="action-btn action-btn-accept" id="onboard-btn-' + l.id + '" onclick="runOnboard(\'' + esc(l.id) + '\',\'' + email + '\',\'' + esc(l.n || '') + '\',this)">Onboard with Susan</button>' +
+        '<span id="onboard-status-' + l.id + '" style="font-size:12px;color:var(--text-muted);align-self:center"></span>';
+    } else if (l.status !== 'Rejected' && l.status !== 'Member') {
+      actions.innerHTML =
+        '<button class="action-btn action-btn-accept" onclick="decideApplication(\'' + l.id + '\',\'accept\',\'' + email + '\',\'' + firstName + '\',this.closest(\'.drawer-actions\'))">Accept</button>' +
+        '<button class="action-btn action-btn-conversation" onclick="decideApplication(\'' + l.id + '\',\'conversation\',\'' + email + '\',\'' + firstName + '\',this.closest(\'.drawer-actions\'))">In Conversation</button>' +
+        '<button class="action-btn action-btn-reject" onclick="decideApplication(\'' + l.id + '\',\'reject\',\'' + email + '\',\'' + firstName + '\',this.closest(\'.drawer-actions\'))">Reject</button>';
+    }
+    if (actions.innerHTML) document.getElementById('drawer').appendChild(actions);
   }
 
   document.getElementById('drawer').classList.add('open');

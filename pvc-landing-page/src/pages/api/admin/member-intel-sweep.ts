@@ -169,31 +169,14 @@ function formatConnections(raw: string): string {
   return `*Connection Opportunities*\n${formatted}`;
 }
 
-export const POST: APIRoute = async ({ request }) => {
-  const isCron  = request.headers.get('x-vercel-cron') === '1';
-  const isAdmin = ADMIN_KEY && request.headers.get('x-admin-key') === ADMIN_KEY;
-  if (!isCron && !isAdmin) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
-  }
+async function runSweep(postToSlack: boolean) {
+  const members = await fetchAllMembers();
+  if (!members.length) return { flagged: [], connections: '', members: [] };
 
-  let members: MemberRecord[];
-  try {
-    members = await fetchAllMembers();
-  } catch (e: any) {
-    console.error('[member-intel-sweep] Failed to fetch members:', e.message);
-    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-  }
-
-  if (!members.length) {
-    return new Response(JSON.stringify({ ok: true, flagged: 0 }), { headers: { 'Content-Type': 'application/json' } });
-  }
-
-  // Determine flags — one flag per member (highest priority wins)
   const flagged: { member: MemberRecord; flag: string; reason: string }[] = [];
   for (const m of members) {
     const daysToFollowUp   = daysFromToday(m.nextFollowUp);
     const daysSinceCheckIn = m.lastCheckIn ? -daysFromToday(m.lastCheckIn) : Infinity;
-
     if (m.nextFollowUp && daysToFollowUp < 0) {
       flagged.push({ member: m, flag: 'overdue', reason: `Follow-up was due ${Math.abs(daysToFollowUp)}d ago (${m.nextFollowUp})` });
     } else if (m.nextFollowUp && daysToFollowUp <= FOLLOW_UP_DUE_DAYS) {
@@ -203,36 +186,65 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
-  // Draft messages + find connections in parallel
   const [drafts, connections] = await Promise.all([
     Promise.all(flagged.map(f => draftCheckIn(f.member, f.reason))),
     findConnectionOpportunities(members),
   ]);
 
-  // Post header if there's anything to say
   const hasConnections = connections && connections !== 'NO_MATCHES';
-  if (flagged.length || hasConnections) {
-    await postWebhook(SLACK_MEMBER_INTEL_URL, `*Member Intelligence Sweep*  ·  ${new Date().toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long' })}`);
+
+  if (postToSlack) {
+    if (flagged.length || hasConnections) {
+      await postWebhook(SLACK_MEMBER_INTEL_URL, `*Member Intelligence Sweep*  ·  ${new Date().toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long' })}`);
+    }
+    for (let i = 0; i < flagged.length; i++) {
+      await postWebhook(SLACK_MEMBER_INTEL_URL, formatMemberBlock(flagged[i].member, flagged[i].flag, flagged[i].reason, drafts[i]));
+    }
+    if (hasConnections) {
+      const formatted = formatConnections(connections);
+      if (formatted) await postWebhook(SLACK_MEMBER_INTEL_URL, formatted);
+    }
+    if (!flagged.length && !hasConnections) {
+      await postWebhook(SLACK_MEMBER_INTEL_URL, `✅ *Member sweep complete* — no follow-ups due, no overdue check-ins, no new connection matches. All good.`);
+    }
   }
 
-  // Post each flagged member
-  for (let i = 0; i < flagged.length; i++) {
-    await postWebhook(SLACK_MEMBER_INTEL_URL, formatMemberBlock(flagged[i].member, flagged[i].flag, flagged[i].reason, drafts[i]));
-  }
+  return {
+    members,
+    flagged: flagged.map((f, i) => ({
+      name:        f.member.name,
+      flag:        f.flag,
+      reason:      f.reason,
+      tier:        f.member.tier,
+      revenueStage: f.member.revenueStage,
+      business:    f.member.business,
+      goal:        f.member.goal,
+      bottleneck:  f.member.bottleneck,
+      lastCheckIn: f.member.lastCheckIn,
+      nextFollowUp: f.member.nextFollowUp,
+      draft:       drafts[i],
+    })),
+    connections: hasConnections ? connections : '',
+  };
+}
 
-  // Post connections
-  if (hasConnections) {
-    const formatted = formatConnections(connections);
-    if (formatted) await postWebhook(SLACK_MEMBER_INTEL_URL, formatted);
+export const POST: APIRoute = async ({ request }) => {
+  const isCron    = request.headers.get('x-vercel-cron') === '1';
+  const isAdmin   = ADMIN_KEY && request.headers.get('x-admin-key') === ADMIN_KEY;
+  if (!isCron && !isAdmin) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
   }
+  const url     = new URL(request.url);
+  const preview = url.searchParams.get('preview') === '1';
 
-  // All clear message
-  if (!flagged.length && !hasConnections) {
-    await postWebhook(SLACK_MEMBER_INTEL_URL, `✅ *Member sweep complete* — no follow-ups due, no overdue check-ins, no new connection matches. All good.`);
+  try {
+    const result = await runSweep(!preview);
+    console.log(`[member-intel-sweep] Done — flagged: ${result.flagged.length}, preview: ${preview}`);
+    return new Response(JSON.stringify({ ok: true, ...result }), { headers: { 'Content-Type': 'application/json' } });
+  } catch (e: any) {
+    console.error('[member-intel-sweep] Error:', e.message);
+    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
-
-  console.log(`[member-intel-sweep] Done — flagged: ${flagged.length}, connections: ${hasConnections ? 'yes' : 'none'}`);
-  return new Response(JSON.stringify({ ok: true, flagged: flagged.length }), { headers: { 'Content-Type': 'application/json' } });
 };
 
 export const GET: APIRoute = async ({ request }) => POST({ request } as any);

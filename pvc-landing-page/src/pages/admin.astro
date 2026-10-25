@@ -498,6 +498,55 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     .action-btn-accept { background: var(--navy); color: var(--white); }
     .action-btn-reject { background: var(--border-ll); color: var(--red); border: 1px solid var(--red); }
     .action-btn-conversation { background: var(--border-ll); color: var(--text-secondary); border: 1px solid var(--border-l); }
+
+    /* ── AGENT (SUSAN) ── */
+    .agent-task-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .agent-task-card {
+      background: var(--surface-l); border: 1px solid var(--border-l); border-radius: 10px;
+      padding: 20px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .agent-task-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .agent-task-name { font-family: var(--g); font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    .agent-task-schedule { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .agent-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-l); flex-shrink: 0; margin-top: 4px; }
+    .agent-task-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
+    .agent-run-btn {
+      align-self: flex-start; padding: 7px 14px; font-family: var(--g); font-size: 10px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; background: var(--navy); color: var(--white);
+      border: none; border-radius: 6px; cursor: pointer; transition: opacity 0.15s;
+    }
+    .agent-run-btn:hover:not(:disabled) { opacity: 0.8; }
+    .agent-run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .agent-task-output { margin-top: 4px; }
+    .agent-output-ok { font-size: 13px; color: var(--green); padding: 8px 0; }
+
+    .agent-all-clear { background: #f0fdf8; border: 1px solid #b3e9d4; border-radius: 8px; padding: 16px 20px; font-size: 14px; color: #1a6245; }
+    .agent-intel-card {
+      background: var(--surface-l); border: 1px solid var(--border-l); border-radius: 10px; padding: 20px; margin-bottom: 12px;
+    }
+    .agent-intel-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+    .agent-intel-icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+    .agent-intel-name { font-family: var(--g); font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    .agent-intel-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+      background: var(--border-ll); color: var(--text-secondary); padding: 2px 7px; border-radius: 4px; margin-left: 8px;
+    }
+    .agent-intel-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .agent-intel-biz, .agent-intel-goal { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 6px; }
+    .agent-intel-field-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .agent-draft-wrap { background: var(--border-ll); border-radius: 8px; padding: 14px 16px; margin-top: 12px; }
+    .agent-draft-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .agent-draft-text { font-size: 13px; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap; }
+    .agent-copy-btn {
+      margin-top: 10px; padding: 6px 14px; font-family: var(--g); font-size: 10px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; background: transparent; color: var(--text-secondary);
+      border: 1px solid var(--border-l); border-radius: 6px; cursor: pointer; transition: all 0.15s;
+    }
+    .agent-copy-btn:hover { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+    .conn-match { font-family: var(--g); font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+    .conn-why { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; font-style: italic; }
+    .conn-intro { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -549,6 +598,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
       <button class="tab-btn" data-tab="analytics">Analytics</button>
       <button class="tab-btn" data-tab="talent">Talent Network</button>
       <button class="tab-btn" data-tab="members">Members</button>
+      <button class="tab-btn" data-tab="agent">Agent</button>
       <button class="tab-btn" data-tab="sops">SOPs</button>
       <button class="tab-btn" data-tab="revenue">Revenue</button>
     </nav>
@@ -565,6 +615,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     <div id="tab-analytics"    class="tab-panel"><div class="spinner"></div></div>
     <div id="tab-talent"       class="tab-panel"><div class="spinner"></div></div>
     <div id="tab-members"      class="tab-panel"><div class="spinner"></div></div>
+    <div id="tab-agent"        class="tab-panel"><div class="spinner"></div></div>
     <div id="tab-sops"         class="tab-panel"><div class="spinner"></div></div>
     <div id="tab-revenue"      class="tab-panel"><div class="spinner"></div></div>
   </main>
@@ -632,6 +683,7 @@ function loadTab(id) {
     case 'analytics':    loadAnalytics();    break;
     case 'talent':       loadTalent();       break;
     case 'members':      loadMembers();      break;
+    case 'agent':        loadAgent();        break;
     case 'sops':         loadSOPs();         break;
     case 'revenue':      loadRevenue();      break;
   }
@@ -1829,6 +1881,149 @@ function initFirebase() {
   document.getElementById('tab-nav').addEventListener('click', function(e) {
     var btn = e.target.closest('.tab-btn');
     if (btn) showTab(btn.dataset.tab);
+  });
+}
+
+// ── Agent (Susan) ──
+var SUSAN_TASKS = [
+  { id: 'members-morning-brief',  name: 'Morning Brief',          schedule: 'Daily · 7am SAST',   desc: 'New applications, pending payments, renewals due, at-risk members. Posts to #ops-team.' },
+  { id: 'leads-daily-summary',    name: 'Leads Daily Summary',    schedule: 'Daily · 8am SAST',   desc: 'New leads from last 24h, pipeline breakdown, top prospects.' },
+  { id: 'analytics-daily-sync',   name: 'Analytics Sync',         schedule: 'Daily · 9am SAST',   desc: 'Syncs PostHog + Brevo metrics into the analytics panel.' },
+  { id: 'portal-invite-check',    name: 'Portal Invite Check',    schedule: 'Daily · 10am SAST',  desc: 'Checks accepted members who haven\'t received their portal invite yet.' },
+  { id: 'member-intel-sweep',     name: 'Member Intel Sweep',     schedule: 'Daily · 11am SAST',  desc: 'Scans Member Intelligence for overdue check-ins, upcoming follow-ups, and connection opportunities. Drafts WhatsApp messages. Posts to #member-intelligence.' },
+  { id: 'whatsapp-export-reminder', name: 'WhatsApp Reminder',   schedule: 'Mondays · 9am SAST', desc: 'Reminds you to export the PVC WhatsApp group chat for Member Intelligence updates.' },
+];
+
+function loadAgent() {
+  var el = document.getElementById('tab-agent');
+  el.innerHTML =
+    '<div class="page-title">Susan</div>' +
+    '<div class="page-sub" style="margin-bottom:32px">Your AI ops employee. She runs automatically every day — here\'s what she\'s doing and what she found.</div>' +
+    '<div class="agent-task-grid">' +
+    SUSAN_TASKS.map(function(t) {
+      return '<div class="agent-task-card" id="agent-task-' + t.id + '">' +
+        '<div class="agent-task-top">' +
+          '<div>' +
+            '<div class="agent-task-name">' + esc(t.name) + '</div>' +
+            '<div class="agent-task-schedule">' + esc(t.schedule) + '</div>' +
+          '</div>' +
+          '<div class="agent-status-dot" id="dot-' + t.id + '"></div>' +
+        '</div>' +
+        '<div class="agent-task-desc">' + esc(t.desc) + '</div>' +
+        '<button class="agent-run-btn" onclick="runSusanTask(\'' + t.id + '\', this)">Run now</button>' +
+        '<div class="agent-task-output" id="output-' + t.id + '" style="display:none"></div>' +
+      '</div>';
+    }).join('') +
+    '</div>' +
+    '<div style="margin-top:40px">' +
+      '<div class="page-title" style="font-size:18px;margin-bottom:4px">Live Member Intel Feed</div>' +
+      '<div class="page-sub" style="margin-bottom:20px">What Susan would surface right now — without posting to Slack.</div>' +
+      '<div id="agent-intel-feed"><div class="spinner"></div></div>' +
+    '</div>';
+
+  loadAgentIntelFeed();
+}
+
+function runSusanTask(taskId, btn) {
+  btn.disabled = true;
+  btn.textContent = 'Running…';
+  var dot = document.getElementById('dot-' + taskId);
+  if (dot) { dot.style.background = '#d4a017'; dot.title = 'Running'; }
+  var outputEl = document.getElementById('output-' + taskId);
+
+  var isPreview = taskId === 'member-intel-sweep';
+  var url = '/api/admin/' + taskId + (isPreview ? '?preview=1' : '');
+
+  fetch(url, { method: 'POST', headers: { 'x-admin-key': ADMIN_KEY } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      btn.disabled = false;
+      btn.textContent = 'Run now';
+      if (dot) { dot.style.background = '#2da878'; dot.title = 'Last run: OK'; }
+      if (isPreview && outputEl) {
+        outputEl.style.display = 'block';
+        outputEl.innerHTML = renderIntelResult(d);
+      } else if (outputEl) {
+        outputEl.style.display = 'block';
+        outputEl.innerHTML = '<div class="agent-output-ok">Done — check Slack for the output.</div>';
+      }
+      toast('Susan ran: ' + taskId.replace(/-/g, ' '));
+    })
+    .catch(function(e) {
+      btn.disabled = false;
+      btn.textContent = 'Run now';
+      if (dot) { dot.style.background = '#c94a5c'; dot.title = 'Error'; }
+      toast('Failed: ' + e.message, true);
+    });
+}
+
+function loadAgentIntelFeed() {
+  var el = document.getElementById('agent-intel-feed');
+  fetch('/api/admin/member-intel-sweep?preview=1', { method: 'POST', headers: { 'x-admin-key': ADMIN_KEY } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      el.innerHTML = renderIntelResult(d);
+    })
+    .catch(function(e) {
+      el.innerHTML = '<div class="empty-state"><p>' + esc(e.message) + '</p></div>';
+    });
+}
+
+function renderIntelResult(d) {
+  if (!d || d.error) return '<div class="empty-state"><p>' + esc((d && d.error) || 'No data') + '</p></div>';
+  var html = '';
+
+  if (!d.flagged || !d.flagged.length) {
+    html += '<div class="agent-all-clear">✅ All members are on track — no follow-ups due, no overdue check-ins.</div>';
+  } else {
+    html += d.flagged.map(function(f) {
+      var icon  = f.flag === 'overdue' ? '🔴' : f.flag === 'due_soon' ? '🟡' : '🔵';
+      var label = f.flag === 'overdue' ? 'Missed follow-up' : f.flag === 'due_soon' ? 'Follow-up due soon' : 'Check-in needed';
+      return '<div class="agent-intel-card">' +
+        '<div class="agent-intel-header">' +
+          '<span class="agent-intel-icon">' + icon + '</span>' +
+          '<div>' +
+            '<div class="agent-intel-name">' + esc(f.name) + ' <span class="agent-intel-label">' + label + '</span></div>' +
+            '<div class="agent-intel-meta">' + esc(f.tier) + ' · ' + esc(f.revenueStage) + ' · ' + esc(f.reason) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="agent-intel-biz">' + esc(f.business.slice(0, 160)) + '</div>' +
+        '<div class="agent-intel-goal"><span class="agent-intel-field-label">Goal</span> ' + esc(f.goal.slice(0, 120)) + '</div>' +
+        (f.bottleneck ? '<div class="agent-intel-goal"><span class="agent-intel-field-label">Bottleneck</span> ' + esc(f.bottleneck.slice(0, 120)) + '</div>' : '') +
+        '<div class="agent-draft-wrap">' +
+          '<div class="agent-draft-label">Susan\'s draft message</div>' +
+          '<div class="agent-draft-text">' + esc(f.draft) + '</div>' +
+          '<button class="agent-copy-btn" onclick="copyDraft(this, \'' + esc(f.draft).replace(/'/g, '\\\'') + '\')">Copy</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  if (d.connections) {
+    var lines = d.connections.split('\n').filter(Boolean);
+    var connHtml = lines.map(function(l) {
+      if (l.startsWith('MATCH:'))  return '<div class="conn-match">🔗 ' + esc(l.replace('MATCH:','').trim()) + '</div>';
+      if (l.startsWith('WHY:'))    return '<div class="conn-why">'    + esc(l.replace('WHY:','').trim())   + '</div>';
+      if (l.startsWith('INTRO:'))  return '<div class="conn-intro"><span class="agent-intel-field-label">Intro draft</span><br>' + esc(l.replace('INTRO:','').trim()) + '</div>';
+      return '';
+    }).join('');
+    if (connHtml) {
+      html += '<div class="agent-intel-card" style="margin-top:16px">' +
+        '<div class="agent-intel-name" style="margin-bottom:12px">Connection Opportunities</div>' +
+        connHtml +
+      '</div>';
+    }
+  }
+
+  return html || '<div class="agent-all-clear">✅ Nothing to surface right now.</div>';
+}
+
+function copyDraft(btn, text) {
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+  }).catch(function() {
+    btn.textContent = 'Copy';
   });
 }
 </script>

@@ -27,7 +27,7 @@ function dateLabel(isoDate: string, today: Date): string {
 
 async function buildCalendarSection(now: Date): Promise<string> {
   if (!calendarConfigured()) {
-    return '_Calendar not connected — add GOOGLE_OAUTH_* env vars to enable._';
+    return '_Reply with what your day looks like and I\'ll keep it in mind._';
   }
   const startOfDay = new Date(now); startOfDay.setHours(0, 0, 0, 0);
   const endOfWeek  = new Date(startOfDay.getTime() + 7 * 86400000);

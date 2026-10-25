@@ -55,8 +55,8 @@ async function fetchAllMembers(): Promise<MemberRecord[]> {
     .filter(m => m.name);
 }
 
-async function draftCheckIn(member: MemberRecord, reason: string): Promise<string> {
-  if (!ANTHROPIC_API_KEY) return '[API key missing — draft unavailable]';
+async function suggestCheckIn(member: MemberRecord, reason: string): Promise<string> {
+  if (!ANTHROPIC_API_KEY) return '';
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -67,32 +67,26 @@ async function draftCheckIn(member: MemberRecord, reason: string): Promise<strin
       },
       body: JSON.stringify({
         model: 'claude-haiku-5-5',
-        max_tokens: 150,
+        max_tokens: 80,
         messages: [{
           role: 'user',
-          content: `You are writing a WhatsApp check-in message from Lliam (founder of Private Victories Club, a high-performance business community in South Africa) to one of his members.
-
-Write ONE short, warm, natural-sounding message (2-4 sentences). Sound like a genuine founder who cares about the person — not a customer service rep or a coach. Reference something specific from their context. No fluff. No emojis unless they feel natural.
+          content: `Private Victories Club member needs a check-in. Give ONE short angle (10-15 words max) for what Lliam should reference or ask about — something specific from their context. Not a full message. Just the angle.
 
 Member: ${member.name}
 Business: ${member.business}
-3-month goal: ${member.goal}
-Current bottleneck: ${member.bottleneck}
-Last action taken: ${member.actionTaken}
-Recent result: ${member.result}
-Reason for check-in: ${reason}
+Goal: ${member.goal}
+Bottleneck: ${member.bottleneck}
+Last action: ${member.actionTaken}
+Reason: ${reason}
 
-Output ONLY the message text, nothing else.`,
+Output ONLY the angle, nothing else. Example: "Ask how the new sales hire is working out"`,
         }],
       }),
     });
-    if (!res.ok) { console.error(`[member-intel-sweep] Draft error ${res.status}`); return '[draft failed]'; }
+    if (!res.ok) return '';
     const data = await res.json();
-    return data.content?.[0]?.text?.trim() ?? '[draft empty]';
-  } catch (e: any) {
-    console.error('[member-intel-sweep] Draft error:', e.message);
-    return '[draft error]';
-  }
+    return data.content?.[0]?.text?.trim() ?? '';
+  } catch { return ''; }
 }
 
 async function findConnectionOpportunities(members: MemberRecord[]): Promise<string> {
@@ -121,7 +115,7 @@ ${summaries}
 For each match, use exactly this format:
 MATCH: [Name A] → [Name B]
 WHY: [one sentence — the specific reason this is a strong match]
-INTRO: [short message Lliam could send to introduce them, mentioning the specific overlap]
+ANGLE: [10-15 words: what Lliam should reference when making the intro]
 
 Only surface genuine, specific matches — not vague "they're both entrepreneurs" ones. If there are no strong matches, output: NO_MATCHES`,
         }],
@@ -135,7 +129,7 @@ Only surface genuine, specific matches — not vague "they're both entrepreneurs
   }
 }
 
-function formatMemberBlock(m: MemberRecord, flag: string, reason: string, draft: string): string {
+function formatMemberBlock(m: MemberRecord, flag: string, reason: string, suggestion: string): string {
   const daysTo = daysFromToday(m.nextFollowUp);
   const icon   = flag === 'overdue' ? '🔴' : flag === 'due_soon' ? '🟡' : '🔵';
   const label  = flag === 'overdue' ? 'Missed follow-up' : flag === 'due_soon' ? 'Follow-up due soon' : 'Check-in needed';
@@ -151,9 +145,7 @@ function formatMemberBlock(m: MemberRecord, flag: string, reason: string, draft:
     `*Bottleneck:* ${m.bottleneck.slice(0, 100)}`,
     m.lastCheckIn ? `*Last check-in:* ${m.lastCheckIn}` : '',
     followUpLine,
-    ``,
-    `*Draft WhatsApp message:*`,
-    `_${draft}_`,
+    suggestion ? `*Suggested angle:* _${suggestion}_` : '',
   ].filter(Boolean).join('\n');
 }
 
@@ -163,7 +155,7 @@ function formatConnections(raw: string): string {
   const formatted = lines.map(l => {
     if (l.startsWith('MATCH:'))  return `\n🔗 *${l.replace('MATCH:', '').trim()}*`;
     if (l.startsWith('WHY:'))    return `_${l.replace('WHY:', '').trim()}_`;
-    if (l.startsWith('INTRO:'))  return `*Intro draft:*\n_${l.replace('INTRO:', '').trim()}_`;
+    if (l.startsWith('ANGLE:'))  return `*Intro angle:* _${l.replace('ANGLE:', '').trim()}_`;
     return l;
   }).join('\n');
   return `*Connection Opportunities*\n${formatted}`;
@@ -187,7 +179,7 @@ async function runSweep(postToSlack: boolean) {
   }
 
   const [drafts, connections] = await Promise.all([
-    Promise.all(flagged.map(f => draftCheckIn(f.member, f.reason))),
+    Promise.all(flagged.map(f => suggestCheckIn(f.member, f.reason))),
     findConnectionOpportunities(members),
   ]);
 

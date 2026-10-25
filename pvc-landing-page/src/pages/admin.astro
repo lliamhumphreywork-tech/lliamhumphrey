@@ -1651,6 +1651,7 @@ function openCRMDrawer(l) {
     dField('Business', esc(l.b)) +
     dField('Revenue Stage', esc(l.r)) +
     (l.t ? '<div class="d-field"><div class="d-label">Tier</div><div class="d-value">' + tierBadge(l.t) + '</div></div>' : '') +
+    dField('Status', badge(l.status)) +
     dField('Email', l.e ? '<a href="mailto:' + esc(l.e) + '">' + esc(l.e) + '</a>' : '') +
     dField('Phone', l.p ? '<a href="tel:' + esc(l.p) + '">' + esc(l.p) + '</a>' : '') +
     dField('Instagram', l.i ? '@' + esc(l.i) : '') +
@@ -1660,7 +1661,51 @@ function openCRMDrawer(l) {
     dField('Event / Type', esc((l.type || []).join(', '))) +
     dField('Source', esc(l.src)) +
     (l.url ? '<div class="d-field"><div class="d-label">Notion</div><div class="d-value"><a href="' + esc(l.url) + '" target="_blank">Open in Notion →</a></div></div>' : '');
-  openDrawer(l.n || 'Lead', body);
+
+  document.getElementById('drawer-name').textContent = l.n || 'Lead';
+  document.getElementById('drawer-body').innerHTML = body;
+
+  var old = document.getElementById('drawer-actions');
+  if (old) old.remove();
+
+  if (l.status === 'Accepted') {
+    var actions = document.createElement('div');
+    actions.id = 'drawer-actions';
+    actions.className = 'drawer-actions';
+    actions.innerHTML =
+      '<button class="action-btn action-btn-accept" id="onboard-btn-' + l.id + '" onclick="runOnboard(\'' + esc(l.id) + '\',\'' + esc(l.e || '') + '\',\'' + esc(l.n || '') + '\',this)">Onboard with Susan</button>' +
+      '<span id="onboard-status-' + l.id + '" style="font-size:12px;color:var(--text-muted);align-self:center"></span>';
+    document.getElementById('drawer').appendChild(actions);
+  }
+
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+
+function runOnboard(pageId, email, name, btn) {
+  btn.disabled = true;
+  btn.textContent = 'Running…';
+  var statusEl = document.getElementById('onboard-status-' + pageId);
+  fetch('/api/admin/onboard', {
+    method: 'POST',
+    headers: { 'x-admin-key': ADMIN_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pageId: pageId, email: email, name: name }),
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (!d.ok) throw new Error(d.error || 'Unknown error');
+      btn.textContent = 'Done';
+      if (statusEl) statusEl.textContent = d.steps.join(' · ');
+      toast('Susan onboarded ' + (d.member && d.member.name ? d.member.name : name) + ' — check #member-intelligence');
+      if (d.warnings && d.warnings.length) console.warn('[onboard] warnings:', d.warnings);
+      invalidateLeadData();
+    })
+    .catch(function(e) {
+      btn.disabled = false;
+      btn.textContent = 'Onboard with Susan';
+      if (statusEl) statusEl.textContent = 'Failed: ' + e.message;
+      toast('Onboarding failed: ' + e.message, true);
+    });
 }
 
 function openAppDrawer(l) {

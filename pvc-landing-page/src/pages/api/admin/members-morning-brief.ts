@@ -128,10 +128,10 @@ async function run() {
   const today = new Date(); today.setHours(0, 0, 0, 0);
 
   const [apps, pending, renewals, atRisk] = await Promise.all([
-    getNewApplications(today),
-    getPendingDecisions(today),
-    getRenewalWatch(today),
-    getAtRisk(today),
+    getNewApplications(today).catch(e => { console.error('[brief] apps error:', e.message); return []; }),
+    getPendingDecisions(today).catch(e => { console.error('[brief] pending error:', e.message); return []; }),
+    getRenewalWatch(today).catch(e => { console.error('[brief] renewals error:', e.message); return []; }),
+    getAtRisk(today).catch(e => { console.error('[brief] atRisk error:', e.message); return []; }),
   ]);
 
   const priority = derivePriority(apps, pending, renewals, atRisk);

@@ -1,9 +1,9 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
+import { notionPatch, selectProp } from '../../../lib/notion';
+import { sendTemplate } from '../../../lib/brevo';
 
-const NOTION_TOKEN = import.meta.env.NOTION_TOKEN;
-const ADMIN_KEY    = import.meta.env.ADMIN_KEY;
-const BREVO_API_KEY = import.meta.env.BREVO_API_KEY;
+const ADMIN_KEY = import.meta.env.ADMIN_KEY;
 
 const TEMPLATE_ACCEPTED = 49;
 const TEMPLATE_REJECTED = 50;
@@ -13,32 +13,14 @@ function auth(req: Request) {
 }
 
 async function updateNotionStatus(pageId: string, status: 'Accepted' | 'Rejected') {
-  const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-    method: 'PATCH',
-    headers: {
-      'Authorization': `Bearer ${NOTION_TOKEN}`,
-      'Content-Type': 'application/json',
-      'Notion-Version': '2022-06-28',
-    },
-    body: JSON.stringify({
-      properties: {
-        Status: { select: { name: status } },
-      },
-    }),
-  });
-  if (!res.ok) throw new Error(`Notion error ${res.status}: ${await res.text()}`);
+  await notionPatch(pageId, { Status: selectProp(status) });
 }
 
 async function sendDecisionEmail(email: string, firstName: string, decision: 'accept' | 'reject') {
-  if (!BREVO_API_KEY) return;
   const templateId = decision === 'accept' ? TEMPLATE_ACCEPTED : TEMPLATE_REJECTED;
-  if (!templateId) return;
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ templateId, to: [{ email, name: firstName }] }),
+  await sendTemplate(templateId, { email, name: firstName }).catch((e: any) => {
+    console.error(`[decision] Brevo error:`, e.message);
   });
-  if (!res.ok) console.error(`[decision] Brevo error ${res.status}: ${await res.text()}`);
 }
 
 export const POST: APIRoute = async ({ request }) => {

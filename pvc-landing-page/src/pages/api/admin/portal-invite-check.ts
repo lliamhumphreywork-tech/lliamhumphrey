@@ -1,47 +1,31 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
+import { notionQuery, notionPatch, checkProp, textProp } from '../../../lib/notion';
+import { postWebhook } from '../../../lib/slack';
 
-const NOTION_TOKEN       = import.meta.env.NOTION_TOKEN ?? '';
 const NOTION_CRM_DB      = '872bd20eee31468f91bed1cd472e157a';
 const MEMBERS_PORTAL_URL = 'https://members.privatevictoriesclub.com';
 const MEMBERS_API_TOKEN  = import.meta.env.MEMBERS_API_TOKEN ?? '';
 const SLACK_FINANCE_URL  = import.meta.env.SLACK_FINANCE_URL ?? '';
 const ADMIN_KEY          = import.meta.env.ADMIN_KEY ?? '';
 
-const NOTION_HEADERS = {
-  'Authorization': `Bearer ${NOTION_TOKEN}`,
-  'Content-Type': 'application/json',
-  'Notion-Version': '2022-06-28',
-};
-
 async function findUnprovisionedMembers(daysCutoff = 7): Promise<any[]> {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - daysCutoff);
 
-  const res = await fetch(`https://api.notion.com/v1/databases/${NOTION_CRM_DB}/query`, {
-    method: 'POST',
-    headers: NOTION_HEADERS,
-    body: JSON.stringify({
-      filter: {
-        and: [
-          { property: 'Status',             select:   { equals:      'Member' } },
-          { property: 'Portal Provisioned', checkbox: { equals:      false   } },
-          { property: 'Submission Date',    date:     { on_or_after: cutoff.toISOString().split('T')[0] } },
-        ],
-      },
-      page_size: 50,
-    }),
+  const pages = await notionQuery(NOTION_CRM_DB, {
+    and: [
+      { property: 'Status',             select:   { equals:      'Member' } },
+      { property: 'Portal Provisioned', checkbox: { equals:      false   } },
+      { property: 'Submission Date',    date:     { on_or_after: cutoff.toISOString().split('T')[0] } },
+    ],
   });
 
-  if (!res.ok) throw new Error(`Notion query error ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-
-  return (data.results ?? []).map((page: any) => {
+  return pages.map((page: any) => {
     const p = page.properties;
-    const getTitle = (k: string) => (p[k]?.title ?? []).map((t: any) => t.plain_text).join('');
     return {
       pageId:    page.id,
-      name:      getTitle('Name'),
+      name:      (p['Name']?.title ?? []).map((t: any) => t.plain_text).join(''),
       email:     p['Email']?.email ?? '',
       submitted: p['Submission Date']?.date?.start ?? '',
     };
@@ -60,30 +44,7 @@ async function provisionPortalAccount(email: string, name: string): Promise<{ id
   return { id: data.id, created: data.created === true };
 }
 
-async function patchPortalProvisioned(pageId: string, portalUserId: string): Promise<void> {
-  const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-    method: 'PATCH',
-    headers: NOTION_HEADERS,
-    body: JSON.stringify({
-      properties: {
-        'Portal Provisioned': { checkbox: true },
-        'Portal User ID':     { rich_text: [{ text: { content: portalUserId } }] },
-      },
-    }),
-  });
-  if (!res.ok) throw new Error(`Notion patch error ${res.status}`);
-}
-
-async function alertSlack(text: string): Promise<void> {
-  if (!SLACK_FINANCE_URL) return;
-  await fetch(SLACK_FINANCE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text }),
-  });
-}
-
-async function run(): Promise<{ checked: number; fixed: number; failed: number; results: any[] }> {
+async function run() {
   const unprovisioned = await findUnprovisionedMembers(7);
 
   if (!unprovisioned.length) {
@@ -102,14 +63,18 @@ async function run(): Promise<{ checked: number; fixed: number; failed: number; 
         results.push({ name: member.name, email: member.email, status: 'skipped-no-token' });
         continue;
       }
-      await patchPortalProvisioned(member.pageId, result.id);
+      await notionPatch(member.pageId, {
+        'Portal Provisioned': checkProp(true),
+        'Portal User ID':     textProp(result.id),
+      });
       results.push({ name: member.name, email: member.email, status: result.created ? 'provisioned' : 'already-existed' });
       console.log(`[portal-invite-check] Provisioned ${member.email} (created: ${result.created})`);
     } catch (e: any) {
       results.push({ name: member.name, email: member.email, status: `failed: ${e.message}` });
       console.error(`[portal-invite-check] Failed for ${member.email}:`, e.message);
-      await alertSlack(
-        `⚠️ *[PORTAL ACCESS — NEEDS MANUAL FIX]*\n*${member.name}* (${member.email}) paid for membership but portal access failed again.\nCreate their account manually: ${MEMBERS_PORTAL_URL}/admin\n*Member since:* ${member.submitted}`
+      await postWebhook(
+        SLACK_FINANCE_URL,
+        `⚠️ *[PORTAL ACCESS — NEEDS MANUAL FIX]*\n*${member.name}* (${member.email}) paid for membership but portal access failed again.\nCreate their account manually: ${MEMBERS_PORTAL_URL}/admin\n*Member since:* ${member.submitted}`,
       ).catch(() => {});
     }
   }
@@ -119,7 +84,7 @@ async function run(): Promise<{ checked: number; fixed: number; failed: number; 
 
   if (fixed > 0) {
     const names = results.filter(r => r.status === 'provisioned').map(r => r.name).join(', ');
-    await alertSlack(`✅ *Portal invite check:* Fixed portal access for ${fixed} member${fixed !== 1 ? 's' : ''} — ${names}`).catch(() => {});
+    await postWebhook(SLACK_FINANCE_URL, `✅ *Portal invite check:* Fixed portal access for ${fixed} member${fixed !== 1 ? 's' : ''} — ${names}`).catch(() => {});
   }
 
   return { checked: unprovisioned.length, fixed, failed, results };
@@ -131,7 +96,6 @@ export const POST: APIRoute = async ({ request }) => {
   if (!isCron && !isAdmin) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
   }
-
   try {
     const result = await run();
     return new Response(JSON.stringify({ ok: true, ...result }), { headers: { 'Content-Type': 'application/json' } });

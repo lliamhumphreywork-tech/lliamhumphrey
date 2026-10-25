@@ -1,18 +1,12 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
+import { notionQuery, getTitle, getText, getSelect } from '../../../lib/notion';
+import { postWebhook } from '../../../lib/slack';
 
-const NOTION_TOKEN      = import.meta.env.NOTION_TOKEN ?? '';
 const NOTION_CRM_DB     = '872bd20eee31468f91bed1cd472e157a';
 const NOTION_MEMBERS_DB = import.meta.env.NOTION_MEMBERS_DB_ID ?? 'd7f078c6-fd75-4feb-aba1-6d5d41d5c956';
-const BREVO_API_KEY     = import.meta.env.BREVO_API_KEY ?? '';
 const SLACK_FINANCE_URL = import.meta.env.SLACK_FINANCE_URL ?? '';
 const ADMIN_KEY         = import.meta.env.ADMIN_KEY ?? '';
-
-const NOTION_HEADERS = {
-  'Authorization': `Bearer ${NOTION_TOKEN}`,
-  'Content-Type': 'application/json',
-  'Notion-Version': '2022-06-28',
-};
 
 const RENEWAL_WINDOW_DAYS   = 30;
 const CHECKIN_OVERDUE_DAYS  = 60;
@@ -22,27 +16,6 @@ const ACCEPTED_STALE_DAYS   = 5;
 function daysBetween(a: Date, b: Date) {
   return Math.floor((b.getTime() - a.getTime()) / 86400000);
 }
-
-async function notionQuery(dbId: string, filter: any): Promise<any[]> {
-  const all: any[] = [];
-  let cursor: string | undefined;
-  do {
-    const body: any = { filter, page_size: 100 };
-    if (cursor) body.start_cursor = cursor;
-    const res = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
-      method: 'POST', headers: NOTION_HEADERS, body: JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error(`Notion query error ${res.status}: ${await res.text()}`);
-    const data = await res.json();
-    all.push(...(data.results ?? []));
-    cursor = data.has_more ? data.next_cursor : undefined;
-  } while (cursor);
-  return all;
-}
-
-function getTitle(p: any, k: string) { return (p[k]?.title ?? []).map((t: any) => t.plain_text).join(''); }
-function getText(p: any, k: string)  { return (p[k]?.rich_text ?? []).map((t: any) => t.plain_text).join(''); }
-function getSelect(p: any, k: string){ return p[k]?.select?.name ?? ''; }
 
 // 1. New applications this week (CRM, Pending Review, last 7 days)
 async function getNewApplications(today: Date) {
@@ -141,13 +114,13 @@ async function getAtRisk(today: Date) {
 
 // 5. Derive the single priority action
 function derivePriority(apps: any[], pending: any[], renewals: any[], atRisk: any[]): string {
-  const tierAApps  = apps.filter(a => a.score !== null && a.score >= 5);
+  const tierAApps   = apps.filter(a => a.score !== null && a.score >= 5);
   const urgentRenew = renewals.filter(r => r.daysLeft <= 7);
-  if (tierAApps.length)     return `Review ${tierAApps.length} Tier A application${tierAApps.length > 1 ? 's' : ''} — ${tierAApps.map(a => a.name).join(', ')}`;
-  if (pending.length)       return `Follow up with ${pending[0].name} — accepted ${pending[0].daysWaiting} days ago, no payment yet`;
-  if (urgentRenew.length)   return `Reach out to ${urgentRenew[0].name} — membership expires in ${urgentRenew[0].daysLeft} day${urgentRenew[0].daysLeft === 1 ? '' : 's'}`;
-  if (atRisk.length)        return `Check in with ${atRisk[0].name} — ${atRisk[0].daysSince} days since last check-in`;
-  if (renewals.length)      return `Renewal coming: ${renewals[0].name} in ${renewals[0].daysLeft} days — prep renewal prompt`;
+  if (tierAApps.length)   return `Review ${tierAApps.length} Tier A application${tierAApps.length > 1 ? 's' : ''} — ${tierAApps.map(a => a.name).join(', ')}`;
+  if (pending.length)     return `Follow up with ${pending[0].name} — accepted ${pending[0].daysWaiting} days ago, no payment yet`;
+  if (urgentRenew.length) return `Reach out to ${urgentRenew[0].name} — membership expires in ${urgentRenew[0].daysLeft} day${urgentRenew[0].daysLeft === 1 ? '' : 's'}`;
+  if (atRisk.length)      return `Check in with ${atRisk[0].name} — ${atRisk[0].daysSince} days since last check-in`;
+  if (renewals.length)    return `Renewal coming: ${renewals[0].name} in ${renewals[0].daysLeft} days — prep renewal prompt`;
   return 'All clear — clean slate today.';
 }
 
@@ -163,62 +136,51 @@ async function run() {
 
   const priority = derivePriority(apps, pending, renewals, atRisk);
 
-  // Post to Slack
-  if (SLACK_FINANCE_URL) {
-    const dateStr = today.toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long' });
-    const lines: string[] = [];
-    lines.push(`📊 *PVC Morning Brief — ${dateStr}*`);
+  const dateStr = today.toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long' });
+  const lines: string[] = [];
+  lines.push(`📊 *PVC Morning Brief — ${dateStr}*`);
 
-    // 1. New applications
-    if (apps.length) {
-      const tierA = apps.filter(a => a.score !== null && a.score >= 5);
-      lines.push('');
-      lines.push(`📥 *New Applications (${apps.length}):*`);
-      for (const a of apps) {
-        const scoreLabel = a.score !== null ? ` · ${a.score}/10` : '';
-        const flag = a.score !== null && a.score >= 5 ? ' 🔥' : '';
-        lines.push(`• ${a.name}${scoreLabel}${flag}${a.revenue ? ` — ${a.revenue}` : ''}`);
-      }
-      if (tierA.length) lines.push(`_${tierA.length} Tier A applicant${tierA.length > 1 ? 's' : ''} awaiting review_`);
-    }
-
-    // 2. Pending decisions
-    if (pending.length) {
-      lines.push('');
-      lines.push(`⏸ *Pending Decisions — Accepted, No Payment:*`);
-      for (const p of pending) lines.push(`• ${p.name} — ${p.daysWaiting} days waiting`);
-    }
-
-    // 3. Renewal watch
-    if (renewals.length) {
-      lines.push('');
-      lines.push(`🔄 *Renewals Due (next ${RENEWAL_WINDOW_DAYS} days):*`);
-      for (const r of renewals) {
-        const urg = r.daysLeft <= 3 ? '🔴' : r.daysLeft <= 7 ? '🟡' : '🟢';
-        lines.push(`${urg} ${r.name}${r.tier ? ` — ${r.tier}` : ''} · ${r.daysLeft}d`);
-      }
-    }
-
-    // 4. At-risk
-    if (atRisk.length) {
-      lines.push('');
-      lines.push(`📭 *At-Risk Members (${CHECKIN_OVERDUE_DAYS}+ days no check-in):*`);
-      for (const m of atRisk) lines.push(`• ${m.name} — ${m.daysSince}d (last: ${m.lastCheckin})`);
-    }
-
-    // 5. Priority action
+  if (apps.length) {
+    const tierA = apps.filter((a: any) => a.score !== null && a.score >= 5);
     lines.push('');
-    lines.push(`🎯 *Priority Today:* ${priority}`);
-
-    if (!apps.length && !pending.length && !renewals.length && !atRisk.length) {
-      lines.push('\n✅ Clean slate — nothing needs attention today.');
+    lines.push(`📥 *New Applications (${apps.length}):*`);
+    for (const a of apps) {
+      const scoreLabel = a.score !== null ? ` · ${a.score}/10` : '';
+      const flag = a.score !== null && a.score >= 5 ? ' 🔥' : '';
+      lines.push(`• ${a.name}${scoreLabel}${flag}${a.revenue ? ` — ${a.revenue}` : ''}`);
     }
-
-    await fetch(SLACK_FINANCE_URL, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: lines.join('\n') }),
-    }).catch(() => {});
+    if (tierA.length) lines.push(`_${tierA.length} Tier A applicant${tierA.length > 1 ? 's' : ''} awaiting review_`);
   }
+
+  if (pending.length) {
+    lines.push('');
+    lines.push(`⏸ *Pending Decisions — Accepted, No Payment:*`);
+    for (const p of pending) lines.push(`• ${p.name} — ${p.daysWaiting} days waiting`);
+  }
+
+  if (renewals.length) {
+    lines.push('');
+    lines.push(`🔄 *Renewals Due (next ${RENEWAL_WINDOW_DAYS} days):*`);
+    for (const r of renewals) {
+      const urg = r.daysLeft <= 3 ? '🔴' : r.daysLeft <= 7 ? '🟡' : '🟢';
+      lines.push(`${urg} ${r.name}${r.tier ? ` — ${r.tier}` : ''} · ${r.daysLeft}d`);
+    }
+  }
+
+  if (atRisk.length) {
+    lines.push('');
+    lines.push(`📭 *At-Risk Members (${CHECKIN_OVERDUE_DAYS}+ days no check-in):*`);
+    for (const m of atRisk) lines.push(`• ${m.name} — ${m.daysSince}d (last: ${m.lastCheckin})`);
+  }
+
+  lines.push('');
+  lines.push(`🎯 *Priority Today:* ${priority}`);
+
+  if (!apps.length && !pending.length && !renewals.length && !atRisk.length) {
+    lines.push('\n✅ Clean slate — nothing needs attention today.');
+  }
+
+  await postWebhook(SLACK_FINANCE_URL, lines.join('\n')).catch(() => {});
 
   return { apps, pending, renewals, atRisk, priority };
 }

@@ -3,26 +3,20 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { waitUntil } from '@vercel/functions';
 import crypto from 'crypto';
+import { notionQuery, notionPatch, notionCreate, titleProp, textProp, emailProp, numProp, selectProp, dateProp, checkProp } from '../../lib/notion';
+import { sendTemplate, enrollContact } from '../../lib/brevo';
+import { postWebhook } from '../../lib/slack';
 
-const NOTION_TOKEN         = import.meta.env.NOTION_TOKEN;
 const NOTION_FINANCE_DB_ID = import.meta.env.NOTION_FINANCE_DB_ID;
 const NOTION_CRM_DB_ID     = '872bd20eee31468f91bed1cd472e157a';
-const BREVO_API_KEY        = import.meta.env.BREVO_API_KEY;
-const SLACK_FINANCE_URL    = import.meta.env.SLACK_FINANCE_URL;
+const SLACK_FINANCE_URL    = import.meta.env.SLACK_FINANCE_URL ?? '';
 const PAYSTACK_SECRET      = import.meta.env.PAYSTACK_SECRET_KEY;
+const MEMBERS_PORTAL_URL   = 'https://members.privatevictoriesclub.com';
+const MEMBERS_API_TOKEN    = import.meta.env.MEMBERS_API_TOKEN;
 
 const TEMPLATE_MEMBERSHIP_ONBOARDING = 28;
 const TEMPLATE_EVENT_CONFIRMATION    = 29;
 const BREVO_LIST_4MONTH              = 14;
-const BREVO_BASE                     = 'https://api.brevo.com/v3';
-const MEMBERS_PORTAL_URL             = 'https://members.privatevictoriesclub.com';
-const MEMBERS_API_TOKEN              = import.meta.env.MEMBERS_API_TOKEN;
-
-const NOTION_HEADERS = {
-  'Authorization': `Bearer ${NOTION_TOKEN}`,
-  'Content-Type': 'application/json',
-  'Notion-Version': '2022-06-28',
-};
 
 function verifyPaystackSignature(body: string, signature: string | null, secret: string | undefined): boolean {
   if (!secret || !signature) return false;
@@ -32,14 +26,14 @@ function verifyPaystackSignature(body: string, signature: string | null, secret:
 
 async function isAlreadyProcessed(paymentId: string): Promise<boolean> {
   if (!NOTION_FINANCE_DB_ID || !paymentId) return false;
-  const res = await fetch(`https://api.notion.com/v1/databases/${NOTION_FINANCE_DB_ID}/query`, {
-    method: 'POST',
-    headers: NOTION_HEADERS,
-    body: JSON.stringify({ filter: { property: 'Payment ID', rich_text: { equals: paymentId } }, page_size: 1 }),
-  });
-  if (!res.ok) return false;
-  const data = await res.json();
-  return (data.results?.length ?? 0) > 0;
+  try {
+    const results = await notionQuery(NOTION_FINANCE_DB_ID, {
+      property: 'Payment ID', rich_text: { equals: paymentId },
+    });
+    return results.length > 0;
+  } catch {
+    return false;
+  }
 }
 
 async function createFinanceEntry(data: {
@@ -47,61 +41,35 @@ async function createFinanceEntry(data: {
   paymentId: string; itemName: string; paymentType: 'Membership' | 'Event' | 'Other';
 }) {
   if (!NOTION_FINANCE_DB_ID) return;
-  const res = await fetch('https://api.notion.com/v1/pages', {
-    method: 'POST',
-    headers: NOTION_HEADERS,
-    body: JSON.stringify({
-      parent: { database_id: NOTION_FINANCE_DB_ID },
-      properties: {
-        'Entry Name': { title: [{ text: { content: data.name || 'Paystack Payment' } }] },
-        Email:        { email: data.email || null },
-        Amount:       { number: parseFloat(data.amount) },
-        'Payment ID': { rich_text: [{ text: { content: data.paymentId } }] },
-        Item:         { rich_text: [{ text: { content: data.itemName } }] },
-        Category:     { select: { name: data.paymentType } },
-        Status:       { select: { name: 'Complete' } },
-        Date:         { date: { start: new Date().toISOString().split('T')[0] } },
-      },
-    }),
+  await notionCreate(NOTION_FINANCE_DB_ID, {
+    'Entry Name': titleProp(data.name || 'Paystack Payment'),
+    Email:        emailProp(data.email || ''),
+    Amount:       numProp(parseFloat(data.amount)),
+    'Payment ID': textProp(data.paymentId),
+    Item:         textProp(data.itemName),
+    Category:     selectProp(data.paymentType),
+    Status:       selectProp('Complete'),
+    Date:         dateProp(new Date().toISOString().split('T')[0]),
   });
-  if (!res.ok) throw new Error(`Notion Finance error ${res.status}: ${await res.text()}`);
 }
 
 // Returns the CRM page ID if a matching record was found and updated, null otherwise
 async function updateCRMPaymentStatus(email: string, paymentType: 'Membership' | 'Event' | 'Other'): Promise<string | null> {
   if (paymentType === 'Other' || !email) return null;
-  const searchRes = await fetch(`https://api.notion.com/v1/databases/${NOTION_CRM_DB_ID}/query`, {
-    method: 'POST',
-    headers: NOTION_HEADERS,
-    body: JSON.stringify({ filter: { property: 'Email', email: { equals: email } } }),
-  });
-  if (!searchRes.ok) throw new Error(`Notion CRM search error ${searchRes.status}`);
-  const { results } = await searchRes.json();
-  if (!results?.length) return null;
-  const pageId = results[0].id;
+  const results = await notionQuery(NOTION_CRM_DB_ID, { property: 'Email', email: { equals: email } });
+  if (!results.length) return null;
+  const pageId    = results[0].id;
   const newStatus = paymentType === 'Membership' ? 'Member' : 'Event Attendee';
-  const patchRes = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-    method: 'PATCH',
-    headers: NOTION_HEADERS,
-    body: JSON.stringify({ properties: { Status: { select: { name: newStatus } } } }),
-  });
-  if (!patchRes.ok) throw new Error(`Notion CRM patch error ${patchRes.status}`);
+  await notionPatch(pageId, { Status: selectProp(newStatus) });
   return pageId;
 }
 
 // Writes portal provision result back to CRM so we have a record
 async function patchPortalProvisioned(crmPageId: string, portalUserId: string): Promise<void> {
-  const res = await fetch(`https://api.notion.com/v1/pages/${crmPageId}`, {
-    method: 'PATCH',
-    headers: NOTION_HEADERS,
-    body: JSON.stringify({
-      properties: {
-        'Portal Provisioned': { checkbox: true },
-        'Portal User ID':     { rich_text: [{ text: { content: portalUserId } }] },
-      },
-    }),
+  await notionPatch(crmPageId, {
+    'Portal Provisioned': checkProp(true),
+    'Portal User ID':     textProp(portalUserId),
   });
-  if (!res.ok) throw new Error(`Notion portal patch error ${res.status}`);
 }
 
 // Returns { id, created } or null when config is missing
@@ -118,54 +86,20 @@ async function provisionPortalAccount(email: string, name: string): Promise<{ id
 }
 
 async function sendPaymentConfirmation(email: string, firstName: string, paymentType: 'Membership' | 'Event' | 'Other', itemName: string) {
-  if (!BREVO_API_KEY || !email || paymentType === 'Other') return;
+  if (paymentType === 'Other') return;
   const templateId = paymentType === 'Event' ? TEMPLATE_EVENT_CONFIRMATION : TEMPLATE_MEMBERSHIP_ONBOARDING;
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ templateId, to: [{ email, name: firstName }], params: { firstName, itemName } }),
-  });
-  if (!res.ok) throw new Error(`Brevo email error ${res.status}`);
-}
-
-async function notifySlackFinance(data: { name: string; email: string; amount: string; itemName: string; paymentType: string; paymentId: string }) {
-  if (!SLACK_FINANCE_URL) return;
-  await fetch(SLACK_FINANCE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      text: `<!channel> 💰 *New Payment (Paystack) - R${data.amount}*\n*${data.name}* (${data.email})\n*Type:* ${data.paymentType} | *Item:* ${data.itemName}\n*Ref:* ${data.paymentId}`,
-    }),
-  });
-}
-
-async function notifySlackRecovery(failures: string[], ctx: { name: string; email: string; paymentId: string; paymentType: string }) {
-  if (!SLACK_FINANCE_URL) return;
-  await fetch(SLACK_FINANCE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      text: `⚠️ *[NEEDS RECOVERY] Payment processed but steps failed*\n*Person:* ${ctx.name} (${ctx.email})\n*Ref:* ${ctx.paymentId} | *Type:* ${ctx.paymentType}\n*Failed:* ${failures.join(', ')}\nCheck Notion CRM and portal for this member.`,
-    }),
-  });
+  await sendTemplate(templateId, { email, name: firstName }, { firstName, itemName });
 }
 
 async function tag4MonthRenewal(email: string, name: string) {
-  if (!BREVO_API_KEY || !email) return;
   const renewalDate = new Date();
   renewalDate.setDate(renewalDate.getDate() + 105);
   const renewalStr = renewalDate.toISOString().split('T')[0];
-  const res = await fetch(`${BREVO_BASE}/contacts`, {
-    method: 'POST',
-    headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email,
-      attributes: { FIRSTNAME: name.split(' ')[0], RENEWAL_DUE: renewalStr, MEMBER_SINCE: new Date().toISOString().split('T')[0] },
-      listIds: [BREVO_LIST_4MONTH],
-      updateEnabled: true,
-    }),
-  });
-  if (!res.ok && res.status !== 204) throw new Error(`Brevo renewal tag error ${res.status}`);
+  await enrollContact(email, {
+    FIRSTNAME: name.split(' ')[0],
+    RENEWAL_DUE: renewalStr,
+    MEMBER_SINCE: new Date().toISOString().split('T')[0],
+  }, [BREVO_LIST_4MONTH]);
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -285,7 +219,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     // 6. Slack payment notification
     try {
-      await notifySlackFinance({ name, email, amount: amountRands, itemName, paymentType, paymentId });
+      await postWebhook(SLACK_FINANCE_URL, `<!channel> 💰 *New Payment (Paystack) - R${amountRands}*\n*${name}* (${email})\n*Type:* ${paymentType} | *Item:* ${itemName}\n*Ref:* ${paymentId}`);
     } catch (e: any) {
       console.error(`[paystack-webhook] [${ref}] Slack notify failed:`, e.message);
     }
@@ -304,7 +238,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (failures.length) {
       console.error(`[paystack-webhook] [${ref}] NEEDS RECOVERY — failed steps: ${failures.join(', ')}`);
       try {
-        await notifySlackRecovery(failures, { name, email, paymentId, paymentType });
+        await postWebhook(SLACK_FINANCE_URL, `⚠️ *[NEEDS RECOVERY] Payment processed but steps failed*\n*Person:* ${name} (${email})\n*Ref:* ${paymentId} | *Type:* ${paymentType}\n*Failed:* ${failures.join(', ')}\nCheck Notion CRM and portal for this member.`);
       } catch {
         // Slack itself failed — at least it's in the Vercel logs
       }

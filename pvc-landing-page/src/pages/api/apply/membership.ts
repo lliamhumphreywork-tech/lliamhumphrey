@@ -3,11 +3,12 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { waitUntil } from '@vercel/functions';
 import { checkRateLimit, getClientIp } from '../../../lib/rate-limit';
+import { notionQuery, notionPatch, notionCreate, titleProp, textProp, emailProp, phoneProp, selectProp, multiProp, dateProp, numProp } from '../../../lib/notion';
+import { sendTemplate, enrollContact } from '../../../lib/brevo';
+import { postWebhook } from '../../../lib/slack';
 
-const NOTION_TOKEN      = import.meta.env.NOTION_TOKEN;
 const NOTION_DB_ID      = '872bd20eee31468f91bed1cd472e157a';
-const BREVO_API_KEY     = import.meta.env.BREVO_API_KEY;
-const SLACK_LEADS_URL   = import.meta.env.SLACK_LEADS_URL;
+const SLACK_LEADS_URL   = import.meta.env.SLACK_LEADS_URL ?? '';
 const ANTHROPIC_API_KEY = import.meta.env.ANTHROPIC_API_KEY;
 
 const BREVO_LIST_ALL      = 10;
@@ -33,22 +34,15 @@ const COMMITMENT_MAP: Record<string, string> = {
 };
 
 async function isDuplicate(email: string): Promise<boolean> {
-  if (!NOTION_TOKEN) return false;
-  const res = await fetch(`https://api.notion.com/v1/databases/${NOTION_DB_ID}/query`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${NOTION_TOKEN}`,
-      'Content-Type': 'application/json',
-      'Notion-Version': '2022-06-28',
-    },
-    body: JSON.stringify({
+  try {
+    const results = await notionQuery(NOTION_DB_ID, {
       filter: { property: 'Email', email: { equals: email } },
       page_size: 1,
-    }),
-  });
-  if (!res.ok) return false;
-  const data = await res.json();
-  return (data.results?.length ?? 0) > 0;
+    });
+    return results.length > 0;
+  } catch {
+    return false;
+  }
 }
 
 async function scoreApplication(data: {
@@ -107,23 +101,11 @@ Commitment: ${data.commitment || 'not provided'}`,
 }
 
 async function patchApplicationScore(pageId: string, score: number, verdict: string, baseNotes: string) {
-  if (!NOTION_TOKEN) return;
   const updatedNotes = (`AI: ${score}/10 — ${verdict}\n` + baseNotes).slice(0, 2000);
-  const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-    method: 'PATCH',
-    headers: {
-      'Authorization': `Bearer ${NOTION_TOKEN}`,
-      'Content-Type': 'application/json',
-      'Notion-Version': '2022-06-28',
-    },
-    body: JSON.stringify({
-      properties: {
-        'Application Score': { number: score },
-        Notes: { rich_text: [{ text: { content: updatedNotes } }] },
-      },
-    }),
-  });
-  if (!res.ok) console.error(`[apply/membership] Score patch error ${res.status}`);
+  await notionPatch(pageId, {
+    'Application Score': numProp(score),
+    Notes:               textProp(updatedNotes),
+  }).catch((e: any) => console.error(`[apply/membership] Score patch error:`, e.message));
 }
 
 async function createNotionEntry(data: {
@@ -145,83 +127,22 @@ async function createNotionEntry(data: {
     data.winning_looks_like ? `\n12-month win: ${data.winning_looks_like}`   : '',
   ].join('').slice(0, 2000);
 
-  const body = {
-    parent: { database_id: NOTION_DB_ID },
-    properties: {
-      Name:              { title: [{ text: { content: data.name } }] },
-      Email:             { email: data.email },
-      Phone:             { phone_number: data.phone || null },
-      IG:                { rich_text: [{ text: { content: data.instagram } }] },
-      Business:          { rich_text: [{ text: { content: data.business } }] },
-      Revenue:           data.notion_revenue ? { select: { name: data.notion_revenue } } : { select: null },
-      Goals:             { rich_text: [{ text: { content: data.prompt } }] },
-      Commitment:        notionCommitment ? { select: { name: notionCommitment } } : { select: null },
-      'Submission Date': { date: { start: new Date().toISOString().split('T')[0] } },
-      Status:            { select: { name: isPreRevenue ? 'Free Community Funnel' : 'Pending Review' } },
-      Type:              { multi_select: [{ name: 'Membership Applicant' }] },
-      Notes:             { rich_text: [{ text: { content: notesText } }] },
-    },
-  };
-
-  const res = await fetch('https://api.notion.com/v1/pages', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${NOTION_TOKEN}`,
-      'Content-Type': 'application/json',
-      'Notion-Version': '2022-06-28',
-    },
-    body: JSON.stringify(body),
+  const page = await notionCreate(NOTION_DB_ID, {
+    Name:              titleProp(data.name),
+    Email:             emailProp(data.email),
+    Phone:             phoneProp(data.phone || null),
+    IG:                textProp(data.instagram),
+    Business:          textProp(data.business),
+    Revenue:           data.notion_revenue ? selectProp(data.notion_revenue) : { select: null },
+    Goals:             textProp(data.prompt),
+    Commitment:        notionCommitment ? selectProp(notionCommitment) : { select: null },
+    'Submission Date': dateProp(new Date().toISOString().split('T')[0]),
+    Status:            selectProp(isPreRevenue ? 'Free Community Funnel' : 'Pending Review'),
+    Type:              multiProp(['Membership Applicant']),
+    Notes:             textProp(notesText),
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Notion error ${res.status}: ${err}`);
-  }
-
-  const page = await res.json();
   return { pageId: page.id, notesText };
-}
-
-async function addToBrevo(data: {
-  firstName: string; lastName: string; email: string; phone: string;
-  listIds: number[]; tag: string;
-}) {
-  if (!BREVO_API_KEY) return;
-  const res = await fetch('https://api.brevo.com/v3/contacts', {
-    method: 'POST',
-    headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      email: data.email,
-      attributes: { FIRSTNAME: data.firstName, LASTNAME: data.lastName, SMS: data.phone || undefined, PVC_TAG: data.tag },
-      listIds: data.listIds,
-      updateEnabled: true,
-    }),
-  });
-  if (!res.ok && res.status !== 204) {
-    console.error(`[apply/membership] Brevo error ${res.status}: ${await res.text()}`);
-  }
-}
-
-async function sendBrevoTemplate(email: string, firstName: string, templateId: number) {
-  if (!BREVO_API_KEY) return;
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ templateId, to: [{ email, name: firstName }] }),
-  });
-  if (!res.ok) console.error(`[apply/membership] Brevo email error ${res.status}: ${await res.text()}`);
-}
-
-async function notifySlack(data: { name: string; email: string; business: string; revenue: string; tag: string; source: string }) {
-  if (!SLACK_LEADS_URL) return;
-  const dot = (data.revenue === 'R500k+/month' || data.revenue === 'R250k – R500k/month') ? ':large_green_circle:' : data.revenue === 'R0 – R20k/month' ? ':white_circle:' : ':large_yellow_circle:';
-  await fetch(SLACK_LEADS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      text: `<!channel> ${dot} *New Application · ${data.tag}*\n*${data.name}* — ${data.email}\n*Revenue:* ${data.revenue}\n*Business:* ${data.business}${data.source ? `\n*Source:* ${data.source}` : ''}`,
-    }),
-  });
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -274,18 +195,36 @@ export const POST: APIRoute = async ({ request }) => {
 
   console.log(`[apply/membership] New application: ${name} (${email}) — ${revenue} | ${tag}`);
 
-  const appData = { name: name.trim(), email: email.trim().toLowerCase(), phone: phone ?? '', instagram: instagram ?? '', business: business ?? '', revenue, prompt: prompt.trim(), commitment: commitment ?? '', tag, notion_revenue, source, tangible_result: tangible_result ?? '', contribute_gain: contribute_gain ?? '', working_on: working_on ?? '', business_needs: business_needs ?? '', winning_looks_like: winning_looks_like ?? '' };
+  const appData = {
+    name: name.trim(), email: email.trim().toLowerCase(), phone: phone ?? '',
+    instagram: instagram ?? '', business: business ?? '', revenue,
+    prompt: prompt.trim(), commitment: commitment ?? '', tag, notion_revenue, source,
+    tangible_result: tangible_result ?? '', contribute_gain: contribute_gain ?? '',
+    working_on: working_on ?? '', business_needs: business_needs ?? '',
+    winning_looks_like: winning_looks_like ?? '',
+  };
+
+  const dot = (revenue === 'R500k+/month' || revenue === 'R250k – R500k/month') ? ':large_green_circle:' :
+              revenue === 'R0 – R20k/month' ? ':white_circle:' : ':large_yellow_circle:';
 
   waitUntil(
     Promise.all([
       createNotionEntry(appData).then(async ({ pageId, notesText }) => {
-        const ai = await scoreApplication({ name: appData.name, business: appData.business, revenue: appData.revenue, tangible_result: appData.tangible_result, contribute_gain: appData.contribute_gain, working_on: appData.working_on, business_needs: appData.business_needs, winning_looks_like: appData.winning_looks_like, commitment: appData.commitment });
+        const ai = await scoreApplication({
+          name: appData.name, business: appData.business, revenue: appData.revenue,
+          tangible_result: appData.tangible_result, contribute_gain: appData.contribute_gain,
+          working_on: appData.working_on, business_needs: appData.business_needs,
+          winning_looks_like: appData.winning_looks_like, commitment: appData.commitment,
+        });
         if (ai) await patchApplicationScore(pageId, ai.score, ai.verdict, notesText);
       }),
-      addToBrevo({ firstName, lastName, email: email.trim().toLowerCase(), phone: phone ?? '', listIds, tag }),
-      sendBrevoTemplate(email, firstName, TEMPLATE_CONFIRMATION),
-      ...(isPreRevenue ? [sendBrevoTemplate(email, firstName, TEMPLATE_NURTURE)] : []),
-      notifySlack({ name: name.trim(), email: email.trim().toLowerCase(), business: business ?? '', revenue, tag, source }),
+      enrollContact(appData.email, {
+        FIRSTNAME: firstName, LASTNAME: lastName,
+        SMS: phone || undefined, PVC_TAG: tag,
+      }, listIds),
+      sendTemplate(TEMPLATE_CONFIRMATION, { email: appData.email, name: firstName }),
+      ...(isPreRevenue ? [sendTemplate(TEMPLATE_NURTURE, { email: appData.email, name: firstName })] : []),
+      postWebhook(SLACK_LEADS_URL, `<!channel> ${dot} *New Application · ${tag}*\n*${appData.name}* — ${appData.email}\n*Revenue:* ${revenue}\n*Business:* ${appData.business}${source ? `\n*Source:* ${source}` : ''}`),
     ]).then(() => {
       console.log(`[apply/membership] Processed ${name} — ${revenue} | ${tag}`);
     }).catch((err: any) => {

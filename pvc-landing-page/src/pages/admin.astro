@@ -667,7 +667,7 @@ function esc(s) {
 }
 
 // ── Status select HTML ──
-var CRM_STATUSES = ['Pending Review','In Conversation','Accepted','Rejected','Free Community Funnel','Applied','Invited','Confirmed','Paid','Attended','No-Show'];
+var CRM_STATUSES = ['Pending Review','In Conversation','Accepted','Rejected','Member','Free Community Funnel','Applied','Invited','Confirmed','Paid','Attended','No-Show','Daily Briefing'];
 var MEMBER_STATUSES = ['Active','Alumni','Churned','Paused'];
 
 function statusSelect(id, current, options) {
@@ -1179,11 +1179,11 @@ function renderRevenue(data) {
 
   el.innerHTML =
     '<div class="page-title">Revenue</div>' +
-    '<div class="page-sub">Pulled from Notion Finance DB + Whop</div>' +
+    '<div class="page-sub">Pulled from Notion Finance DB + Paystack</div>' +
     '<div class="stat-grid">' +
       statCard('Total Revenue', fmt(data.total || 0), 'All sources') +
       statCard('Notion Total', fmt(data.notionTotal || 0), 'Finance DB') +
-      statCard('Whop Total', fmt(data.whopTotal || 0), 'Memberships') +
+      statCard('Paystack Total', fmt(data.total || 0), 'All time') +
       statCard('This Month', fmt(data.thisMonth || 0), 'Current month') +
       statCard('Total Payments', data.count || 0, 'Transactions') +
     '</div>' +
@@ -1402,18 +1402,21 @@ function decideApplication(pageId, decision, email, firstName, actionsEl) {
     return;
   }
 
+  btns.forEach(function(b) { b.disabled = true; b.textContent = 'Sending…'; });
   fetch('/api/admin/decision', {
     method: 'POST',
     headers: { 'x-admin-key': ADMIN_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ pageId: pageId, decision: decision, email: email, firstName: firstName }),
   }).then(function(r) {
     if (!r.ok) return r.text().then(function(t) { throw new Error(t); });
-    toast(decision === 'accept' ? 'Accepted and email sent' : 'Rejected and email sent');
+    return r.json();
+  }).then(function() {
+    toast(decision === 'accept' ? 'Accepted — booking email sent' : 'Rejected — email sent');
     if (actionsEl) actionsEl.remove();
     invalidateLeadData();
   }).catch(function(e) {
     toast('Failed: ' + e.message, true);
-    btns.forEach(function(b) { b.disabled = false; });
+    btns.forEach(function(b) { b.disabled = false; b.textContent = b.dataset.label || b.textContent; });
   });
 }
 

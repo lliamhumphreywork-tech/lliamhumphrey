@@ -5,9 +5,8 @@ const NOTION_TOKEN = import.meta.env.NOTION_TOKEN;
 const ADMIN_KEY    = import.meta.env.ADMIN_KEY;
 const BREVO_API_KEY = import.meta.env.BREVO_API_KEY;
 
-// Set these once the Brevo templates are created
-const TEMPLATE_ACCEPTED = parseInt(import.meta.env.BREVO_TEMPLATE_ACCEPTED ?? '0');
-const TEMPLATE_REJECTED = parseInt(import.meta.env.BREVO_TEMPLATE_REJECTED ?? '0');
+const TEMPLATE_ACCEPTED = 49;
+const TEMPLATE_REJECTED = 50;
 
 function auth(req: Request) {
   return ADMIN_KEY !== '' && req.headers.get('x-admin-key') === ADMIN_KEY;

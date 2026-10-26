@@ -115,6 +115,7 @@ export function RichTextEditor({ content = "", onChange, placeholder = "Write so
     <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
       {/* Toolbar */}
       <div
+        className="rte-toolbar"
         style={{
           display: "flex",
           alignItems: "center",

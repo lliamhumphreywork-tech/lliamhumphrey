@@ -34,7 +34,7 @@ export default async function SpacePage({ params }: { params: { slug: string } }
     <div>
       <SpaceHeader space={space as any} isAdmin={role === "ADMIN"} />
 
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 24px" }}>
+      <div className="page-container" style={{ maxWidth: 720, margin: "0 auto", padding: "20px 24px" }}>
         <PostComposer spaceId={space.id} placeholder={`Post in ${space.name}...`} />
 
         {space.posts.length === 0 ? (

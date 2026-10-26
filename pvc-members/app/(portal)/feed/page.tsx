@@ -31,7 +31,7 @@ export default async function FeedPage() {
     <div>
       {/* Feed header — full width, flush like Circle */}
       <div style={{ borderBottom: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
-        <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 24px 0" }}>
+        <div className="page-container" style={{ maxWidth: 720, margin: "0 auto", padding: "20px 24px 0" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <h1 style={{ fontFamily: "Syne, sans-serif", fontSize: 20, fontWeight: 700, color: "var(--text-primary)" }}>
               Feed
@@ -45,7 +45,7 @@ export default async function FeedPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 24px" }}>
+      <div className="page-container" style={{ maxWidth: 720, margin: "0 auto", padding: "20px 24px" }}>
       <PostComposer composerAvatar={currentUser?.avatar} />
 
       {posts.length === 0 ? (

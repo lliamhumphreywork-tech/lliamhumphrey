@@ -35,7 +35,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
   const isOwnProfile = member.id === currentUserId
 
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", padding: "28px 24px" }}>
+    <div className="page-container" style={{ maxWidth: 680, margin: "0 auto", padding: "28px 24px" }}>
       {/* Profile header */}
       <div
         style={{

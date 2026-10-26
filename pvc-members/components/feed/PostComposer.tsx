@@ -243,7 +243,7 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
           )}
 
           {/* Toolbar */}
-          <div style={{ padding: "0 16px 14px", display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="composer-toolbar" style={{ padding: "0 16px 14px", display: "flex", alignItems: "center", gap: 8 }}>
             <button type="button" onClick={() => imageInputRef.current?.click()} disabled={attachments.length >= 8}
               title="Add images"
               style={{

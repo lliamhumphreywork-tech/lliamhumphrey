@@ -84,7 +84,7 @@ export function MessagesClient({
   }
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+    <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
       {/* Conversation list */}
       <div
         className={mobileView === "list" ? "msg-panel-visible" : "msg-panel-hidden"}

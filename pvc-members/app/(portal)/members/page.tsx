@@ -13,7 +13,7 @@ export default async function MembersPage() {
   const offline = members.filter((m) => !m.isOnline)
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px" }}>
+    <div className="page-container" style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px" }}>
       <h1 style={{ fontFamily: "Syne, sans-serif", fontSize: 22, fontWeight: 700, marginBottom: 4 }}>
         Members
       </h1>

@@ -306,3 +306,59 @@ input, textarea {
 .rr-event-link { transition: border-color 0.1s; }
 .rr-event-link:hover { border-color: var(--border) !important; }
 .rr-event-card:hover { border-color: var(--accent) !important; }
+
+/* ── Mobile optimisations ── */
+
+/* Rich text editor toolbar: scrollable on mobile so it doesn't wrap awkwardly */
+.rte-toolbar {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.rte-toolbar::-webkit-scrollbar { display: none; }
+
+/* PostComposer bottom toolbar */
+.composer-toolbar {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+@media (max-width: 768px) {
+  /* Prevent iOS auto-zoom on any input < 16px */
+  input, textarea, select, [contenteditable="true"] {
+    font-size: 16px !important;
+  }
+
+  /* Rich text editor: keep toolbar as a non-wrapping scroll strip on mobile */
+  .rte-toolbar {
+    flex-wrap: nowrap !important;
+  }
+
+  /* pvc-editor content: 16px prevents zoom */
+  .pvc-editor {
+    font-size: 16px;
+  }
+
+  /* Inner page content containers — tighten side padding */
+  .page-container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Profile card inner padding */
+  .profile-card {
+    padding: 20px !important;
+  }
+
+  /* Events header: stack on mobile */
+  .events-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+  }
+
+  /* Members grid: min-width smaller so 1 col works cleanly */
+  .members-grid-auto {
+    grid-template-columns: 1fr !important;
+  }
+}

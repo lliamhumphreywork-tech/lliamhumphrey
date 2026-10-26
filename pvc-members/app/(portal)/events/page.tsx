@@ -44,8 +44,8 @@ export default async function EventsPage() {
     new Date(d).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
+    <div className="page-container" style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px" }}>
+      <div className="events-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
         <div>
           <h1 style={{ fontFamily: "Syne, sans-serif", fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Events</h1>
           <p style={{ fontSize: 14, color: "var(--text-secondary)" }}>In-person events and community calls</p>

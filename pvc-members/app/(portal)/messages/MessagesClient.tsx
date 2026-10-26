@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useTransition, useRef, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Avatar } from "@/components/ui/Avatar"
 import { formatRelativeTime } from "@/lib/utils"
@@ -35,7 +34,6 @@ export function MessagesClient({
   const [isPending, startTransition] = useTransition()
   const [newChat, setNewChat] = useState(false)
   const [search, setSearch] = useState("")
-  const router = useRouter()
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -45,9 +43,16 @@ export function MessagesClient({
   // Poll for new messages every 10s when a thread is open
   useEffect(() => {
     if (!activePartner) return
-    const interval = setInterval(() => router.refresh(), 10_000)
+    const poll = async () => {
+      const res = await fetch(`/api/messages?with=${activePartner.id}`).catch(() => null)
+      if (res?.ok) {
+        const data = await res.json()
+        setMessages(data)
+      }
+    }
+    const interval = setInterval(poll, 10_000)
     return () => clearInterval(interval)
-  }, [activePartner, router])
+  }, [activePartner])
 
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault()
@@ -55,12 +60,15 @@ export function MessagesClient({
     const content = text.trim()
     setText("")
     startTransition(async () => {
-      await fetch("/api/messages", {
+      const res = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ receiverId: activePartner.id, content }),
       })
-      router.refresh()
+      if (res.ok) {
+        const msg = await res.json()
+        setMessages((prev) => [...prev, msg])
+      }
     })
   }
 

@@ -20,7 +20,8 @@ export async function POST(req: Request) {
       access: "private",
       token: process.env.BLOB_READ_WRITE_TOKEN,
     })
-    return NextResponse.json({ url: blob.url })
+    const proxyUrl = `/api/img?url=${encodeURIComponent(blob.url)}`
+    return NextResponse.json({ url: proxyUrl })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error("Avatar upload error:", msg)

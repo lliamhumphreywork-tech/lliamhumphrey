@@ -7,11 +7,7 @@ export const metadata = { title: "Members — PVC Members" }
 const getMembers = unstable_cache(
   () => db.user.findMany({
     orderBy: [{ isOnline: "desc" }, { createdAt: "desc" }],
-    select: {
-      id: true, name: true, email: true, avatar: true, role: true,
-      bio: true, location: true, isOnline: true, createdAt: true,
-      _count: { select: { posts: true } },
-    },
+    include: { _count: { select: { posts: true } } },
   }),
   ["members-list"],
   { revalidate: 30, tags: ["members"] }

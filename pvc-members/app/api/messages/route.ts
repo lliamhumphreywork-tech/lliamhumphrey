@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { sendPushToUser } from "@/lib/push"
 
 export async function GET(req: Request) {
   const session = await auth()
@@ -44,6 +45,14 @@ export async function POST(req: Request) {
     },
     include: { sender: true, receiver: true },
   })
+
+  const senderName = message.sender.name || "Someone"
+  const preview = content.trim().slice(0, 80)
+  sendPushToUser(receiverId, {
+    title: `${senderName}`,
+    body: preview,
+    url: `/messages?with=${session!.user!.id!}`,
+  }).catch(() => {})
 
   return NextResponse.json(message, { status: 201 })
 }

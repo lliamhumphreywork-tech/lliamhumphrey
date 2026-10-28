@@ -1,7 +1,7 @@
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { PostComposer } from "@/components/feed/PostComposer"
-import { PostCard } from "@/components/feed/PostCard"
+import { FeedClient } from "@/components/feed/FeedClient"
 
 export const metadata = { title: "Feed — PVC Members" }
 
@@ -49,16 +49,7 @@ export default async function FeedPage() {
 
       <div className="page-container" style={{ maxWidth: 720, margin: "0 auto", padding: "20px 24px" }}>
       <PostComposer composerAvatar={currentUser?.avatar} />
-
-      {posts.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--text-muted)", fontSize: 15 }}>
-          Nothing posted yet. Be the first.
-        </div>
-      ) : (
-        posts.map((post) => (
-          <PostCard key={post.id} post={post as any} currentUserId={userId} currentUserRole={role} />
-        ))
-      )}
+      <FeedClient initialPosts={posts as any} currentUserId={userId} currentUserRole={role} />
       </div>
     </div>
   )

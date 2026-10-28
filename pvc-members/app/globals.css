@@ -342,6 +342,8 @@ input, textarea {
 .rr-member-link:hover { background: rgba(255,255,255,0.04); }
 .rr-event-card { transition: border-color 0.15s, background 0.15s; }
 .rr-event-card:hover { border-color: rgba(255,255,255,0.1) !important; background: var(--bg-hover) !important; }
+.rr-view-all { transition: color 0.1s; }
+.rr-view-all:hover { color: var(--text-primary) !important; }
 
 /* ── Desktop polish ── */
 @media (min-width: 769px) {

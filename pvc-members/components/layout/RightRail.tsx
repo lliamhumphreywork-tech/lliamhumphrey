@@ -84,10 +84,7 @@ export async function RightRail() {
       {/* Upcoming events */}
       <section>
         <SectionHeader right={
-          <Link href="/events" style={{ fontSize: 11, color: "var(--text-muted)", textDecoration: "none", fontWeight: 500, display: "flex", alignItems: "center", gap: 2, transition: "color 0.1s" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)" }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)" }}
-          >
+          <Link href="/events" className="rr-view-all" style={{ fontSize: 11, color: "var(--text-muted)", textDecoration: "none", fontWeight: 500, display: "flex", alignItems: "center", gap: 2 }}>
             All <ArrowUpRight size={10} />
           </Link>
         }>
@@ -115,15 +112,6 @@ export async function RightRail() {
                     border: "1px solid var(--border-subtle)",
                     borderRadius: 10,
                     textDecoration: "none",
-                    transition: "border-color 0.15s, background 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
-                    e.currentTarget.style.background = "var(--bg-hover)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "var(--border-subtle)"
-                    e.currentTarget.style.background = "var(--bg-elevated)"
                   }}
                 >
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 30, paddingTop: 1 }}>

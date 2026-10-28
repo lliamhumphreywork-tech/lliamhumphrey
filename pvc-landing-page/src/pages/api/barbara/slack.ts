@@ -1,7 +1,7 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { waitUntil } from '@vercel/functions';
-import { notionQuery, notionCreate, getTitle, getSelect, titleProp, selectProp } from '../../../lib/notion';
+import { notionQuery, notionCreate, getTitle, getText, getSelect, getDate, titleProp, selectProp } from '../../../lib/notion';
 import { postMessage } from '../../../lib/slack-bot';
 
 const SIGNING_SECRET     = import.meta.env.SLACK_SIGNING_SECRET ?? '';
@@ -11,6 +11,8 @@ const BARBARA_HISTORY_DB = 'e10763e1ebb24fadb230c3664e5392c7';
 const BARBARA_TASKS_DB   = import.meta.env.BARBARA_TASKS_DB_ID ?? '';
 const NOTION_MI_DB       = 'd7f078c6-fd75-4feb-aba1-6d5d41d5c956';
 const NOTION_CRM_DB      = '872bd20eee31468f91bed1cd472e157a';
+const ADMIN_KEY          = import.meta.env.ADMIN_KEY ?? '';
+const SITE_URL           = import.meta.env.PUBLIC_SITE_URL ?? 'https://privatevictoriesclub.com';
 
 // ── Slack signature verification ──────────────────────────────────────────────
 
@@ -79,9 +81,55 @@ async function getOpenTasksSummary(): Promise<string> {
   } catch { return ''; }
 }
 
+// ── Susan data fetch ──────────────────────────────────────────────────────────
+
+interface SusanData { flagged: any[]; connections: string; memberCount: number }
+
+async function fetchSusanLatest(): Promise<SusanData | null> {
+  if (!ADMIN_KEY) return null;
+  try {
+    const res = await fetch(`${SITE_URL}/api/admin/member-intel-sweep?preview=1`, {
+      method: 'GET',
+      headers: { 'x-admin-key': ADMIN_KEY },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.ok) return null;
+    return {
+      flagged:     data.flagged ?? [],
+      connections: data.connections ?? '',
+      memberCount: data.members?.length ?? 0,
+    };
+  } catch { return null; }
+}
+
+function formatSusanSummary(d: SusanData): string {
+  const lines: string[] = [`Susan's latest intel (${d.memberCount} members scanned):`];
+  if (!d.flagged.length && !d.connections) {
+    lines.push('- All clear. No overdue follow-ups, no stale check-ins.');
+  } else {
+    for (const f of d.flagged) {
+      const icon = f.flag === 'overdue' ? '🔴' : f.flag === 'due_soon' ? '🟡' : '🔵';
+      lines.push(`${icon} ${f.name} (${f.tier}) — ${f.reason}`);
+      if (f.draft) lines.push(`  Angle: "${f.draft}"`);
+    }
+    if (d.connections && d.connections !== 'NO_MATCHES') {
+      lines.push('');
+      lines.push('Connection opportunities:');
+      lines.push(d.connections.slice(0, 600));
+    }
+  }
+  return lines.join('\n');
+}
+
+function isSusanQuery(msg: string): boolean {
+  const lower = msg.toLowerCase();
+  return ['susan', 'member intel', 'intel sweep', 'check-in', 'follow-up', 'members today', 'who needs', 'at risk'].some(k => lower.includes(k));
+}
+
 // ── Barbara's system prompt ───────────────────────────────────────────────────
 
-function buildSystemPrompt(openTasks?: string): string {
+function buildSystemPrompt(openTasks?: string, susanData?: string): string {
   const today = new Date().toLocaleDateString('en-ZA', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Johannesburg',
   });
@@ -96,7 +144,7 @@ Who you are:
 What you can do:
 - Help him think through decisions, draft messages, plan his week
 - Track tasks he mentions (remind him to save them formally if he wants them remembered)
-- Summarize what Susan is doing or flag anything Susan reported that needs attention
+- Summarize Susan's latest member intelligence data — you have it loaded when relevant
 - Keep context from what Lliam tells you in this conversation
 
 How you communicate:
@@ -107,13 +155,12 @@ How you communicate:
 - When he tells you something new (about the setter company, a deal, a problem), acknowledge it and keep it in mind for this conversation
 
 If he asks you to add a task: acknowledge it and let him know you've noted it (tasks are saved to his Barbara Tasks board in Notion).
-If he asks what's on his calendar: let him know calendar isn't connected yet but you can work from what he tells you.
-If he asks about Susan: be honest that you don't have her latest run data in real-time, but explain what Susan does (daily member intel sweep — flags overdue check-ins, finds connection opportunities, posts to #member-intelligence). Tell him to check that channel for her latest output, or that you can pull a preview if he wants to trigger a run.${openTasks ? `\n\nHis current open tasks (from Notion):\n${openTasks}\n\nUse this to answer questions about his tasks, priorities, or what's on his plate this week.` : ''}`;
+If he asks what's on his calendar: let him know calendar isn't connected yet but you can work from what he tells you.${openTasks ? `\n\nHis current open tasks (from Notion):\n${openTasks}\n\nUse this to answer questions about his tasks, priorities, or what's on his plate this week.` : ''}${susanData ? `\n\n${susanData}\n\nUse this to answer questions about specific members, who needs attention, connection opportunities, or what Susan flagged.` : ''}`;
 }
 
 // ── Claude call ───────────────────────────────────────────────────────────────
 
-async function askBarbara(history: ChatMessage[], userMessage: string, openTasks?: string): Promise<string> {
+async function askBarbara(history: ChatMessage[], userMessage: string, openTasks?: string, susanData?: string): Promise<string> {
   const messages: ChatMessage[] = [...history, { role: 'user', content: userMessage }];
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -125,7 +172,7 @@ async function askBarbara(history: ChatMessage[], userMessage: string, openTasks
     body: JSON.stringify({
       model:      'claude-haiku-5-5',
       max_tokens: 1024,
-      system:     buildSystemPrompt(openTasks),
+      system:     buildSystemPrompt(openTasks, susanData),
       messages,
     }),
   });
@@ -220,8 +267,10 @@ export const POST: APIRoute = async ({ request }) => {
   // Return 200 immediately (Slack requires < 3s), keep function alive with waitUntil
   waitUntil((async () => {
     try {
-      const [history, openTasks] = await Promise.all([getHistory(10), getOpenTasksSummary()]);
-      const reply   = await askBarbara(history, userMessage, openTasks);
+      const fetchSusan = isSusanQuery(userMessage) ? fetchSusanLatest() : Promise.resolve(null);
+      const [history, openTasks, susanRaw] = await Promise.all([getHistory(10), getOpenTasksSummary(), fetchSusan]);
+      const susanData = susanRaw ? formatSusanSummary(susanRaw) : undefined;
+      const reply   = await askBarbara(history, userMessage, openTasks, susanData);
 
       await Promise.all([
         postMessage(event.channel, reply),

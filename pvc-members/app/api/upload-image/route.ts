@@ -17,10 +17,9 @@ export async function POST(req: Request) {
 
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").replace(/\.{2,}/g, "_")
 
-  const blob = await put(safeName, file, {
-    access: "private",
+  const blob = await put(`post-images/${safeName}`, file, {
+    access: "public",
     token: process.env.BLOB_READ_WRITE_TOKEN,
   })
-  const proxyUrl = `/api/img?url=${encodeURIComponent(blob.url)}`
-  return NextResponse.json({ url: proxyUrl })
+  return NextResponse.json({ url: blob.url })
 }

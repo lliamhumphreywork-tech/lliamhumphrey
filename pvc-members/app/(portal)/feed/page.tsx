@@ -10,23 +10,24 @@ export default async function FeedPage() {
   const userId = (session?.user?.id) ?? ""
   const role = (session!.user as any).role
 
-  const currentUser = await db.user.findUnique({ where: { id: userId }, select: { avatar: true } })
-
-  const posts = await db.post.findMany({
-    orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
-    take: 20,
-    include: {
-      author: { select: { id: true, name: true, email: true, avatar: true, role: true } },
-      space: { select: { id: true, name: true, slug: true } },
-      comments: {
-        include: { author: { select: { id: true, name: true, email: true, avatar: true, role: true } } },
-        orderBy: { createdAt: "asc" },
-        take: 10,
+  const [currentUser, posts] = await Promise.all([
+    db.user.findUnique({ where: { id: userId }, select: { avatar: true } }),
+    db.post.findMany({
+      orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
+      take: 20,
+      include: {
+        author: { select: { id: true, name: true, email: true, avatar: true, role: true } },
+        space: { select: { id: true, name: true, slug: true } },
+        comments: {
+          include: { author: { select: { id: true, name: true, email: true, avatar: true, role: true } } },
+          orderBy: { createdAt: "asc" },
+          take: 10,
+        },
+        reactions: { select: { emoji: true, userId: true } },
+        _count: { select: { comments: true, reactions: true } },
       },
-      reactions: { select: { emoji: true, userId: true } },
-      _count: { select: { comments: true, reactions: true } },
-    },
-  })
+    }),
+  ])
 
   return (
     <div>

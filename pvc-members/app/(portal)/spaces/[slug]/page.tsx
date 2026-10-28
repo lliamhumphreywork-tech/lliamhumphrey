@@ -6,29 +6,35 @@ import { PostCard } from "@/components/feed/PostCard"
 import { SpaceHeader } from "@/components/spaces/SpaceHeader"
 
 export default async function SpacePage({ params }: { params: { slug: string } }) {
-  const session = await auth()
-  const userId = (session?.user?.id) ?? ""
-  const role = (session!.user as any).role
-
-  const space = await db.space.findUnique({
-    where: { slug: params.slug },
-    include: {
-      posts: {
-        orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
-        take: 50,
-        include: {
-          author: true,
-          space: true,
-          comments: { include: { author: true }, orderBy: { createdAt: "asc" } },
-          reactions: { include: { user: true } },
-          _count: { select: { comments: true, reactions: true } },
+  const [session, space] = await Promise.all([
+    auth(),
+    db.space.findUnique({
+      where: { slug: params.slug },
+      include: {
+        posts: {
+          orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
+          take: 20,
+          include: {
+            author: { select: { id: true, name: true, email: true, avatar: true, role: true } },
+            space: { select: { id: true, name: true, slug: true } },
+            comments: {
+              include: { author: { select: { id: true, name: true, email: true, avatar: true, role: true } } },
+              orderBy: { createdAt: "asc" },
+              take: 10,
+            },
+            reactions: { select: { emoji: true, userId: true } },
+            _count: { select: { comments: true, reactions: true } },
+          },
         },
+        _count: { select: { posts: true, members: true } },
       },
-      _count: { select: { posts: true, members: true } },
-    },
-  })
+    }),
+  ])
 
   if (!space) notFound()
+
+  const userId = (session?.user?.id) ?? ""
+  const role = (session!.user as any).role
 
   return (
     <div>

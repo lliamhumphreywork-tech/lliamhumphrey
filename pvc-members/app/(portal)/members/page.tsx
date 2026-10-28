@@ -1,13 +1,24 @@
+import { unstable_cache } from "next/cache"
 import { db } from "@/lib/db"
 import { MemberCard } from "@/components/members/MemberCard"
 
 export const metadata = { title: "Members — PVC Members" }
 
-export default async function MembersPage() {
-  const members = await db.user.findMany({
+const getMembers = unstable_cache(
+  () => db.user.findMany({
     orderBy: [{ isOnline: "desc" }, { createdAt: "desc" }],
-    include: { _count: { select: { posts: true } } },
-  })
+    select: {
+      id: true, name: true, email: true, avatar: true, role: true,
+      bio: true, location: true, isOnline: true, createdAt: true,
+      _count: { select: { posts: true } },
+    },
+  }),
+  ["members-list"],
+  { revalidate: 30, tags: ["members"] }
+)
+
+export default async function MembersPage() {
+  const members = await getMembers()
 
   const online = members.filter((m) => m.isOnline)
   const offline = members.filter((m) => !m.isOnline)

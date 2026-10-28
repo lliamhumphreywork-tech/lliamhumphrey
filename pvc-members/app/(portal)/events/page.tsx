@@ -5,17 +5,14 @@ import { EventCard } from "@/components/events/EventCard"
 export const metadata = { title: "Events — PVC Members" }
 
 export default async function EventsPage() {
-  const session = await auth()
-  const userId = (session?.user?.id) ?? ""
-  const role = (session?.user as any)?.role
-
   const now = new Date()
-  const [upcomingEvents, upcomingCalls, past] = await Promise.all([
+  const [session, upcomingEvents, upcomingCalls, past] = await Promise.all([
+    auth(),
     db.event.findMany({
       where: { startDate: { gte: now }, eventType: "event" },
       orderBy: { startDate: "asc" },
       include: {
-        rsvps: { include: { user: true } },
+        rsvps: { include: { user: { select: { id: true, name: true, email: true, avatar: true, role: true } } } },
         _count: { select: { rsvps: true } },
       },
     }),
@@ -23,7 +20,7 @@ export default async function EventsPage() {
       where: { startDate: { gte: now }, eventType: "call" },
       orderBy: { startDate: "asc" },
       include: {
-        rsvps: { include: { user: true } },
+        rsvps: { include: { user: { select: { id: true, name: true, email: true, avatar: true, role: true } } } },
         _count: { select: { rsvps: true } },
       },
     }),
@@ -32,11 +29,13 @@ export default async function EventsPage() {
       orderBy: { startDate: "desc" },
       take: 5,
       include: {
-        rsvps: { include: { user: true } },
+        rsvps: { include: { user: { select: { id: true, name: true, email: true, avatar: true, role: true } } } },
         _count: { select: { rsvps: true } },
       },
     }),
   ])
+  const userId = (session?.user?.id) ?? ""
+  const role = (session?.user as any)?.role
 
   const formatDate = (d: Date) =>
     new Date(d).toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" })

@@ -94,7 +94,9 @@ export function CommandPalette() {
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "center",
-        paddingTop: "15vh",
+        paddingTop: "clamp(64px, 12vh, 120px)",
+        paddingLeft: 16,
+        paddingRight: 16,
         background: "rgba(0,0,0,0.6)",
         backdropFilter: "blur(4px)",
       }}
@@ -104,6 +106,7 @@ export function CommandPalette() {
         style={{
           width: "100%",
           maxWidth: 560,
+          flexShrink: 1,
           background: "var(--bg-elevated)",
           border: "1px solid var(--border)",
           borderRadius: "var(--radius-lg)",

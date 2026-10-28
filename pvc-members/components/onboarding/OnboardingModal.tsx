@@ -98,7 +98,7 @@ export function OnboardingModal({ hasAvatar, hasBio, hasLocation, hasPosted }: P
       onClick={handleExpand}
       style={{
         position: "fixed",
-        bottom: 24,
+        bottom: "calc(72px + env(safe-area-inset-bottom, 0px))",
         left: "50%",
         transform: "translateX(-50%)",
         zIndex: 200,

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import { Bell, MessageCircle, Smile, AtSign, Calendar, X } from "lucide-react"
 import { Avatar } from "@/components/ui/Avatar"
 import { formatRelativeTime } from "@/lib/utils"
@@ -28,6 +29,7 @@ export function NotificationBell() {
   const [loading, setLoading] = useState(false)
   const [dropdownPos, setDropdownPos] = useState<{ bottom: number; left: number } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const bellRef = useRef<HTMLButtonElement>(null)
 
   const unread = notifications.filter((n) => !n.read).length
@@ -62,7 +64,11 @@ export function NotificationBell() {
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      const t = e.target as Node
+      if (
+        ref.current && !ref.current.contains(t) &&
+        dropdownRef.current && !dropdownRef.current.contains(t)
+      ) setOpen(false)
     }
     document.addEventListener("mousedown", handleClick)
     return () => document.removeEventListener("mousedown", handleClick)
@@ -114,8 +120,9 @@ export function NotificationBell() {
         )}
       </button>
 
-      {open && dropdownPos && (
+      {open && dropdownPos && typeof document !== "undefined" && createPortal(
         <div
+          ref={dropdownRef}
           style={{
             position: "fixed",
             bottom: dropdownPos.bottom,
@@ -241,7 +248,8 @@ export function NotificationBell() {
               ))
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

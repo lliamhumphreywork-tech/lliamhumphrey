@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { Avatar } from "@/components/ui/Avatar"
+import { PushSubscribe } from "@/components/pwa/PushSubscribe"
 
 export function MobileHeader() {
   const { data: session } = useSession()
@@ -40,7 +41,9 @@ export function MobileHeader() {
         style={{ height: 22, width: "auto", display: "block" }}
       />
 
-      <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)" }} />
+      <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)" }}>
+        <PushSubscribe iconOnly />
+      </div>
     </header>
   )
 }

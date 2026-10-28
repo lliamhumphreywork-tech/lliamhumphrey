@@ -12,7 +12,7 @@ export default async function AdminPage() {
   const dbUser = await db.user.findUnique({ where: { id: session.user.id }, select: { role: true } })
   if (dbUser?.role !== "ADMIN") redirect("/feed")
 
-  const [members, events] = await Promise.all([
+  const [members, events, onboarding] = await Promise.all([
     db.user.findMany({
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { posts: true } } },
@@ -21,7 +21,10 @@ export default async function AdminPage() {
       orderBy: { startDate: "desc" },
       include: { _count: { select: { rsvps: true } } },
     }),
+    db.onboardingResponse.findMany({
+      orderBy: { submittedAt: "desc" },
+    }),
   ])
 
-  return <AdminClient members={members as any} events={events as any} />
+  return <AdminClient members={members as any} events={events as any} onboarding={onboarding} />
 }

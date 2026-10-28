@@ -222,6 +222,20 @@ model Message {
   sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
 }
 
+model OnboardingResponse {
+  id          String   @id @default(cuid())
+  submittedAt DateTime @default(now())
+  name        String
+  email       String?
+  challenge   String?
+  goal        String?
+  valuableTo  String?
+  wantsFrom   String[]
+  canOffer    String?
+  extraNotes  String?
+  rawPayload  Json?
+}
+
 enum Role {
   GA
   VIP

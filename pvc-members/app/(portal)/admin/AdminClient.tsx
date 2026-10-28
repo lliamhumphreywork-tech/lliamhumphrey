@@ -8,9 +8,23 @@ import type { User, Event } from "@prisma/client"
 import { Shield, Plus, Trash2, Calendar, ImagePlus, X, Pencil } from "lucide-react"
 import { formatRelativeTime } from "@/lib/utils"
 
+type OnboardingResponse = {
+  id: string
+  submittedAt: Date
+  name: string
+  email: string | null
+  challenge: string | null
+  goal: string | null
+  valuableTo: string | null
+  wantsFrom: string[]
+  canOffer: string | null
+  extraNotes: string | null
+}
+
 type Props = {
   members: (User & { _count: { posts: number } })[]
   events: (Event & { _count: { rsvps: number } })[]
+  onboarding: OnboardingResponse[]
 }
 
 const TAB_STYLES = (active: boolean) => ({
@@ -25,8 +39,8 @@ const TAB_STYLES = (active: boolean) => ({
   fontFamily: "Plus Jakarta Sans, sans-serif",
 })
 
-export function AdminClient({ members, events }: Props) {
-  const [tab, setTab] = useState<"members" | "events">("members")
+export function AdminClient({ members, events, onboarding }: Props) {
+  const [tab, setTab] = useState<"members" | "events" | "crm">("members")
   const [showEventForm, setShowEventForm] = useState(false)
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -216,6 +230,9 @@ export function AdminClient({ members, events }: Props) {
         </button>
         <button style={TAB_STYLES(tab === "events")} onClick={() => setTab("events")}>
           Events ({events.length})
+        </button>
+        <button style={TAB_STYLES(tab === "crm")} onClick={() => setTab("crm")}>
+          CRM ({onboarding.length})
         </button>
       </div>
 
@@ -464,6 +481,80 @@ export function AdminClient({ members, events }: Props) {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {tab === "crm" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {onboarding.length === 0 ? (
+            <div style={{ padding: "40px 0", textAlign: "center", color: "var(--text-muted)", fontSize: 14 }}>
+              No onboarding responses yet. Responses will appear here once members submit the Tally form.
+            </div>
+          ) : onboarding.map((r) => (
+            <div
+              key={r.id}
+              style={{
+                background: "var(--bg-surface)",
+                border: "1px solid var(--border)",
+                borderRadius: "var(--radius-sm)",
+                padding: "16px 20px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12 }}>
+                <span style={{ fontWeight: 600, fontSize: 15 }}>{r.name}</span>
+                {r.email && (
+                  <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{r.email}</span>
+                )}
+                <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-muted)" }}>
+                  {new Date(r.submittedAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
+                </span>
+              </div>
+              <div style={{ display: "grid", gap: 8 }}>
+                {r.challenge && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>Biggest challenge</div>
+                    <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>{r.challenge}</div>
+                  </div>
+                )}
+                {r.goal && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>Main goal</div>
+                    <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>{r.goal}</div>
+                  </div>
+                )}
+                {r.valuableTo && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>What would make PVC valuable</div>
+                    <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>{r.valuableTo}</div>
+                  </div>
+                )}
+                {r.wantsFrom.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Wants from the room</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {r.wantsFrom.map((w, i) => (
+                        <span key={i} style={{ padding: "3px 10px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 100, fontSize: 12, color: "var(--text-secondary)" }}>
+                          {w}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {r.canOffer && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>Can offer</div>
+                    <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>{r.canOffer}</div>
+                  </div>
+                )}
+                {r.extraNotes && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>Extra notes</div>
+                    <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>{r.extraNotes}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

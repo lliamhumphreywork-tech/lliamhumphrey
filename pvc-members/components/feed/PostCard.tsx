@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
-  MessageCircle, Flame, Dumbbell, HandMetal, Lightbulb, Heart,
+  MessageCircle,
   Trash2, Paperclip, Download, Pencil, Check, X, Pin, PinOff,
 } from "lucide-react"
 import { Avatar } from "@/components/ui/Avatar"
@@ -12,16 +12,13 @@ import { Badge } from "@/components/ui/Badge"
 import { formatRelativeTime } from "@/lib/utils"
 import { getSpaceIcon } from "@/lib/spaceIcons"
 import type { PostWithAll } from "@/lib/types"
-import type { FC } from "react"
-import type { LucideProps } from "lucide-react"
 
-type Reaction = { emoji: string; label: string; Icon: FC<LucideProps> }
-const REACTIONS: Reaction[] = [
-  { emoji: "🔥", label: "Fire", Icon: Flame },
-  { emoji: "💪", label: "Strong", Icon: Dumbbell },
-  { emoji: "👏", label: "Clap", Icon: HandMetal },
-  { emoji: "💡", label: "Idea", Icon: Lightbulb },
-  { emoji: "❤️", label: "Love", Icon: Heart },
+const REACTIONS = [
+  { emoji: "🔥", label: "Fire" },
+  { emoji: "💪", label: "Strong" },
+  { emoji: "👏", label: "Clap" },
+  { emoji: "💡", label: "Idea" },
+  { emoji: "❤️", label: "Love" },
 ]
 
 type PostCardProps = {
@@ -401,10 +398,10 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
         })()}
       </div>
 
-      {/* Reactions row */}
+      {/* Reactions + comment row */}
       <div
         style={{
-          padding: "8px 16px 8px",
+          padding: "8px 12px",
           borderTop: "1px solid var(--border-subtle)",
           display: "flex",
           alignItems: "center",
@@ -412,7 +409,7 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
           flexWrap: "wrap",
         }}
       >
-        {REACTIONS.map(({ emoji, label, Icon }) => {
+        {REACTIONS.map(({ emoji, label }) => {
           const { count, reacted } = reactionCounts[emoji]
           return (
             <button
@@ -420,35 +417,27 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
               onClick={() => react(emoji)}
               title={label}
               style={{
-                display: "flex", alignItems: "center", gap: 4,
-                padding: count > 0 ? "4px 10px" : "4px 8px",
-                background: reacted ? "var(--accent-dim)" : count > 0 ? "var(--bg-elevated)" : "transparent",
-                border: `1px solid ${reacted ? "var(--accent)" : count > 0 ? "var(--border)" : "transparent"}`,
+                display: "flex", alignItems: "center", gap: 5,
+                padding: "5px 10px",
+                minHeight: 32,
+                background: reacted ? "var(--accent-dim)" : "var(--bg-elevated)",
+                border: `1px solid ${reacted ? "var(--accent)" : "var(--border)"}`,
                 borderRadius: "var(--radius-full)",
                 cursor: "pointer",
-                color: reacted ? "var(--accent)" : "var(--text-muted)",
-                transition: "all 0.15s",
-                opacity: count === 0 && !reacted ? 0.55 : 1,
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget
-                if (!reacted) {
-                  el.style.opacity = "1"
-                  el.style.background = "var(--bg-elevated)"
-                  el.style.borderColor = "var(--border)"
-                }
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget
-                if (!reacted) {
-                  el.style.opacity = count > 0 ? "1" : "0.55"
-                  el.style.background = count > 0 ? "var(--bg-elevated)" : "transparent"
-                  el.style.borderColor = count > 0 ? "var(--border)" : "transparent"
-                }
+                transition: "all 0.12s",
+                flexShrink: 0,
               }}
             >
-              <Icon size={14} />
-              {count > 0 && <span style={{ fontSize: 11, fontWeight: 600, fontFamily: "Plus Jakarta Sans, sans-serif" }}>{count}</span>}
+              <span style={{ fontSize: 15, lineHeight: 1 }}>{emoji}</span>
+              {count > 0 && (
+                <span style={{
+                  fontSize: 12, fontWeight: 600,
+                  fontFamily: "Plus Jakarta Sans, sans-serif",
+                  color: reacted ? "var(--accent)" : "var(--text-secondary)",
+                }}>
+                  {count}
+                </span>
+              )}
             </button>
           )
         })}
@@ -459,13 +448,15 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
           onClick={() => setShowComments(!showComments)}
           style={{
             display: "flex", alignItems: "center", gap: 5,
+            padding: "5px 10px", minHeight: 32,
             background: "none", border: "none",
-            color: showComments ? "var(--accent)" : "var(--text-muted)",
+            color: showComments ? "var(--text-primary)" : "var(--text-muted)",
             fontSize: 13, cursor: "pointer", fontFamily: "Plus Jakarta Sans, sans-serif",
+            flexShrink: 0,
           }}
         >
           <MessageCircle size={14} />
-          {post._count.comments > 0 ? `${post._count.comments} comment${post._count.comments !== 1 ? "s" : ""}` : "Comment"}
+          {post._count.comments > 0 ? post._count.comments : ""}
         </button>
       </div>
 

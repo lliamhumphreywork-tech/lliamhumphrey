@@ -27,7 +27,7 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(false)
-  const [dropdownPos, setDropdownPos] = useState<{ bottom: number; left: number } | null>(null)
+  const [dropdownPos, setDropdownPos] = useState<{ top?: number; bottom?: number; left: number; right?: number } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const bellRef = useRef<HTMLButtonElement>(null)
@@ -81,8 +81,14 @@ export function NotificationBell() {
         onClick={() => {
           if (!open && bellRef.current) {
             const rect = bellRef.current.getBoundingClientRect()
-            // Open to the right of the sidebar (avoids overflow:hidden clipping)
-            setDropdownPos({ bottom: window.innerHeight - rect.top + 8, left: rect.right + 12 })
+            const isMobile = window.innerWidth < 768
+            if (isMobile) {
+              // Drop down from top header, anchored right
+              setDropdownPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right })
+            } else {
+              // Open to the right of the sidebar
+              setDropdownPos({ bottom: window.innerHeight - rect.top + 8, left: rect.right + 12 })
+            }
           }
           setOpen(!open)
         }}
@@ -108,15 +114,26 @@ export function NotificationBell() {
           <span
             style={{
               position: "absolute",
-              top: 4,
-              right: 4,
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              background: "var(--accent)",
+              top: 2,
+              right: 2,
+              minWidth: 16,
+              height: 16,
+              padding: "0 4px",
+              borderRadius: "var(--radius-full)",
+              background: "var(--text-primary)",
+              color: "var(--bg-base)",
               border: "2px solid var(--bg-surface)",
+              fontSize: 10,
+              fontWeight: 700,
+              fontFamily: "Plus Jakarta Sans, sans-serif",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              lineHeight: 1,
             }}
-          />
+          >
+            {unread > 9 ? "9+" : unread}
+          </span>
         )}
       </button>
 
@@ -125,9 +142,11 @@ export function NotificationBell() {
           ref={dropdownRef}
           style={{
             position: "fixed",
-            bottom: dropdownPos.bottom,
-            left: dropdownPos.left,
-            width: 320,
+            ...(dropdownPos.top !== undefined
+              ? { top: dropdownPos.top, right: dropdownPos.right }
+              : { bottom: dropdownPos.bottom, left: dropdownPos.left }
+            ),
+            width: Math.min(320, window.innerWidth - 16),
             background: "var(--bg-elevated)",
             border: "1px solid var(--border)",
             borderRadius: "var(--radius-lg)",

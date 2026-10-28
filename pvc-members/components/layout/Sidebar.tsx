@@ -12,6 +12,7 @@ import {
 import { Avatar } from "@/components/ui/Avatar"
 import { NotificationBell } from "@/components/notifications/NotificationBell"
 import { getSpaceIcon } from "@/lib/spaceIcons"
+import { PushSubscribe } from "@/components/pwa/PushSubscribe"
 
 type SidebarGroup = {
   label: string
@@ -287,6 +288,7 @@ export function Sidebar() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            <PushSubscribe iconOnly />
             <NotificationBell />
             {role === "ADMIN" && (
               <Link href="/admin">

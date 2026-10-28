@@ -39,6 +39,7 @@ model User {
   resources          Resource[]          @relation("UserResources")
   sessions           Session[]
   spaceMembers       SpaceMember[]
+  pushSubscriptions  PushSubscription[]
 }
 
 model Account {
@@ -209,6 +210,16 @@ model Notification {
   actor     User?    @relation("NotificationActor", fields: [actorId], references: [id])
   post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User     @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Message {

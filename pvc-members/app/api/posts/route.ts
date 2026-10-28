@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { notifyMentions } from "@/lib/notifications"
+import { sendPushToAll } from "@/lib/push"
 
 export async function GET() {
   const session = await auth()
@@ -43,6 +44,13 @@ export async function POST(req: Request) {
   if (hasContent) {
     await notifyMentions(content.trim(), session!.user!.id!, post.id)
   }
+
+  const authorName = session!.user!.name || "Someone"
+  const preview = hasContent ? content.trim().replace(/<[^>]*>/g, "").slice(0, 80) : "shared something"
+  sendPushToAll(
+    { title: `${authorName} posted`, body: preview, url: "/" },
+    session!.user!.id!
+  ).catch(() => {})
 
   return NextResponse.json(post, { status: 201 })
 }

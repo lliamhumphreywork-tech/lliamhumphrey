@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import "./globals.css"
 import { SessionProvider } from "@/components/auth/SessionProvider"
 import { AutoUpdater } from "@/components/AutoUpdater"
+import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration"
+import { InstallBanner } from "@/components/pwa/InstallBanner"
 
 export const metadata: Metadata = {
   title: {
@@ -9,6 +11,12 @@ export const metadata: Metadata = {
     template: "%s — PVC Members",
   },
   description: "Private Victories Club — Africa's private network for founders scaling businesses.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "PVC",
+  },
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -29,7 +37,9 @@ export default function RootLayout({
       <body>
         <SessionProvider>
           <AutoUpdater />
+          <ServiceWorkerRegistration />
           {children}
+          <InstallBanner />
         </SessionProvider>
       </body>
     </html>

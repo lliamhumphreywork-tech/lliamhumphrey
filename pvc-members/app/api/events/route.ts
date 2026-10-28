@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { sendPushToAll } from "@/lib/push"
 
 export async function GET() {
   const session = await auth()
@@ -55,6 +56,11 @@ export async function POST(req: Request) {
       })),
     })
   }
+
+  sendPushToAll(
+    { title: "New event", body: event.title, url: `/events#event-${event.id}` },
+    session!.user!.id!
+  ).catch(() => {})
 
   return NextResponse.json(event, { status: 201 })
 }

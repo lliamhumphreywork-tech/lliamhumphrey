@@ -187,7 +187,7 @@ export function EventCard({ event, currentUserId, isAdmin }: EventCardProps) {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {event.rsvps.map((rsvp) => (
-                <div key={rsvp.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div key={rsvp.userId} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <Avatar src={(rsvp.user as any).avatar} name={rsvp.user.name} size={28} role={(rsvp.user as any).role} />
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>

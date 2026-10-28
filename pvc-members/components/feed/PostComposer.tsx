@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition, useRef } from "react"
+import { useState, useEffect, useTransition, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Plus, ImagePlus, Paperclip, X } from "lucide-react"
@@ -69,6 +69,7 @@ function formatBytes(bytes: number) {
 export function PostComposer({ spaceId, placeholder = "Share something with the community...", composerAvatar }: PostComposerProps) {
   const { data: session } = useSession()
   const [content, setContent] = useState("")
+  const [initialContent, setInitialContent] = useState("")
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -76,10 +77,41 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState("")
   const [key, setKey] = useState(0)
+  const [draftSaved, setDraftSaved] = useState(false)
   const imageInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const user = session?.user
+  const draftKey = spaceId ? `pvc_draft_${spaceId}` : "pvc_draft"
+
+  // Restore draft on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(draftKey)
+      if (saved && saved !== "<p></p>") {
+        setContent(saved)
+        setInitialContent(saved)
+        setExpanded(true)
+      }
+    } catch {}
+  }, [draftKey])
+
+  // Auto-save draft (debounced 1s)
+  useEffect(() => {
+    const hasContent = content && content !== "<p></p>"
+    const timer = setTimeout(() => {
+      try {
+        if (hasContent) {
+          localStorage.setItem(draftKey, content)
+          setDraftSaved(true)
+          setTimeout(() => setDraftSaved(false), 2000)
+        } else {
+          localStorage.removeItem(draftKey)
+        }
+      } catch {}
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [content, draftKey])
 
   async function handleFiles(files: File[], imagesOnly = false) {
     if (!files.length) return
@@ -105,9 +137,11 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
 
   function reset() {
     setContent("")
+    setInitialContent("")
     setAttachments([])
     setExpanded(false)
     setKey((k) => k + 1)
+    try { localStorage.removeItem(draftKey) } catch {}
   }
 
   function handleSubmit() {
@@ -180,7 +214,7 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
               background: "var(--bg-elevated)",
               overflow: "hidden",
             }}>
-              <RichTextEditor key={key} placeholder={placeholder} onChange={setContent} onSubmit={handleSubmit} autofocus />
+              <RichTextEditor key={key} content={initialContent} placeholder={placeholder} onChange={setContent} onSubmit={handleSubmit} autofocus />
             </div>
           </div>
 
@@ -263,6 +297,11 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
               <Paperclip size={13} /> File
             </button>
             <div style={{ flex: 1 }} />
+            {draftSaved && (
+              <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "Plus Jakarta Sans, sans-serif" }}>
+                Draft saved
+              </span>
+            )}
             {error && <span style={{ fontSize: 13, color: "var(--danger)" }}>{error}</span>}
             <button type="button" onClick={reset}
               style={{

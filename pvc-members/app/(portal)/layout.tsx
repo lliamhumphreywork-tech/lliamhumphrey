@@ -6,6 +6,7 @@ import { RightRail } from "@/components/layout/RightRail"
 import { MobileNav } from "@/components/layout/MobileNav"
 import { MobileHeader } from "@/components/layout/MobileHeader"
 import { CommandPalette } from "@/components/search/CommandPalette"
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal"
 
 export default async function PortalLayout({
   children,
@@ -15,7 +16,10 @@ export default async function PortalLayout({
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
 
-  const user = await db.user.findUnique({ where: { id: session!.user!.id } })
+  const user = await db.user.findUnique({
+    where: { id: session!.user!.id },
+    select: { name: true, avatar: true, bio: true, location: true, _count: { select: { posts: true } } },
+  })
   if (!user) redirect("/login")
   if (!user.name) redirect("/onboarding")
 
@@ -40,6 +44,12 @@ export default async function PortalLayout({
       <RightRail />
       <MobileNav />
       <CommandPalette />
+      <OnboardingModal
+        hasAvatar={!!user.avatar}
+        hasBio={!!user.bio}
+        hasLocation={!!user.location}
+        hasPosted={user._count.posts > 0}
+      />
     </div>
   )
 }

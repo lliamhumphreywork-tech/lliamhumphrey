@@ -59,6 +59,8 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  /* Remove 300ms tap delay on iOS */
+  touch-action: manipulation;
 }
 
 html,
@@ -241,6 +243,17 @@ input, textarea {
 .post-image { max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border-subtle); display: block; cursor: zoom-in; }
 .post-images .post-image { flex: 1 1 calc(50% - 3px); max-height: 360px; object-fit: cover; min-width: 120px; }
 .post-images:has(.post-image:only-child) .post-image { flex: none; max-width: 100%; max-height: 480px; object-fit: contain; cursor: zoom-in; }
+
+/* Skeleton pulse for loading states */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Apply to all skeleton divs in loading components */
+[data-skeleton], .loading-skeleton {
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
 
 @keyframes shimmer-bar {
   0% { transform: translateX(-150%); }

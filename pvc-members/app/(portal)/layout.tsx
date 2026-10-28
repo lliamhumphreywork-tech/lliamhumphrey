@@ -31,6 +31,8 @@ export default async function PortalLayout({
           minHeight: 0,
           WebkitOverflowScrolling: "touch",
           overscrollBehavior: "contain",
+          willChange: "transform",
+          transform: "translateZ(0)",
         }}
       >
         {children}

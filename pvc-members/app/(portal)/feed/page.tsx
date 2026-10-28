@@ -14,15 +14,16 @@ export default async function FeedPage() {
 
   const posts = await db.post.findMany({
     orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
-    take: 50,
+    take: 20,
     include: {
-      author: true,
-      space: true,
+      author: { select: { id: true, name: true, email: true, avatar: true, role: true } },
+      space: { select: { id: true, name: true, slug: true } },
       comments: {
-        include: { author: true },
+        include: { author: { select: { id: true, name: true, email: true, avatar: true, role: true } } },
         orderBy: { createdAt: "asc" },
+        take: 10,
       },
-      reactions: { include: { user: true } },
+      reactions: { select: { emoji: true, userId: true } },
       _count: { select: { comments: true, reactions: true } },
     },
   })

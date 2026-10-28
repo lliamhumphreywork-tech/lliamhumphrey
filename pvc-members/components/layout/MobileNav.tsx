@@ -96,10 +96,12 @@ export function MobileNav() {
       <nav
         style={{
           position: "fixed", bottom: 0, left: 0, right: 0,
-          paddingTop: 0,
+          paddingTop: 4,
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
-          background: "var(--bg-surface)",
-          borderTop: "1px solid var(--border)",
+          background: "rgba(8,8,8,0.85)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderTop: "1px solid rgba(255,255,255,0.06)",
           zIndex: 50,
         }}
         className="mobile-nav"
@@ -113,12 +115,24 @@ export function MobileNav() {
               style={{
                 flex: 1, display: "flex", flexDirection: "column",
                 alignItems: "center", justifyContent: "center", gap: 3,
-                color: active ? "var(--nav-accent)" : "var(--text-muted)",
-                textDecoration: "none", fontSize: 10, fontWeight: active ? 600 : 400,
+                color: active ? "#fff" : "var(--text-muted)",
+                textDecoration: "none", fontSize: 10,
+                fontWeight: active ? 600 : 400,
+                paddingBottom: 2,
+                position: "relative",
               }}
             >
-              <Icon size={20} />
-              {label}
+              <div style={{ position: "relative" }}>
+                <Icon size={21} strokeWidth={active ? 2 : 1.5} />
+              </div>
+              <span>{label}</span>
+              {active && (
+                <span style={{
+                  position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)",
+                  width: 4, height: 4, borderRadius: "50%",
+                  background: "#45183F",
+                }} />
+              )}
             </Link>
           )
         })}
@@ -129,13 +143,21 @@ export function MobileNav() {
           style={{
             flex: 1, display: "flex", flexDirection: "column",
             alignItems: "center", justifyContent: "center", gap: 3,
-            color: (isInSpaces || showSpaces) ? "var(--nav-accent)" : "var(--text-muted)",
+            color: (isInSpaces || showSpaces) ? "#fff" : "var(--text-muted)",
             background: "none", border: "none", cursor: "pointer",
             fontSize: 10, fontWeight: (isInSpaces || showSpaces) ? 600 : 400,
+            paddingBottom: 2, position: "relative",
           }}
         >
-          {showSpaces ? <X size={20} /> : <Grid2x2 size={20} />}
+          {showSpaces ? <X size={21} strokeWidth={2} /> : <Grid2x2 size={21} strokeWidth={1.5} />}
           Spaces
+          {(isInSpaces || showSpaces) && (
+            <span style={{
+              position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)",
+              width: 4, height: 4, borderRadius: "50%",
+              background: "#45183F",
+            }} />
+          )}
         </button>
       </nav>
     </>

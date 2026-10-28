@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { RightRail } from "@/components/layout/RightRail"
 import { MobileNav } from "@/components/layout/MobileNav"
+import { MobileHeader } from "@/components/layout/MobileHeader"
 import { CommandPalette } from "@/components/search/CommandPalette"
 
 export default async function PortalLayout({
@@ -21,6 +22,7 @@ export default async function PortalLayout({
   return (
     <div className="portal-layout" style={{ height: "100dvh", overflow: "hidden" }}>
       <Sidebar />
+      <MobileHeader />
       <main
         style={{
           overflowY: "auto",

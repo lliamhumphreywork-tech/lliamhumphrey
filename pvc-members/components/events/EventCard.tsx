@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { MapPin, Video, Users, Calendar } from "lucide-react"
+import { MapPin, Video, Users, Calendar, ChevronDown, ChevronUp } from "lucide-react"
+import { Avatar } from "@/components/ui/Avatar"
 import type { EventWithRSVPs } from "@/lib/types"
 
 type EventCardProps = {
@@ -13,6 +14,7 @@ type EventCardProps = {
 
 export function EventCard({ event, currentUserId, isAdmin }: EventCardProps) {
   const [loading, setLoading] = useState(false)
+  const [showAttendees, setShowAttendees] = useState(false)
   const router = useRouter()
   const hasRSVPd = event.rsvps.some((r) => r.userId === currentUserId)
   const start = new Date(event.startDate)
@@ -152,7 +154,52 @@ export function EventCard({ event, currentUserId, isAdmin }: EventCardProps) {
               Join link
             </a>
           )}
+
+          {isAdmin && event._count.rsvps > 0 && (
+            <button
+              onClick={() => setShowAttendees(!showAttendees)}
+              style={{
+                marginLeft: "auto",
+                display: "flex", alignItems: "center", gap: 4,
+                background: "none", border: "1px solid var(--border)",
+                borderRadius: "var(--radius-sm)", padding: "7px 12px",
+                fontSize: 12, color: "var(--text-secondary)", cursor: "pointer",
+                fontFamily: "Plus Jakarta Sans, sans-serif",
+              }}
+            >
+              {showAttendees ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              {event._count.rsvps} going
+            </button>
+          )}
         </div>
+
+        {/* Admin attendee list */}
+        {isAdmin && showAttendees && event.rsvps.length > 0 && (
+          <div style={{
+            marginTop: 16,
+            padding: "14px 16px",
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--border-subtle)",
+            borderRadius: "var(--radius)",
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 10 }}>
+              Attendees
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {event.rsvps.map((rsvp) => (
+                <div key={rsvp.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Avatar src={(rsvp.user as any).avatar} name={rsvp.user.name} size={28} role={(rsvp.user as any).role} />
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>
+                      {rsvp.user.name ?? rsvp.user.email.split("@")[0]}
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{rsvp.user.email}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

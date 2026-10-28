@@ -274,19 +274,43 @@ input, textarea {
 /* No shimmer — clean dark */
 .sidebar::before { display: none; }
 
+/* Mobile header: hidden on desktop */
+.mobile-header {
+  display: none;
+}
+
 /* Mobile nav: hidden on desktop, flex on mobile */
 .mobile-nav {
   display: none;
 }
 
 @media (max-width: 768px) {
+  .mobile-header {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: calc(52px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    align-items: center;
+    justify-content: center;
+    background: rgba(8,8,8,0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    z-index: 50;
+  }
+
   .mobile-nav {
     display: flex;
     min-height: 60px;
   }
-  /* Bottom nav clearance including safe area */
+
+  /* Push main content below the fixed header */
   main {
-    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-top: calc(52px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 

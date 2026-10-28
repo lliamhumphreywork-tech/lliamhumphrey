@@ -339,10 +339,27 @@ input, textarea {
 
 /* RightRail hover states (server component — CSS only) */
 .rr-member-link { transition: background 0.1s; }
-.rr-member-link:hover { background: var(--bg-hover); }
-.rr-event-link { transition: border-color 0.1s; }
-.rr-event-link:hover { border-color: var(--border) !important; }
-.rr-event-card:hover { border-color: var(--accent) !important; }
+.rr-member-link:hover { background: rgba(255,255,255,0.04); }
+.rr-event-card { transition: border-color 0.15s, background 0.15s; }
+.rr-event-card:hover { border-color: rgba(255,255,255,0.1) !important; background: var(--bg-hover) !important; }
+
+/* ── Desktop polish ── */
+@media (min-width: 769px) {
+  /* Post / space cards: subtle hover lift */
+  .post-card {
+    transition: border-color 0.15s;
+  }
+  .post-card:hover {
+    border-color: rgba(255,255,255,0.1);
+  }
+
+  /* Page titles: tighter tracking */
+  h1 { letter-spacing: -0.02em; }
+  h2 { letter-spacing: -0.01em; }
+
+  /* Scrollbar: thinner on desktop */
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+}
 
 /* ── Mobile optimisations ── */
 

@@ -75,7 +75,8 @@ export function NotificationBell() {
         onClick={() => {
           if (!open && bellRef.current) {
             const rect = bellRef.current.getBoundingClientRect()
-            setDropdownPos({ bottom: window.innerHeight - rect.top + 8, left: rect.left })
+            // Open to the right of the sidebar (avoids overflow:hidden clipping)
+            setDropdownPos({ bottom: window.innerHeight - rect.top + 8, left: rect.right + 12 })
           }
           setOpen(!open)
         }}

@@ -133,7 +133,7 @@ input, textarea {
 .portal-layout {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr var(--right-rail-width);
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 

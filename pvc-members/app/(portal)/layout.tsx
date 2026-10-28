@@ -19,7 +19,7 @@ export default async function PortalLayout({
   if (!user.name) redirect("/onboarding")
 
   return (
-    <div className="portal-layout" style={{ height: "100vh", overflow: "hidden" }}>
+    <div className="portal-layout" style={{ height: "100dvh", overflow: "hidden" }}>
       <Sidebar />
       <main
         style={{
@@ -27,6 +27,8 @@ export default async function PortalLayout({
           background: "var(--bg-base)",
           paddingBottom: 80,
           minHeight: 0,
+          WebkitOverflowScrolling: "touch",
+          overscrollBehavior: "contain",
         }}
       >
         {children}

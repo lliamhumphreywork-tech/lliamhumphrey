@@ -28,12 +28,14 @@ export function EventCard({ event, currentUserId, isAdmin }: EventCardProps) {
 
   return (
     <div
+      id={`event-${event.id}`}
       style={{
         background: "var(--bg-surface)",
         border: "1px solid var(--border)",
         borderRadius: "var(--radius-lg)",
         overflow: "hidden",
         marginBottom: 12,
+        scrollMarginTop: 24,
       }}
     >
       {/* Cover image */}

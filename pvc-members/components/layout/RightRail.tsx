@@ -103,7 +103,7 @@ export async function RightRail() {
               return (
                 <Link
                   key={event.id}
-                  href="/events"
+                  href={`/events#event-${event.id}`}
                   className="rr-event-link rr-event-card"
                   style={{
                     display: "flex", gap: 10, alignItems: "flex-start",

@@ -171,7 +171,7 @@ async function askBarbara(history: ChatMessage[], userMessage: string, openTasks
     },
     body: JSON.stringify({
       model:      'claude-haiku-5-5',
-      max_tokens: 1024,
+      max_tokens: 2048,
       system:     buildSystemPrompt(openTasks, susanData),
       messages,
     }),

@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   MessageCircle, Flame, Dumbbell, HandMetal, Lightbulb, Heart,
-  Trash2, Paperclip, Download, Pencil, Check, X,
+  Trash2, Paperclip, Download, Pencil, Check, X, Pin, PinOff,
 } from "lucide-react"
 import { Avatar } from "@/components/ui/Avatar"
 import { Badge } from "@/components/ui/Badge"
@@ -127,19 +127,51 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
 
   const canEdit = post.authorId === currentUserId || currentUserRole === "ADMIN"
   const canDelete = canEdit
+  const canPin = currentUserRole === "ADMIN"
+  const [pinned, setPinned] = useState(post.isPinned)
+  const [pinBusy, setPinBusy] = useState(false)
+
+  async function togglePin() {
+    setPinBusy(true)
+    const res = await fetch(`/api/posts/${post.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isPinned: !pinned }),
+    })
+    if (res.ok) {
+      setPinned(!pinned)
+      router.refresh()
+    }
+    setPinBusy(false)
+  }
 
   return (
     <article
       className="fade-in"
       style={{
         background: "var(--bg-surface)",
-        border: "1px solid var(--border)",
+        border: pinned ? "1px solid var(--accent)" : "1px solid var(--border)",
         borderRadius: "var(--radius-lg)",
         marginBottom: 12,
         overflow: "hidden",
         transition: "border-color 0.15s",
       }}
     >
+      {/* Pinned indicator */}
+      {pinned && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 6,
+          padding: "6px 16px",
+          background: "var(--accent-dim)",
+          borderBottom: "1px solid var(--accent)",
+          fontSize: 11, fontWeight: 600, color: "var(--accent)",
+          letterSpacing: "0.05em", textTransform: "uppercase",
+          fontFamily: "Plus Jakarta Sans, sans-serif",
+        }}>
+          <Pin size={11} /> Pinned post
+        </div>
+      )}
+
       {/* Post header */}
       <div style={{ padding: "16px 16px 0" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
@@ -186,21 +218,42 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
             </div>
           </div>
 
-          {/* Edit / Delete actions */}
-          {canEdit && !isEditing && (
+          {/* Edit / Delete / Pin actions */}
+          {(canEdit || canPin) && !isEditing && (
             <div style={{ display: "flex", gap: 2, flexShrink: 0 }}>
-              <button
-                onClick={startEdit}
-                title="Edit post"
-                style={{
-                  background: "none", border: "none", color: "var(--text-muted)",
-                  padding: 4, cursor: "pointer", borderRadius: "var(--radius-sm)", display: "flex",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
-              >
-                <Pencil size={13} />
-              </button>
+              {canPin && (
+                <button
+                  onClick={togglePin}
+                  disabled={pinBusy}
+                  title={pinned ? "Unpin post" : "Pin post"}
+                  style={{
+                    background: pinned ? "var(--accent-dim)" : "none",
+                    border: "none",
+                    color: pinned ? "var(--accent)" : "var(--text-muted)",
+                    padding: 4, cursor: pinBusy ? "not-allowed" : "pointer",
+                    borderRadius: "var(--radius-sm)", display: "flex",
+                    opacity: pinBusy ? 0.5 : 1,
+                  }}
+                  onMouseEnter={(e) => { if (!pinned) e.currentTarget.style.color = "var(--accent)" }}
+                  onMouseLeave={(e) => { if (!pinned) e.currentTarget.style.color = "var(--text-muted)" }}
+                >
+                  {pinned ? <PinOff size={13} /> : <Pin size={13} />}
+                </button>
+              )}
+              {canEdit && (
+                <button
+                  onClick={startEdit}
+                  title="Edit post"
+                  style={{
+                    background: "none", border: "none", color: "var(--text-muted)",
+                    padding: 4, cursor: "pointer", borderRadius: "var(--radius-sm)", display: "flex",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+                >
+                  <Pencil size={13} />
+                </button>
+              )}
               {canDelete && (
                 <button
                   onClick={deletePost}

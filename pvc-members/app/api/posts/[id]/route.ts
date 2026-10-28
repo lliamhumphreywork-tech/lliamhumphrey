@@ -10,11 +10,24 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if (!post) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
   const role = (session.user as any).role
+  const body = await req.json()
+
+  // Pin toggle — admin only
+  if ("isPinned" in body) {
+    if (role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    const updated = await db.post.update({
+      where: { id: params.id },
+      data: { isPinned: Boolean(body.isPinned) },
+    })
+    return NextResponse.json(updated)
+  }
+
+  // Edit content — author or admin
   if (post.authorId !== session!.user!.id && role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
-  const { content } = await req.json()
+  const { content } = body
   if (!content?.trim()) return NextResponse.json({ error: "Content required" }, { status: 400 })
 
   const updated = await db.post.update({

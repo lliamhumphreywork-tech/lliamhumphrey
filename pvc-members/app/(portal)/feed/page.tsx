@@ -13,7 +13,7 @@ export default async function FeedPage() {
   const currentUser = await db.user.findUnique({ where: { id: userId }, select: { avatar: true } })
 
   const posts = await db.post.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
     take: 50,
     include: {
       author: true,

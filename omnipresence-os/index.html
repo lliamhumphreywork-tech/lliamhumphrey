@@ -1,77 +1,260 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Omnipresence OS</title>
 <style>
-:root{--bg:#fff;--ink:#14110a;--mute:#7a7364;--line:#e8e1d3;--card:#fcfaf5;--copper:#c67f52;--dark:#0c0b05;--warn:#a3341f;--ok:#2f6b3a}
-@media (prefers-color-scheme:dark){:root{--bg:#0c0b05;--ink:#fcf2d6;--mute:#a79f8a;--line:#2b2614;--card:#14120a;--copper:#e6ba83;--dark:#fcf2d6;--warn:#ff8a73;--ok:#8fd19b}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,"Geist",Inter,system-ui,sans-serif}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:18px 24px;border-bottom:1px solid var(--line)}
-.brand{font-weight:300;letter-spacing:.22em;font-size:13px;margin-right:auto}.brand b{font-weight:600}
-select,button,textarea{font:inherit;color:var(--ink)}
-select{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
-button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;cursor:pointer}
-button:hover{border-color:var(--copper)}
-button.primary{background:var(--dark);color:var(--bg);border-color:var(--dark)}
-nav{display:flex;gap:4px;padding:0 24px;border-bottom:1px solid var(--line);overflow-x:auto}
-nav button{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;padding:14px 14px;color:var(--mute);white-space:nowrap}
-nav button.on{color:var(--ink);border-bottom-color:var(--copper)}
-nav span{background:var(--line);border-radius:999px;font-size:11px;padding:1px 7px;margin-left:6px}
-main{max-width:820px;margin:0 auto;padding:24px 16px 80px}
-.msg{padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;border:1px solid var(--line);background:var(--card)}
-.msg.bad{color:var(--warn);border-color:var(--warn)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px}
-.top{display:flex;justify-content:space-between;gap:8px;color:var(--mute);font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
-textarea{width:100%;min-height:220px;resize:vertical;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;line-height:1.55}
-.note{color:var(--mute);font-size:13px;margin:10px 0}
-.src{font-size:13px;margin:10px 0}.src a{color:var(--copper);word-break:break-all}
-.src div{margin:2px 0}
-.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.empty{color:var(--mute);text-align:center;padding:60px 0}
-.late{color:var(--warn)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0c0b05;--surface:#14120a;--s2:rgba(252,242,214,0.04);
+  --border:rgba(252,242,214,0.1);--rule:rgba(252,242,214,0.1);
+  --text:#fcf2d6;--body:#d8d0b8;--muted:#8f8870;--dim:#4d4836;
+  --copper:#c67f52;--sand:#e6ba83;--ok:rgba(62,207,142,0.9);--bad:#ff7a7a;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --font:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.5;height:100%;-webkit-font-smoothing:antialiased;}
+a{color:inherit;text-decoration:none;}
+button{font:inherit;background:none;border:none;color:inherit;cursor:pointer;padding:0;}
+input,select,textarea{font:inherit;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* LOADING / AUTH */
+#loading{display:flex;align-items:center;justify-content:center;height:100vh;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--dim);}
+#auth-screen{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;animation:fadeIn 0.4s var(--ease) both;padding:16px;}
+.auth-box{width:100%;max-width:400px;border:1px solid var(--rule);padding:48px;display:flex;flex-direction:column;gap:24px;}
+.auth-brand{font-size:11px;letter-spacing:0.4em;text-transform:uppercase;font-weight:300;}
+.auth-brand b{font-weight:700;}
+.auth-title{font-size:22px;font-weight:700;letter-spacing:-0.01em;margin-top:-8px;}
+.auth-sub{font-size:12px;color:var(--muted);margin-top:-12px;}
+.auth-field{display:flex;flex-direction:column;gap:8px;}
+.auth-field label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);}
+.auth-field input{border:1px solid var(--rule);padding:11px 14px;background:var(--s2);color:var(--text);font-size:13px;width:100%;outline:none;transition:border-color .15s;}
+.auth-field input:focus{border-color:rgba(230,186,131,0.5);}
+.auth-btn{background:var(--text);color:#0c0b05;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:13px;transition:opacity .15s;}
+.auth-btn:hover{opacity:0.85;} .auth-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.auth-err{font-size:11px;color:var(--bad);min-height:16px;margin-top:-12px;}
+.auth-footer{font-size:11px;color:var(--muted);text-align:center;padding-top:16px;border-top:1px solid var(--rule);}
+
+/* APP */
+#app{display:none;}
+#app.visible{display:flex;flex-direction:column;height:100vh;}
+.header{height:50px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;animation:fadeIn 0.5s var(--ease) both;}
+.header-left{display:flex;align-items:center;gap:10px;}
+.header-ws{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);font-weight:300;}
+.header-ws b{font-weight:700;color:var(--text);}
+.header-sep{font-size:10px;color:var(--dim);}
+.header-module{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;}
+.header-right{display:flex;align-items:center;gap:22px;}
+.header-user{font-size:11px;color:var(--muted);}
+.sign-out-btn{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);padding:5px 10px;border:1px solid var(--rule);transition:all .15s;}
+.sign-out-btn:hover{color:var(--text);border-color:rgba(252,242,214,0.3);}
+#clock{font-size:11px;letter-spacing:0.06em;color:var(--muted);font-variant-numeric:tabular-nums;}
+.layout{display:grid;grid-template-columns:304px 1fr;flex:1;overflow:hidden;animation:fadeUp 0.55s var(--ease) 0.08s both;}
+
+/* SIDE PANEL */
+.form-panel{border-right:0.5px solid var(--border);padding:26px 22px;overflow-y:auto;}
+.panel-eyebrow{font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--dim);margin-bottom:22px;}
+.field{margin-bottom:14px;}
+.field-label{display:block;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.field select{width:100%;background:transparent;border:0.5px solid var(--border);color:var(--text);font-size:12px;padding:9px 11px;outline:none;appearance:none;-webkit-appearance:none;border-radius:0;transition:border-color .15s;}
+.field select:focus{border-color:rgba(230,186,131,0.5);}
+.field select option{background:#14120a;color:#fcf2d6;}
+.select-wrap{position:relative;}
+.select-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:10px;pointer-events:none;}
+.rule{height:0.5px;background:var(--border);margin:10px 0 20px;}
+.stat{display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid var(--border);font-size:11px;}
+.stat span:first-child{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);align-self:center;}
+.stat span:last-child{font-variant-numeric:tabular-nums;}
+.prog{height:2px;background:var(--border);margin:16px 0 6px;}
+.prog i{display:block;height:100%;background:var(--copper);transition:width .4s var(--ease);}
+.prog-label{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:20px;}
+.note-strip{margin-top:14px;padding:10px 12px;border:0.5px solid var(--border);font-size:10px;line-height:1.6;color:var(--muted);}
+.note-strip b{color:var(--text);font-weight:600;}
+.ok{color:var(--ok);} .bad{color:var(--bad);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;border:0.5px solid rgba(252,242,214,0.35);background:transparent;color:var(--text);transition:background .12s,color .12s,border-color .12s;white-space:nowrap;user-select:none;}
+.btn:hover{background:var(--text);color:#0c0b05;border-color:var(--text);}
+.btn-primary{background:var(--text);color:#0c0b05;border-color:var(--text);}
+.btn-primary:hover{background:var(--sand);border-color:var(--sand);}
+.btn-full{width:100%;}
+.btn-sm{padding:7px 13px;font-size:9px;letter-spacing:0.1em;}
+.btn-ghost{border-color:rgba(252,242,214,0.1);color:var(--muted);}
+.btn-ghost:hover{background:rgba(252,242,214,0.05);color:var(--text);border-color:rgba(252,242,214,0.2);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* TABS */
+.main-area{display:flex;flex-direction:column;overflow:hidden;}
+.tabs{border-bottom:0.5px solid var(--border);padding:0 28px;display:flex;flex-shrink:0;overflow-x:auto;}
+.tab-btn{padding:14px 18px;font-size:10px;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid transparent;margin-bottom:-0.5px;transition:color .15s;display:flex;align-items:center;gap:8px;white-space:nowrap;}
+.tab-btn:hover{color:rgba(252,242,214,0.6);}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--copper);}
+.badge{display:inline-block;font-size:9px;padding:2px 7px;background:rgba(252,242,214,0.07);color:var(--dim);border-radius:1px;transition:background .15s,color .15s;}
+.tab-btn.active .badge{background:var(--text);color:#0c0b05;}
+.tab-panel{overflow-y:auto;flex:1;padding:24px 28px;}
+
+/* CARDS */
+.cards{display:flex;flex-direction:column;gap:10px;}
+.banner{border:0.5px solid var(--border);padding:11px 16px;font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6;}
+.banner.err{border-color:rgba(255,122,122,0.4);color:var(--bad);}
+.card{border:0.5px solid var(--border);animation:cardIn 0.5s var(--ease) both;}
+.card-header{padding:12px 16px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.card-platform{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;}
+.tag{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;border:0.5px solid rgba(198,127,82,0.45);color:var(--copper);margin-left:8px;}
+.tag.late{border-color:rgba(255,122,122,0.4);color:var(--bad);}
+.card-schedule-row{display:flex;align-items:center;gap:7px;}
+.sched-label{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);}
+.card-date-input{background:transparent;border:none;border-bottom:0.5px solid transparent;color:var(--muted);font-size:10px;outline:none;padding:2px 4px;cursor:pointer;transition:border-color .15s;color-scheme:dark;}
+.card-date-input:hover,.card-date-input:focus{border-bottom-color:var(--border);}
+.card-body{padding:16px;}
+.card-textarea{width:100%;background:transparent;border:none;color:var(--text);font-size:13px;line-height:1.75;resize:vertical;min-height:130px;outline:none;padding:0;}
+.card-note{padding:0 16px 12px;font-size:11px;line-height:1.6;color:var(--muted);}
+.card-src{padding:12px 16px 14px;border-top:0.5px solid var(--border);}
+.src-label{font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;}
+.src-row{display:grid;grid-template-columns:minmax(80px,auto) 1fr;gap:14px;font-size:11px;padding:3px 0;}
+.src-fig{color:var(--sand);font-variant-numeric:tabular-nums;}
+.src-row a{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--dim);transition:color .15s;}
+.src-row a:hover{color:var(--text);}
+.card-footer{padding:11px 16px;border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.card-ts{font-size:9px;color:var(--dim);letter-spacing:0.04em;}
+.card-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.card.in-review .card-header{background:rgba(252,242,214,0.012);}
+
+/* POSTED LIST */
+.posted-col-heads,.posted-item{display:grid;grid-template-columns:110px 110px 1fr 70px 120px;gap:16px;}
+.posted-col-heads{padding:0 0 11px;border-bottom:0.5px solid var(--border);}
+.posted-col-heads span{font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);}
+.posted-item{padding:13px 0;border-bottom:0.5px solid var(--border);align-items:center;animation:cardIn .4s var(--ease) both;}
+.posted-platform{font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);}
+.posted-date{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.posted-excerpt{font-size:12px;color:rgba(252,242,214,0.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.empty{display:flex;align-items:center;justify-content:center;padding:80px 0;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);text-align:center;line-height:2;}
+::-webkit-scrollbar{width:6px;height:6px;} ::-webkit-scrollbar-thumb{background:rgba(252,242,214,0.08);}
+
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr;overflow-y:auto;}
+  .form-panel{border-right:0;border-bottom:0.5px solid var(--border);}
+  #app.visible{height:auto;min-height:100vh;}
+  .header{padding:0 16px;} .header-user,#clock{display:none;}
+  .tab-panel,.tabs{padding-left:16px;padding-right:16px;}
+  .posted-col-heads{display:none;} .posted-item{grid-template-columns:1fr auto;} .posted-platform,.posted-excerpt+span{display:none;}
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand"><b>OMNI</b>PRESENCE OS</div>
-  <select id="client" aria-label="Client"></select>
-  <select id="week" aria-label="Week"></select>
-  <button id="draft" class="primary">Draft this week</button>
-</header>
-<nav id="tabs"></nav>
-<main><div id="msg"></div><div id="cards"></div></main>
+
+<div id="loading">Omnipresence</div>
+
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-brand"><b>OMNI</b>PRESENCE OS</div>
+    <div class="auth-title">Sign in</div>
+    <div class="auth-sub">Internal access only.</div>
+    <div class="auth-field"><label>Password</label><input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password"/></div>
+    <div class="auth-err" id="auth-err"></div>
+    <button class="auth-btn" id="auth-btn" onclick="signIn()">Sign In</button>
+    <div class="auth-footer">Omnipresence · Restricted access</div>
+  </div>
+</div>
+
+<div id="app">
+  <header class="header">
+    <div class="header-left">
+      <span class="header-ws"><b>OMNI</b>PRESENCE OS</span>
+      <span class="header-sep">/</span>
+      <span class="header-module">Content</span>
+    </div>
+    <div class="header-right">
+      <span class="header-user" id="mode">—</span>
+      <button class="sign-out-btn" id="signout" onclick="signOut()">Sign out</button>
+      <span id="clock">—</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="form-panel">
+      <div class="panel-eyebrow">Week</div>
+      <div class="field">
+        <label class="field-label">Client</label>
+        <div class="select-wrap"><select id="client"></select></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Week</label>
+        <div class="select-wrap"><select id="week"></select></div>
+      </div>
+      <div class="prog"><i id="prog"></i></div>
+      <div class="prog-label" id="prog-label">0 of 0 cleared</div>
+      <div class="stat"><span>Posts</span><span id="s-posts">0</span></div>
+      <div class="stat"><span>Days</span><span id="s-days">—</span></div>
+      <div class="stat"><span>Checker</span><span id="s-check">—</span></div>
+      <div class="rule" style="margin-top:20px"></div>
+      <button class="btn btn-primary btn-full" id="draft">Draft this week</button>
+      <div class="note-strip" id="draft-hint" style="display:none">Drafting runs on your Mac: <b>./os draft lliam</b> then <b>./os push lliam &lt;week&gt;</b>.</div>
+      <div class="note-strip"><b>Nothing posts automatically.</b> Send for OK once the client says yes, approve, schedule it yourself on LinkedIn, then mark it posted.</div>
+    </aside>
+
+    <main class="main-area">
+      <nav class="tabs" id="tabs"></nav>
+      <div class="tab-panel" id="panel"></div>
+    </main>
+  </div>
+</div>
+
 <script>
-const TABS=[["draft","Draft"],["needs_ok","Needs OK"],["approved","Approved"],["scheduled","Scheduled"],["posted","Posted"]];
-const NEXT={draft:[["needs_ok","Send for OK"],["approved","Approve"]],needs_ok:[["approved","Approve"],["draft","Back to draft"]],approved:[["scheduled","Mark scheduled"],["draft","Back to draft"]],scheduled:[["posted","Mark posted"],["approved","Unschedule"]],posted:[]};
+const TABS=[["draft","Pending"],["needs_ok","Client OK"],["approved","Approved"],["scheduled","Scheduled"],["posted","Posted"]];
+const NEXT={
+  draft:[["needs_ok","Send for OK","ghost"],["approved","Approve","primary"]],
+  needs_ok:[["draft","Back to pending","ghost"],["approved","Approve","primary"]],
+  approved:[["draft","Back to pending","ghost"],["scheduled","Mark scheduled","primary"]],
+  scheduled:[["approved","Unschedule","ghost"],["posted","Mark posted","primary"]],
+  posted:[["scheduled","Reopen","ghost"]]
+};
+const HOSTED=!["localhost","127.0.0.1"].includes(location.hostname);
 let state={posts:[],job:"",problems:[]},tab="draft";
 const $=id=>document.getElementById(id);
-const HOSTED=!["localhost","127.0.0.1"].includes(location.hostname);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safeUrl=u=>/^https?:\/\//.test(u)?u:"#";
+const words=t=>(t.trim().match(/\S+/g)||[]).length;
+const dayName=d=>{try{return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}catch(e){return d}};
+const cur=()=>({client:$("client").value,week:$("week").value});
+
 async function api(p,b){
   let url=p,body=b;
   if(HOSTED){const u=new URL(p,location.origin);const op=u.pathname.replace("/api/","");u.searchParams.set("op",op);url="/api/omni-os"+u.search;if(b)body={...b,op}}
   const r=await fetch(url,b?{method:"POST",headers:{"Content-Type":"application/json","X-OS":"1"},body:JSON.stringify(body)}:{});
-  if(r.status===401&&HOSTED){
-    const pw=prompt("Password");if(!pw)throw new Error("login");
-    const l=await fetch("/api/omni-os",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({op:"login",password:pw})});
-    if(!l.ok){alert("Wrong password");throw new Error("login")}
-    return api(p,b);
-  }
+  if(r.status===401&&HOSTED){showAuth();throw new Error("auth")}
   return r.json();
 }
-const cur=()=>({client:$("client").value,week:$("week").value});
-const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+
+/* clock + auth */
+setInterval(()=>{$("clock").textContent=new Date().toLocaleTimeString("en-GB",{timeZone:"Africa/Johannesburg",hour:"2-digit",minute:"2-digit"})+" SAST"},1000);
+function showAuth(){$("loading").style.display="none";$("app").classList.remove("visible");$("auth-screen").style.display="flex";$("auth-pass").focus()}
+async function signIn(){
+  const btn=$("auth-btn");btn.disabled=true;$("auth-err").textContent="";
+  const r=await fetch("/api/omni-os",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({op:"login",password:$("auth-pass").value})});
+  btn.disabled=false;
+  if(!r.ok){$("auth-err").textContent="Wrong password.";return}
+  $("auth-pass").value="";$("auth-screen").style.display="none";boot();
+}
+async function signOut(){await fetch("/api/omni-os",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({op:"logout"})});location.reload()}
+$("auth-pass").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
+
 async function boot(){
-  if(HOSTED)$("draft").style.display="none";
-  const cl=await api("/api/clients");
-  if(!Array.isArray(cl)){$("msg").append(el("div","msg bad","Server problem: "+(cl.error||"unknown")));return}
-  if(!cl.length)$("msg").append(el("div","msg","No weeks pushed yet. On your Mac run ./os push lliam 2026-W45"));
-  cl.forEach(c=>$("client").append(new Option(c,c)));
-  $("client").onchange=loadWeeks;$("week").onchange=load;
-  if(HOSTED)$("draft").style.display="none";else $("draft").onclick=startDraft;
+  let cl;try{cl=await api("/api/clients")}catch(e){return}
+  $("loading").style.display="none";$("app").classList.add("visible");
+  $("mode").textContent=HOSTED?"Hosted":"Local";
+  if(!HOSTED)$("signout").style.display="none";
+  $("draft-hint").style.display=HOSTED?"block":"none";
+  $("draft").style.display=HOSTED?"none":"block";
+  if(!Array.isArray(cl)){$("panel").innerHTML=`<div class="banner err">Server problem: ${esc(cl.error||"unknown")}</div>`;return}
+  $("client").replaceChildren(...cl.map(c=>new Option(c,c)));
+  $("client").onchange=loadWeeks;$("week").onchange=load;$("draft").onclick=startDraft;
   try{tab=localStorage.getItem("osTab")||"draft"}catch(e){}
+  if(!cl.length){state={posts:[],job:"",problems:[]};render("Nothing pushed yet. On your Mac run ./os push lliam 2026-W45");return}
   await loadWeeks();
 }
 async function loadWeeks(){
@@ -81,7 +264,7 @@ async function loadWeeks(){
 }
 async function load(){
   const {client,week}=cur();
-  state=await api(`/api/posts?client=${client}&week=${week}`);
+  state=week?await api(`/api/posts?client=${client}&week=${week}`):{};
   if(!state.posts)state={posts:[],job:"",problems:[]};
   render();
   if(state.job==="running")setTimeout(load,4000);
@@ -90,46 +273,59 @@ async function startDraft(){
   if(state.posts.length){alert("This week already has drafts. To replace them run ./os draft "+cur().client+" "+cur().week+" --force");return}
   await api("/api/draft",cur());await load();
 }
-function render(){
-  const nav=$("tabs");nav.replaceChildren();
-  TABS.forEach(([k,l])=>{
-    const b=el("button",k===tab?"on":"",l);
-    b.append(el("span","",state.posts.filter(p=>p.status===k).length));
-    b.onclick=()=>{tab=k;try{localStorage.setItem("osTab",k)}catch(e){}render()};
-    nav.append(b);
-  });
-  const m=$("msg");m.replaceChildren();
-  if(state.job==="running")m.append(el("div","msg","Researching and drafting. This takes two to five minutes; the page updates itself."));
-  else if(state.job.startsWith("error"))m.append(el("div","msg bad",state.job));
-  if(state.problems.length){const d=el("div","msg bad","Checker: "+state.problems.join(" | "));m.append(d)}
-  const box=$("cards");box.replaceChildren();
-  const list=state.posts.filter(p=>p.status===tab);
-  if(!list.length){box.append(el("div","empty",state.posts.length?"Nothing in this tab.":"No drafts for this week yet. Run ./os draft then ./os push on your Mac."));return}
+async function act(n,status){
+  const ta=$("ta-"+n);
+  await api("/api/save",{...cur(),n,status,...(ta?{text:ta.value}:{})});await load();
+}
+async function saveText(n){const b=$("sv-"+n);await api("/api/save",{...cur(),n,text:$("ta-"+n).value});b.textContent="Saved";setTimeout(()=>b.textContent="Save edits",1200)}
+async function saveDay(n,v){if(v){await api("/api/save",{...cur(),n,day:v});await load()}}
+function copyText(n){const b=$("cp-"+n);navigator.clipboard.writeText($("ta-"+n).value).then(()=>{b.textContent="Copied";setTimeout(()=>b.textContent="Copy text",1200)})}
+function switchTab(k){tab=k;try{localStorage.setItem("osTab",k)}catch(e){}render()}
+
+function render(emptyMsg){
+  const P=state.posts;
+  $("tabs").innerHTML=TABS.map(([k,l])=>`<button class="tab-btn ${k===tab?"active":""}" onclick="switchTab('${k}')">${l} <span class="badge">${P.filter(p=>p.status===k).length}</span></button>`).join("");
+  const done=P.filter(p=>["approved","scheduled","posted"].includes(p.status)).length;
+  $("prog").style.width=(P.length?done/P.length*100:0)+"%";
+  $("prog-label").textContent=`${done} of ${P.length} cleared`;
+  $("s-posts").textContent=P.length;
+  $("s-days").textContent=P.length?P.map(p=>dayName(p.day).split(" ")[0]).join(" · "):"—";
+  $("s-check").innerHTML=!P.length?"—":(HOSTED?"Run locally":state.problems.length?`<span class="bad">${state.problems.length} to fix</span>`:'<span class="ok">Clean</span>');
+  let h="";
+  if(state.job==="running")h+='<div class="banner">Researching and drafting. This takes two to five minutes; this page updates itself.</div>';
+  else if(String(state.job).startsWith("error"))h+=`<div class="banner err">${esc(state.job)}</div>`;
+  if(state.problems.length)h+=`<div class="banner err">Checker: ${state.problems.map(esc).join(" · ")}</div>`;
+  const list=P.filter(p=>p.status===tab);
+  if(!list.length){$("panel").innerHTML=h+`<div class="empty">${emptyMsg?esc(emptyMsg):P.length?"Nothing here":"No drafts for this week yet"}</div>`;return}
   const today=new Date().toISOString().slice(0,10);
-  list.forEach(p=>{
-    const c=el("div","card");
-    const top=el("div","top");
-    const day=el("span",p.day<today&&!["scheduled","posted"].includes(p.status)?"late":"",`Post ${p.n} · ${p.day}${p.day<today&&!["scheduled","posted"].includes(p.status)?" · overdue":""}`);
-    top.append(day,el("span","",p.text.split(/\s+/).length+" words"));
-    const ta=el("textarea");ta.value=p.text;
-    const save=el("button","","Save edits");
-    save.onclick=async()=>{await api("/api/save",{...cur(),n:p.n,text:ta.value});save.textContent="Saved";setTimeout(()=>save.textContent="Save edits",1200);load()};
-    c.append(top,ta);
-    if(p.note)c.append(el("div","note","Note: "+p.note));
-    const s=el("div","src");
-    p.figures.forEach(f=>{const [a,u]=f.split("|").map(x=>x.trim());const d=el("div");d.append(el("strong","",a+" "));const l=el("a","",u);l.href=u;l.target="_blank";l.rel="noopener";d.append(l);s.append(d)});
-    p.sources.filter(u=>!p.figures.some(f=>f.includes(u))).forEach(u=>{const d=el("div");const l=el("a","",u);l.href=u;l.target="_blank";l.rel="noopener";d.append(l);s.append(d)});
-    c.append(s);
-    const row=el("div","row");
-    NEXT[p.status].forEach(([st,l],i)=>{
-      const b=el("button",i===(p.status==="draft"?1:0)&&st!=="draft"?"primary":"",l);
-      b.onclick=async()=>{await api("/api/save",{...cur(),n:p.n,text:ta.value,status:st});load()};
-      row.append(b);
-    });
-    const cp=el("button","","Copy text");
-    cp.onclick=()=>navigator.clipboard.writeText(ta.value).then(()=>{cp.textContent="Copied";setTimeout(()=>cp.textContent="Copy text",1200)});
-    row.append(save,cp);c.append(row);box.append(c);
-  });
+  if(tab==="posted"){
+    h+='<div class="posted-col-heads"><span>Date</span><span>Platform</span><span>Post</span><span>Words</span><span></span></div>';
+    h+=list.map((p,i)=>`<div class="posted-item" style="animation-delay:${i*45}ms"><span class="posted-date">${esc(p.day)}</span><span class="posted-platform">LinkedIn</span><span class="posted-excerpt">${esc(p.text.split("\n")[0])}</span><span class="posted-date">${words(p.text)}</span><button class="btn btn-ghost btn-sm" onclick="act(${p.n},'scheduled')">Reopen</button></div>`).join("");
+    $("panel").innerHTML=h;return;
+  }
+  h+='<div class="cards">'+list.map((p,i)=>{
+    const late=p.day<today&&!["scheduled","posted"].includes(p.status);
+    const figs=p.figures.map(f=>{const [a,u]=f.split("|").map(x=>x.trim());return `<div class="src-row"><span class="src-fig">${esc(a)}</span><a href="${esc(safeUrl(u))}" target="_blank" rel="noopener">${esc(u)}</a></div>`}).join("");
+    const extra=p.sources.filter(u=>!p.figures.some(f=>f.includes(u))).map(u=>`<div class="src-row"><span class="src-fig">Source</span><a href="${esc(safeUrl(u))}" target="_blank" rel="noopener">${esc(u)}</a></div>`).join("");
+    return `<div class="card ${p.status==="needs_ok"?"in-review":""}" style="animation-delay:${i*45}ms">
+      <div class="card-header">
+        <div><span class="card-platform">LinkedIn Post ${p.n}</span>${late?'<span class="tag late">Overdue</span>':""}</div>
+        <div class="card-schedule-row"><span class="sched-label">Day</span><input type="date" class="card-date-input" value="${esc(p.day)}" onchange="saveDay(${p.n},this.value)"></div>
+      </div>
+      <div class="card-body"><textarea class="card-textarea" id="ta-${p.n}" rows="8">${esc(p.text)}</textarea></div>
+      ${p.note?`<div class="card-note">Note: ${esc(p.note)}</div>`:""}
+      <div class="card-src"><div class="src-label">Figures and sources</div>${figs}${extra}</div>
+      <div class="card-footer">
+        <span class="card-ts">${words(p.text)} words · ${esc(dayName(p.day))}</span>
+        <div class="card-actions">
+          <button class="btn btn-ghost btn-sm" id="cp-${p.n}" onclick="copyText(${p.n})">Copy text</button>
+          <button class="btn btn-ghost btn-sm" id="sv-${p.n}" onclick="saveText(${p.n})">Save edits</button>
+          ${NEXT[p.status].map(([s,l,k])=>`<button class="btn btn-sm ${k==="primary"?"btn-primary":"btn-ghost"}" onclick="act(${p.n},'${s}')">${l}</button>`).join("")}
+        </div>
+      </div>
+    </div>`}).join("")+"</div>";
+  $("panel").innerHTML=h;
+  document.querySelectorAll(".card-textarea").forEach(t=>{const f=()=>{t.style.height="auto";t.style.height=t.scrollHeight+"px"};f();t.addEventListener("input",f)});
 }
 boot();
 </script>

@@ -54,6 +54,11 @@ module.exports = async function handler(req, res) {
       return send(200, { ok: true });
     }
 
+    if (op === 'logout' && req.method === 'POST') {
+      res.setHeader('Set-Cookie', 'os_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');
+      return send(200, { ok: true });
+    }
+
     // Mac -> hosted
     if (op === 'ingest' || op === 'export') {
       if (!ingestOk(req)) return send(401, { error: 'unauthorized' });
@@ -88,6 +93,10 @@ module.exports = async function handler(req, res) {
       if (body.status !== undefined) {
         if (!STATUSES.includes(body.status)) return send(400, { error: 'bad status' });
         p.status = body.status;
+      }
+      if (typeof body.day === 'string') {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(body.day)) return send(400, { error: 'bad day' });
+        p.day = body.day;
       }
       if (typeof body.text === 'string') p.text = body.text.slice(0, 5000).trim();
       await redis(['SET', key, JSON.stringify(posts)]);

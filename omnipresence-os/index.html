@@ -125,7 +125,7 @@ input,select,textarea{font:inherit;}
 .card.in-review .card-header{background:rgba(20,17,10,0.012);}
 
 /* POSTED LIST */
-.posted-col-heads,.posted-item{display:grid;grid-template-columns:110px 110px 1fr 70px 120px;gap:16px;}
+.posted-col-heads,.posted-item{display:grid;grid-template-columns:110px 110px 1fr 70px 190px;gap:16px;}
 .posted-col-heads{padding:0 0 11px;border-bottom:0.5px solid var(--border);}
 .posted-col-heads span{font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);}
 .posted-item{padding:13px 0;border-bottom:0.5px solid var(--border);align-items:center;animation:cardIn .4s var(--ease) both;}
@@ -193,6 +193,7 @@ input,select,textarea{font:inherit;}
       <div class="stat"><span>Checker</span><span id="s-check">—</span></div>
       <div class="rule" style="margin-top:20px"></div>
       <button class="btn btn-primary btn-full" id="draft">Draft this week</button>
+      <button class="btn btn-ghost btn-full" id="clear" style="margin-top:8px" onclick="clearWeek()">Clear this week</button>
       <div class="note-strip" id="draft-hint" style="display:none">Drafting runs on your Mac: <b>./os draft lliam</b> then <b>./os push lliam &lt;week&gt;</b>.</div>
       <div class="note-strip"><b>Nothing posts automatically.</b> Send for OK once the client says yes, approve, schedule it yourself on LinkedIn, then mark it posted.</div>
     </aside>
@@ -280,6 +281,8 @@ async function act(n,status){
 async function saveText(n){const b=$("sv-"+n);await api("/api/save",{...cur(),n,text:$("ta-"+n).value});b.textContent="Saved";setTimeout(()=>b.textContent="Save edits",1200)}
 async function saveDay(n,v){if(v){await api("/api/save",{...cur(),n,day:v});await load()}}
 function copyText(n){const b=$("cp-"+n);navigator.clipboard.writeText($("ta-"+n).value).then(()=>{b.textContent="Copied";setTimeout(()=>b.textContent="Copy text",1200)})}
+async function delPost(n){if(!confirm("Delete post "+n+"? This can't be undone."))return;await api("/api/delete",{...cur(),n});await load()}
+async function clearWeek(){const w=cur();if(!state.posts.length||!confirm("Delete ALL "+state.posts.length+" posts in "+w.week+"? This can't be undone."))return;await api("/api/clear",w);await loadWeeks()}
 function switchTab(k){tab=k;try{localStorage.setItem("osTab",k)}catch(e){}render()}
 
 function render(emptyMsg){
@@ -300,7 +303,7 @@ function render(emptyMsg){
   const today=new Date().toISOString().slice(0,10);
   if(tab==="posted"){
     h+='<div class="posted-col-heads"><span>Date</span><span>Platform</span><span>Post</span><span>Words</span><span></span></div>';
-    h+=list.map((p,i)=>`<div class="posted-item" style="animation-delay:${i*45}ms"><span class="posted-date">${esc(p.day)}</span><span class="posted-platform">LinkedIn</span><span class="posted-excerpt">${esc(p.text.split("\n")[0])}</span><span class="posted-date">${words(p.text)}</span><button class="btn btn-ghost btn-sm" onclick="act(${p.n},'scheduled')">Reopen</button></div>`).join("");
+    h+=list.map((p,i)=>`<div class="posted-item" style="animation-delay:${i*45}ms"><span class="posted-date">${esc(p.day)}</span><span class="posted-platform">LinkedIn</span><span class="posted-excerpt">${esc(p.text.split("\n")[0])}</span><span class="posted-date">${words(p.text)}</span><span><button class="btn btn-ghost btn-sm" onclick="act(${p.n},'scheduled')">Reopen</button> <button class="btn btn-ghost btn-sm" onclick="delPost(${p.n})">Delete</button></span></div>`).join("");
     $("panel").innerHTML=h;return;
   }
   h+='<div class="cards">'+list.map((p,i)=>{
@@ -313,12 +316,13 @@ function render(emptyMsg){
         <div class="card-schedule-row"><span class="sched-label">Day</span><input type="date" class="card-date-input" value="${esc(p.day)}" onchange="saveDay(${p.n},this.value)"></div>
       </div>
       <div class="card-body"><textarea class="card-textarea" id="ta-${p.n}" rows="8">${esc(p.text)}</textarea></div>
-      ${p.note?`<div class="card-note">Note: ${esc(p.note)}</div>`:""}
+      ${p.note?`<div class="card-note">Note: ${esc(p.note)}</div>`:""}${(p.warnings&&p.warnings.length)?`<div class="card-note bad">Check: ${p.warnings.map(esc).join(" · ")}</div>`:""}
       <div class="card-src"><div class="src-label">Figures and sources</div>${figs}${extra}</div>
       <div class="card-footer">
         <span class="card-ts">${words(p.text)} words · ${esc(dayName(p.day))}</span>
         <div class="card-actions">
           <button class="btn btn-ghost btn-sm" id="cp-${p.n}" onclick="copyText(${p.n})">Copy text</button>
+          <button class="btn btn-ghost btn-sm" onclick="delPost(${p.n})">Delete</button>
           <button class="btn btn-ghost btn-sm" id="sv-${p.n}" onclick="saveText(${p.n})">Save edits</button>
           ${NEXT[p.status].map(([s,l,k])=>`<button class="btn btn-sm ${k==="primary"?"btn-primary":"btn-ghost"}" onclick="act(${p.n},'${s}')">${l}</button>`).join("")}
         </div>

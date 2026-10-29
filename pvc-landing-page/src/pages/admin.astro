@@ -1110,9 +1110,13 @@ function makeDecision(id, email, firstName, decision) {
   var actionsEl = document.getElementById('review-actions-' + id);
   if (!actionsEl) return;
   actionsEl.querySelectorAll('button').forEach(function(b) { b.disabled = true; });
-  api('/api/admin/decision', {
+  fetch('/api/admin/decision', {
     method: 'POST',
+    headers: { 'x-admin-key': ADMIN_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ pageId: id, decision: decision, email: email, firstName: firstName }),
+  }).then(function(r) {
+    if (!r.ok) throw new Error('API error ' + r.status);
+    return r.json();
   }).then(function() {
     var label = decision === 'accept' ? 'Accepted' : 'Declined';
     var cls = decision === 'accept' ? 'review-done-accepted' : 'review-done-rejected';

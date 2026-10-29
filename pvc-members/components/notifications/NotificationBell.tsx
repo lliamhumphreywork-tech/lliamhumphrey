@@ -27,7 +27,7 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(false)
-  const [dropdownPos, setDropdownPos] = useState<{ top?: number; bottom?: number; left: number; right?: number } | null>(null)
+  const [dropdownPos, setDropdownPos] = useState<{ top?: number; bottom?: number; left?: number; right?: number } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const bellRef = useRef<HTMLButtonElement>(null)

@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Omnipresence">
 <meta property="og:url" content="https://lliamhumphrey.com/omnipresence/">
-<meta property="og:title" content="You are the expert your clients trust. Your LinkedIn doesn't show it.">
+<meta property="og:title" content="You're the most credible voice in your market. Your LinkedIn doesn't show it yet.">
 <meta property="og:description" content="A LinkedIn authority engine for CEOs, managing directors, partners and founders. Four posts a week, written from live market news and your own views, in your voice. You approve every one before it goes out.">
 <meta property="og:image" content="https://lliamhumphrey.com/omnipresence/og.png">
 <meta property="og:image:width" content="1200">
@@ -90,7 +90,7 @@ a { color: inherit; }
 .rings { position: absolute; z-index: -1; top: -100px; right: -240px; width: 860px; height: 860px; pointer-events: none; }
 .hero-grid { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr); gap: 72px; align-items: center; padding-top: 80px; }
 h1 {
-  font-weight: 500; font-size: clamp(2.6rem, 5.4vw, 4.75rem); line-height: 1.02; letter-spacing: -.04em;
+  font-weight: 500; font-size: clamp(2.4rem, 4.5vw, 4.1rem); line-height: 1.04; letter-spacing: -.04em;
   color: var(--ink); margin: 0; text-wrap: balance;
 }
 h1 em { display: block; margin-top: .14em; font-style: normal; color: var(--muted); }
@@ -207,6 +207,53 @@ ol.steps span { color: var(--muted); display: block; font-size: .97rem; line-hei
 footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px 40px; padding-block: 36px 48px; border-top: 1px solid var(--line); font-size: .84rem; color: var(--muted); line-height: 1.6; }
 footer p { margin: 0; max-width: 40em; }
 
+/* Engine diagram: inputs -> Omnipresence OS -> four drafts -> scheduled. Default (no motion) shows the finished state. */
+.engine {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(32px, 64px) auto minmax(32px, 64px) minmax(0, 1.1fr) minmax(32px, 64px) auto;
+  align-items: center; margin-bottom: 72px; padding: 44px 40px; border: 1px solid var(--line); border-radius: 24px; background: var(--bg-2);
+}
+.e-col { display: grid; gap: 12px; }
+.e-chip {
+  display: flex; gap: 12px; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px 16px; font-size: .92rem; line-height: 1.35; color: var(--ink); box-shadow: 0 10px 24px -18px rgba(80,50,20,.35);
+}
+.e-chip svg { flex: none; }
+.e-wire { position: relative; height: 1px; background: var(--line-strong); }
+.e-wire::after { content: ""; position: absolute; top: -3px; left: 0; width: 7px; height: 7px; border-radius: 50%; background: var(--copper); box-shadow: 0 0 0 4px rgba(198,127,82,.16); opacity: 0; }
+.e-core {
+  position: relative; width: 156px; height: 156px; border-radius: 50%; display: grid; place-items: center; text-align: center;
+  background: #fff; border: 1px solid var(--line-strong); color: var(--ink); font-weight: 500; font-size: .92rem; line-height: 1.2;
+  box-shadow: 0 0 0 10px rgba(230,186,131,.16), 0 24px 50px -24px rgba(80,50,20,.4);
+}
+.e-core svg { position: absolute; inset: -26px; width: calc(100% + 52px); height: calc(100% + 52px); }
+.e-posts { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 8px 14px; box-shadow: 0 10px 24px -18px rgba(80,50,20,.35); }
+.e-posts > small { display: block; font-size: .78rem; color: var(--muted); padding: 6px 0 8px; }
+.e-post { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr) 5.4rem; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); font-size: .78rem; color: var(--muted); }
+.e-bars { display: grid; gap: 5px; }
+.e-bars i { display: block; height: 5px; border-radius: 3px; background: var(--line); }
+.e-bars i + i { width: 62%; }
+.e-st { position: relative; height: 1.2em; }
+.e-st span { position: absolute; inset: 0; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.e-st span::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.e-st .d { color: var(--muted); opacity: 0; }
+.e-st .a { color: #4f7a4a; }
+.e-end { flex-direction: column; text-align: center; gap: 8px; padding: 18px 18px; }
+
+/* Proof story: weekly posts ripple across a network until one contact reaches back. */
+.story { position: relative; margin-top: 64px; aspect-ratio: 1000 / 560; border: 1px solid var(--line); border-radius: 24px; background: var(--bg-2); overflow: hidden; }
+.story svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.story .tag { position: absolute; top: 18px; left: 18px; background: #fff; }
+.lbl { position: absolute; transform: translate(-50%, 0); font-size: .82rem; line-height: 1.3; color: var(--muted); white-space: nowrap; }
+.lbl.strong { color: var(--ink); font-weight: 500; }
+.lbl.up { transform: translate(-50%, -100%); }
+.lbl.wf { color: var(--copper-text); font-weight: 500; }
+.s-dot { fill: #e2d4bf; }
+.s-wf { fill: var(--copper); }
+.s-ripple { fill: none; stroke: var(--copper); vector-effect: non-scaling-stroke; transform-box: fill-box; transform-origin: center; opacity: 0; }
+.s-return { fill: none; stroke: var(--copper); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.s-axis { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 1; }
+.s-post { fill: var(--ink); }
+
 /* Motion. Only runs when the head script adds .motion (JS on, reduced motion off), so nothing is ever stuck hidden. */
 :root { --ease: cubic-bezier(.16, 1, .3, 1); }
 @keyframes rise { from { opacity: 0; transform: translateY(26px); filter: blur(6px); } }
@@ -232,6 +279,40 @@ footer p { margin: 0; max-width: 40em; }
 .motion .portrait img { clip-path: inset(100% 0 0 0 round 20px); transform: scale(1.08); transition: clip-path 1.6s var(--ease), transform 2.2s var(--ease); }
 .motion .portrait.in img { clip-path: inset(0 0 0 0 round 20px); transform: none; }
 .rings { will-change: transform; }
+/* Engine: pulses travel the wires, the core turns, drafts flip to approved one after another */
+@keyframes travel { 0% { left: 0; opacity: 0; } 12%, 88% { opacity: 1; } 100% { left: calc(100% - 7px); opacity: 0; } }
+@keyframes travel-y { 0% { top: 0; opacity: 0; } 12%, 88% { opacity: 1; } 100% { top: calc(100% - 7px); opacity: 0; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes st-a { 0%, 34% { opacity: 0; } 40%, 92% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes st-d { 0%, 34% { opacity: 1; } 40%, 92% { opacity: 0; } 100% { opacity: 1; } }
+.motion .engine .e-st .d { opacity: 1; }
+.motion .engine .e-st .a { opacity: 0; }
+.motion .engine.in .e-wire::after { animation: travel 2.4s cubic-bezier(.45,0,.55,1) infinite; }
+.motion .engine.in .w2::after { animation-delay: .8s; }
+.motion .engine.in .w3::after { animation-delay: 1.6s; }
+.motion .engine.in .e-core svg { animation: spin 28s linear infinite; }
+.motion .engine.in .e-st .a { animation: st-a 7.2s var(--ease) infinite; animation-delay: calc(var(--k) * 1.1s + .6s); }
+.motion .engine.in .e-st .d { animation: st-d 7.2s var(--ease) infinite; animation-delay: calc(var(--k) * 1.1s + .6s); }
+/* Story: plays once when it scrolls into view, ripples keep breathing */
+@keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes lit { from { fill: #ece5d8; } }
+@keyframes wf { 0% { fill: #ece5d8; transform: scale(1); } 50% { transform: scale(1.7); } 100% { transform: scale(1); } }
+@keyframes ripple { from { opacity: .5; transform: scale(1); } to { opacity: 0; transform: scale(13); } }
+@keyframes pop { from { opacity: 0; transform: translateY(8px); } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes glow { from { opacity: .7; transform: scale(1); } to { opacity: 0; transform: scale(2.4); } }
+.motion .story .s-dot, .motion .story .s-wf { fill: #ece5d8; }
+.motion .story .s-return, .motion .story .s-axis { stroke-dashoffset: 1; }
+.motion .story .s-post, .motion .story .lbl { opacity: 0; }
+.motion .story.in .s-dot { fill: #e2d4bf; animation: lit .9s var(--ease) both; animation-delay: var(--d); }
+.motion .story.in .s-wf { fill: var(--copper); transform-box: fill-box; transform-origin: center; animation: wf 1.1s var(--ease) 2.5s both; }
+.motion .story.in .s-ripple { animation: ripple 3s cubic-bezier(.2,.6,.3,1) infinite; }
+.motion .story.in .s-return { stroke-dashoffset: 0; animation: draw 1.5s var(--ease) 2.9s both; }
+.motion .story.in .s-axis { stroke-dashoffset: 0; animation: draw 1.8s var(--ease) .1s both; }
+.motion .story.in .s-post { opacity: 1; transform-box: fill-box; animation: pop .6s var(--ease) both; animation-delay: var(--d); }
+.motion .story.in .lbl { opacity: 1; animation: fade .8s var(--ease) both; animation-delay: var(--d, 0s); }
+.motion .story.in .s-glow { transform-box: fill-box; transform-origin: center; animation: glow 2.4s var(--ease) 4.2s infinite; }
+.s-glow { fill: none; stroke: var(--copper); vector-effect: non-scaling-stroke; opacity: 0; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn { transition: none; } }
 
 @media (max-width: 980px) {
@@ -242,6 +323,12 @@ footer p { margin: 0; max-width: 40em; }
   ol.steps li { display: grid; grid-template-columns: 3.8rem minmax(0, 1fr); padding: 26px 0; }
   ol.steps li::before { font-size: 2rem; margin: 0; }
   .offer { grid-template-columns: minmax(0, 1fr); padding: 36px 28px; }
+  .engine { grid-template-columns: minmax(0, 1fr); justify-items: center; padding: 32px 22px; }
+  .e-col, .e-posts { width: 100%; max-width: 420px; }
+  .e-wire { width: 1px; height: 44px; }
+  .e-wire::after { left: -3px; top: 0; }
+  .motion .engine.in .e-wire::after { animation-name: travel-y; }
+  .e-end { flex-direction: row; }
 }
 @media (max-width: 640px) {
   body { font-size: 1.02rem; }
@@ -257,6 +344,11 @@ footer p { margin: 0; max-width: 40em; }
   .offer { padding: 28px 22px; }
   .q-row { grid-template-columns: 2.6rem minmax(0, 1fr) auto; gap: 10px; padding: 12px 10px; }
   .q-open { padding: 14px; }
+  .story { margin-top: 44px; border-radius: 18px; }
+  .story .tag { top: 12px; left: 12px; }
+  .lbl { font-size: .68rem; }
+  .lbl.wk { display: none; }
+  .story .lbl.reach { left: 44% !important; top: 17% !important; transform: translate(-50%, 0); }
 }
 </style>
 </head>
@@ -286,8 +378,8 @@ footer p { margin: 0; max-width: 40em; }
 
       <div class="hero-grid">
         <div>
-          <h1>You are the expert your clients trust. <em>Your LinkedIn doesn't show it.</em></h1>
-          <p class="sub">A LinkedIn authority engine for CEOs, managing directors, partners and founders. Four posts a week, written from live market news and your own views, in your voice. You approve every one before it goes out.</p>
+          <h1>You're the most credible voice in your market. <em>Your LinkedIn doesn't show it yet.</em></h1>
+          <p class="sub">A LinkedIn authority engine for CEOs, managing directors, partners and founders.</p>
           <div class="cta-row">
             <a class="btn" href="#included">Book a call</a>
             <span class="fine">Free. Just a conversation to see if it fits.</span>
@@ -346,10 +438,90 @@ footer p { margin: 0; max-width: 40em; }
           <p class="quiet" style="margin-top:36px">That is the kind of result I'm after. I can't promise you a specific deal, and nobody honest can. I can promise you will show up every week with something worth reading, and the people who matter will notice.</p>
         </div>
       </div>
+      <div class="story scene" role="img" aria-label="Illustration: each week a post goes out and reaches further across the CEO's network, until a few weeks in a Wells Fargo contact reaches out to him directly.">
+        <svg viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <circle class="s-ripple" cx="230" cy="250" r="40" style="animation-delay:.3s"/>
+          <circle class="s-ripple" cx="230" cy="250" r="40" style="animation-delay:1.3s"/>
+          <circle class="s-ripple" cx="230" cy="250" r="40" style="animation-delay:2.3s"/>
+          <g>
+            <circle class="s-dot" cx="470" cy="120" r="5" style="--d:1.18s"/>
+            <circle class="s-dot" cx="520" cy="300" r="5" style="--d:1.24s"/>
+            <circle class="s-dot" cx="480" cy="400" r="5" style="--d:1.23s"/>
+            <circle class="s-dot" cx="560" cy="200" r="5" style="--d:1.36s"/>
+            <circle class="s-dot" cx="560" cy="450" r="5" style="--d:1.5s"/>
+            <circle class="s-dot" cx="600" cy="380" r="5" style="--d:1.52s"/>
+            <circle class="s-dot" cx="660" cy="260" r="5" style="--d:1.63s"/>
+            <circle class="s-dot" cx="640" cy="110" r="5" style="--d:1.64s"/>
+            <circle class="s-dot" cx="680" cy="60" r="5" style="--d:1.8s"/>
+            <circle class="s-dot" cx="720" cy="330" r="5" style="--d:1.82s"/>
+            <circle class="s-dot" cx="700" cy="420" r="5" style="--d:1.83s"/>
+            <circle class="s-dot" cx="760" cy="240" r="5" style="--d:1.92s"/>
+            <circle class="s-dot" cx="840" cy="300" r="5" style="--d:2.15s"/>
+            <circle class="s-dot" cx="820" cy="430" r="5" style="--d:2.16s"/>
+            <circle class="s-dot" cx="860" cy="200" r="5" style="--d:2.21s"/>
+            <circle class="s-dot" cx="880" cy="400" r="5" style="--d:2.31s"/>
+            <circle class="s-dot" cx="900" cy="110" r="5" style="--d:2.36s"/>
+            <circle class="s-dot" cx="940" cy="260" r="5" style="--d:2.43s"/>
+          </g>
+          <path class="s-return" pathLength="1" d="M790 150 C 650 20 380 60 262 228"/>
+          <circle class="s-wf" cx="790" cy="150" r="10"/>
+          <circle class="s-glow" cx="230" cy="250" r="28"/>
+          <circle cx="230" cy="250" r="26" fill="#0c0b05"/>
+          <circle cx="230" cy="250" r="9" fill="#e6ba83"/>
+          <line class="s-axis" pathLength="1" x1="80" y1="505" x2="920" y2="505"/>
+          <rect class="s-post" x="74" y="481" width="12" height="12" rx="3" style="--d:.5s"/>
+          <rect class="s-post" x="242" y="481" width="12" height="12" rx="3" style="--d:1.05s"/>
+          <rect class="s-post" x="410" y="481" width="12" height="12" rx="3" style="--d:1.6s"/>
+          <rect class="s-post" x="578" y="481" width="12" height="12" rx="3" style="--d:2.15s"/>
+          <rect class="s-post" x="746" y="481" width="12" height="12" rx="3" style="--d:2.7s"/>
+          <rect class="s-post" x="914" y="481" width="12" height="12" rx="3" style="--d:3.25s"/>
+        </svg>
+        <span class="tag">Illustration</span>
+        <span class="lbl strong" style="left:23%;top:51%;--d:.2s">CEO</span>
+        <span class="lbl wf up" style="left:79%;top:23%;--d:2.7s">Wells Fargo contact</span>
+        <span class="lbl strong up reach" style="left:52%;top:12%;--d:3.7s">Reached out directly</span>
+        <span class="lbl up" style="left:58.4%;top:84.5%;--d:2.3s">A few weeks in</span>
+        <span class="lbl wk" style="left:8%;top:92%;--d:.5s">Week 1</span>
+        <span class="lbl wk" style="left:24.8%;top:92%;--d:1.05s">Week 2</span>
+        <span class="lbl wk" style="left:41.6%;top:92%;--d:1.6s">Week 3</span>
+        <span class="lbl wk" style="left:58.4%;top:92%;--d:2.15s">Week 4</span>
+        <span class="lbl wk" style="left:75.2%;top:92%;--d:2.7s">Week 5</span>
+        <span class="lbl wk" style="left:92%;top:92%;--d:3.25s">Week 6</span>
+      </div>
     </section>
 
     <section class="block">
       <div class="steps-head"><h2>How it works</h2></div>
+      <div class="engine scene" role="img" aria-label="Diagram: live news from your sector and what you told me go into Omnipresence OS, which drafts four posts a week. Each one is approved, then scheduled for you.">
+        <div class="e-col">
+          <div class="e-chip">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="3" width="16" height="16" rx="3" stroke="#9a5631" stroke-width="1.4"/><path d="M7 8h8M7 11h8M7 14h5" stroke="#9a5631" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Live news from your sector
+          </div>
+          <div class="e-chip">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="8" y="3" width="6" height="10" rx="3" stroke="#9a5631" stroke-width="1.4"/><path d="M5 11a6 6 0 0 0 12 0M11 17v2" stroke="#9a5631" stroke-width="1.4" stroke-linecap="round"/></svg>
+            What you told me
+          </div>
+        </div>
+        <div class="e-wire w1"></div>
+        <div class="e-core">
+          <svg viewBox="0 0 208 208" fill="none"><circle cx="104" cy="104" r="100" stroke="#c67f52" stroke-opacity=".5" stroke-dasharray="2 7"/><circle cx="104" cy="104" r="90" stroke="#e6ba83" stroke-opacity=".6"/><circle cx="104" cy="4" r="4" fill="#c67f52"/></svg>
+          <span>Omnipresence<br>OS</span>
+        </div>
+        <div class="e-wire w2"></div>
+        <div class="e-posts">
+          <small>Four posts a week</small>
+          <div class="e-post"><span>Mon</span><span class="e-bars"><i></i><i></i></span><span class="e-st" style="--k:0"><span class="d">Draft</span><span class="a">Approved</span></span></div>
+          <div class="e-post"><span>Tue</span><span class="e-bars"><i></i><i></i></span><span class="e-st" style="--k:1"><span class="d">Draft</span><span class="a">Approved</span></span></div>
+          <div class="e-post"><span>Thu</span><span class="e-bars"><i></i><i></i></span><span class="e-st" style="--k:2"><span class="d">Draft</span><span class="a">Approved</span></span></div>
+          <div class="e-post"><span>Fri</span><span class="e-bars"><i></i><i></i></span><span class="e-st" style="--k:3"><span class="d">Draft</span><span class="a">Approved</span></span></div>
+        </div>
+        <div class="e-wire w3"></div>
+        <div class="e-chip e-end">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="5" width="16" height="14" rx="3" stroke="#9a5631" stroke-width="1.4"/><path d="M3 9h16M8 3v4M14 3v4M8 14l2 2 4-4" stroke="#9a5631" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Scheduled for you
+        </div>
+      </div>
       <ol class="steps">
         <li><div><strong>Onboarding call</strong><span>We map who you want to reach, what you want from LinkedIn, and how you talk about your work.</span></div></li>
         <li><div><strong>Two to three calls a month</strong><span>You tell me what you are seeing in your market, your frameworks, where you think things are going. I capture it.</span></div></li>
@@ -398,10 +570,9 @@ footer p { margin: 0; max-width: 40em; }
         </ul>
         <div class="offer-cta">
           <a class="btn js-book" href="#book">Book a call</a>
-          <span class="fine">Free. Just a conversation to see if it fits.</span>
         </div>
       </div>
-      <p class="quiet after-note">Optional later: a newsletter built from the same material. My last three newsletters went to about 230 people and opened at 35%, 39% and 50%. That is a small list, so treat those as a sign the format works, not a benchmark.</p>
+      <p class="quiet after-note">Optional later: your own in-house newsletter, built from scratch with the same material.</p>
     </section>
 
     <section class="block">
@@ -430,7 +601,7 @@ footer p { margin: 0; max-width: 40em; }
 
   <footer>
     <span class="mark"><b>Omni</b>presence</span>
-    <p>Lliam Humphrey, Johannesburg. Omnipresence OS is my in-house content engine. Every post is approved by you.</p>
+    <p>Lliam Humphrey. Omnipresence OS, my in-house content engine.</p>
   </footer>
 </div>
 </div>
@@ -472,6 +643,7 @@ var BOOK_URL = "https://calendly.com/lliamhumphreywork/1hr";
   });
   var portrait = document.querySelector('.portrait');
   if (portrait) targets.push(portrait);
+  document.querySelectorAll('.scene').forEach(function (el) { targets.push(el); });
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }

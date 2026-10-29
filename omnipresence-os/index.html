@@ -64,7 +64,10 @@ async function api(p,b){
 const cur=()=>({client:$("client").value,week:$("week").value});
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 async function boot(){
+  if(HOSTED)$("draft").style.display="none";
   const cl=await api("/api/clients");
+  if(!Array.isArray(cl)){$("msg").append(el("div","msg bad","Server problem: "+(cl.error||"unknown")));return}
+  if(!cl.length)$("msg").append(el("div","msg","No weeks pushed yet. On your Mac run ./os push lliam 2026-W45"));
   cl.forEach(c=>$("client").append(new Option(c,c)));
   $("client").onchange=loadWeeks;$("week").onchange=load;
   if(HOSTED)$("draft").style.display="none";else $("draft").onclick=startDraft;

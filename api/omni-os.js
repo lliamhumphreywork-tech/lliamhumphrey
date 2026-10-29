@@ -37,7 +37,11 @@ module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   const send = (code, obj) => res.status(code).json(obj);
   try {
-    if (!RURL || !RTOK || !process.env.OS_PASSWORD || !process.env.OS_SECRET) return send(500, { error: 'server not configured' });
+    const missing = [];
+    if (!RURL) missing.push('KV_REST_API_URL');
+    if (!RTOK) missing.push('KV_REST_API_TOKEN');
+    for (const k of ['OS_PASSWORD', 'OS_SECRET', 'OS_INGEST_KEY']) if (!process.env[k]) missing.push(k);
+    if (missing.length) return send(500, { error: 'server not configured, missing: ' + missing.join(', ') });
     const q = req.query || {};
     const body = req.method === 'POST' ? req.body || {} : {};
     const op = q.op || body.op;

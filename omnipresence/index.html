@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Omnipresence</title>
+<meta name="description" content="A LinkedIn authority engine for executives and firm leaders. Four posts a week, written from live market news and your own views, in your voice. You approve every one before it goes out.">
+<meta name="theme-color" content="#0c0b05">
+<link rel="canonical" href="https://lliamhumphrey.com/omnipresence/">
+<link rel="icon" href="/omnipresence/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/omnipresence/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/omnipresence/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Omnipresence">
+<meta property="og:url" content="https://lliamhumphrey.com/omnipresence/">
+<meta property="og:title" content="You are the expert your clients trust. Your LinkedIn doesn't show it.">
+<meta property="og:description" content="A LinkedIn authority engine for executives and firm leaders. Four posts a week, written from live market news and your own views, in your voice. You approve every one before it goes out.">
+<meta property="og:image" content="https://lliamhumphrey.com/omnipresence/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Omnipresence wordmark on a dark copper background with concentric rings">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+/* Layout: one narrow reading column, left aligned, like a letter. Concentric rings from the banner sit behind the hero. */
+:root {
+  --ink: #0c0b05;
+  --ink-2: #1c1a0b;
+  --line: #433417;
+  --muted: #b9a57e;
+  --copper: #c67f52;
+  --sand: #e6ba83;
+  --cream: #fcf2d6;
+  --f-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --f-label: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; overflow-x: clip; }
+body {
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--f-display);
+  font-size: 1.25rem;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+  -webkit-font-smoothing: antialiased;
+}
+.glow {
+  position: absolute; inset: 0 0 auto 0; height: 760px; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 700px 460px at 100% 0%, rgba(198,127,82,0.40), rgba(12,11,5,0) 70%),
+    radial-gradient(ellipse 520px 360px at 85% 55%, rgba(101,58,30,0.38), rgba(12,11,5,0) 72%);
+}
+.rings { position: absolute; top: -140px; right: -220px; width: 760px; height: 760px; z-index: 0; pointer-events: none; opacity: .9; }
+.wrap { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; }
+.mark {
+  font-family: var(--f-label); font-weight: 300; font-size: .8rem; letter-spacing: .5em; text-transform: uppercase;
+  padding-block: 28px 0; color: var(--cream);
+}
+.mark b { font-weight: 500; }
+h1 {
+  font-family: var(--f-display); font-weight: 400; font-size: clamp(2.3rem, 7vw, 3.5rem); line-height: 1.08;
+  letter-spacing: -.01em; margin: 72px 0 0; text-wrap: balance;
+}
+h1 em { color: var(--sand); font-style: italic; }
+.sub { color: var(--muted); font-size: 1.3rem; margin: 24px 0 0; max-width: 34em; }
+.cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 36px; }
+.btn {
+  display: inline-block; font-family: var(--f-label); font-weight: 500; font-size: .95rem; letter-spacing: .02em;
+  color: var(--ink); background: var(--sand); padding: 15px 26px; border-radius: 2px; text-decoration: none;
+  transition: background .2s;
+}
+.btn:hover { background: var(--cream); }
+.btn:focus-visible, a:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
+.fine { font-family: var(--f-label); font-size: .82rem; color: var(--muted); }
+section { margin-top: 84px; }
+h2 {
+  font-family: var(--f-label); font-weight: 500; font-size: .75rem; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--copper); margin: 0 0 22px;
+}
+p { margin: 0 0 1.1em; }
+.lead { font-size: 1.55rem; line-height: 1.35; color: var(--cream); text-wrap: balance; }
+.quiet { color: var(--muted); }
+.pull {
+  border-left: 1px solid var(--copper); padding-left: 22px; margin: 28px 0; font-size: 1.4rem; line-height: 1.4; font-style: italic; color: var(--sand);
+}
+ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; display: grid; gap: 0; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: 4px 14px; padding: 20px 0; border-top: 1px solid var(--line); }
+ol.steps li:last-child { border-bottom: 1px solid var(--line); }
+ol.steps li::before { content: counter(s); font-family: var(--f-label); font-weight: 300; color: var(--copper); font-size: 1.1rem; padding-top: .3rem; }
+ol.steps strong { font-weight: 500; color: var(--cream); display: block; }
+ol.steps span { color: var(--muted); display: block; font-size: 1.1rem; line-height: 1.5; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; }
+.two h3 { font-family: var(--f-label); font-weight: 500; font-size: .85rem; letter-spacing: .04em; margin: 0 0 12px; color: var(--sand); }
+.two ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 1.1rem; line-height: 1.45; color: var(--cream); }
+.two li { padding-left: 16px; position: relative; }
+.two li::before { content: ""; position: absolute; left: 0; top: .7em; width: 6px; height: 1px; background: var(--copper); }
+.offer {
+  background: linear-gradient(160deg, var(--ink-2), #130f06); border: 1px solid var(--line); padding: 32px 28px; border-radius: 3px;
+}
+.price { font-family: var(--f-display); font-size: clamp(2.4rem, 8vw, 3.4rem); line-height: 1; color: var(--cream); font-variant-numeric: lining-nums tabular-nums; }
+.price small { font-family: var(--f-label); font-size: .9rem; color: var(--muted); letter-spacing: .02em; }
+.offer ul { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 10px; font-size: 1.1rem; line-height: 1.45; }
+.offer li { padding-left: 16px; position: relative; }
+.offer li::before { content: ""; position: absolute; left: 0; top: .7em; width: 6px; height: 1px; background: var(--copper); }
+.final { margin-top: 84px; padding-top: 40px; border-top: 1px solid var(--line); }
+.final .lead { margin-bottom: 0; }
+footer { font-family: var(--f-label); font-size: .78rem; color: var(--muted); padding-block: 56px 48px; line-height: 1.6; }
+footer .mark { padding: 0 0 12px; }
+@media (max-width: 560px) {
+  body { font-size: 1.12rem; }
+  .two { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  h1 { margin-top: 56px; }
+  .offer { padding: 26px 20px; }
+  .rings { right: -420px; top: -200px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="glow" aria-hidden="true"></div>
+<svg class="rings" viewBox="0 0 760 760" fill="none" aria-hidden="true">
+  <defs>
+    <radialGradient id="rg" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#c67f52" stop-opacity="0.55"/>
+      <stop offset="0.7" stop-color="#e6ba83" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#e6ba83" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="380" cy="380" r="110" stroke="url(#rg)" stroke-width="1.5"/>
+  <circle cx="380" cy="380" r="190" stroke="url(#rg)" stroke-width="1.5"/>
+  <circle cx="380" cy="380" r="270" stroke="url(#rg)" stroke-width="1.5"/>
+  <circle cx="380" cy="380" r="350" stroke="url(#rg)" stroke-width="1.5"/>
+</svg>
+
+<main class="wrap">
+  <div class="mark"><b>Omni</b>presence</div>
+
+  <h1>You are the expert your clients trust. <em>Your LinkedIn doesn't show it.</em></h1>
+  <p class="sub">A LinkedIn authority engine for executives and firm leaders. Four posts a week, written from live market news and your own views, in your voice. You approve every one before it goes out.</p>
+  <div class="cta-row">
+    <a class="btn js-book" href="#book">Book a call</a>
+    <span class="fine">Free. Just a conversation to see if it fits.</span>
+  </div>
+
+  <section>
+    <h2>The problem</h2>
+    <p class="lead">The people who should know you don't, and the ones who do can't see what you know.</p>
+    <p>You have decades of judgement. Clients trust you in a room. Online you have a profile that was last touched years ago, or a post every few months that someone on your team wrote in a hurry.</p>
+    <p>Meanwhile, the people who decide who to call, who to refer and who to invite on stage are scrolling LinkedIn. They see whoever shows up every week.</p>
+    <p class="quiet">You know you should be posting. You don't have the time, and you don't want to sound like everyone else.</p>
+  </section>
+
+  <section>
+    <h2>What happened last time</h2>
+    <p>I ran the LinkedIn presence for a boutique investment banking firm. We built an engine that pulled real market news relevant to their clients and strategy, drafted the posts, and I reviewed them weekly with the CEO's input.</p>
+    <p class="pull">A few weeks in, the CEO told me a Wells Fargo contact had reached out to him directly. Later he said we could pause posting for now.</p>
+    <p>That is the kind of result I'm after. I can't promise you a specific deal, and nobody honest can. I can promise you will show up every week with something worth reading, and the people who matter will notice.</p>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li><div><strong>Onboarding call</strong><span>We map who you want to reach, what you want from LinkedIn, and how you talk about your work.</span></div></li>
+      <li><div><strong>Two to three calls a month</strong><span>You tell me what you are seeing in your market, your frameworks, where you think things are going. I capture it.</span></div></li>
+      <li><div><strong>The engine drafts</strong><span>Omnipresence OS combines live news from your sector with what you told me and writes four posts a week.</span></div></li>
+      <li><div><strong>You approve, then it goes out</strong><span>Nothing is published until you say yes. Posts are scheduled for you.</span></div></li>
+      <li><div><strong>Monthly report</strong><span>What went out, what got attention, who engaged, and what we change next month.</span></div></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>What it asks of you</h2>
+    <div class="two">
+      <div>
+        <h3>You do</h3>
+        <ul>
+          <li>Two to three short calls a month</li>
+          <li>Approve or edit the weekly posts</li>
+          <li>Tell me when your view has changed</li>
+        </ul>
+      </div>
+      <div>
+        <h3>You don't</h3>
+        <ul>
+          <li>Write anything from scratch</li>
+          <li>Learn a new tool</li>
+          <li>Give me your LinkedIn password</li>
+        </ul>
+      </div>
+    </div>
+    <p class="quiet" style="margin-top:28px">I never need your login. Posts are scheduled through LinkedIn's own scheduler or a tool you authorise yourself, and you can revoke that access whenever you like. I'm happy to sign an NDA before we talk.</p>
+  </section>
+
+  <section>
+    <h2>What you get</h2>
+    <div class="offer">
+      <ul style="margin-top:0">
+        <li>Four posts a week, drafted from live news and your views</li>
+        <li>Two to three expertise calls a month</li>
+        <li>Your approval before anything is published</li>
+        <li>Onboarding call and a monthly report</li>
+        <li>Six month term, with a review at day 30</li>
+        <li>Pricing is shared on the call, once I know what you need</li>
+      </ul>
+    </div>
+    <p class="quiet" style="margin-top:22px">Optional later: a newsletter built from the same material. My last three newsletters went to about 230 people and opened at 35%, 39% and 50%. That is a small list, so treat those as a sign the format works, not a benchmark.</p>
+  </section>
+
+  <section>
+    <h2>Who this is not for</h2>
+    <p>If you want to become a LinkedIn influencer, this is the wrong tool. If you want hundreds of automated DMs sent in your name, I won't do it. If you can't spare a couple of calls a month, the posts will end up sounding like everyone else's, and that defeats the point.</p>
+    <p>It works for people with real expertise and real clients who want the market to see what those clients already know.</p>
+  </section>
+
+  <section class="final">
+    <p class="lead">If this sounds like you, the next step is a call. We talk about your market and your goals, and I tell you honestly whether I can help.</p>
+    <div class="cta-row">
+      <a class="btn js-book" href="#book" id="book">Book a call</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="mark"><b>Omni</b>presence</div>
+    Lliam Humphrey, Johannesburg. Omnipresence OS is my in-house content engine. Every post is approved by you.
+  </footer>
+</main>
+
+<script>
+// Paste your Calendly link between the quotes. Until then the buttons just scroll to the bottom.
+var BOOK_URL = "";
+(function () {
+  if (!BOOK_URL) return;
+  var links = document.querySelectorAll('.js-book');
+  for (var i = 0; i < links.length; i++) {
+    links[i].setAttribute('href', BOOK_URL);
+    links[i].setAttribute('target', '_blank');
+    links[i].setAttribute('rel', 'noopener');
+  }
+})();
+</script>
+</body>
+</html>

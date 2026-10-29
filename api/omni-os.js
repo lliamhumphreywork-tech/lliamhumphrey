@@ -12,8 +12,8 @@
 const crypto = require('crypto');
 const STATUSES = ['draft', 'needs_ok', 'approved', 'scheduled', 'posted'];
 const NAME = /^[A-Za-z0-9_-]{1,40}$/;
-const RURL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const RTOK = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+const RURL = process.env.CONTENT_STORAGE_KV_REST_API_URL || process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const RTOK = process.env.CONTENT_STORAGE_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
 async function redis(cmd) {
   const r = await fetch(RURL, { method: 'POST', headers: { Authorization: 'Bearer ' + RTOK }, body: JSON.stringify(cmd) });

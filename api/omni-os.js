@@ -17,6 +17,10 @@ const NAME = /^[A-Za-z0-9_-]{1,40}$/;
 const RURL = process.env.CONTENT_STORAGE_KV_REST_API_URL || process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const RTOK = process.env.CONTENT_STORAGE_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
+async function dropEmptyClient(client) {
+  if ((await redis(['SCARD', `osw:${client}`])) === 0) await redis(['SREM', 'osc:clients', client]);
+}
+
 async function redis(cmd) {
   const r = await fetch(RURL, { method: 'POST', headers: { Authorization: 'Bearer ' + RTOK }, body: JSON.stringify(cmd) });
   const j = await r.json();
@@ -152,13 +156,14 @@ module.exports = async function handler(req, res) {
       if (!viaKey && req.headers['x-os'] !== '1') return send(403, { error: 'forbidden' });
       await redis(['DEL', key]);
       await redis(['SREM', `osw:${client}`, week]);
+      await dropEmptyClient(client);
       return send(200, { ok: true });
     }
     if (req.method === 'POST' && op === 'delete') {
       if (!viaKey && req.headers['x-os'] !== '1') return send(403, { error: 'forbidden' });
       const posts = JSON.parse((await redis(['GET', key])) || '[]').filter((x) => x.n !== body.n);
       if (posts.length) await redis(['SET', key, JSON.stringify(posts)]);
-      else { await redis(['DEL', key]); await redis(['SREM', `osw:${client}`, week]); }
+      else { await redis(['DEL', key]); await redis(['SREM', `osw:${client}`, week]); await dropEmptyClient(client); }
       return send(200, { ok: true });
     }
     if (req.method === 'POST' && op === 'save') {

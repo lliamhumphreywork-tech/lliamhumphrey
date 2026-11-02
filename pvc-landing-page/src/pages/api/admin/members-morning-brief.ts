@@ -143,44 +143,56 @@ async function run() {
   lines.push(`📊 *PVC Morning Brief — ${dateStr}*`);
 
   if (apps.length) {
-    const tierA = apps.filter((a: any) => a.score !== null && a.score >= 5);
+    const tierA    = apps.filter((a: any) => a.score !== null && a.score >= 5);
+    const scored   = apps.filter((a: any) => a.score !== null).sort((a: any, b: any) => b.score - a.score);
+    const unscored = apps.filter((a: any) => a.score === null);
     lines.push('');
-    lines.push(`📥 *New Applications (${apps.length}):*`);
-    for (const a of apps) {
-      const scoreLabel = a.score !== null ? ` · ${a.score}/10` : '';
-      const flag = a.score !== null && a.score >= 5 ? ' 🔥' : '';
-      lines.push(`• ${a.name}${scoreLabel}${flag}${a.revenue ? ` — ${a.revenue}` : ''}`);
+    lines.push(`📥 *New Applications — ${apps.length} (last 14 days)*`);
+    if (tierA.length) {
+      lines.push(`🔥 *Tier A (${tierA.length}):* ${tierA.map((a: any) => `${a.name} · ${a.score}/10${a.revenue ? ` (${a.revenue})` : ''}`).join(' | ')}`);
     }
-    if (tierA.length) lines.push(`_${tierA.length} Tier A applicant${tierA.length > 1 ? 's' : ''} awaiting review_`);
+    if (scored.length && !tierA.length) {
+      const show = scored.slice(0, 3);
+      lines.push(`Top scored: ${show.map((a: any) => `${a.name} ${a.score}/10`).join(', ')}${scored.length > 3 ? ` +${scored.length - 3} more` : ''}`);
+    }
+    if (unscored.length) {
+      const preview = unscored.slice(0, 3).map((a: any) => a.name).join(', ');
+      const rest    = unscored.length > 3 ? ` +${unscored.length - 3} more` : '';
+      lines.push(`_${unscored.length} unscored: ${preview}${rest} — add scores in Notion to prioritise_`);
+    }
+  } else {
+    lines.push('');
+    lines.push('📥 *New Applications:* None in the last 14 days');
   }
 
   if (pending.length) {
     lines.push('');
-    lines.push(`⏸ *Pending Decisions — Accepted, No Payment:*`);
-    for (const p of pending) lines.push(`• ${p.name} — ${p.daysWaiting} days waiting`);
+    lines.push(`⏸ *Accepted, No Payment:*`);
+    for (const p of pending) lines.push(`• ${p.name} — ${p.daysWaiting}d waiting`);
   }
 
   if (renewals.length) {
     lines.push('');
-    lines.push(`🔄 *Renewals Due (next ${RENEWAL_WINDOW_DAYS} days):*`);
+    lines.push(`🔄 *Renewals (next ${RENEWAL_WINDOW_DAYS} days):*`);
     for (const r of renewals) {
       const urg = r.daysLeft <= 3 ? '🔴' : r.daysLeft <= 7 ? '🟡' : '🟢';
-      lines.push(`${urg} ${r.name}${r.tier ? ` — ${r.tier}` : ''} · ${r.daysLeft}d`);
+      lines.push(`${urg} ${r.name}${r.tier ? ` · ${r.tier}` : ''} — ${r.daysLeft}d`);
     }
   }
 
   if (atRisk.length) {
     lines.push('');
-    lines.push(`📭 *At-Risk Members (${CHECKIN_OVERDUE_DAYS}+ days no check-in):*`);
-    for (const m of atRisk) lines.push(`• ${m.name} — ${m.daysSince}d (last: ${m.lastCheckin})`);
+    lines.push(`📭 *At-Risk (${CHECKIN_OVERDUE_DAYS}+ days no check-in):*`);
+    for (const m of atRisk) lines.push(`• ${m.name} — ${m.daysSince}d`);
+  }
+
+  if (!apps.length && !pending.length && !renewals.length && !atRisk.length) {
+    lines.push('');
+    lines.push('✅ Clean slate — nothing needs attention today.');
   }
 
   lines.push('');
   lines.push(`🎯 *Priority Today:* ${priority}`);
-
-  if (!apps.length && !pending.length && !renewals.length && !atRisk.length) {
-    lines.push('\n✅ Clean slate — nothing needs attention today.');
-  }
 
   await postWebhook(SLACK_BRIEF_URL, lines.join('\n')).catch(() => {});
 

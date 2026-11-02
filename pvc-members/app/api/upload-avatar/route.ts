@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
   try {
     const blob = await put(`avatars/${session.user?.id ?? "unknown"}-${Date.now()}.jpg`, file, {
-      access: "public",
+      access: "private",
       token: process.env.BLOB_READ_WRITE_TOKEN,
     })
     const proxyUrl = `/api/img?url=${encodeURIComponent(blob.url)}`

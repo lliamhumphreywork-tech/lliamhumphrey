@@ -16,7 +16,13 @@ export function EventCard({ event, currentUserId, isAdmin }: EventCardProps) {
   const [loading, setLoading] = useState(false)
   const [showAttendees, setShowAttendees] = useState(false)
   const [uploadingCover, setUploadingCover] = useState(false)
-  const [coverImage, setCoverImage] = useState(event.coverImage ?? "")
+  function proxyCover(url: string) {
+    if (!url) return ""
+    if (url.startsWith("/api/img")) return url
+    if (url.includes("blob.vercel-storage.com")) return `/api/img?url=${encodeURIComponent(url)}`
+    return url
+  }
+  const [coverImage, setCoverImage] = useState(proxyCover(event.coverImage ?? ""))
   const coverInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const hasRSVPd = event.rsvps.some((r) => r.userId === currentUserId)

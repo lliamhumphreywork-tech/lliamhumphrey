@@ -10,19 +10,16 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if (role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   const data = await req.json()
-  const event = await db.event.update({
-    where: { id: params.id },
-    data: {
-      title: data.title,
-      description: data.description || null,
-      location: data.location || null,
-      isOnline: data.isOnline ?? false,
-      meetingUrl: data.meetingUrl || null,
-      startDate: new Date(data.startDate),
-      endDate: data.endDate ? new Date(data.endDate) : null,
-      coverImage: data.coverImage || null,
-    },
-  })
+  const update: Record<string, unknown> = {}
+  if (data.title !== undefined)       update.title       = data.title
+  if (data.description !== undefined) update.description = data.description || null
+  if (data.location !== undefined)    update.location    = data.location || null
+  if (data.isOnline !== undefined)    update.isOnline    = data.isOnline
+  if (data.meetingUrl !== undefined)  update.meetingUrl  = data.meetingUrl || null
+  if (data.startDate !== undefined)   update.startDate   = new Date(data.startDate)
+  if (data.endDate !== undefined)     update.endDate     = data.endDate ? new Date(data.endDate) : null
+  if (data.coverImage !== undefined)  update.coverImage  = data.coverImage || null
+  const event = await db.event.update({ where: { id: params.id }, data: update })
   return NextResponse.json(event)
 }
 

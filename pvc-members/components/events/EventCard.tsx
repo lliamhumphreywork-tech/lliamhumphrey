@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { MapPin, Video, Users, Calendar, ChevronDown, ChevronUp } from "lucide-react"
+import { MapPin, Video, Users, Calendar, ChevronDown, ChevronUp, Camera } from "lucide-react"
 import { Avatar } from "@/components/ui/Avatar"
 import type { EventWithRSVPs } from "@/lib/types"
 
@@ -15,9 +15,51 @@ type EventCardProps = {
 export function EventCard({ event, currentUserId, isAdmin }: EventCardProps) {
   const [loading, setLoading] = useState(false)
   const [showAttendees, setShowAttendees] = useState(false)
+  const [uploadingCover, setUploadingCover] = useState(false)
+  const [coverImage, setCoverImage] = useState(event.coverImage ?? "")
+  const coverInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const hasRSVPd = event.rsvps.some((r) => r.userId === currentUserId)
   const start = new Date(event.startDate)
+
+  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingCover(true)
+    try {
+      const img = new Image()
+      const objectUrl = URL.createObjectURL(file)
+      await new Promise<void>((resolve) => { img.onload = () => resolve(); img.src = objectUrl })
+      const maxDim = 1920
+      let { width, height } = img
+      if (width > maxDim || height > maxDim) {
+        const ratio = Math.min(maxDim / width, maxDim / height)
+        width = Math.round(width * ratio); height = Math.round(height * ratio)
+      }
+      const canvas = document.createElement("canvas")
+      canvas.width = width; canvas.height = height
+      canvas.getContext("2d")!.drawImage(img, 0, 0, width, height)
+      URL.revokeObjectURL(objectUrl)
+      const blob: Blob = await new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/jpeg", 0.85))
+      const fd = new FormData()
+      fd.append("file", blob, file.name.replace(/\.[^.]+$/, ".jpg"))
+      const uploadRes = await fetch("/api/upload-image", { method: "POST", body: fd })
+      if (!uploadRes.ok) throw new Error("Upload failed")
+      const { url } = await uploadRes.json()
+      await fetch(`/api/events/${event.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ coverImage: url }),
+      })
+      setCoverImage(url)
+      router.refresh()
+    } catch {
+      alert("Upload failed — check the console")
+    } finally {
+      setUploadingCover(false)
+      e.target.value = ""
+    }
+  }
 
   async function toggleRSVP() {
     setLoading(true)
@@ -41,14 +83,59 @@ export function EventCard({ event, currentUserId, isAdmin }: EventCardProps) {
       }}
     >
       {/* Cover image */}
-      {event.coverImage && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={event.coverImage}
-          alt=""
-          style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
-        />
-      )}
+      <div style={{ position: "relative" }}>
+        {coverImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={coverImage}
+            alt=""
+            style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
+          />
+        ) : isAdmin ? (
+          <div
+            style={{
+              height: 80,
+              background: "var(--bg-elevated)",
+              borderBottom: "1px solid var(--border)",
+            }}
+          />
+        ) : null}
+        {isAdmin && (
+          <>
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleCoverUpload}
+            />
+            <button
+              onClick={() => coverInputRef.current?.click()}
+              disabled={uploadingCover}
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "5px 10px",
+                background: "rgba(0,0,0,0.55)",
+                color: "#fff",
+                border: "none",
+                borderRadius: 6,
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: "pointer",
+                backdropFilter: "blur(4px)",
+              }}
+            >
+              <Camera size={11} />
+              {uploadingCover ? "Uploading…" : coverImage ? "Change cover" : "Add cover"}
+            </button>
+          </>
+        )}
+      </div>
       {/* Date stripe */}
       <div
         style={{

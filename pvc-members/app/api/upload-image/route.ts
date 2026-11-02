@@ -11,15 +11,21 @@ export async function POST(req: Request) {
   if (!file) return NextResponse.json({ error: "No file" }, { status: 400 })
 
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return NextResponse.json({ error: "Invalid file type" }, { status: 400 })
+  if (file.type && !ALLOWED_TYPES.includes(file.type)) {
+    return NextResponse.json({ error: "Invalid file type: " + file.type }, { status: 400 })
   }
 
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").replace(/\.{2,}/g, "_")
 
-  const blob = await put(`post-images/${safeName}`, file, {
-    access: "public",
-    token: process.env.BLOB_READ_WRITE_TOKEN,
-  })
-  return NextResponse.json({ url: blob.url })
+  try {
+    const blob = await put(`post-images/${safeName}`, file, {
+      access: "public",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    })
+    return NextResponse.json({ url: blob.url })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error("upload-image error:", msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }

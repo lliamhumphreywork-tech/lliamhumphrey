@@ -44,8 +44,9 @@ export function EventCard({ event, currentUserId, isAdmin }: EventCardProps) {
       const fd = new FormData()
       fd.append("file", blob, file.name.replace(/\.[^.]+$/, ".jpg"))
       const uploadRes = await fetch("/api/upload-image", { method: "POST", body: fd })
-      if (!uploadRes.ok) throw new Error("Upload failed")
-      const { url } = await uploadRes.json()
+      const uploadData = await uploadRes.json()
+      if (!uploadRes.ok) throw new Error(uploadData.error || "Upload failed")
+      const { url } = uploadData
       await fetch(`/api/events/${event.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -53,8 +54,8 @@ export function EventCard({ event, currentUserId, isAdmin }: EventCardProps) {
       })
       setCoverImage(url)
       router.refresh()
-    } catch {
-      alert("Upload failed — check the console")
+    } catch (err) {
+      alert("Upload failed: " + (err instanceof Error ? err.message : String(err)))
     } finally {
       setUploadingCover(false)
       e.target.value = ""

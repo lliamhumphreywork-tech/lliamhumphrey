@@ -105,9 +105,6 @@ export function AvatarCropper({ file, onConfirm, onCancel }: Props) {
     setScale(s => Math.max(0.3, Math.min(5, s - e.deltaY * 0.001)))
   }
 
-  // Zoom buttons
-  const zoom = (delta: number) => setScale(s => Math.max(0.3, Math.min(5, s + delta)))
-
   function handleConfirm() {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -168,35 +165,18 @@ export function AvatarCropper({ file, onConfirm, onCancel }: Props) {
           <canvas ref={canvasRef} style={{ display: "block", width: CROP_SIZE, height: CROP_SIZE }} />
         </div>
 
-        {/* Zoom controls */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button
-            type="button"
-            onClick={() => zoom(-0.1)}
-            style={{
-              width: 32, height: 32, borderRadius: "50%",
-              border: "1px solid var(--border)",
-              background: "var(--bg-elevated)",
-              color: "var(--text-primary)",
-              fontSize: 18, lineHeight: 1,
-              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          >−</button>
-          <span style={{ fontSize: 13, color: "var(--text-muted)", minWidth: 40, textAlign: "center" }}>
-            {Math.round(scale * 100)}%
-          </span>
-          <button
-            type="button"
-            onClick={() => zoom(0.1)}
-            style={{
-              width: 32, height: 32, borderRadius: "50%",
-              border: "1px solid var(--border)",
-              background: "var(--bg-elevated)",
-              color: "var(--text-primary)",
-              fontSize: 18, lineHeight: 1,
-              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          >+</button>
+        {/* Zoom slider */}
+        <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>−</span>
+          <input
+            type="range"
+            min={30}
+            max={500}
+            value={Math.round(scale * 100)}
+            onChange={e => setScale(Number(e.target.value) / 100)}
+            style={{ flex: 1, accentColor: "var(--accent)", cursor: "pointer" }}
+          />
+          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>+</span>
         </div>
 
         {/* Actions */}

@@ -31,7 +31,9 @@ export function AvatarCropper({ file, onConfirm, onCancel }: Props) {
       // Fit the image so its shorter side fills the crop circle
       const fit = CROP_SIZE / Math.min(img.naturalWidth, img.naturalHeight)
       setScale(fit)
-      setOffset({ x: 0, y: 0 })
+      // Start at top of image so the face is visible on portrait photos
+      const scaledH = img.naturalHeight * fit
+      setOffset({ x: 0, y: Math.max(0, (scaledH - CROP_SIZE) / 2) })
       setReady(true)
     }
     img.src = url

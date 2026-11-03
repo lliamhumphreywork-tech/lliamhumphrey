@@ -1,7 +1,6 @@
-// Rate limiter: best-effort in-memory (resets per cold start — blunts bots)
 const rateMap = new Map();
-const RATE_LIMIT = 5;        // requests
-const RATE_WINDOW = 60_000;  // ms
+const RATE_LIMIT = 5;
+const RATE_WINDOW = 60_000;
 
 function isRateLimited(ip) {
   const now = Date.now();
@@ -32,7 +31,7 @@ module.exports = async function handler(req, res) {
 
   const { email, name, website } = req.body || {};
 
-  // Honeypot — silently succeed so bots think they worked
+  // Honeypot
   if (website) return res.status(200).json({ ok: true });
 
   const cleanEmail = (email || '').trim().toLowerCase();
@@ -41,45 +40,54 @@ module.exports = async function handler(req, res) {
   }
 
   const cleanName = (name || '').trim().slice(0, 100);
+  const apiKey = process.env.BREVO_API_KEY;
+  const listId = Number(process.env.BREVO_LIST_ID);
 
-  const apiKey    = process.env.BREVO_API_KEY;
-  const listId    = Number(process.env.BREVO_LIST_ID);
-  const templateId = Number(process.env.BREVO_DOI_TEMPLATE_ID);
-
-  if (!apiKey || !listId || !templateId) {
+  if (!apiKey || !listId) {
     console.error('brevo-subscribe: missing env vars');
     return res.status(500).json({ error: 'Configuration error.' });
   }
 
-  const payload = {
-    email: cleanEmail,
-    includeListIds: [listId],
-    templateId,
-    redirectionUrl: 'https://lliamhumphrey.com/notes?confirmed=1',
-  };
-  if (cleanName) payload.attributes = { FIRSTNAME: cleanName };
-
   try {
-    const r = await fetch('https://api.brevo.com/v3/contacts/doubleOptIn', {
+    // Add contact to list
+    const contactPayload = {
+      email: cleanEmail,
+      listIds: [listId],
+      updateEnabled: true,
+    };
+    if (cleanName) contactPayload.attributes = { FIRSTNAME: cleanName };
+
+    const contactRes = await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',
       headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(contactPayload),
     });
 
-    // 201 = new contact + DOI email sent
-    // 204 = already exists + DOI email sent
-    if (r.status === 201 || r.status === 204) {
+    const contactJson = await contactRes.json().catch(() => ({}));
+
+    // 201 = created, 204 = updated, duplicate = fine
+    if (
+      contactRes.status === 201 ||
+      contactRes.status === 204 ||
+      contactJson.code === 'duplicate_parameter'
+    ) {
+      // Send welcome email
+      const templateId = Number(process.env.BREVO_DOI_TEMPLATE_ID);
+      if (templateId) {
+        const emailPayload = {
+          to: [{ email: cleanEmail, name: cleanName || undefined }],
+          templateId,
+        };
+        await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify(emailPayload),
+        }).catch(err => console.error('brevo-subscribe: welcome email failed', err.message));
+      }
       return res.status(200).json({ ok: true });
     }
 
-    const json = await r.json().catch(() => ({}));
-
-    // Gracefully handle duplicate contacts — don't leak whether email is subscribed
-    if (json.code === 'contact_already_exist') {
-      return res.status(200).json({ ok: true });
-    }
-
-    console.error('brevo-subscribe: Brevo error', r.status, json);
+    console.error('brevo-subscribe: Brevo error', contactRes.status, contactJson);
     return res.status(500).json({ error: 'Something went wrong. Please try again.' });
 
   } catch (err) {

@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notes from Lliam</title>
+  <meta name="description" content="Honest notes on building, creating, and figuring it out — dispatched once a month by Lliam Humphrey." />
+  <meta property="og:title" content="Notes from Lliam" />
+  <meta property="og:description" content="Honest notes on building, creating, and figuring it out — dispatched once a month." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://lliamhumphrey.com/notes" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #06080F;
+      --ink:      #DDD8D0;
+      --dim:      rgba(220,216,208,0.5);
+      --faint:    rgba(200,196,188,0.3);
+      --accent:   #FFFFFF;
+      --card-bg:  #0C1428;
+      --border:   rgba(255,255,255,0.08);
+      --error:    #ff6b6b;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+    }
+
+    body {
+      background:
+        radial-gradient(ellipse 80vw 60vh at 10% 15%,  rgba(12,30,88,0.55) 0%, transparent 70%),
+        radial-gradient(ellipse 60vw 70vh at 92% 30%,  rgba(9,22,72,0.50)  0%, transparent 70%),
+        radial-gradient(ellipse 50vw 55vh at 50% 80%,  rgba(14,34,92,0.40) 0%, transparent 70%),
+        var(--bg);
+      background-attachment: fixed;
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+    }
+
+    /* ── Layout ─────────────────────────────────────── */
+    .page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px max(16px, env(safe-area-inset-left, 0px));
+      padding-left:  max(24px, env(safe-area-inset-left, 0px));
+      padding-right: max(24px, env(safe-area-inset-right, 0px));
+      animation: reveal .6s cubic-bezier(.16,1,.3,1) both;
+    }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .back {
+      position: fixed;
+      top: 28px;
+      left: max(24px, env(safe-area-inset-left, 0px));
+      font-family: 'Syne', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .back:hover, .back:focus-visible { color: var(--ink); }
+    .back:focus-visible { outline: 1px solid rgba(255,255,255,0.3); outline-offset: 4px; border-radius: 2px; }
+
+    /* ── Card ───────────────────────────────────────── */
+    .card {
+      width: 100%;
+      max-width: 480px;
+      border: 1px solid var(--border);
+      background: rgba(12,20,40,0.5);
+      backdrop-filter: blur(12px);
+      padding: clamp(36px, 6vw, 60px) clamp(28px, 6vw, 56px);
+    }
+
+    /* ── Eyebrow ────────────────────────────────────── */
+    .eyebrow {
+      font-family: 'Syne', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 20px;
+    }
+
+    /* ── Headline ───────────────────────────────────── */
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 6vw, 40px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--ink);
+      text-wrap: balance;
+      margin-bottom: 18px;
+    }
+
+    /* ── Description ────────────────────────────────── */
+    .desc {
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--dim);
+      margin-bottom: 36px;
+    }
+
+    /* ── Divider ────────────────────────────────────── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 36px;
+    }
+
+    /* ── Form ───────────────────────────────────────── */
+    .form { display: flex; flex-direction: column; gap: 24px; }
+
+    .field { display: flex; flex-direction: column; gap: 10px; }
+
+    .field label {
+      font-family: 'Syne', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    .field input {
+      width: 100%;
+      padding: 14px 0;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+    .field input::placeholder { color: var(--faint); }
+    .field input:focus { border-bottom-color: rgba(255,255,255,0.5); }
+    .field input:focus-visible { outline: none; } /* handled by border-bottom */
+
+    /* honeypot */
+    .hp { display: none !important; visibility: hidden; }
+
+    /* ── Error message ──────────────────────────────── */
+    .error-msg {
+      font-size: 12px;
+      color: var(--error);
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.5;
+    }
+
+    /* ── Submit button ──────────────────────────────── */
+    .btn {
+      width: 100%;
+      padding: 17px 24px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: var(--accent);
+      color: var(--bg);
+      font-family: 'Syne', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      margin-top: 4px;
+    }
+    .btn:hover:not(:disabled) { opacity: 0.88; }
+    .btn:active:not(:disabled) { transform: scale(0.99); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; background: transparent; color: var(--dim); }
+    .btn:focus-visible { outline: 2px solid rgba(255,255,255,0.4); outline-offset: 3px; }
+
+    /* ── Consent ────────────────────────────────────── */
+    .consent {
+      margin-top: 20px;
+      font-size: 11px;
+      color: var(--faint);
+      line-height: 1.6;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ── Success state ──────────────────────────────── */
+    .success {
+      display: none;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .success.visible { display: flex; }
+
+    .success-icon {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--ink);
+      flex-shrink: 0;
+    }
+
+    .success-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    .success h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(22px, 4vw, 28px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      line-height: 1.1;
+    }
+
+    .success p {
+      font-size: 14px;
+      color: var(--dim);
+      line-height: 1.7;
+    }
+
+    .success p strong { color: var(--ink); font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <a href="/" class="back" aria-label="Back to lliamhumphrey.com">← lliamhumphrey.com</a>
+
+  <main class="page">
+    <div class="card">
+
+      <!-- Form state -->
+      <div id="form-state">
+        <p class="eyebrow">A personal newsletter</p>
+        <h1>Notes from Lliam</h1>
+        <p class="desc">
+          Honest dispatches on building, creating, and figuring it out.
+          No fluff. Once a month.
+        </p>
+        <div class="divider"></div>
+
+        <form class="form" id="signup-form" novalidate>
+
+          <!-- Honeypot -->
+          <div class="hp" aria-hidden="true">
+            <label for="website">Leave this empty</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="firstname">First name</label>
+            <input
+              type="text"
+              id="firstname"
+              name="firstname"
+              autocomplete="given-name"
+              placeholder="Your first name"
+              maxlength="100"
+            />
+          </div>
+
+          <div class="field">
+            <label for="email">Email address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div id="error-msg" class="error-msg" role="alert" aria-live="polite"></div>
+
+          <button type="submit" class="btn" id="submit-btn">Subscribe →</button>
+        </form>
+
+        <p class="consent">
+          By subscribing you agree to receive emails from Lliam Humphrey.
+          Unsubscribe any time, no questions asked.
+        </p>
+      </div>
+
+      <!-- Success state -->
+      <div class="success" id="success-state" role="status" aria-live="polite">
+        <div class="success-icon" aria-hidden="true">✓</div>
+        <p class="success-label">Almost there</p>
+        <h2>Check your inbox to confirm</h2>
+        <p>
+          We sent a confirmation link to <strong id="confirmed-email"></strong>.
+          Click it and you are in.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var form    = document.getElementById('signup-form');
+      var btn     = document.getElementById('submit-btn');
+      var errEl   = document.getElementById('error-msg');
+      var formState    = document.getElementById('form-state');
+      var successState = document.getElementById('success-state');
+      var confirmedEl  = document.getElementById('confirmed-email');
+
+      // Show confirmed state if returning from DOI redirect
+      if (window.location.search.includes('confirmed=1')) {
+        formState.style.display = 'none';
+        successState.classList.add('visible');
+        confirmedEl.textContent = 'your inbox';
+      }
+
+      function setError(msg) {
+        errEl.textContent = msg;
+      }
+
+      function isValidEmail(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+      }
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        setError('');
+
+        var email   = document.getElementById('email').value.trim();
+        var name    = document.getElementById('firstname').value.trim();
+        var website = document.getElementById('website').value;
+
+        if (!email) {
+          setError('Please enter your email address.');
+          document.getElementById('email').focus();
+          return;
+        }
+        if (!isValidEmail(email)) {
+          setError('Please enter a valid email address.');
+          document.getElementById('email').focus();
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+
+        try {
+          var res = await fetch('/api/brevo-subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, name: name, website: website }),
+          });
+
+          var data = await res.json();
+
+          if (res.ok && data.ok) {
+            formState.style.display = 'none';
+            confirmedEl.textContent = email;
+            successState.classList.add('visible');
+            successState.focus();
+          } else {
+            setError(data.error || 'Something went wrong. Please try again.');
+            btn.disabled = false;
+            btn.textContent = 'Subscribe →';
+          }
+        } catch (_) {
+          setError('Connection error. Please try again.');
+          btn.disabled = false;
+          btn.textContent = 'Subscribe →';
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>

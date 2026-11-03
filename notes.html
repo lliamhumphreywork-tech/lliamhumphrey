@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Notes from Lliam</title>
-  <meta name="description" content="Honest notes on building, creating, and figuring it out — dispatched once a month by Lliam Humphrey." />
+  <meta name="description" content="Lessons, thoughts and the journey as a young South African entrepreneur building cool shit. Once a week." />
   <meta property="og:title" content="Notes from Lliam" />
-  <meta property="og:description" content="Honest notes on building, creating, and figuring it out — dispatched once a month." />
+  <meta property="og:description" content="Lessons, thoughts and the journey as a young South African entrepreneur building cool shit. Once a week." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://lliamhumphrey.com/notes" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -20,14 +20,14 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #06080F;
-      --ink:      #DDD8D0;
-      --dim:      rgba(220,216,208,0.5);
-      --faint:    rgba(200,196,188,0.3);
-      --accent:   #FFFFFF;
-      --card-bg:  #0C1428;
-      --border:   rgba(255,255,255,0.08);
-      --error:    #ff6b6b;
+      --bg:       #FFFFFF;
+      --ink:      #111111;
+      --dim:      rgba(17,17,17,0.5);
+      --faint:    rgba(17,17,17,0.28);
+      --accent:   #111111;
+      --card-bg:  #F7F6F3;
+      --border:   rgba(17,17,17,0.1);
+      --error:    #D94F4F;
     }
 
     html, body {
@@ -36,12 +36,7 @@
     }
 
     body {
-      background:
-        radial-gradient(ellipse 80vw 60vh at 10% 15%,  rgba(12,30,88,0.55) 0%, transparent 70%),
-        radial-gradient(ellipse 60vw 70vh at 92% 30%,  rgba(9,22,72,0.50)  0%, transparent 70%),
-        radial-gradient(ellipse 50vw 55vh at 50% 80%,  rgba(14,34,92,0.40) 0%, transparent 70%),
-        var(--bg);
-      background-attachment: fixed;
+      background: var(--bg);
       color: var(--ink);
       font-family: 'DM Sans', sans-serif;
       -webkit-font-smoothing: antialiased;
@@ -57,14 +52,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 80px max(16px, env(safe-area-inset-left, 0px));
+      padding: 80px max(24px, env(safe-area-inset-left, 0px));
       padding-left:  max(24px, env(safe-area-inset-left, 0px));
       padding-right: max(24px, env(safe-area-inset-right, 0px));
-      animation: reveal .6s cubic-bezier(.16,1,.3,1) both;
+      animation: reveal .5s cubic-bezier(.16,1,.3,1) both;
     }
 
     @keyframes reveal {
-      from { opacity: 0; transform: translateY(12px); }
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
@@ -77,21 +72,46 @@
       font-weight: 500;
       letter-spacing: 0.3em;
       text-transform: uppercase;
-      color: var(--dim);
+      color: var(--faint);
       text-decoration: none;
       transition: color .2s;
     }
     .back:hover, .back:focus-visible { color: var(--ink); }
-    .back:focus-visible { outline: 1px solid rgba(255,255,255,0.3); outline-offset: 4px; border-radius: 2px; }
+    .back:focus-visible { outline: 1px solid rgba(0,0,0,0.25); outline-offset: 4px; border-radius: 2px; }
 
     /* ── Card ───────────────────────────────────────── */
     .card {
       width: 100%;
-      max-width: 480px;
+      max-width: 460px;
+      background: var(--card-bg);
       border: 1px solid var(--border);
-      background: rgba(12,20,40,0.5);
-      backdrop-filter: blur(12px);
-      padding: clamp(36px, 6vw, 60px) clamp(28px, 6vw, 56px);
+      padding: clamp(36px, 6vw, 56px) clamp(28px, 6vw, 52px);
+    }
+
+    /* ── Bitmoji row ────────────────────────────────── */
+    .bitmoji-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 24px;
+    }
+
+    .bitmoji {
+      font-size: 38px;
+      line-height: 1;
+      display: inline-block;
+      animation: bob 3s ease-in-out infinite;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));
+    }
+
+    .bitmoji:nth-child(2) {
+      animation-delay: 0.4s;
+      font-size: 44px;
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-4px); }
     }
 
     /* ── Eyebrow ────────────────────────────────────── */
@@ -101,28 +121,28 @@
       font-weight: 500;
       letter-spacing: 0.38em;
       text-transform: uppercase;
-      color: var(--dim);
-      margin-bottom: 20px;
+      color: var(--faint);
+      margin-bottom: 14px;
     }
 
     /* ── Headline ───────────────────────────────────── */
     h1 {
       font-family: 'Syne', sans-serif;
-      font-size: clamp(28px, 6vw, 40px);
+      font-size: clamp(26px, 5.5vw, 36px);
       font-weight: 800;
       letter-spacing: -0.02em;
       line-height: 1.05;
       color: var(--ink);
       text-wrap: balance;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
 
     /* ── Description ────────────────────────────────── */
     .desc {
       font-size: 14px;
-      line-height: 1.75;
+      line-height: 1.8;
       color: var(--dim);
-      margin-bottom: 36px;
+      margin-bottom: 32px;
     }
 
     /* ── Divider ────────────────────────────────────── */
@@ -130,11 +150,11 @@
       width: 100%;
       height: 1px;
       background: var(--border);
-      margin-bottom: 36px;
+      margin-bottom: 32px;
     }
 
     /* ── Form ───────────────────────────────────────── */
-    .form { display: flex; flex-direction: column; gap: 24px; }
+    .form { display: flex; flex-direction: column; gap: 22px; }
 
     .field { display: flex; flex-direction: column; gap: 10px; }
 
@@ -144,15 +164,15 @@
       font-weight: 500;
       letter-spacing: 0.32em;
       text-transform: uppercase;
-      color: var(--dim);
+      color: var(--faint);
     }
 
     .field input {
       width: 100%;
-      padding: 14px 0;
+      padding: 13px 0;
       background: transparent;
       border: none;
-      border-bottom: 1px solid rgba(255,255,255,0.15);
+      border-bottom: 1px solid rgba(0,0,0,0.15);
       font-family: 'DM Sans', sans-serif;
       font-size: 15px;
       color: var(--ink);
@@ -161,8 +181,8 @@
       -webkit-appearance: none;
     }
     .field input::placeholder { color: var(--faint); }
-    .field input:focus { border-bottom-color: rgba(255,255,255,0.5); }
-    .field input:focus-visible { outline: none; } /* handled by border-bottom */
+    .field input:focus { border-bottom-color: rgba(0,0,0,0.5); }
+    .field input:focus-visible { outline: none; }
 
     /* honeypot */
     .hp { display: none !important; visibility: hidden; }
@@ -178,10 +198,10 @@
     /* ── Submit button ──────────────────────────────── */
     .btn {
       width: 100%;
-      padding: 17px 24px;
-      border: 1px solid rgba(255,255,255,0.25);
+      padding: 16px 24px;
+      border: 1px solid rgba(0,0,0,0.2);
       background: var(--accent);
-      color: var(--bg);
+      color: #FFFFFF;
       font-family: 'Syne', sans-serif;
       font-size: 10px;
       font-weight: 500;
@@ -191,14 +211,14 @@
       transition: opacity .2s, transform .15s;
       margin-top: 4px;
     }
-    .btn:hover:not(:disabled) { opacity: 0.88; }
+    .btn:hover:not(:disabled) { opacity: 0.80; }
     .btn:active:not(:disabled) { transform: scale(0.99); }
-    .btn:disabled { opacity: 0.35; cursor: not-allowed; background: transparent; color: var(--dim); }
-    .btn:focus-visible { outline: 2px solid rgba(255,255,255,0.4); outline-offset: 3px; }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; background: transparent; color: var(--dim); }
+    .btn:focus-visible { outline: 2px solid rgba(0,0,0,0.35); outline-offset: 3px; }
 
     /* ── Consent ────────────────────────────────────── */
     .consent {
-      margin-top: 20px;
+      margin-top: 18px;
       font-size: 11px;
       color: var(--faint);
       line-height: 1.6;
@@ -210,20 +230,13 @@
       display: none;
       flex-direction: column;
       align-items: flex-start;
-      gap: 16px;
+      gap: 14px;
     }
     .success.visible { display: flex; }
 
     .success-icon {
-      width: 44px;
-      height: 44px;
-      border: 1px solid rgba(255,255,255,0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: var(--ink);
-      flex-shrink: 0;
+      font-size: 36px;
+      line-height: 1;
     }
 
     .success-label {
@@ -232,12 +245,12 @@
       font-weight: 500;
       letter-spacing: 0.38em;
       text-transform: uppercase;
-      color: var(--dim);
+      color: var(--faint);
     }
 
     .success h2 {
       font-family: 'Syne', sans-serif;
-      font-size: clamp(22px, 4vw, 28px);
+      font-size: clamp(20px, 4vw, 26px);
       font-weight: 700;
       letter-spacing: -0.02em;
       color: var(--ink);
@@ -262,11 +275,14 @@
 
       <!-- Form state -->
       <div id="form-state">
+        <div class="bitmoji-row" aria-hidden="true">
+          <span class="bitmoji">☕</span>
+          <span class="bitmoji">💻</span>
+        </div>
         <p class="eyebrow">A personal newsletter</p>
         <h1>Notes from Lliam</h1>
         <p class="desc">
-          Honest dispatches on building, creating, and figuring it out.
-          No fluff. Once a month.
+          Lessons, thoughts and the journey as a young South African entrepreneur building cool shit. Once a week.
         </p>
         <div class="divider"></div>
 
@@ -315,7 +331,7 @@
 
       <!-- Success state -->
       <div class="success" id="success-state" role="status" aria-live="polite">
-        <div class="success-icon" aria-hidden="true">✓</div>
+        <div class="success-icon" aria-hidden="true">✉️</div>
         <p class="success-label">Almost there</p>
         <h2>Check your inbox to confirm</h2>
         <p>

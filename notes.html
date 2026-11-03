@@ -329,7 +329,7 @@
         </p>
       </div>
 
-      <!-- Success state -->
+      <!-- Success state: post-submit (check inbox) -->
       <div class="success" id="success-state" role="status" aria-live="polite">
         <div class="success-icon" aria-hidden="true">✉️</div>
         <p class="success-label">Almost there</p>
@@ -338,6 +338,14 @@
           We sent a confirmation link to <strong id="confirmed-email"></strong>.
           Click it and you are in.
         </p>
+      </div>
+
+      <!-- Confirmed state: post-DOI click -->
+      <div class="success" id="confirmed-state" role="status" aria-live="polite">
+        <div class="success-icon" aria-hidden="true">🎉</div>
+        <p class="success-label">Subscribed</p>
+        <h2>You're in.</h2>
+        <p>First one drops this week.</p>
       </div>
 
     </div>
@@ -355,8 +363,7 @@
       // Show confirmed state if returning from DOI redirect
       if (window.location.search.includes('confirmed=1')) {
         formState.style.display = 'none';
-        successState.classList.add('visible');
-        confirmedEl.textContent = 'your inbox';
+        document.getElementById('confirmed-state').classList.add('visible');
       }
 
       function setError(msg) {

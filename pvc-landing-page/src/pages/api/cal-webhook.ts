@@ -2,6 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import crypto from 'crypto';
+import { findContactByEmail, updateContactStatus } from '../../lib/notion-crm';
 
 const POSTHOG_HOST    = 'https://eu.posthog.com';
 const POSTHOG_API_KEY = import.meta.env.POSTHOG_API_KEY ?? '';
@@ -60,6 +61,15 @@ export const POST: APIRoute = async ({ request }) => {
       booking_uid: bookingUid,
       $set: { email, name },
     });
+    // Update CRM status so the funnel reflects the booking
+    if (email) {
+      const pageId = await findContactByEmail(email).catch(() => null);
+      if (pageId) {
+        await updateContactStatus(pageId, 'Call Booked').catch(e =>
+          console.error('[cal-webhook] CRM status update failed:', e.message)
+        );
+      }
+    }
   } else if (triggerEvent === 'BOOKING_CANCELLED' || triggerEvent === 'booking.cancelled') {
     await captureEvent('call_cancelled', email || bookingUid, {
       email,

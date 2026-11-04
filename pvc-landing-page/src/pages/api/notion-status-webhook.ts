@@ -86,7 +86,19 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     await sendApprovalEmail(emailProp, firstName);
-    console.log(`[notion-status-webhook] Approval email sent to ${emailProp}`);
+
+    // Advance status to Accepted so both acceptance paths (this + admin/decision.ts) land on the same status
+    await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${NOTION_TOKEN}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ properties: { Status: { select: { name: 'Accepted' } } } }),
+    });
+
+    console.log(`[notion-status-webhook] Approval email sent to ${emailProp}, status → Accepted`);
 
     return new Response(JSON.stringify({ sent: true, email: emailProp }), {
       status: 200,

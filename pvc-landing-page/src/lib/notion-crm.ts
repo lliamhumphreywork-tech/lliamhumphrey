@@ -20,6 +20,8 @@ export type CRMStatus =
   | 'Applied'
   | 'Pending Review'
   | 'Approved - Call Email Sent'
+  | 'Accepted'
+  | 'Rejected'
   | 'Call Booked'
   | 'Discovery Call Booked'
   | 'Qualified'

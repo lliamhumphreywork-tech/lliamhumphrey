@@ -145,8 +145,10 @@ export const POST: APIRoute = async ({ request }) => {
       steps.push('Portal already provisioned');
     }
 
-    // 5. Send onboarding email
-    if (BREVO_TEMPLATE_ONBOARD && memberEmail) {
+    // 5. Send onboarding email — skip if status was already Member (paystack already sent T28)
+    if (currentStatus === 'Member') {
+      steps.push('Onboarding email skipped — payment already processed this member');
+    } else if (BREVO_TEMPLATE_ONBOARD && memberEmail) {
       try {
         await sendTemplate(BREVO_TEMPLATE_ONBOARD, { email: memberEmail, name: firstName }, { FIRST_NAME: firstName });
         steps.push('Onboarding email sent');

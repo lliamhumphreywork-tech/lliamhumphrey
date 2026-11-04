@@ -7,12 +7,15 @@ import { notionQuery, notionPatch, notionCreate, titleProp, textProp, emailProp,
 import { sendTemplate, enrollContact } from '../../lib/brevo';
 import { postWebhook } from '../../lib/slack';
 
-const NOTION_FINANCE_DB_ID = import.meta.env.NOTION_FINANCE_DB_ID;
-const NOTION_CRM_DB_ID     = '872bd20eee31468f91bed1cd472e157a';
-const SLACK_FINANCE_URL    = import.meta.env.SLACK_FINANCE_URL ?? '';
-const PAYSTACK_SECRET      = import.meta.env.PAYSTACK_SECRET_KEY;
-const MEMBERS_PORTAL_URL   = 'https://members.privatevictoriesclub.com';
-const MEMBERS_API_TOKEN    = import.meta.env.MEMBERS_API_TOKEN;
+const NOTION_FINANCE_DB_ID  = import.meta.env.NOTION_FINANCE_DB_ID;
+const NOTION_CRM_DB_ID      = '872bd20eee31468f91bed1cd472e157a';
+const SLACK_FINANCE_URL     = import.meta.env.SLACK_FINANCE_URL ?? '';
+const PAYSTACK_SECRET       = import.meta.env.PAYSTACK_SECRET_KEY;
+const MEMBERS_PORTAL_URL    = 'https://members.privatevictoriesclub.com';
+const MEMBERS_API_TOKEN     = import.meta.env.MEMBERS_API_TOKEN;
+const PVC_WHATSAPP_GROUP_URL  = 'https://chat.whatsapp.com/DuGhsjERYRPCsnxWSUU17L?mode=gi_t';
+const PVC_ONBOARDING_FORM_URL = 'https://privatevictoriesclub.com/onboardingform';
+const PVC_BOOKING_URL         = import.meta.env.PVC_BOOKING_URL ?? 'https://cal.com/lliam-humphrey-q82xct/pvcapplicationcall';
 
 const TEMPLATE_MEMBERSHIP_ONBOARDING = 28;
 const TEMPLATE_EVENT_CONFIRMATION    = 29;
@@ -101,23 +104,47 @@ async function patchPortalProvisioned(crmPageId: string, portalUserId: string): 
   });
 }
 
-// Returns { id, created } or null when config is missing
-async function provisionPortalAccount(email: string, name: string): Promise<{ id: string; created: boolean } | null> {
+// Returns { id, created, magicLink } or null when config is missing
+async function provisionPortalAccount(
+  email: string,
+  name: string,
+  memberSince: string,
+  renewalDate: string,
+  plan: string,
+): Promise<{ id: string; created: boolean; magicLink: string | null } | null> {
   if (!MEMBERS_API_TOKEN || !email) return null;
   const res = await fetch(`${MEMBERS_PORTAL_URL}/api/admin/invite`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${MEMBERS_API_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, name }),
+    body: JSON.stringify({ email, name, memberSince, renewalDate, plan }),
   });
   if (!res.ok) throw new Error(`Portal invite error ${res.status}: ${await res.text()}`);
   const data = await res.json();
-  return { id: data.id, created: data.created === true };
+  return { id: data.id, created: data.created === true, magicLink: data.magicLink ?? null };
 }
 
-async function sendPaymentConfirmation(email: string, firstName: string, paymentType: 'Membership' | 'Event' | 'Other', itemName: string) {
+async function sendPaymentConfirmation(
+  email: string,
+  firstName: string,
+  paymentType: 'Membership' | 'Event' | 'Other',
+  itemName: string,
+  magicLink?: string | null,
+) {
   if (paymentType === 'Other') return;
-  const templateId = paymentType === 'Event' ? TEMPLATE_EVENT_CONFIRMATION : TEMPLATE_MEMBERSHIP_ONBOARDING;
-  await sendTemplate(templateId, { email, name: firstName }, { firstName, itemName });
+  if (paymentType === 'Event') {
+    await sendTemplate(TEMPLATE_EVENT_CONFIRMATION, { email, name: firstName }, { firstName, itemName });
+    return;
+  }
+  // Membership onboarding — include all 4 step links
+  const portalLink = magicLink ?? MEMBERS_PORTAL_URL;
+  await sendTemplate(TEMPLATE_MEMBERSHIP_ONBOARDING, { email, name: firstName }, {
+    firstName,
+    itemName,
+    portalLink,
+    whatsappLink: PVC_WHATSAPP_GROUP_URL,
+    onboardingFormLink: PVC_ONBOARDING_FORM_URL,
+    bookingLink: PVC_BOOKING_URL,
+  });
 }
 
 async function tag4MonthRenewal(email: string, name: string) {
@@ -202,9 +229,12 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (paymentType === 'Membership') {
       // 3. Portal provision
-      let portalResult: { id: string; created: boolean } | null = null;
+      const memberSince  = new Date().toISOString();
+      const renewalDate  = new Date(Date.now() + 120 * 86400000).toISOString(); // 120 days
+      const plan         = is4Month ? '4-Month Membership' : 'Membership';
+      let portalResult: { id: string; created: boolean; magicLink: string | null } | null = null;
       try {
-        portalResult = await provisionPortalAccount(email, name);
+        portalResult = await provisionPortalAccount(email, name, memberSince, renewalDate, plan);
         if (portalResult) {
           console.log(`[paystack-webhook] [${ref}] Portal ${portalResult.created ? 'created' : 'already existed'} for ${email}`);
         } else {
@@ -232,7 +262,7 @@ export const POST: APIRoute = async ({ request }) => {
       const shouldEmail = portalResult === null || portalResult.created === true;
       if (shouldEmail) {
         try {
-          await sendPaymentConfirmation(email, firstName, paymentType, itemName);
+          await sendPaymentConfirmation(email, firstName, paymentType, itemName, portalResult?.magicLink);
         } catch (e: any) {
           failures.push('onboarding-email');
           console.error(`[paystack-webhook] [${ref}] Onboarding email failed:`, e.message);

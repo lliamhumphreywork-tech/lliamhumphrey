@@ -555,7 +555,7 @@ html, body {
     <nav class="nav">
       <a href="/" class="nav-wordmark">Private Victories</a>
       <div class="nav-right">
-        <span class="step-counter" id="stepCounter">1 / 7</span>
+        <span class="step-counter" id="stepCounter">1 / 8</span>
         <button class="nav-back" id="backBtn" onclick="prevStep()" hidden>← Back</button>
       </div>
     </nav>
@@ -602,8 +602,8 @@ html, body {
             </div>
           </div>
           <div class="field">
-            <label for="social">LinkedIn and / or Instagram</label>
-            <input type="text" id="social" placeholder="linkedin.com/in/yourname  or  @yourhandle" />
+            <label for="social">Instagram handle</label>
+            <input type="text" id="social" placeholder="@yourhandle" />
           </div>
           <div class="step-nav">
             <button type="button" class="next-btn" onclick="nextStep()">Continue <span>→</span></button>
@@ -685,60 +685,93 @@ html, body {
         <div class="step" data-step="4">
           <p class="step-eyebrow">Section 04 · What You're Looking For</p>
           <h2 class="step-title">What would you most like to get out of PVC?</h2>
-          <p class="step-hint">Select everything that applies. This is how we start making the room useful for you.</p>
+          <p class="step-hint">Select everything that applies.</p>
           <div class="need-grid" id="pvcGoalTiles" style="margin-bottom:32px">
-            <div class="need-tile" data-value="Business development and new clients" onclick="toggleGoal(this)">
-              <div class="need-tile-label">New clients</div>
-              <div class="need-tile-sub">Business development, sales</div>
+            <div class="need-tile" data-value="Collaborations / Partnerships" onclick="toggleGoal(this)">
+              <div class="need-tile-label">Collaborations / Partnerships</div>
             </div>
-            <div class="need-tile" data-value="Strategic partnerships and collaborations" onclick="toggleGoal(this)">
-              <div class="need-tile-label">Partnerships</div>
-              <div class="need-tile-sub">Collaborations, joint ventures</div>
+            <div class="need-tile" data-value="Roundtables &amp; Guest Speakers" onclick="toggleGoal(this)">
+              <div class="need-tile-label">Roundtables &amp; Guest Speakers</div>
             </div>
-            <div class="need-tile" data-value="Access to experienced founders" onclick="toggleGoal(this)">
-              <div class="need-tile-label">Founder wisdom</div>
-              <div class="need-tile-sub">Mentorship, experienced operators</div>
-            </div>
-            <div class="need-tile" data-value="Investment and financial opportunities" onclick="toggleGoal(this)">
-              <div class="need-tile-label">Investment</div>
-              <div class="need-tile-sub">Capital, financial opportunities</div>
-            </div>
-            <div class="need-tile" data-value="Hiring and talent" onclick="toggleGoal(this)">
-              <div class="need-tile-label">Talent</div>
-              <div class="need-tile-sub">Hiring, key people</div>
-            </div>
-            <div class="need-tile" data-value="Marketing, sales and growth" onclick="toggleGoal(this)">
-              <div class="need-tile-label">Growth</div>
-              <div class="need-tile-sub">Marketing, sales, distribution</div>
-            </div>
-            <div class="need-tile" data-value="Accountability and peer support" onclick="toggleGoal(this)">
+            <div class="need-tile" data-value="Accountability" onclick="toggleGoal(this)">
               <div class="need-tile-label">Accountability</div>
-              <div class="need-tile-sub">Peer support, staying sharp</div>
             </div>
-            <div class="need-tile" data-value="Knowledge and expertise" onclick="toggleGoal(this)">
-              <div class="need-tile-label">Knowledge</div>
-              <div class="need-tile-sub">Learning, specific expertise</div>
+            <div class="need-tile" data-value="Talent Network" onclick="toggleGoal(this)">
+              <div class="need-tile-label">Talent Network</div>
             </div>
-            <div class="need-tile" data-value="Lifestyle and exclusive experiences" onclick="toggleGoal(this)">
-              <div class="need-tile-label">Experiences</div>
-              <div class="need-tile-sub">Lifestyle, exclusive access</div>
+            <div class="need-tile" data-value="Lifestyle Benefits / Concierge" onclick="toggleGoal(this)">
+              <div class="need-tile-label">Lifestyle Benefits / Concierge</div>
+            </div>
+            <div class="need-tile" data-value="Deal Flow / Business Opportunities" onclick="toggleGoal(this)">
+              <div class="need-tile-label">Deal Flow / Business Opportunities</div>
+            </div>
+            <div class="need-tile" data-value="Access to high-value people" onclick="toggleGoal(this)">
+              <div class="need-tile-label">Access to high-value people</div>
+            </div>
+            <div class="need-tile" data-value="Business Development / New Clients" onclick="toggleGoal(this)">
+              <div class="need-tile-label">Business Development / New Clients</div>
             </div>
             <div class="need-tile" data-value="Something else" onclick="toggleGoal(this)">
               <div class="need-tile-label">Something else</div>
-              <div class="need-tile-sub">I'll describe below</div>
             </div>
           </div>
           <div class="field">
-            <label for="introductions">If we could introduce you to three people, who would they be?</label>
-            <textarea id="introductions" placeholder="Describe the type of people, industries or expertise you're looking for. Be specific." rows="4"></textarea>
+            <label for="wantsFromRoom">What do you actually want from the room?</label>
+            <textarea id="wantsFromRoom" placeholder="In your own words — what would make PVC genuinely valuable to you?" rows="3"></textarea>
           </div>
           <div class="step-nav">
             <button type="button" class="next-btn" onclick="nextStep()">Continue <span>→</span></button>
           </div>
         </div>
 
-        <!-- Step 6: What you bring -->
+        <!-- Step 6: Support areas -->
         <div class="step" data-step="5">
+          <p class="step-eyebrow">Section 04 · What You're Looking For</p>
+          <h2 class="step-title">What areas are you currently looking for support in?</h2>
+          <p class="step-hint">Select all that apply.</p>
+          <div class="need-grid" id="supportAreaTiles" style="margin-bottom:32px">
+            <div class="need-tile" data-value="Sales &amp; Business Development" onclick="toggleSupport(this)">
+              <div class="need-tile-label">Sales &amp; Business Development</div>
+            </div>
+            <div class="need-tile" data-value="Marketing &amp; Content" onclick="toggleSupport(this)">
+              <div class="need-tile-label">Marketing &amp; Content</div>
+            </div>
+            <div class="need-tile" data-value="Operations &amp; Systems" onclick="toggleSupport(this)">
+              <div class="need-tile-label">Operations &amp; Systems</div>
+            </div>
+            <div class="need-tile" data-value="Hiring &amp; Recruitment" onclick="toggleSupport(this)">
+              <div class="need-tile-label">Hiring &amp; Recruitment</div>
+            </div>
+            <div class="need-tile" data-value="Finance &amp; Financial Planning" onclick="toggleSupport(this)">
+              <div class="need-tile-label">Finance &amp; Financial Planning</div>
+            </div>
+            <div class="need-tile" data-value="Legal &amp; Compliance" onclick="toggleSupport(this)">
+              <div class="need-tile-label">Legal &amp; Compliance</div>
+            </div>
+            <div class="need-tile" data-value="Technology &amp; AI" onclick="toggleSupport(this)">
+              <div class="need-tile-label">Technology &amp; AI</div>
+            </div>
+            <div class="need-tile" data-value="Strategic Partnerships" onclick="toggleSupport(this)">
+              <div class="need-tile-label">Strategic Partnerships</div>
+            </div>
+            <div class="need-tile" data-value="Personal Development" onclick="toggleSupport(this)">
+              <div class="need-tile-label">Personal Development</div>
+            </div>
+            <div class="need-tile" data-value="Other" onclick="toggleSupport(this)">
+              <div class="need-tile-label">Other</div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="introductions">If we could introduce you to three people, who would they be?</label>
+            <textarea id="introductions" placeholder="Describe the type of people, industries or expertise you're looking for." rows="3"></textarea>
+          </div>
+          <div class="step-nav">
+            <button type="button" class="next-btn" onclick="nextStep()">Continue <span>→</span></button>
+          </div>
+        </div>
+
+        <!-- Step 7: What you bring -->
+        <div class="step" data-step="6">
           <p class="step-eyebrow">Section 05 · What You Bring</p>
           <h2 class="step-title">What do you bring to the room?</h2>
           <p class="step-hint">The best networks are two-way. What expertise, resources, services or opportunities could you offer other members?</p>
@@ -752,14 +785,40 @@ html, body {
           </div>
         </div>
 
-        <!-- Step 7: Beyond business -->
-        <div class="step" data-step="6">
+        <!-- Step 8: Beyond business -->
+        <div class="step" data-step="7">
           <p class="step-eyebrow">Section 06 · Beyond Business</p>
           <h2 class="step-title">Last one. Tell us who you are outside of work.</h2>
           <p class="step-hint">PVC is a room for the whole person, not just the founder.</p>
+          <div class="need-grid" id="interestTiles" style="margin-bottom:24px">
+            <div class="need-tile" data-value="Fitness &amp; Wellness" onclick="toggleInterest(this)">
+              <div class="need-tile-label">Fitness &amp; Wellness</div>
+            </div>
+            <div class="need-tile" data-value="Sports" onclick="toggleInterest(this)">
+              <div class="need-tile-label">Sports</div>
+            </div>
+            <div class="need-tile" data-value="Travel" onclick="toggleInterest(this)">
+              <div class="need-tile-label">Travel</div>
+            </div>
+            <div class="need-tile" data-value="Food &amp; Hospitality" onclick="toggleInterest(this)">
+              <div class="need-tile-label">Food &amp; Hospitality</div>
+            </div>
+            <div class="need-tile" data-value="Fashion &amp; Lifestyle" onclick="toggleInterest(this)">
+              <div class="need-tile-label">Fashion &amp; Lifestyle</div>
+            </div>
+            <div class="need-tile" data-value="Arts, Music &amp; Culture" onclick="toggleInterest(this)">
+              <div class="need-tile-label">Arts, Music &amp; Culture</div>
+            </div>
+            <div class="need-tile" data-value="Technology" onclick="toggleInterest(this)">
+              <div class="need-tile-label">Technology</div>
+            </div>
+            <div class="need-tile" data-value="Other" onclick="toggleInterest(this)">
+              <div class="need-tile-label">Other</div>
+            </div>
+          </div>
           <div class="field">
-            <label for="interests">What are you interested in outside of work?</label>
-            <textarea id="interests" placeholder="Hobbies, passions, what you spend your time on when you're not building." rows="4"></textarea>
+            <label for="interestsOther">Anything else outside of work? (optional)</label>
+            <textarea id="interestsOther" placeholder="Other interests or passions not listed above." rows="2"></textarea>
           </div>
           <div class="field">
             <label for="anythingElse">Anything else we should know to help you get the most out of PVC?</label>
@@ -801,10 +860,12 @@ html, body {
 </div>
 
 <script is:inline>
-  const TOTAL = 7;
+  const TOTAL = 8;
   let current = 0;
   let selectedTeam = '';
   let selectedGoals = [];
+  let selectedSupportAreas = [];
+  let selectedInterests = [];
 
   const steps      = document.querySelectorAll('.step');
   const progFill   = document.getElementById('progressFill');
@@ -868,6 +929,22 @@ html, body {
       : selectedGoals.filter(x => x !== v);
   }
 
+  function toggleSupport(tile) {
+    tile.classList.toggle('selected');
+    const v = tile.dataset.value;
+    selectedSupportAreas = tile.classList.contains('selected')
+      ? [...selectedSupportAreas, v]
+      : selectedSupportAreas.filter(x => x !== v);
+  }
+
+  function toggleInterest(tile) {
+    tile.classList.toggle('selected');
+    const v = tile.dataset.value;
+    selectedInterests = tile.classList.contains('selected')
+      ? [...selectedInterests, v]
+      : selectedInterests.filter(x => x !== v);
+  }
+
   document.getElementById('onboardForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -913,9 +990,12 @@ html, body {
           challenge,
           goal_90_days:      goal90,
           pvc_goals:         selectedGoals.join(', '),
+          wants_from_room:   document.getElementById('wantsFromRoom').value.trim(),
+          support_areas:     selectedSupportAreas.join(', '),
           introductions:     document.getElementById('introductions').value.trim(),
           what_you_bring:    whatYouBring,
-          interests:         document.getElementById('interests').value.trim(),
+          interests_multi:   selectedInterests.join(', '),
+          interests_other:   document.getElementById('interestsOther').value.trim(),
           anything_else:     document.getElementById('anythingElse').value.trim(),
         }),
       });

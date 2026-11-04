@@ -48,9 +48,9 @@ export const POST: APIRoute = async ({ request }) => {
     full_name, preferred_name, email, location, social,
     business_name, business_description, team_size,
     challenge, goal_90_days,
-    pvc_goals, introductions,
+    pvc_goals, wants_from_room, support_areas, introductions,
     what_you_bring,
-    interests, anything_else,
+    interests_multi, interests_other, anything_else,
   } = body;
 
   if (!full_name || !email) {
@@ -104,9 +104,13 @@ export const POST: APIRoute = async ({ request }) => {
       paragraph(what_you_bring || 'Not provided'),
       heading('Looking for in PVC'),
       paragraph(pvc_goals || 'Not provided'),
+      paragraph(`What they want from the room: ${wants_from_room || 'Not provided'}`),
+      heading('Support areas'),
+      paragraph(support_areas || 'Not provided'),
       paragraph(`Intro target: ${introductions || 'Not provided'}`),
       heading('Beyond business'),
-      paragraph(interests || 'Not provided'),
+      paragraph(interests_multi || 'Not provided'),
+      paragraph(`Other interests: ${interests_other || 'Not provided'}`),
       paragraph(`Other notes: ${anything_else || 'Not provided'}`),
     ];
     await appendBlocks(miPageId, blocks).catch(e =>
@@ -123,6 +127,7 @@ export const POST: APIRoute = async ({ request }) => {
       `*Challenge:* ${challenge || 'Not provided'}`,
       `*90-day goal:* ${goal_90_days || 'Not provided'}`,
       `*Looking for:* ${pvc_goals || 'Not provided'}`,
+      `*Support areas:* ${support_areas || 'Not provided'}`,
       `*Brings:* ${what_you_bring || 'Not provided'}`,
     ].filter(Boolean).join('\n');
     await postWebhook(SLACK_OPS_URL, msg).catch(() => {});

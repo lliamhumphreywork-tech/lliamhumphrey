@@ -118,6 +118,30 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
           </p>
         )}
 
+        {(member.skills || member.seeking) && (
+          <div style={{
+            display: "flex", flexDirection: "column", gap: 10,
+            background: "var(--bg-elevated)", border: "1px solid var(--border)",
+            borderRadius: "var(--radius)", padding: "14px 16px", marginBottom: 16,
+          }}>
+            {member.skills && (
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 600, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Brings to the room</p>
+                <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.6 }}>{member.skills}</p>
+              </div>
+            )}
+            {member.skills && member.seeking && (
+              <div style={{ height: 1, background: "var(--border)" }} />
+            )}
+            {member.seeking && (
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Looking for</p>
+                <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.6 }}>{member.seeking}</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {(member.website || member.twitter || member.instagram || member.linkedin) && (
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             {member.website && (

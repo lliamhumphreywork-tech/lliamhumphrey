@@ -179,7 +179,7 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
       background: "var(--bg-surface)",
       border: "1px solid var(--border)",
       borderRadius: "var(--radius-lg)",
-      marginBottom: 16,
+      marginBottom: 20,
       overflow: "hidden",
     }}>
       <input ref={imageInputRef} type="file" accept="image/*" multiple style={{ display: "none" }}
@@ -188,14 +188,17 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
         onChange={(e) => { handleFiles(Array.from(e.target.files ?? [])); e.target.value = "" }} />
 
       {!expanded ? (
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", cursor: "text" }}
+        <div data-composer-trigger style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", cursor: "text" }}
           onClick={() => setExpanded(true)}>
-          <Avatar src={composerAvatar || user?.image} name={user?.name} size={34} role={(user as any)?.role} />
-          <span style={{ flex: 1, fontSize: 14, color: "var(--text-muted)", fontFamily: "Plus Jakarta Sans, sans-serif", userSelect: "none" }}>
+          <Avatar src={composerAvatar || user?.image} name={user?.name} size={36} role={(user as any)?.role} />
+          <span style={{
+            flex: 1, fontSize: 13.5, color: "var(--text-muted)", fontFamily: "Plus Jakarta Sans, sans-serif",
+            userSelect: "none", letterSpacing: "0.005em",
+          }}>
             {placeholder}
           </span>
           <div style={{
-            width: 30, height: 30, borderRadius: "50%",
+            width: 32, height: 32, borderRadius: "50%",
             border: "1px solid var(--border)", background: "var(--bg-elevated)",
             color: "var(--text-muted)", display: "flex", alignItems: "center",
             justifyContent: "center", flexShrink: 0,
@@ -205,8 +208,8 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
         </div>
       ) : (
         <>
-          <div style={{ display: "flex", gap: 12, padding: "12px 16px 8px" }}>
-            <Avatar src={composerAvatar || user?.image} name={user?.name} size={34} role={(user as any)?.role} />
+          <div style={{ display: "flex", gap: 14, padding: "14px 20px 10px" }}>
+            <Avatar src={composerAvatar || user?.image} name={user?.name} size={36} role={(user as any)?.role} />
             <div style={{
               flex: 1, minWidth: 0,
               border: "1px solid var(--accent)",
@@ -277,46 +280,54 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
           )}
 
           {/* Toolbar */}
-          <div className="composer-toolbar" style={{ padding: "0 16px 14px", display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="composer-toolbar" style={{ padding: "2px 20px 16px", display: "flex", alignItems: "center", gap: 8 }}>
             <button type="button" onClick={() => imageInputRef.current?.click()} disabled={attachments.length >= 8}
               title="Add images"
               style={{
                 display: "flex", alignItems: "center", gap: 5, padding: "5px 10px",
-                background: "none", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)",
-                color: "var(--text-secondary)", fontSize: 12, cursor: "pointer", fontFamily: "Plus Jakarta Sans, sans-serif",
-              }}>
-              <ImagePlus size={13} /> Photo
+                background: "none", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)",
+                color: "var(--text-muted)", fontSize: 12, cursor: "pointer", fontFamily: "Plus Jakarta Sans, sans-serif",
+                transition: "border-color 0.1s, color 0.1s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-secondary)" }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-subtle)"; e.currentTarget.style.color = "var(--text-muted)" }}
+            >
+              <ImagePlus size={12} /> Photo
             </button>
             <button type="button" onClick={() => fileInputRef.current?.click()} disabled={attachments.length >= 8}
               title="Attach file"
               style={{
                 display: "flex", alignItems: "center", gap: 5, padding: "5px 10px",
-                background: "none", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)",
-                color: "var(--text-secondary)", fontSize: 12, cursor: "pointer", fontFamily: "Plus Jakarta Sans, sans-serif",
-              }}>
-              <Paperclip size={13} /> File
+                background: "none", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)",
+                color: "var(--text-muted)", fontSize: 12, cursor: "pointer", fontFamily: "Plus Jakarta Sans, sans-serif",
+                transition: "border-color 0.1s, color 0.1s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-secondary)" }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-subtle)"; e.currentTarget.style.color = "var(--text-muted)" }}
+            >
+              <Paperclip size={12} /> File
             </button>
             <div style={{ flex: 1 }} />
             {draftSaved && (
-              <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "Plus Jakarta Sans, sans-serif" }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "Plus Jakarta Sans, sans-serif", letterSpacing: "0.02em" }}>
                 Draft saved
               </span>
             )}
-            {error && <span style={{ fontSize: 13, color: "var(--danger)" }}>{error}</span>}
+            {error && <span style={{ fontSize: 12, color: "var(--danger)" }}>{error}</span>}
             <button type="button" onClick={reset}
               style={{
-                padding: "7px 14px", background: "none", border: "1px solid var(--border)",
-                borderRadius: "var(--radius-sm)", fontSize: 13, color: "var(--text-secondary)",
+                padding: "6px 14px", background: "none", border: "1px solid var(--border-subtle)",
+                borderRadius: "var(--radius-sm)", fontSize: 12.5, color: "var(--text-muted)",
                 cursor: "pointer", fontFamily: "Plus Jakarta Sans, sans-serif",
               }}>
               Cancel
             </button>
             <button type="button" onClick={handleSubmit} disabled={isPending || !canPost}
               style={{
-                padding: "7px 20px",
+                padding: "6px 18px",
                 background: canPost && !isPending ? "var(--accent)" : "var(--bg-elevated)",
                 color: canPost && !isPending ? "#000" : "var(--text-muted)",
-                border: "none", borderRadius: "var(--radius-sm)", fontSize: 13, fontWeight: 600,
+                border: "none", borderRadius: "var(--radius-sm)", fontSize: 12.5, fontWeight: 600,
                 fontFamily: "Plus Jakarta Sans, sans-serif",
                 cursor: canPost && !isPending ? "pointer" : "not-allowed",
                 transition: "all 0.15s",

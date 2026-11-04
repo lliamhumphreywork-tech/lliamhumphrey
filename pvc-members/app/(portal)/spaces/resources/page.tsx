@@ -16,9 +16,17 @@ type Resource = {
   fileName?: string | null
   fileType?: string | null
   fileSize?: number | null
+  category: string
   createdAt: string
   uploadedBy: { id: string; name: string | null; avatar: string | null; role: string }
 }
+
+const CATEGORIES = [
+  { key: "all", label: "All" },
+  { key: "recordings", label: "Recordings" },
+  { key: "sops", label: "SOPs" },
+  { key: "other", label: "Other" },
+]
 
 type AddMode = null | "file" | "link" | "text"
 
@@ -49,6 +57,8 @@ export default function ResourcesPage() {
   const [loading, setLoading] = useState(true)
   const [addMode, setAddMode] = useState<AddMode>(null)
   const [showPicker, setShowPicker] = useState(false)
+  const [activeCategory, setActiveCategory] = useState("all")
+  const [category, setCategory] = useState("other")
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadingFile, setUploadingFile] = useState<{ name: string; size: number } | null>(null)
@@ -77,6 +87,7 @@ export default function ResourcesPage() {
     setTitle("")
     setLinkUrl("")
     setBody("")
+    setCategory("other")
     setPendingFile(null)
     if (mode === "file") fileInputRef.current?.click()
   }
@@ -87,6 +98,7 @@ export default function ResourcesPage() {
     setTitle("")
     setLinkUrl("")
     setBody("")
+    setCategory("other")
     setError("")
   }
 
@@ -122,7 +134,7 @@ export default function ResourcesPage() {
     setError("")
     setSaving(true)
     try {
-      const payload: Record<string, unknown> = { title, type: addMode }
+      const payload: Record<string, unknown> = { title, type: addMode, category }
       if (addMode === "file" && pendingFile) {
         payload.fileUrl = pendingFile.url
         payload.fileName = pendingFile.name
@@ -267,6 +279,25 @@ export default function ResourcesPage() {
         </div>
       </div>
 
+      {/* Category filter tabs */}
+      <div style={{ borderBottom: "1px solid var(--border-subtle)", background: "var(--bg-base)" }}>
+        <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px", display: "flex", gap: 4 }}>
+          {CATEGORIES.map(c => (
+            <button key={c.key} onClick={() => setActiveCategory(c.key)}
+              style={{
+                padding: "10px 14px", background: "none", border: "none",
+                borderBottom: activeCategory === c.key ? "2px solid var(--accent)" : "2px solid transparent",
+                color: activeCategory === c.key ? "var(--text-primary)" : "var(--text-muted)",
+                fontSize: 13, fontWeight: activeCategory === c.key ? 600 : 400,
+                cursor: "pointer", fontFamily: "Plus Jakarta Sans, sans-serif",
+                transition: "color 0.15s",
+              }}>
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "20px 16px 100px" }}>
         {error && (
           <div style={{
@@ -320,6 +351,26 @@ export default function ResourcesPage() {
               </div>
             )}
 
+            {/* Category */}
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: "block", fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>Category</label>
+              <div style={{ display: "flex", gap: 6 }}>
+                {CATEGORIES.filter(c => c.key !== "all").map(c => (
+                  <button key={c.key} type="button" onClick={() => setCategory(c.key)}
+                    style={{
+                      padding: "6px 14px", border: "1px solid",
+                      borderColor: category === c.key ? "var(--accent)" : "var(--border)",
+                      background: category === c.key ? "rgba(200,255,0,0.08)" : "none",
+                      color: category === c.key ? "var(--accent)" : "var(--text-secondary)",
+                      borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 500,
+                      cursor: "pointer", fontFamily: "Plus Jakarta Sans, sans-serif",
+                    }}>
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Title */}
             <div style={{ marginBottom: 12 }}>
               <label style={{ display: "block", fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>
@@ -361,22 +412,29 @@ export default function ResourcesPage() {
         )}
 
         {/* List */}
-        {loading ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {[...Array(4)].map((_, i) => (
-              <div key={i} style={{ height: 72, borderRadius: "var(--radius)", background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)", opacity: 0.6, animation: "pulse 1.5s ease-in-out infinite" }} />
-            ))}
-          </div>
-        ) : resources.length === 0 && !addMode ? (
-          <div style={{ textAlign: "center", padding: "80px 24px", border: "1px dashed var(--border)", borderRadius: "var(--radius-lg)" }}>
-            <Upload size={32} style={{ color: "var(--text-muted)", marginBottom: 12 }} />
-            <p style={{ color: "var(--text-muted)", fontSize: 14, margin: 0 }}>Nothing here yet. Add a file, link, or note.</p>
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {resources.map(r => <ResourceRow key={r.id} resource={r} userId={user?.id} userRole={role} onDelete={handleDelete} />)}
-          </div>
-        )}
+        {(() => {
+          const filtered = activeCategory === "all" ? resources : resources.filter(r => r.category === activeCategory)
+          if (loading) return (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[...Array(4)].map((_, i) => (
+                <div key={i} style={{ height: 72, borderRadius: "var(--radius)", background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)", opacity: 0.6, animation: "pulse 1.5s ease-in-out infinite" }} />
+              ))}
+            </div>
+          )
+          if (filtered.length === 0 && !addMode) return (
+            <div style={{ textAlign: "center", padding: "80px 24px", border: "1px dashed var(--border)", borderRadius: "var(--radius-lg)" }}>
+              <Upload size={32} style={{ color: "var(--text-muted)", marginBottom: 12 }} />
+              <p style={{ color: "var(--text-muted)", fontSize: 14, margin: 0 }}>
+                {activeCategory === "all" ? "Nothing here yet. Add a file, link, or note." : `No ${CATEGORIES.find(c => c.key === activeCategory)?.label ?? activeCategory} yet.`}
+              </p>
+            </div>
+          )
+          return (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {filtered.map(r => <ResourceRow key={r.id} resource={r} userId={user?.id} userRole={role} onDelete={handleDelete} />)}
+            </div>
+          )
+        })()}
       </div>
       <style>{`@keyframes pulse { 0%,100%{opacity:0.6}50%{opacity:0.3} }`}</style>
     </div>
@@ -431,15 +489,27 @@ function ResourceRow({ resource: r, userId, userRole, onDelete }: {
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 2 }}>
-            {r.type === "link" && r.fileUrl ? (
-              <a href={r.fileUrl} target="_blank" rel="noopener noreferrer"
-                style={{ color: "inherit", textDecoration: "none" }}
-                onMouseEnter={e => (e.currentTarget.style.color = "var(--accent)")}
-                onMouseLeave={e => (e.currentTarget.style.color = "inherit")}>
-                {r.title}
-              </a>
-            ) : r.title}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
+              {r.type === "link" && r.fileUrl ? (
+                <a href={r.fileUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ color: "inherit", textDecoration: "none" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "var(--accent)")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "inherit")}>
+                  {r.title}
+                </a>
+              ) : r.title}
+            </div>
+            {r.category && r.category !== "other" && (
+              <span style={{
+                fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
+                padding: "2px 6px", borderRadius: 4, flexShrink: 0,
+                background: r.category === "recordings" ? "rgba(167,139,250,0.12)" : "rgba(96,165,250,0.12)",
+                color: r.category === "recordings" ? "#a78bfa" : "#60a5fa",
+              }}>
+                {r.category === "recordings" ? "Recording" : "SOP"}
+              </span>
+            )}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <Avatar src={r.uploadedBy.avatar} name={r.uploadedBy.name} size={14} />

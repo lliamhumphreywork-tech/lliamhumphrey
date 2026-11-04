@@ -44,14 +44,14 @@
   --danger: #ef4444;
   --online: #22c55e;
 
-  --sidebar-width: 240px;
+  --sidebar-width: 228px;
   --right-rail-width: 280px;
   --header-height: 56px;
 
-  --radius: 14px;
-  --radius-sm: 10px;
-  --radius-lg: 20px;
-  --radius-xl: 26px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
 }
 
@@ -96,6 +96,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Syne', sans-serif;
   line-height: 1.2;
   color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 
 a {

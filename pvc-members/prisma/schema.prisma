@@ -151,6 +151,7 @@ model Resource {
   uploadedById String
   createdAt    DateTime @default(now())
   type         String   @default("file")
+  category     String   @default("other")
   uploadedBy   User     @relation("UserResources", fields: [uploadedById], references: [id], onDelete: Cascade)
 }
 

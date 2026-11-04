@@ -18,12 +18,15 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const body = await req.json()
-  const { type = "file", title, description, fileUrl, fileName, fileType, fileSize } = body
+  const { type = "file", title, description, fileUrl, fileName, fileType, fileSize, category = "other" } = body
 
   if (!title?.trim()) return NextResponse.json({ error: "Title required" }, { status: 400 })
   if (type === "file" && !fileUrl) return NextResponse.json({ error: "File required" }, { status: 400 })
   if (type === "link" && !fileUrl) return NextResponse.json({ error: "URL required" }, { status: 400 })
   if (type === "text" && !description?.trim()) return NextResponse.json({ error: "Content required" }, { status: 400 })
+
+  const validCategories = ["recordings", "sops", "other"]
+  const safeCategory = validCategories.includes(category) ? category : "other"
 
   const resource = await db.resource.create({
     data: {
@@ -34,6 +37,7 @@ export async function POST(req: Request) {
       fileName: fileName ?? null,
       fileType: fileType ?? null,
       fileSize: fileSize ?? null,
+      category: safeCategory,
       uploadedById: session!.user!.id!,
     },
     include: { uploadedBy: { select: { id: true, name: true, avatar: true, role: true } } },

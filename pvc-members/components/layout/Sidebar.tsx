@@ -6,34 +6,31 @@ import { useSession, signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
 import {
   Home, Users, Calendar, LogOut, Shield, Search,
-  MessageCircle, Trophy, BookOpen,
-  Network, UserPlus,
+  MessageCircle, BookOpen, Network, UserPlus,
 } from "lucide-react"
 import { Avatar } from "@/components/ui/Avatar"
 import { NotificationBell } from "@/components/notifications/NotificationBell"
-import { getSpaceIcon } from "@/lib/spaceIcons"
 import { PushSubscribe } from "@/components/pwa/PushSubscribe"
 
 type SidebarGroup = {
   label: string
-  items: { href: string; tag: string; label: string; icon?: React.ElementType; external?: string }[]
+  items: { href: string; label: string; icon?: React.ElementType; external?: string }[]
 }
 
 const GROUPS: SidebarGroup[] = [
   {
     label: "Community",
     items: [
-      { href: "/feed", tag: "FD", label: "Feed", icon: Home },
-      { href: "/members", tag: "MB", label: "Members", icon: Users },
-      { href: "/events", tag: "EV", label: "Events", icon: Calendar },
-      { href: "/spaces/wins", tag: "WN", label: "Wins", icon: Trophy },
+      { href: "/feed", label: "Feed", icon: Home },
+      { href: "/members", label: "Members", icon: Users },
+      { href: "/events", label: "Events", icon: Calendar },
     ],
   },
   {
     label: "Spaces",
     items: [
-      { href: "/spaces/talent-network", tag: "TN", label: "Talent Network", icon: Network },
-      { href: "/spaces/resources", tag: "RC", label: "Info Library", icon: BookOpen },
+      { href: "/spaces/talent-network", label: "Talent Network", icon: Network },
+      { href: "/spaces/resources", label: "Info Library", icon: BookOpen },
     ],
   },
   {
@@ -41,7 +38,6 @@ const GROUPS: SidebarGroup[] = [
     items: [
       {
         href: "#whatsapp",
-        tag: "WA",
         label: "WhatsApp Group",
         icon: MessageCircle,
         external: "https://chat.whatsapp.com/DuGhsjERYRPCsnxWSUU17L?mode=gi_t",
@@ -66,26 +62,27 @@ function NavItem({
   const sharedStyle: React.CSSProperties = {
     display: "flex",
     alignItems: "center",
-    gap: 8,
-    padding: "6px 10px",
-    borderRadius: 8,
+    gap: 10,
+    padding: "7px 12px",
+    borderRadius: 9,
     marginBottom: 1,
     color: active ? "var(--text-primary)" : "var(--text-secondary)",
-    fontSize: 13.5,
-    fontWeight: active ? 600 : 400,
+    fontSize: 13,
+    fontWeight: active ? 500 : 400,
     textDecoration: "none",
-    transition: "background 0.1s, color 0.1s",
-    background: active ? "rgba(255,255,255,0.07)" : "transparent",
+    transition: "background 0.12s, color 0.12s",
+    background: active ? "rgba(255,255,255,0.06)" : "transparent",
+    letterSpacing: "0.01em",
   }
 
   const iconEl = Icon && (
     <Icon
-      size={15}
+      size={14}
+      strokeWidth={active ? 2 : 1.6}
       style={{
         flexShrink: 0,
-        opacity: active ? 1 : 0.4,
-        color: active ? "var(--text-primary)" : undefined,
-        transition: "opacity 0.1s",
+        opacity: active ? 0.9 : 0.35,
+        transition: "opacity 0.12s",
       }}
     />
   )
@@ -104,7 +101,7 @@ function NavItem({
         rel="noopener noreferrer"
         style={sharedStyle}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = "rgba(255,255,255,0.05)"
+          e.currentTarget.style.background = "rgba(255,255,255,0.04)"
           e.currentTarget.style.color = "var(--text-primary)"
         }}
         onMouseLeave={(e) => {
@@ -123,7 +120,7 @@ function NavItem({
       style={sharedStyle}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.background = "rgba(255,255,255,0.04)"
+          e.currentTarget.style.background = "rgba(255,255,255,0.03)"
           e.currentTarget.style.color = "var(--text-primary)"
         }
       }}
@@ -176,16 +173,16 @@ export function Sidebar() {
       }}
     >
       {/* Logo */}
-      <div style={{ padding: "22px 20px 16px", borderBottom: "1px solid var(--border-subtle)" }}>
+      <div style={{ padding: "24px 20px 20px" }}>
         <img
           src="/logo-horizontal.webp"
           alt="Private Victories"
-          style={{ width: "100%", height: "auto", display: "block", opacity: 0.95 }}
+          style={{ width: "80%", height: "auto", display: "block", opacity: 0.9 }}
         />
       </div>
 
       {/* Search */}
-      <div style={{ padding: "10px 10px 6px" }}>
+      <div style={{ padding: "0 12px 12px" }}>
         <button
           onClick={() => {
             const e = new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true })
@@ -197,37 +194,43 @@ export function Sidebar() {
             padding: "7px 10px",
             borderRadius: 8,
             border: "1px solid var(--border-subtle)",
-            background: "var(--bg-base)",
+            background: "transparent",
             color: "var(--text-muted)",
-            fontSize: 12.5, cursor: "pointer", textAlign: "left",
-            transition: "border-color 0.1s",
+            fontSize: 12, cursor: "pointer", textAlign: "left",
+            transition: "border-color 0.12s, background 0.12s",
+            letterSpacing: "0.01em",
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border)" }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-subtle)" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = "var(--border)"
+            e.currentTarget.style.background = "rgba(255,255,255,0.02)"
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "var(--border-subtle)"
+            e.currentTarget.style.background = "transparent"
+          }}
         >
-          <Search size={12} style={{ opacity: 0.6 }} />
-          <span style={{ flex: 1 }}>Search...</span>
-          <kbd style={{ fontSize: 10, background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 4, padding: "1px 5px", color: "var(--text-muted)", fontFamily: "inherit" }}>⌘K</kbd>
+          <Search size={11} style={{ opacity: 0.5, flexShrink: 0 }} />
+          <span style={{ flex: 1 }}>Search</span>
+          <kbd style={{
+            fontSize: 10, background: "rgba(255,255,255,0.04)",
+            border: "1px solid var(--border-subtle)", borderRadius: 4,
+            padding: "1px 5px", color: "var(--text-muted)", fontFamily: "inherit",
+          }}>⌘K</kbd>
         </button>
       </div>
 
       {/* Grouped navigation */}
-      <nav style={{ flex: 1, padding: "6px 0", overflowY: "auto", minHeight: 0 }}>
+      <nav style={{ flex: 1, padding: "2px 0 8px", overflowY: "auto", minHeight: 0 }}>
         {GROUPS.map((group, gi) => (
-          <div key={group.label} style={{ marginBottom: 4 }}>
-            {gi > 0 && (
-              <div style={{ height: 1, background: "var(--border-subtle)", margin: "8px 12px" }} />
-            )}
-
-            {/* Section label */}
+          <div key={group.label} style={{ marginBottom: gi < GROUPS.length - 1 ? 20 : 0 }}>
             <div style={{
               fontSize: 10,
-              fontWeight: 600,
-              letterSpacing: "0.07em",
+              fontWeight: 500,
+              letterSpacing: "0.1em",
               textTransform: "uppercase",
               color: "var(--text-muted)",
-              padding: "4px 20px 4px",
-              opacity: 0.6,
+              padding: "0 20px 6px",
+              opacity: 0.5,
             }}>
               {group.label}
             </div>
@@ -253,12 +256,11 @@ export function Sidebar() {
 
         {/* Admin section */}
         {role === "ADMIN" && (
-          <div style={{ marginBottom: 4 }}>
-            <div style={{ height: 1, background: "var(--border-subtle)", margin: "8px 12px" }} />
+          <div style={{ marginTop: 20 }}>
             <div style={{
-              fontSize: 10, fontWeight: 600, letterSpacing: "0.07em",
+              fontSize: 10, fontWeight: 500, letterSpacing: "0.1em",
               textTransform: "uppercase", color: "var(--text-muted)",
-              padding: "4px 20px 4px", opacity: 0.6,
+              padding: "0 20px 6px", opacity: 0.5,
             }}>
               Admin
             </div>
@@ -277,8 +279,7 @@ export function Sidebar() {
         )}
 
         {/* Partner card */}
-        <div style={{ padding: "8px 12px 12px" }}>
-          <div style={{ height: 1, background: "var(--border-subtle)", margin: "0 4px 10px" }} />
+        <div style={{ padding: "24px 12px 4px" }}>
           <a
             href="https://chat.whatsapp.com/Dkq2UYM0pt45pZMvQWi4u5?mode=gi_t"
             target="_blank"
@@ -287,76 +288,77 @@ export function Sidebar() {
               display: "flex", alignItems: "center", gap: 10,
               padding: "10px 12px",
               borderRadius: 10,
-              background: "var(--bg-elevated)",
-              border: "1px solid var(--border)",
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid var(--border-subtle)",
               textDecoration: "none",
               transition: "border-color 0.15s, background 0.15s",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.14)"
-              e.currentTarget.style.background = "var(--bg-hover)"
+              e.currentTarget.style.borderColor = "var(--border)"
+              e.currentTarget.style.background = "rgba(255,255,255,0.05)"
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "var(--border)"
-              e.currentTarget.style.background = "var(--bg-elevated)"
+              e.currentTarget.style.borderColor = "var(--border-subtle)"
+              e.currentTarget.style.background = "rgba(255,255,255,0.03)"
             }}
           >
             <div style={{
-              width: 32, height: 32, borderRadius: "50%",
-              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+              width: 28, height: 28, borderRadius: "50%",
+              background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)",
               display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", fontFamily: "Syne, sans-serif" }}>A</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", fontFamily: "Syne, sans-serif" }}>A</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text-primary)", lineHeight: 1.3 }}>Arthur</div>
-              <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Financial Advisor</div>
+              <div style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)", lineHeight: 1.3 }}>Arthur</div>
+              <div style={{ fontSize: 10.5, color: "var(--text-muted)", letterSpacing: "0.01em" }}>Financial Advisor</div>
             </div>
-            <MessageCircle size={13} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+            <MessageCircle size={11} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
           </a>
         </div>
       </nav>
 
       {/* User footer */}
       <div style={{
-        padding: "10px 12px",
+        padding: "12px 14px",
         borderTop: "1px solid var(--border-subtle)",
-        background: "var(--bg-surface)",
         flexShrink: 0,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Link href="/profile" style={{ flexShrink: 0 }}>
-            <Avatar src={avatar || user?.image} name={user?.name} size={32} role={role} />
+            <Avatar src={avatar || user?.image} name={user?.name} size={30} role={role} />
           </Link>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <div style={{ fontSize: 12.5, fontWeight: 500, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", letterSpacing: "0.01em" }}>
               {user?.name ?? user?.email?.split("@")[0]}
             </div>
-            <div style={{ fontSize: 10.5, color: role === "ADMIN" ? "rgba(255,255,255,0.5)" : "var(--text-muted)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 1 }}>
               {role === "ADMIN" ? "Admin" : "Member"}
             </div>
           </div>
-          <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 1, alignItems: "center" }}>
             <PushSubscribe iconOnly />
             <NotificationBell />
             {role === "ADMIN" && (
               <Link href="/admin">
-                <button style={{ background: "none", border: "none", color: "var(--text-muted)", padding: 4, borderRadius: 6, display: "flex", cursor: "pointer", transition: "color 0.1s" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)" }}
+                <button
+                  style={{ background: "none", border: "none", color: "var(--text-muted)", padding: "4px 5px", borderRadius: 6, display: "flex", cursor: "pointer", transition: "color 0.1s" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-secondary)" }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)" }}
-                  title="Admin">
-                  <Shield size={14} />
+                  title="Admin"
+                >
+                  <Shield size={13} />
                 </button>
               </Link>
             )}
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
-              style={{ background: "none", border: "none", color: "var(--text-muted)", padding: 4, borderRadius: 6, display: "flex", cursor: "pointer", transition: "color 0.1s" }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)" }}
+              style={{ background: "none", border: "none", color: "var(--text-muted)", padding: "4px 5px", borderRadius: 6, display: "flex", cursor: "pointer", transition: "color 0.1s" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-secondary)" }}
               onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)" }}
               title="Sign out"
             >
-              <LogOut size={14} />
+              <LogOut size={13} />
             </button>
           </div>
         </div>

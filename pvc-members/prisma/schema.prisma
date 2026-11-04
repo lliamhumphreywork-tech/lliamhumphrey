@@ -26,6 +26,9 @@ model User {
   updatedAt          DateTime            @updatedAt
   seeking            String?
   skills             String?
+  memberSince        DateTime?
+  renewalDate        DateTime?
+  plan               String?
   accounts           Account[]
   comments           Comment[]
   eventRSVPs         EventRSVP[]
@@ -39,7 +42,8 @@ model User {
   resources          Resource[]          @relation("UserResources")
   sessions           Session[]
   spaceMembers       SpaceMember[]
-  pushSubscriptions  PushSubscription[]
+  pushSubscriptions    PushSubscription[]
+  onboardingResponses  OnboardingResponse[]
 }
 
 model Account {
@@ -236,6 +240,8 @@ model Message {
 model OnboardingResponse {
   id          String   @id @default(cuid())
   submittedAt DateTime @default(now())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   name        String
   email       String?
   challenge   String?

@@ -5,6 +5,9 @@ import { db } from "@/lib/db"
 const FIELD_MAP: Record<string, string> = {
   "you name":                                          "name",
   "your name":                                         "name",
+  "email":                                             "email",
+  "your email":                                        "email",
+  "email address":                                     "email",
   "what's the single biggest challenge in your business right now?": "challenge",
   "what's your main goal over the next 3-6 months?":   "goal",
   "what would make pvc genuinely valuable to you?":    "valuableTo",
@@ -41,9 +44,22 @@ export async function POST(req: NextRequest) {
 
     const mapped = mapFields(fields)
 
+    // Look up portal user by email to link the response
+    const email = mapped.email ?? body?.data?.fields?.find((f: any) => f.type === 'INPUT_EMAIL')?.value ?? null
+    let userId: string | null = null
+    if (email) {
+      const user = await db.user.findUnique({
+        where: { email: email.toLowerCase().trim() },
+        select: { id: true },
+      }).catch(() => null)
+      userId = user?.id ?? null
+    }
+
     await db.onboardingResponse.create({
       data: {
+        userId:     userId,
         name:       mapped.name        ?? "Unknown",
+        email:      email,
         challenge:  mapped.challenge   ?? null,
         goal:       mapped.goal        ?? null,
         valuableTo: mapped.valuableTo  ?? null,

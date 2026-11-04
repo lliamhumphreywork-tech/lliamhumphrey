@@ -169,6 +169,10 @@ export default function ResourcesPage() {
     if (res.ok) setResources(prev => prev.filter(r => r.id !== id))
   }
 
+  function handleUpdate(id: string, patch: Partial<Resource>) {
+    setResources(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r))
+  }
+
   const canSave = title.trim() &&
     ((addMode === "file" && pendingFile) ||
      (addMode === "link" && linkUrl.trim()) ||
@@ -431,7 +435,7 @@ export default function ResourcesPage() {
           )
           return (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {filtered.map(r => <ResourceRow key={r.id} resource={r} userId={user?.id} userRole={role} onDelete={handleDelete} />)}
+              {filtered.map(r => <ResourceRow key={r.id} resource={r} userId={user?.id} userRole={role} onDelete={handleDelete} onUpdate={handleUpdate} />)}
             </div>
           )
         })()}
@@ -441,13 +445,26 @@ export default function ResourcesPage() {
   )
 }
 
-function ResourceRow({ resource: r, userId, userRole, onDelete }: {
+function ResourceRow({ resource: r, userId, userRole, onDelete, onUpdate }: {
   resource: Resource
   userId?: string
   userRole: string
   onDelete: (id: string) => void
+  onUpdate: (id: string, patch: Partial<Resource>) => void
 }) {
   const isOwner = r.uploadedBy.id === userId || userRole === "ADMIN"
+  const [editingCategory, setEditingCategory] = useState(false)
+
+  async function changeCategory(newCat: string) {
+    setEditingCategory(false)
+    if (newCat === r.category) return
+    const res = await fetch(`/api/resources/${r.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ category: newCat }),
+    })
+    if (res.ok) onUpdate(r.id, { category: newCat })
+  }
 
   const icon = r.type === "link"
     ? <Link2 size={18} style={{ color: TYPE_COLORS.link }} />
@@ -500,7 +517,52 @@ function ResourceRow({ resource: r, userId, userRole, onDelete }: {
                 </a>
               ) : r.title}
             </div>
-            {r.category && r.category !== "other" && (
+            {isOwner ? (
+              <div style={{ position: "relative", flexShrink: 0 }}>
+                <button
+                  onClick={() => setEditingCategory(x => !x)}
+                  style={{
+                    fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
+                    padding: "2px 6px", borderRadius: 4,
+                    background: r.category === "recordings" ? "rgba(167,139,250,0.12)" : r.category === "sops" ? "rgba(96,165,250,0.12)" : "rgba(255,255,255,0.05)",
+                    color: r.category === "recordings" ? "#a78bfa" : r.category === "sops" ? "#60a5fa" : "var(--text-muted)",
+                    border: "1px solid",
+                    borderColor: r.category === "recordings" ? "rgba(167,139,250,0.3)" : r.category === "sops" ? "rgba(96,165,250,0.3)" : "var(--border)",
+                    cursor: "pointer",
+                  }}>
+                  {r.category === "recordings" ? "Recording" : r.category === "sops" ? "SOP" : "Other"}
+                </button>
+                {editingCategory && (
+                  <div style={{
+                    position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 50,
+                    background: "var(--bg-elevated)", border: "1px solid var(--border)",
+                    borderRadius: 8, padding: 4, minWidth: 120,
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+                  }}>
+                    {[
+                      { key: "recordings", label: "Recording", color: "#a78bfa", bg: "rgba(167,139,250,0.12)" },
+                      { key: "sops", label: "SOP", color: "#60a5fa", bg: "rgba(96,165,250,0.12)" },
+                      { key: "other", label: "Other", color: "var(--text-muted)", bg: "rgba(255,255,255,0.05)" },
+                    ].map(opt => (
+                      <button key={opt.key} onClick={() => changeCategory(opt.key)}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 8,
+                          width: "100%", padding: "7px 10px", background: r.category === opt.key ? opt.bg : "none",
+                          border: "none", borderRadius: 6, fontSize: 12, fontWeight: r.category === opt.key ? 600 : 400,
+                          color: r.category === opt.key ? opt.color : "var(--text-secondary)",
+                          cursor: "pointer", fontFamily: "Plus Jakarta Sans, sans-serif", textAlign: "left",
+                        }}
+                        onMouseEnter={e => { if (r.category !== opt.key) (e.currentTarget as HTMLElement).style.background = "var(--bg-hover)" }}
+                        onMouseLeave={e => { if (r.category !== opt.key) (e.currentTarget as HTMLElement).style.background = "none" }}
+                      >
+                        {r.category === opt.key && <span style={{ fontSize: 9 }}>✓</span>}
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : r.category && r.category !== "other" && (
               <span style={{
                 fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
                 padding: "2px 6px", borderRadius: 4, flexShrink: 0,

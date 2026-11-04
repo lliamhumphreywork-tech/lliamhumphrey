@@ -18,6 +18,35 @@ const TEMPLATE_MEMBERSHIP_ONBOARDING = 28;
 const TEMPLATE_EVENT_CONFIRMATION    = 29;
 const BREVO_LIST_4MONTH              = 14;
 
+const POSTHOG_HOST    = 'https://eu.posthog.com';
+const POSTHOG_API_KEY = import.meta.env.POSTHOG_API_KEY ?? '';
+
+async function capturePayment(email: string, name: string, amountRands: string, paymentType: string, itemName: string, paymentId: string) {
+  if (!POSTHOG_API_KEY) return;
+  try {
+    await fetch(`${POSTHOG_HOST}/capture/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: POSTHOG_API_KEY,
+        event: 'payment_completed',
+        distinct_id: email,
+        properties: {
+          email,
+          name,
+          amount_rands: parseFloat(amountRands),
+          payment_type: paymentType,
+          item_name: itemName,
+          payment_id: paymentId,
+          $set: { email, name },
+        },
+      }),
+    });
+  } catch (e: any) {
+    console.error('[paystack-webhook] PostHog capture failed:', e.message);
+  }
+}
+
 function verifyPaystackSignature(body: string, signature: string | null, secret: string | undefined): boolean {
   if (!secret || !signature) return false;
   const hash = crypto.createHmac('sha512', secret).update(body).digest('hex');
@@ -154,6 +183,9 @@ export const POST: APIRoute = async ({ request }) => {
       failures.push('finance-entry');
       console.error(`[paystack-webhook] [${ref}] Finance entry failed:`, e.message);
     }
+
+    // 1b. PostHog payment event
+    await capturePayment(email, name, amountRands, paymentType, itemName, paymentId);
 
     // 2. CRM status update — returns page ID we need to write portal result back
     let crmPageId: string | null = null;

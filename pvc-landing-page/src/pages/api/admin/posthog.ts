@@ -45,13 +45,15 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   try {
-    const [pv7, pv30, uv7, ctaScrolled30, applyPageVisits30, submitted30, trend7, topPages] = await Promise.all([
+    const [pv7, pv30, uv7, ctaScrolled30, applyPageVisits30, submitted30, callsBooked30, payments30, trend7, topPages] = await Promise.all([
       scalar(`SELECT count() FROM events WHERE event = '$pageview' AND timestamp >= now() - toIntervalDay(7)`),
       scalar(`SELECT count() FROM events WHERE event = '$pageview' AND timestamp >= now() - toIntervalDay(30)`),
       scalar(`SELECT count(DISTINCT distinct_id) FROM events WHERE event = '$pageview' AND timestamp >= now() - toIntervalDay(7)`),
       scalar(`SELECT count() FROM events WHERE event = 'apply_cta_scrolled_past' AND timestamp >= now() - toIntervalDay(30)`),
       scalar(`SELECT count() FROM events WHERE event = 'page_viewed' AND properties.page = 'apply' AND timestamp >= now() - toIntervalDay(30)`),
       scalar(`SELECT count() FROM events WHERE event = 'application_submitted' AND timestamp >= now() - toIntervalDay(30)`),
+      scalar(`SELECT count() FROM events WHERE event = 'call_booked' AND timestamp >= now() - toIntervalDay(30)`),
+      scalar(`SELECT count() FROM events WHERE event = 'payment_completed' AND timestamp >= now() - toIntervalDay(30)`),
       rows(`SELECT toDate(timestamp) AS day, count() AS views FROM events WHERE event = '$pageview' AND timestamp >= now() - toIntervalDay(7) GROUP BY day ORDER BY day ASC`),
       rows(`SELECT properties.$pathname AS page, count() AS views FROM events WHERE event = '$pageview' AND timestamp >= now() - toIntervalDay(30) AND properties.$pathname IS NOT NULL GROUP BY page ORDER BY views DESC LIMIT 8`),
     ]);
@@ -64,6 +66,8 @@ export const GET: APIRoute = async ({ request }) => {
       ctaScrolled30:     ctaScrolled30,
       applyPageVisits30: applyPageVisits30,
       submitted30:       submitted30,
+      callsBooked30,
+      payments30,
       trend7: trend7.map((r: any[]) => ({ date: String(r[0]).slice(5), count: Number(r[1]) })),
       topPages: topPages.map((r: any[]) => ({ page: String(r[0]), count: Number(r[1]) })),
     }), { headers: { 'Content-Type': 'application/json' } });

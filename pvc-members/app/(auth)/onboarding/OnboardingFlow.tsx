@@ -62,7 +62,7 @@ const TOUR_SECTIONS = [
   {
     icon: Users,
     name: "Feed",
-    description: "The main community space. Share updates, ask questions, or just check in with the community.",
+    description: "Announcements, updates, and conversations from the community. The pulse of what's happening.",
   },
   {
     icon: Calendar,
@@ -72,12 +72,12 @@ const TOUR_SECTIONS = [
   {
     icon: Briefcase,
     name: "Talent Network",
-    description: "A curated directory of vetted talent recommended by members. Developers, designers, operators.",
+    description: "A directory of vetted talent — everyone here came through PVC's application process.",
   },
   {
     icon: BookOpen,
     name: "Resources",
-    description: "Frameworks, templates, and tools shared by the community. Things that actually move the needle.",
+    description: "Call recordings, SOPs, and frameworks from the community. The good stuff in one place.",
   },
 ]
 

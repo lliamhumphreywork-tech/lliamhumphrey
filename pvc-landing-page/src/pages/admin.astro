@@ -1109,7 +1109,7 @@ function renderMembersTab(members, subtab, q) {
   var el = document.getElementById('tab-members');
   var subtabNav =
     '<div class="subtab-row">' +
-      '<button class="subtab-btn' + (subtab === 'directory' ? ' active' : '') + '" onclick="renderMembersTab(appData.members, 'directory', '')">Directory</button>' +
+      '<button class="subtab-btn' + (subtab === 'directory' ? ' active' : '') + '" onclick="renderMembersTab(appData.members, \'directory\', \'\')">Directory</button>' +
       '<button class="subtab-btn' + (subtab === 'intros' ? ' active' : '') + '" onclick="loadIntros()">Introductions</button>' +
     '</div>';
 
@@ -1134,12 +1134,12 @@ function renderMembersTab(members, subtab, q) {
     }).join('');
     return '<tr class="clickable-row" data-id="' + m.id + '" data-rowtype="member" id="mem-' + m.id + '">' +
       '<td><div class="td-name">' + esc(m.n) + '</div><div style="font-size:11px;color:#6b7280;margin-top:2px">' + esc(m.b) + '</div></td>' +
-      '<td onclick="event.stopPropagation()"><select class="status-select ' + statusColor + '" onchange="updateMemberStatus('' + m.id + '', this)">' + statusOpts + '</select></td>' +
+      '<td onclick="event.stopPropagation()"><select class="status-select ' + statusColor + '" onchange="updateMemberStatus(\'' + m.id + '\', this)">' + statusOpts + '</select></td>' +
       '<td>' + esc(m.r) + '</td>' +
       '<td>' + (m.tier ? '<span class="badge badge-blue" style="white-space:nowrap">' + esc(m.tier) + '</span>' : '—') + '</td>' +
       '<td class="td-muted" style="font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(m.bottleneck || '—') + '</td>' +
-      '<td class="notes-cell"><span class="editable" onclick="editNotes(this, '' + m.id + '')">' + (esc(m.notes) || '<span style="color:#9ca3af">—</span>') + '</span></td>' +
-      '<td><button class="delete-btn" title="Archive" onclick="deleteEntry('' + m.id + '', document.getElementById('mem-' + m.id + ''))">✕</button></td>' +
+      '<td class="notes-cell"><span class="editable" onclick="editNotes(this, \'' + m.id + '\')">' + (esc(m.notes) || '<span style="color:#9ca3af">—</span>') + '</span></td>' +
+      '<td><button class="delete-btn" title="Archive" onclick="deleteEntry(\'' + m.id + '\', document.getElementById(\'mem-' + m.id + '\'))">✕</button></td>' +
     '</tr>';
   }).join('');
 
@@ -1148,7 +1148,7 @@ function renderMembersTab(members, subtab, q) {
     '<div class="page-sub">PVC member directory and AI-powered introductions</div>' +
     subtabNav +
     '<div class="toolbar">' +
-      '<input class="search-input" type="text" placeholder="Search name, business..." value="' + esc(q) + '" oninput="renderMembersTab(appData.members, 'directory', this.value)" />' +
+      '<input class="search-input" type="text" placeholder="Search name, business..." value="' + esc(q) + '" oninput="renderMembersTab(appData.members, \'directory\', this.value)" />' +
       '<span class="count-tag">' + filtered.length + ' of ' + members.length + '</span>' +
       '<button class="refresh-btn" onclick="loaded.members=false; loadMembers()">Refresh</button>' +
     '</div>' +

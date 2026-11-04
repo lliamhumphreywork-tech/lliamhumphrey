@@ -1038,55 +1038,169 @@ function renderAnalytics(ph) {
   var el = document.getElementById('tab-analytics');
   ph = ph || {};
 
-  var phHTML;
   if (ph.noKey) {
-    phHTML = '<div class="empty-state" style="padding:20px"><p>Add <code>POSTHOG_API_KEY</code> in Vercel to see website analytics</p></div>';
-  } else if (ph.error) {
-    phHTML = '<div class="empty-state" style="padding:20px"><p>PostHog error: ' + esc(ph.error) + '</p></div>';
-  } else {
-    var trendMax = Math.max(1, Math.max.apply(null, (ph.trend7 || []).map(function(d) { return d.count; })));
-    var trendBars = (ph.trend7 || []).map(function(d) {
-      var pct = Math.max(8, Math.round((d.count / trendMax) * 100));
-      var label = d.date ? d.date : '';
-      return '<div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">' +
-        '<div style="font-size:9px;color:var(--text-muted);font-family:var(--g);font-variant-numeric:tabular-nums;letter-spacing:0.5px">' + d.count + '</div>' +
-        '<div style="display:flex;align-items:flex-end;height:40px;width:100%;justify-content:center">' +
-          '<div style="width:3px;background:var(--navy);border-radius:99px;height:' + pct + '%;opacity:0.85"></div>' +
-        '</div>' +
-        '<div style="font-size:9px;color:var(--text-muted);font-family:var(--g);letter-spacing:0.3px">' + label + '</div>' +
-      '</div>';
-    }).join('');
-
-    var topMax = Math.max(1, Math.max.apply(null, (ph.topPages || []).map(function(p) { return p.count; })));
-    var topPagesHTML = (ph.topPages || []).map(function(p) {
-      return '<div class="bar-row">' +
-        '<div class="bar-label" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(p.page) + '</div>' +
-        '<div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + Math.round((p.count / topMax) * 100) + '%"></div></div>' +
-        '<div class="bar-count">' + p.count + '</div>' +
-      '</div>';
-    }).join('');
-
-    phHTML =
-      '<div class="stat-grid" style="margin-bottom:24px">' +
-        '<div class="stat-card"><div class="stat-label">Pageviews (7d)</div><div class="stat-num">' + (ph.pageviews7 || 0).toLocaleString() + '</div></div>' +
-        '<div class="stat-card"><div class="stat-label">Pageviews (30d)</div><div class="stat-num">' + (ph.pageviews30 || 0).toLocaleString() + '</div></div>' +
-        '<div class="stat-card"><div class="stat-label">Visitors / day (7d)</div><div class="stat-num">' + (ph.visitors7 ? Math.round(ph.visitors7 / 7) : 0) + '</div></div>' +
-        '<div class="stat-card"><div class="stat-label">Apply CTA scrolled (30d)</div><div class="stat-num">' + (ph.ctaScrolled30 || 0).toLocaleString() + '</div></div>' +
-        '<div class="stat-card"><div class="stat-label">Apply page visits (30d)</div><div class="stat-num">' + (ph.applyPageVisits30 || 0).toLocaleString() + '</div></div>' +
-        '<div class="stat-card"><div class="stat-label">Applications submitted (30d)</div><div class="stat-num">' + (ph.submitted30 || 0).toLocaleString() + '</div></div>' +
-      '</div>' +
-      '<div style="font-family:var(--g);font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">Daily pageviews — last 7 days</div>' +
-      '<div style="display:flex;align-items:stretch;gap:0;padding:0;margin-bottom:24px;background:var(--bg);border-radius:8px;padding:12px 8px">' + trendBars + '</div>' +
-      '<div style="font-family:var(--g);font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">Top pages — last 30 days</div>' +
-      '<div class="bar-chart">' + (topPagesHTML || '<p class="td-muted">No page data</p>') + '</div>';
+    el.innerHTML = '<div class="page-title">Analytics</div><div class="page-sub">Deep analytics via PostHog — landing page, apply funnel, UTMs</div>' +
+      '<div class="card"><div class="empty-state" style="padding:20px"><p>Add <code>POSTHOG_API_KEY</code> in Vercel to see analytics</p></div></div>';
+    return;
   }
+  if (ph.error) {
+    el.innerHTML = '<div class="page-title">Analytics</div><div class="page-sub">Deep analytics via PostHog — landing page, apply funnel, UTMs</div>' +
+      '<div class="card"><div class="empty-state" style="padding:20px"><p>PostHog error: ' + esc(ph.error) + '</p></div></div>';
+    return;
+  }
+
+  // ── Helpers ──
+  function minibar(val, max) {
+    var pct = Math.max(4, Math.round((val / Math.max(1, max)) * 100));
+    return '<div style="flex:1;min-width:60px;background:var(--border);border-radius:99px;height:4px"><div style="width:' + pct + '%;background:var(--navy);border-radius:99px;height:4px"></div></div>';
+  }
+  function trendChart(trend, color) {
+    var max = Math.max(1, Math.max.apply(null, (trend || []).map(function(d) { return d.count; })));
+    return (trend || []).map(function(d) {
+      var pct = Math.max(6, Math.round((d.count / max) * 100));
+      return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">' +
+        '<div style="font-size:9px;color:var(--text-muted);font-variant-numeric:tabular-nums">' + d.count + '</div>' +
+        '<div style="display:flex;align-items:flex-end;height:32px;width:100%;justify-content:center">' +
+          '<div style="width:4px;background:' + (color || 'var(--navy)') + ';border-radius:99px;height:' + pct + '%;opacity:0.85"></div>' +
+        '</div>' +
+        '<div style="font-size:9px;color:var(--text-muted)">' + esc(d.date) + '</div>' +
+      '</div>';
+    }).join('');
+  }
+  function sectionLabel(t) {
+    return '<div style="font-family:var(--g);font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin:20px 0 10px">' + t + '</div>';
+  }
+
+  // ── Funnel ──
+  var funnel = ph.funnel || [];
+  var funnelTop = funnel[0] ? funnel[0].count : 1;
+  var funnelHTML = funnel.map(function(step, i) {
+    var pct = funnelTop > 0 ? Math.round((step.count / funnelTop) * 100) : 0;
+    var fromPrev = (i > 0 && funnel[i-1].count > 0) ? Math.round((step.count / funnel[i-1].count) * 100) : null;
+    var dropLabel = fromPrev !== null ? '<span style="font-size:10px;color:' + (fromPrev < 50 ? '#ef4444' : '#10b981') + ';margin-left:8px">↓ ' + fromPrev + '% from prev</span>' : '';
+    return '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)">' +
+      '<div style="width:160px;font-size:12px;color:var(--text)">' + esc(step.label) + dropLabel + '</div>' +
+      '<div style="flex:1">' + minibar(step.count, funnelTop) + '</div>' +
+      '<div style="width:50px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:13px">' + step.count.toLocaleString() + '</div>' +
+      '<div style="width:38px;text-align:right;font-size:11px;color:var(--text-muted)">' + pct + '%</div>' +
+    '</div>';
+  }).join('');
+
+  // ── Landing trend bars ──
+  var landing = ph.landing || {};
+  var apply   = ph.apply || {};
+  var landingTrendHTML = trendChart(landing.trend7, 'var(--navy)');
+  var applyTrendHTML   = trendChart(apply.trend7, '#6366f1');
+
+  // ── UTM source table ──
+  var srcMax = Math.max(1, Math.max.apply(null, (ph.utmSources || []).map(function(r) { return r.views; })));
+  var utmSrcHTML = (ph.utmSources || []).map(function(r) {
+    var conv = r.views > 0 ? ((r.submitted / r.views) * 100).toFixed(1) : '0.0';
+    return '<tr>' +
+      '<td style="font-size:12px;padding:6px 0">' + esc(r.source) + '</td>' +
+      '<td style="padding:6px 8px">' + minibar(r.views, srcMax) + '</td>' +
+      '<td style="text-align:right;font-variant-numeric:tabular-nums;font-size:12px;padding:6px 0">' + r.views.toLocaleString() + '</td>' +
+      '<td style="text-align:right;font-size:12px;padding:6px 0 6px 12px;color:#6b7280">' + r.submitted + '</td>' +
+      '<td style="text-align:right;font-size:11px;padding:6px 0 6px 8px;color:' + (parseFloat(conv) > 5 ? '#10b981' : '#6b7280') + '">' + conv + '%</td>' +
+    '</tr>';
+  }).join('');
+
+  // ── UTM campaign table ──
+  var campMax = Math.max(1, Math.max.apply(null, (ph.utmCampaigns || []).map(function(r) { return r.views; })));
+  var utmCampHTML = (ph.utmCampaigns || []).map(function(r) {
+    var conv = r.views > 0 ? ((r.submitted / r.views) * 100).toFixed(1) : '0.0';
+    return '<tr>' +
+      '<td style="font-size:12px;padding:6px 0;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.campaign) + '</td>' +
+      '<td style="padding:6px 8px">' + minibar(r.views, campMax) + '</td>' +
+      '<td style="text-align:right;font-variant-numeric:tabular-nums;font-size:12px;padding:6px 0">' + r.views.toLocaleString() + '</td>' +
+      '<td style="text-align:right;font-size:12px;padding:6px 0 6px 12px;color:#6b7280">' + r.submitted + '</td>' +
+      '<td style="text-align:right;font-size:11px;padding:6px 0 6px 8px;color:' + (parseFloat(conv) > 5 ? '#10b981' : '#6b7280') + '">' + conv + '%</td>' +
+    '</tr>';
+  }).join('');
+
+  // ── UTM medium pills ──
+  var medMax = Math.max(1, Math.max.apply(null, (ph.utmMediums || []).map(function(r) { return r.views; })));
+  var utmMedHTML = (ph.utmMediums || []).map(function(r) {
+    var pct = Math.round((r.views / medMax) * 100);
+    return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">' +
+      '<div style="width:80px;font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.medium) + '</div>' +
+      '<div style="flex:1">' + minibar(r.views, medMax) + '</div>' +
+      '<div style="font-size:11px;font-variant-numeric:tabular-nums;color:var(--text-muted)">' + r.views.toLocaleString() + '</div>' +
+    '</div>';
+  }).join('');
 
   el.innerHTML =
     '<div class="page-title">Analytics</div>' +
-    '<div class="page-sub">Website metrics via PostHog</div>' +
+    '<div class="page-sub">Landing page, apply funnel, UTMs — last 30 days (PostHog)</div>' +
+
+    // ── Full Funnel ──
     '<div class="card">' +
-      '<div class="card-title">Website — PostHog</div>' +
-      phHTML +
+      '<div class="card-title">Full Conversion Funnel — 30 days</div>' +
+      funnelHTML +
+    '</div>' +
+
+    // ── Landing Page ──
+    '<div class="card">' +
+      '<div class="card-title">Landing Page (/)</div>' +
+      '<div class="stat-grid" style="margin-bottom:16px">' +
+        '<div class="stat-card"><div class="stat-label">Pageviews (7d)</div><div class="stat-num">' + (landing.pv7 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Pageviews (30d)</div><div class="stat-num">' + (landing.pv30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Unique visitors (30d)</div><div class="stat-num">' + (landing.uv30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">CTA scrolled past (30d)</div><div class="stat-num">' + (landing.ctaScrolled30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">CTA button clicks (30d)</div><div class="stat-num">' + (landing.ctaClicks30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">CTA → Apply conv.</div><div class="stat-num">' + (landing.pv30 > 0 ? Math.round(((ph.apply || {}).pv30 || 0) / landing.pv30 * 100) : 0) + '%</div></div>' +
+      '</div>' +
+      sectionLabel('Daily visits — 7 days') +
+      '<div style="display:flex;align-items:stretch;gap:2px;padding:12px 8px;background:var(--bg-card);border-radius:8px">' + (landingTrendHTML || '<p class="td-muted" style="padding:8px">No trend data</p>') + '</div>' +
+    '</div>' +
+
+    // ── Apply Page ──
+    '<div class="card">' +
+      '<div class="card-title">Apply Page (/apply)</div>' +
+      '<div class="stat-grid" style="margin-bottom:16px">' +
+        '<div class="stat-card"><div class="stat-label">Visits (7d)</div><div class="stat-num">' + (apply.pv7 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Visits (30d)</div><div class="stat-num">' + (apply.pv30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Submissions (30d)</div><div class="stat-num">' + (apply.submitted30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Visit → submit rate</div><div class="stat-num">' + (apply.convRate || 0) + '%</div></div>' +
+      '</div>' +
+      sectionLabel('Daily visits — 7 days') +
+      '<div style="display:flex;align-items:stretch;gap:2px;padding:12px 8px;background:var(--bg-card);border-radius:8px">' + (applyTrendHTML || '<p class="td-muted" style="padding:8px">No trend data</p>') + '</div>' +
+    '</div>' +
+
+    // ── UTM Sources ──
+    '<div class="card">' +
+      '<div class="card-title">UTM Sources — 30 days</div>' +
+      '<table style="width:100%;border-collapse:collapse">' +
+        '<thead><tr>' +
+          '<th style="text-align:left;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px">Source</th>' +
+          '<th></th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px">Views</th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px;padding-left:12px">Apps</th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px;padding-left:8px">Conv%</th>' +
+        '</tr></thead>' +
+        '<tbody>' + (utmSrcHTML || '<tr><td colspan="5" style="color:var(--text-muted);padding:8px 0;font-size:12px">No UTM data</td></tr>') + '</tbody>' +
+      '</table>' +
+    '</div>' +
+
+    // ── UTM Campaigns ──
+    '<div class="card">' +
+      '<div class="card-title">UTM Campaigns — 30 days</div>' +
+      '<table style="width:100%;border-collapse:collapse">' +
+        '<thead><tr>' +
+          '<th style="text-align:left;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px">Campaign</th>' +
+          '<th></th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px">Views</th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px;padding-left:12px">Apps</th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px;padding-left:8px">Conv%</th>' +
+        '</tr></thead>' +
+        '<tbody>' + (utmCampHTML || '<tr><td colspan="5" style="color:var(--text-muted);padding:8px 0;font-size:12px">No campaign data</td></tr>') + '</tbody>' +
+      '</table>' +
+    '</div>' +
+
+    // ── UTM Mediums ──
+    '<div class="card">' +
+      '<div class="card-title">UTM Mediums — 30 days</div>' +
+      (utmMedHTML || '<p class="td-muted">No medium data</p>') +
     '</div>';
 }
 

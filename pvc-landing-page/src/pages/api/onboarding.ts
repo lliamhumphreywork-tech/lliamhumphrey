@@ -94,6 +94,7 @@ export const POST: APIRoute = async ({ request }) => {
       heading(`Onboarding Form — ${today}`),
       heading('About'),
       paragraph(`Email: ${email}`),
+      paragraph(`Preferred name: ${preferred_name || 'Not provided'}`),
       paragraph(`Location: ${location || 'Not provided'}`),
       paragraph(`Social: ${social || 'Not provided'}`),
       heading('Business'),

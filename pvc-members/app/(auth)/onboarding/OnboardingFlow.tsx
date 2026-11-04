@@ -65,11 +65,6 @@ const TOUR_SECTIONS = [
     description: "The main community space. Share updates, ask questions, or just check in with the community.",
   },
   {
-    icon: Trophy,
-    name: "Wins",
-    description: "Post your victories, big or small. This is where we celebrate what's actually working.",
-  },
-  {
     icon: Calendar,
     name: "Events",
     description: "Upcoming dinners, masterminds, and retreats before they're announced publicly. Plus community calls.",
@@ -105,6 +100,8 @@ export function OnboardingFlow({ email }: { email: string }) {
     instagram: "",
     linkedin: "",
     website: "",
+    skills: "",
+    seeking: "",
   })
 
   useEffect(() => {
@@ -250,7 +247,7 @@ export function OnboardingFlow({ email }: { email: string }) {
               </>
             )}
 
-            {/* Step 1: Bio + location + website */}
+            {/* Step 1: Bio + location + website + community context */}
             {step === 1 && (
               <>
                 <div className="ob-field">
@@ -266,6 +263,30 @@ export function OnboardingFlow({ email }: { email: string }) {
                 </div>
                 <FieldInput label="Location" value={form.location} onChange={(v) => set("location", v)} placeholder="Cape Town, South Africa" />
                 <FieldInput label="Website" value={form.website} onChange={(v) => set("website", v)} placeholder="https://yoursite.com" type="url" />
+                <div className="ob-field">
+                  <label className="ob-label">What you bring to the room</label>
+                  <textarea
+                    className="ob-textarea"
+                    style={{ minHeight: 72 }}
+                    value={form.skills}
+                    onChange={(e) => set("skills", e.target.value)}
+                    placeholder="Skills, experience, or connections others could benefit from"
+                    onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+                    onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+                  />
+                </div>
+                <div className="ob-field">
+                  <label className="ob-label">What you&apos;re looking for</label>
+                  <textarea
+                    className="ob-textarea"
+                    style={{ minHeight: 72 }}
+                    value={form.seeking}
+                    onChange={(e) => set("seeking", e.target.value)}
+                    placeholder="What support, connections, or resources would move the needle for you?"
+                    onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+                    onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+                  />
+                </div>
               </>
             )}
 

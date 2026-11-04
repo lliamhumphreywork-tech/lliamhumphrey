@@ -1,0 +1,448 @@
+2026-06-07 23:14:18,324 [INFO] 
+==================================================
+STARTING PIPELINE: SOLAR
+==================================================
+2026-06-07 23:14:18,324 [INFO] Scraping solar — 9 searches, 5 leads target
+2026-06-07 23:14:18,324 [INFO]   → 'solar panel installers Johannesburg'
+2026-06-07 23:14:22,229 [INFO]   → 'solar installation company Gauteng'
+2026-06-07 23:14:25,860 [INFO] Raw: 10 | After dedup: 8
+2026-06-07 23:14:25,861 [INFO] Saved 5 leads → /Users/lliam/Desktop/lead-pipeline/output/solar_stage1_raw_2026-06-07.csv
+2026-06-07 23:14:25,861 [INFO] Enriching 5 leads...
+2026-06-07 23:14:25,861 [INFO]   [1/5] Solarway Suppliers
+2026-06-07 23:14:29,544 [INFO]     Score: HOT | Gaps: No Facebook Pixel | No online booking
+2026-06-07 23:14:29,545 [INFO]   [2/5] GREEN Solar Academy Johannesburg | Solar Training
+2026-06-07 23:14:35,850 [INFO]     Score: HOT | Gaps: No Facebook Pixel | No online booking | Uses WhatsApp (good)
+2026-06-07 23:14:35,851 [INFO]   [3/5] BettaSolar
+2026-06-07 23:14:46,779 [INFO]     Score: HOT | Gaps: No Facebook Pixel | No online booking | Uses WhatsApp (good)
+2026-06-07 23:14:46,780 [INFO]   [4/5] GoSolr
+2026-06-07 23:14:50,363 [INFO]     Score: HOT | Gaps: No online booking | Uses WhatsApp (good)
+2026-06-07 23:14:50,363 [INFO]   [5/5] Metrowatt Head Office
+2026-06-07 23:14:54,639 [INFO]     Score: HOT | Gaps: No online booking | Uses WhatsApp (good)
+2026-06-07 23:14:54,639 [INFO] Enrichment complete: HOT=5 WARM=0 COLD=0
+2026-06-07 23:14:54,642 [INFO] Saved 5 leads → /Users/lliam/Desktop/lead-pipeline/output/solar_stage2_enriched_2026-06-07.csv
+2026-06-07 23:14:54,642 [INFO] Running Claude on 5 actionable leads...
+2026-06-07 23:14:54,642 [INFO]   [1] Analysing: Solarway Suppliers
+2026-06-07 23:14:55,262 [ERROR] Claude API error: 404 Client Error: Not Found for url: https://api.anthropic.com/v1/messages
+2026-06-07 23:14:56,776 [ERROR] Claude API error: 404 Client Error: Not Found for url: https://api.anthropic.com/v1/messages
+2026-06-07 23:14:59,284 [INFO]   [2] Analysing: GREEN Solar Academy Johannesburg | Solar Training
+2026-06-07 23:14:59,834 [ERROR] Claude API error: 404 Client Error: Not Found for url: https://api.anthropic.com/v1/messages
+2026-06-07 23:15:01,409 [ERROR] Claude API error: 404 Client Error: Not Found for url: https://api.anthropic.com/v1/messages
+2026-06-07 23:15:03,915 [INFO]   [3] Analysing: BettaSolar
+2026-06-07 23:15:04,480 [ERROR] Claude API error: 404 Client Error: Not Found for url: https://api.anthropic.com/v1/messages
+2026-06-07 23:15:06,027 [ERROR] Claude API error: 404 Client Error: Not Found for url: https://api.anthropic.com/v1/messages
+2026-06-07 23:15:08,533 [INFO]   [4] Analysing: GoSolr
+2026-06-07 23:15:09,394 [ERROR] Claude API error: 404 Client Error: Not Found for url: https://api.anthropic.com/v1/messages
+2026-06-07 23:15:10,979 [ERROR] Claude API error: 404 Client Error: Not Found for url: https://api.anthropic.com/v1/messages
+2026-06-07 23:15:13,485 [INFO]   [5] Analysing: Metrowatt Head Office
+2026-06-07 23:15:14,046 [ERROR] Claude API error: 404 Client Error: Not Found for url: https://api.anthropic.com/v1/messages
+2026-06-07 23:15:15,844 [ERROR] Claude API error: 404 Client Error: Not Found for url: https://api.anthropic.com/v1/messages
+2026-06-07 23:15:18,348 [INFO] Saved 5 leads → /Users/lliam/Desktop/lead-pipeline/output/solar_stage3_drafted_2026-06-07.csv
+2026-06-07 23:15:18,349 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_solar_2026-06-07.csv
+2026-06-07 23:15:56,631 [INFO] 
+==================================================
+STARTING PIPELINE: SOLAR
+==================================================
+2026-06-07 23:15:56,631 [INFO] Loading existing leads from file...
+2026-06-07 23:15:56,631 [INFO] Enriching 5 leads...
+2026-06-07 23:15:56,631 [INFO]   [1/5] Solarway Suppliers
+2026-06-07 23:16:00,260 [INFO]     Score: HOT | Gaps: No Facebook Pixel | No online booking
+2026-06-07 23:16:00,261 [INFO]   [2/5] GREEN Solar Academy Johannesburg | Solar Training
+2026-06-07 23:16:07,127 [INFO]     Score: HOT | Gaps: No Facebook Pixel | No online booking | Uses WhatsApp (good)
+2026-06-07 23:16:07,128 [INFO]   [3/5] BettaSolar
+2026-06-07 23:16:18,495 [INFO]     Score: HOT | Gaps: No Facebook Pixel | No online booking | Uses WhatsApp (good)
+2026-06-07 23:16:18,495 [INFO]   [4/5] GoSolr
+2026-06-07 23:16:22,087 [INFO]     Score: HOT | Gaps: No online booking | Uses WhatsApp (good)
+2026-06-07 23:16:22,087 [INFO]   [5/5] Metrowatt Head Office
+2026-06-07 23:16:27,432 [INFO]     Score: HOT | Gaps: No online booking | Uses WhatsApp (good)
+2026-06-07 23:16:27,433 [INFO] Enrichment complete: HOT=5 WARM=0 COLD=0
+2026-06-07 23:16:27,434 [INFO] Saved 5 leads → /Users/lliam/Desktop/lead-pipeline/output/solar_stage2_enriched_2026-06-07.csv
+2026-06-07 23:16:27,434 [INFO] Running Claude on 5 actionable leads...
+2026-06-07 23:16:27,434 [INFO]   [1] Analysing: Solarway Suppliers
+2026-06-07 23:16:41,605 [INFO]   [2] Analysing: GREEN Solar Academy Johannesburg | Solar Training
+2026-06-07 23:16:56,044 [INFO]   [3] Analysing: BettaSolar
+2026-06-07 23:17:10,587 [INFO]   [4] Analysing: GoSolr
+2026-06-07 23:17:27,994 [INFO]   [5] Analysing: Metrowatt Head Office
+2026-06-07 23:17:45,685 [INFO] Saved 5 leads → /Users/lliam/Desktop/lead-pipeline/output/solar_stage3_drafted_2026-06-07.csv
+2026-06-07 23:17:45,685 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_solar_2026-06-07.csv
+2026-06-07 23:39:59,646 [INFO] 
+==================================================
+STARTING PIPELINE: HOME
+==================================================
+2026-06-07 23:39:59,646 [INFO] Scraping home — 9 searches, 3 leads target
+2026-06-07 23:39:59,646 [INFO]   → 'geyser installer Johannesburg'
+2026-06-07 23:40:03,526 [INFO]   → 'electrician Sandton'
+2026-06-07 23:40:07,572 [INFO] Raw: 10 | After dedup: 10
+2026-06-07 23:40:07,573 [INFO] Saved 3 leads → /Users/lliam/Desktop/lead-pipeline/output/home_stage1_raw_2026-06-07.csv
+2026-06-07 23:40:07,574 [INFO] Enriching 3 leads...
+2026-06-07 23:40:07,574 [INFO]   [1/3] Juspropa
+2026-06-07 23:40:10,652 [INFO]     Score: HOT | Gaps: No Facebook Pixel | No online booking | Uses WhatsApp (good)
+2026-06-07 23:40:10,653 [INFO]   [2/3] DMS Plumbing
+2026-06-07 23:40:15,180 [INFO]     Score: HOT | Gaps: No Facebook Pixel | No online booking
+2026-06-07 23:40:15,181 [INFO]   [3/3] GoGreen Plumbers
+2026-06-07 23:40:19,858 [INFO]     Score: HOT | Gaps: No lead capture form | No Facebook Pixel | No online booking | Uses WhatsApp (good)
+2026-06-07 23:40:19,860 [INFO] Enrichment complete: HOT=3 WARM=0 COLD=0
+2026-06-07 23:40:19,861 [INFO] Saved 3 leads → /Users/lliam/Desktop/lead-pipeline/output/home_stage2_enriched_2026-06-07.csv
+2026-06-07 23:40:19,861 [INFO] Running Claude on 3 actionable leads...
+2026-06-07 23:40:19,861 [INFO]   [1] Analysing: Juspropa
+2026-06-07 23:40:32,542 [INFO]   [2] Analysing: DMS Plumbing
+2026-06-07 23:40:45,445 [INFO]   [3] Analysing: GoGreen Plumbers
+2026-06-07 23:40:59,375 [INFO] Saved 3 leads → /Users/lliam/Desktop/lead-pipeline/output/home_stage3_drafted_2026-06-07.csv
+2026-06-07 23:40:59,376 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_home_2026-06-07.csv
+2026-06-11 14:20:53,845 [INFO] 
+==================================================
+STARTING PIPELINE: CLINICS
+==================================================
+2026-06-11 14:20:53,846 [INFO] Scraping clinics — 9 searches, 2 leads target
+2026-06-11 14:20:53,846 [INFO]   → 'dental practice Sandton'
+2026-06-11 14:20:57,852 [INFO] Raw: 5 | After dedup: 5
+2026-06-11 14:20:57,854 [INFO] Saved 2 leads → /Users/lliam/Desktop/lead-pipeline/output/clinics_stage1_raw_2026-06-11.csv
+2026-06-11 14:20:57,854 [INFO] Enriching 2 leads...
+2026-06-11 14:20:57,854 [INFO]   [1/2] Sandton Dental Clinic - Dr's Peer
+2026-06-11 14:21:04,643 [INFO]     Score: HOT | Gaps: No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:21:04,644 [INFO]   [2/2] Sky Dental Clinic Sandton by Dr Andrew Sidelsky
+2026-06-11 14:21:10,153 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:21:10,153 [INFO] Enrichment complete: HOT=2 WARM=0 COLD=0
+2026-06-11 14:21:10,154 [INFO] Saved 2 leads → /Users/lliam/Desktop/lead-pipeline/output/clinics_stage2_enriched_2026-06-11.csv
+2026-06-11 14:21:10,154 [INFO] Running Claude on 2 actionable leads...
+2026-06-11 14:21:10,154 [INFO]   [1] Analysing: Sandton Dental Clinic - Dr's Peer
+2026-06-11 14:21:26,156 [INFO]   [2] Analysing: Sky Dental Clinic Sandton by Dr Andrew Sidelsky
+2026-06-11 14:21:42,743 [INFO] Saved 2 leads → /Users/lliam/Desktop/lead-pipeline/output/clinics_stage3_drafted_2026-06-11.csv
+2026-06-11 14:21:42,744 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_clinics_2026-06-11.csv
+2026-06-11 14:26:09,065 [INFO] 
+==================================================
+STARTING PIPELINE: HOME
+==================================================
+2026-06-11 14:26:09,065 [INFO] Loading existing leads from file...
+2026-06-11 14:26:09,066 [INFO] Enriching 3 leads...
+2026-06-11 14:26:09,066 [INFO]   [1/3] Juspropa
+2026-06-11 14:26:12,523 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:26:12,523 [INFO]   [2/3] DMS Plumbing
+2026-06-11 14:26:16,974 [INFO]     Score: WARM | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 14:26:16,975 [INFO]   [3/3] GoGreen Plumbers
+2026-06-11 14:26:22,551 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | No lead capture form | Uses WhatsApp (good)
+2026-06-11 14:26:22,551 [INFO] Enrichment complete: HOT=2 WARM=1 COLD=0
+2026-06-11 14:26:22,553 [INFO] Saved 3 leads → /Users/lliam/Desktop/lead-pipeline/output/home_stage2_enriched_2026-06-11.csv
+2026-06-11 14:26:22,553 [INFO] Running Claude on 3 actionable leads...
+2026-06-11 14:26:22,553 [INFO]   [1] Analysing: Juspropa
+2026-06-11 14:26:37,618 [INFO]   [2] Analysing: DMS Plumbing
+2026-06-11 14:26:55,432 [INFO]   [3] Analysing: GoGreen Plumbers
+2026-06-11 14:27:11,912 [INFO] Saved 3 leads → /Users/lliam/Desktop/lead-pipeline/output/home_stage3_drafted_2026-06-11.csv
+2026-06-11 14:27:11,914 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_home_2026-06-11.csv
+2026-06-11 14:27:53,412 [INFO] 
+==================================================
+STARTING PIPELINE: SOLAR
+==================================================
+2026-06-11 14:27:53,412 [INFO] Loading existing leads from file...
+2026-06-11 14:27:53,412 [INFO] Enriching 5 leads...
+2026-06-11 14:27:53,412 [INFO]   [1/5] Solarway Suppliers
+2026-06-11 14:27:56,965 [INFO]     Score: WARM | Gaps: No online booking | No CRM detected
+2026-06-11 14:27:56,966 [INFO]   [2/5] GREEN Solar Academy Johannesburg | Solar Training
+2026-06-11 14:28:03,592 [INFO]     Score: WARM | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:28:03,593 [INFO]   [3/5] BettaSolar
+2026-06-11 14:28:09,788 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:28:09,788 [INFO]   [4/5] GoSolr
+2026-06-11 14:28:14,039 [INFO]     Score: WARM | Gaps: No online booking | Uses WhatsApp (good)
+2026-06-11 14:28:14,040 [INFO]   [5/5] Metrowatt Head Office
+2026-06-11 14:28:18,142 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | Uses WhatsApp (good)
+2026-06-11 14:28:18,142 [INFO] Enrichment complete: HOT=2 WARM=3 COLD=0
+2026-06-11 14:28:18,143 [INFO] Saved 5 leads → /Users/lliam/Desktop/lead-pipeline/output/solar_stage2_enriched_2026-06-11.csv
+2026-06-11 14:28:18,143 [INFO] Running Claude on 5 actionable leads...
+2026-06-11 14:28:18,143 [INFO]   [1] Analysing: Solarway Suppliers
+2026-06-11 14:28:35,892 [INFO]   [2] Analysing: GREEN Solar Academy Johannesburg | Solar Training
+2026-06-11 14:28:54,628 [INFO]   [3] Analysing: BettaSolar
+2026-06-11 14:29:12,087 [INFO]   [4] Analysing: GoSolr
+2026-06-11 14:29:30,325 [INFO]   [5] Analysing: Metrowatt Head Office
+2026-06-11 14:29:47,623 [INFO] Saved 5 leads → /Users/lliam/Desktop/lead-pipeline/output/solar_stage3_drafted_2026-06-11.csv
+2026-06-11 14:29:47,625 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_solar_2026-06-11.csv
+2026-06-11 14:30:44,724 [INFO] 
+==================================================
+STARTING PIPELINE: HOME
+==================================================
+2026-06-11 14:30:44,724 [INFO] Scraping home — 9 searches, 10 leads target
+2026-06-11 14:30:44,724 [INFO]   → 'geyser installer Johannesburg'
+2026-06-11 14:30:55,240 [INFO]   → 'electrician Sandton'
+2026-06-11 14:31:04,539 [INFO]   → 'emergency electrician Johannesburg'
+2026-06-11 14:31:13,204 [INFO]   → 'pest control Johannesburg'
+2026-06-11 14:31:20,247 [INFO] Raw: 20 | After dedup: 19
+2026-06-11 14:31:20,249 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/home_stage1_raw_2026-06-11.csv
+2026-06-11 14:31:20,249 [INFO] Enriching 10 leads...
+2026-06-11 14:31:20,249 [INFO]   [1/10] Hotwater24
+2026-06-11 14:31:37,191 [INFO]     Score: COLD | Gaps: No online booking | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:31:37,192 [INFO]   [2/10] Gas Matter Pty Ltd
+2026-06-11 14:31:49,893 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:31:49,894 [INFO]   [3/10] Seke Gas Installations
+2026-06-11 14:32:06,648 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:32:06,649 [INFO]   [4/10] Juspropa
+2026-06-11 14:32:13,980 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:32:13,981 [INFO]   [5/10] GoGreen Plumbers
+2026-06-11 14:32:32,789 [INFO]     Score: HOT | Gaps: Error: HTTPSConnectionPool(host='gogreenplumbers.co.za', port=443): Read timed out. (re
+2026-06-11 14:32:32,791 [INFO]   [6/10] Rus Electrical
+2026-06-11 14:32:47,458 [INFO]     Score: HOT | Gaps: Error: HTTPSConnectionPool(host='www.snupit.co.za', port=443): Read timed out. (read ti
+2026-06-11 14:32:47,460 [INFO]   [7/10] Sandton Emergency Electricians
+2026-06-11 14:32:47,460 [INFO]     Score: WARM | Gaps: 
+2026-06-11 14:32:47,460 [INFO]   [8/10] Total Electric - Trusted Electricians
+2026-06-11 14:32:50,868 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | No lead capture form
+2026-06-11 14:32:50,868 [INFO]   [9/10] Electricians-SA and Plumbers
+2026-06-11 14:32:58,817 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | No lead capture form
+2026-06-11 14:32:58,819 [INFO]   [10/10] MU Edenburg Plumbers & Electricians- Sandton
+2026-06-11 14:32:58,826 [INFO]     Score: HOT | Gaps: 
+2026-06-11 14:32:58,827 [INFO] Enrichment complete: HOT=8 WARM=1 COLD=1
+2026-06-11 14:32:58,828 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/home_stage2_enriched_2026-06-11.csv
+2026-06-11 14:32:58,828 [INFO] Running Claude on 9 actionable leads...
+2026-06-11 14:32:58,828 [INFO]   [2] Analysing: Gas Matter Pty Ltd
+2026-06-11 14:33:25,139 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Read timed out. (read timeout=30)
+2026-06-11 14:33:56,242 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Read timed out. (read timeout=30)
+2026-06-11 14:33:58,744 [INFO]   [3] Analysing: Seke Gas Installations
+2026-06-11 14:34:28,822 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Read timed out. (read timeout=30)
+2026-06-11 14:34:29,836 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:32,337 [INFO]   [4] Analysing: Juspropa
+2026-06-11 14:34:32,342 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:33,353 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:35,853 [INFO]   [5] Analysing: GoGreen Plumbers
+2026-06-11 14:34:35,857 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:36,868 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:39,373 [INFO]   [6] Analysing: Rus Electrical
+2026-06-11 14:34:39,380 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:40,390 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:42,896 [INFO]   [7] Analysing: Sandton Emergency Electricians
+2026-06-11 14:34:42,926 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:43,935 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:46,438 [INFO]   [8] Analysing: Total Electric - Trusted Electricians
+2026-06-11 14:34:46,445 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:47,455 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:49,960 [INFO]   [9] Analysing: Electricians-SA and Plumbers
+2026-06-11 14:34:49,966 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:50,979 [ERROR] Claude API error: HTTPSConnectionPool(host='api.anthropic.com', port=443): Max retries exceeded with url: /v1/messages (Caused by NameResolutionError("HTTPSConnection(host='api.anthropic.com', port=443): Failed to resolve 'api.anthropic.com' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-06-11 14:34:53,485 [INFO]   [10] Analysing: MU Edenburg Plumbers & Electricians- Sandton
+2026-06-11 14:35:10,650 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/home_stage3_drafted_2026-06-11.csv
+2026-06-11 14:35:10,651 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_home_2026-06-11.csv
+2026-06-11 14:38:33,110 [INFO] 
+==================================================
+STARTING PIPELINE: HOME
+==================================================
+2026-06-11 14:38:33,111 [INFO] Loading existing leads from file...
+2026-06-11 14:38:33,111 [INFO] Enriching 10 leads...
+2026-06-11 14:38:33,111 [INFO]   [1/10] Hotwater24
+2026-06-11 14:38:56,660 [INFO]     Score: COLD | Gaps: No online booking | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:38:56,661 [INFO]   [2/10] Gas Matter Pty Ltd
+2026-06-11 14:39:07,106 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:39:07,107 [INFO]   [3/10] Seke Gas Installations
+2026-06-11 14:39:30,418 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:39:30,418 [INFO]   [4/10] Juspropa
+2026-06-11 14:39:43,484 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:39:43,484 [INFO]   [5/10] GoGreen Plumbers
+2026-06-11 14:40:02,230 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | No lead capture form | Uses WhatsApp (good)
+2026-06-11 14:40:02,231 [INFO]   [6/10] Rus Electrical
+2026-06-11 14:40:10,087 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 14:40:10,087 [INFO]   [7/10] Sandton Emergency Electricians
+2026-06-11 14:40:10,088 [INFO]     Score: WARM | Gaps: 
+2026-06-11 14:40:10,088 [INFO]   [8/10] Total Electric - Trusted Electricians
+2026-06-11 14:40:28,672 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:40:28,673 [INFO]   [9/10] Electricians-SA and Plumbers
+2026-06-11 14:40:40,166 [INFO]     Score: HOT | Gaps: No online booking | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:40:40,166 [INFO]   [10/10] MU Edenburg Plumbers & Electricians- Sandton
+2026-06-11 14:40:40,166 [INFO]     Score: HOT | Gaps: 
+2026-06-11 14:40:40,166 [INFO] Enrichment complete: HOT=8 WARM=1 COLD=1
+2026-06-11 14:40:40,169 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/home_stage2_enriched_2026-06-11.csv
+2026-06-11 14:40:40,169 [INFO] Running Claude on 9 actionable leads...
+2026-06-11 14:40:40,169 [INFO]   [2] Analysing: Gas Matter Pty Ltd
+2026-06-11 14:41:04,536 [INFO]   [3] Analysing: Seke Gas Installations
+2026-06-11 14:41:19,954 [INFO]   [4] Analysing: Juspropa
+2026-06-11 14:41:36,890 [INFO]   [5] Analysing: GoGreen Plumbers
+2026-06-11 14:41:53,824 [INFO]   [6] Analysing: Rus Electrical
+2026-06-11 14:42:08,740 [INFO]   [7] Analysing: Sandton Emergency Electricians
+2026-06-11 14:42:25,586 [INFO]   [8] Analysing: Total Electric - Trusted Electricians
+2026-06-11 14:42:43,155 [INFO]   [9] Analysing: Electricians-SA and Plumbers
+2026-06-11 14:42:58,821 [INFO]   [10] Analysing: MU Edenburg Plumbers & Electricians- Sandton
+2026-06-11 14:43:15,285 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/home_stage3_drafted_2026-06-11.csv
+2026-06-11 14:43:15,287 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_home_2026-06-11.csv
+2026-06-11 14:45:39,095 [INFO] 
+==================================================
+STARTING PIPELINE: SOLAR
+==================================================
+2026-06-11 14:45:39,096 [INFO] Scraping solar — 9 searches, 10 leads target
+2026-06-11 14:45:39,096 [INFO]   → 'solar panel installers Johannesburg'
+2026-06-11 14:45:44,407 [INFO]   → 'solar installation company Gauteng'
+2026-06-11 14:45:49,435 [INFO]   → 'solar energy company Sandton'
+2026-06-11 14:45:53,861 [INFO]   → 'solar power installers Midrand'
+2026-06-11 14:45:58,828 [INFO] Raw: 20 | After dedup: 14
+2026-06-11 14:45:58,831 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/solar_stage1_raw_2026-06-11.csv
+2026-06-11 14:45:58,831 [INFO] Enriching 10 leads...
+2026-06-11 14:45:58,831 [INFO]   [1/10] Solarway Suppliers
+2026-06-11 14:46:03,629 [INFO]     Score: WARM | Gaps: No online booking | No CRM detected
+2026-06-11 14:46:03,629 [INFO]   [2/10] GREEN Solar Academy Johannesburg | Solar Training
+2026-06-11 14:46:11,028 [INFO]     Score: WARM | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:46:11,029 [INFO]   [3/10] BettaSolar
+2026-06-11 14:46:23,195 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:46:23,196 [INFO]   [4/10] Metrowatt Head Office
+2026-06-11 14:46:30,977 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | Uses WhatsApp (good)
+2026-06-11 14:46:30,978 [INFO]   [5/10] GoSolr
+2026-06-11 14:46:38,682 [INFO]     Score: WARM | Gaps: No online booking | Uses WhatsApp (good)
+2026-06-11 14:46:38,683 [INFO]   [6/10] Sigma Energy Gauteng
+2026-06-11 14:46:51,009 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:46:51,009 [INFO]   [7/10] SOCO ENERGY
+2026-06-11 14:46:56,945 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 14:46:56,946 [INFO]   [8/10] SOLAR SYSTEMS: Greentech Energy Solutions And Electrical Services
+2026-06-11 14:47:03,623 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 14:47:03,625 [INFO]   [9/10] Versofy Solar
+2026-06-11 14:47:15,327 [INFO]     Score: WARM | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 14:47:15,327 [INFO]   [10/10] Solar warehouse sandton
+2026-06-11 14:47:20,877 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:47:20,877 [INFO] Enrichment complete: HOT=6 WARM=4 COLD=0
+2026-06-11 14:47:20,880 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/solar_stage2_enriched_2026-06-11.csv
+2026-06-11 14:47:20,880 [INFO] Running Claude on 10 actionable leads...
+2026-06-11 14:47:20,880 [INFO]   [1] Analysing: Solarway Suppliers
+2026-06-11 14:47:42,259 [INFO]   [2] Analysing: GREEN Solar Academy Johannesburg | Solar Training
+2026-06-11 14:48:01,191 [INFO]   [3] Analysing: BettaSolar
+2026-06-11 14:48:18,267 [INFO]   [4] Analysing: Metrowatt Head Office
+2026-06-11 14:48:36,409 [INFO]   [5] Analysing: GoSolr
+2026-06-11 14:48:55,123 [INFO]   [6] Analysing: Sigma Energy Gauteng
+2026-06-11 14:49:15,007 [INFO]   [7] Analysing: SOCO ENERGY
+2026-06-11 14:49:31,886 [INFO]   [8] Analysing: SOLAR SYSTEMS: Greentech Energy Solutions And Electrical Services
+2026-06-11 14:49:50,160 [INFO]   [9] Analysing: Versofy Solar
+2026-06-11 14:50:07,566 [INFO]   [10] Analysing: Solar warehouse sandton
+2026-06-11 14:50:24,570 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/solar_stage3_drafted_2026-06-11.csv
+2026-06-11 14:50:24,573 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_solar_2026-06-11.csv
+2026-06-11 14:50:39,894 [INFO] 
+==================================================
+STARTING PIPELINE: CLINICS
+==================================================
+2026-06-11 14:50:39,894 [INFO] Scraping clinics — 9 searches, 10 leads target
+2026-06-11 14:50:39,894 [INFO]   → 'dental practice Sandton'
+2026-06-11 14:50:42,618 [INFO]   → 'dentist Johannesburg'
+2026-06-11 14:50:47,916 [INFO]   → 'aesthetic clinic Johannesburg'
+2026-06-11 14:50:51,909 [INFO]   → 'cosmetic clinic Bryanston'
+2026-06-11 14:50:56,752 [INFO] Raw: 20 | After dedup: 20
+2026-06-11 14:50:56,753 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/clinics_stage1_raw_2026-06-11.csv
+2026-06-11 14:50:56,753 [INFO] Enriching 10 leads...
+2026-06-11 14:50:56,753 [INFO]   [1/10] Sandton Dental Clinic - Dr's Peer
+2026-06-11 14:51:02,948 [INFO]     Score: HOT | Gaps: No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:51:02,949 [INFO]   [2/10] Sky Dental Clinic Sandton by Dr Andrew Sidelsky
+2026-06-11 14:51:08,228 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:51:08,228 [INFO]   [3/10] Pravoma Dental Clinic SANDTON
+2026-06-11 14:51:12,871 [INFO]     Score: HOT | Gaps: No chatbot/AI assistant | No CRM detected | No lead capture form | Uses WhatsApp (good)
+2026-06-11 14:51:12,871 [INFO]   [4/10] Sandton Dental Studio-Dr Wynand van der Merwe
+2026-06-11 14:51:20,233 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 14:51:20,233 [INFO]   [5/10] Dr Jack Shih (Dentist)
+2026-06-11 14:51:25,607 [INFO]     Score: HOT | Gaps: No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 14:51:25,607 [INFO]   [6/10] Houghton Dental
+2026-06-11 14:51:49,006 [INFO]     Score: HOT | Gaps: Error: HTTPSConnectionPool(host='www.houghtondental.co.za', port=443): Read timed out. 
+2026-06-11 14:51:49,007 [INFO]   [7/10] Joburg Dental -Periodontist- Dr Rakesh Chandran
+2026-06-11 14:52:03,793 [INFO]     Score: WARM | Gaps: Error: HTTPSConnectionPool(host='joburgdental.co.za', port=443): Read timed out. (read 
+2026-06-11 14:52:03,795 [INFO]   [8/10] ZIYAAD DENTAL SURGERY
+2026-06-11 14:52:07,402 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 14:52:07,403 [INFO]   [9/10] Melrose Dental Studio
+2026-06-11 14:52:11,751 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | No lead capture form
+2026-06-11 14:52:11,751 [INFO]   [10/10] Legae dental care
+2026-06-11 14:52:16,598 [INFO]     Score: HOT | Gaps: No chatbot/AI assistant | No CRM detected | No lead capture form
+2026-06-11 14:52:16,598 [INFO] Enrichment complete: HOT=9 WARM=1 COLD=0
+2026-06-11 14:52:16,600 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/clinics_stage2_enriched_2026-06-11.csv
+2026-06-11 14:52:16,600 [INFO] Running Claude on 10 actionable leads...
+2026-06-11 14:52:16,600 [INFO]   [1] Analysing: Sandton Dental Clinic - Dr's Peer
+2026-06-11 14:52:32,857 [INFO]   [2] Analysing: Sky Dental Clinic Sandton by Dr Andrew Sidelsky
+2026-06-11 14:52:49,244 [INFO]   [3] Analysing: Pravoma Dental Clinic SANDTON
+2026-06-11 14:53:06,993 [INFO]   [4] Analysing: Sandton Dental Studio-Dr Wynand van der Merwe
+2026-06-11 14:53:22,953 [INFO]   [5] Analysing: Dr Jack Shih (Dentist)
+2026-06-11 14:53:38,857 [INFO]   [6] Analysing: Houghton Dental
+2026-06-11 14:53:55,348 [INFO]   [7] Analysing: Joburg Dental -Periodontist- Dr Rakesh Chandran
+2026-06-11 14:54:11,416 [INFO]   [8] Analysing: ZIYAAD DENTAL SURGERY
+2026-06-11 14:54:28,268 [INFO]   [9] Analysing: Melrose Dental Studio
+2026-06-11 14:54:46,915 [INFO]   [10] Analysing: Legae dental care
+2026-06-11 14:55:07,055 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/clinics_stage3_drafted_2026-06-11.csv
+2026-06-11 14:55:07,058 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_clinics_2026-06-11.csv
+2026-06-11 15:03:40,263 [INFO] 
+==================================================
+STARTING PIPELINE: PROFESSIONAL
+==================================================
+2026-06-11 15:03:40,263 [INFO] Scraping professional — 9 searches, 10 leads target
+2026-06-11 15:03:40,263 [INFO]   → 'accounting firm Sandton'
+2026-06-11 15:03:44,420 [INFO]   → 'bookkeeping services Johannesburg'
+2026-06-11 15:03:48,878 [INFO]   → 'law firm Sandton'
+2026-06-11 15:03:52,465 [INFO]   → 'attorneys Johannesburg'
+2026-06-11 15:03:56,974 [INFO]   → 'tax practitioner Johannesburg'
+2026-06-11 15:04:01,094 [INFO]   → 'business consulting firm Johannesburg'
+2026-06-11 15:04:11,017 [INFO] Raw: 22 | After dedup: 22
+2026-06-11 15:04:11,020 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/professional_stage1_raw_2026-06-11.csv
+2026-06-11 15:04:11,020 [INFO] Enriching 10 leads...
+2026-06-11 15:04:11,020 [INFO]   [1/10] KMBFS Accountants and Tax Practitioners
+2026-06-11 15:04:14,368 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 15:04:14,368 [INFO]   [2/10] Zuva Financial Services
+2026-06-11 15:04:22,864 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 15:04:22,865 [INFO]   [3/10] NUE Chartered Accountants and Registered Auditors Inc.
+2026-06-11 15:04:27,478 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 15:04:27,478 [INFO]   [4/10] GAS Accounting
+2026-06-11 15:04:31,160 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | Uses WhatsApp (good)
+2026-06-11 15:04:31,161 [INFO]   [5/10] PGCO
+2026-06-11 15:04:38,043 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 15:04:38,044 [INFO]   [6/10] CFO360 - Accounting, tax, payroll and bookkeeping services
+2026-06-11 15:04:41,382 [INFO]     Score: HOT | Gaps: No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 15:04:41,383 [INFO]   [7/10] Total Bookkeeping Solutions
+2026-06-11 15:04:44,288 [INFO]     Score: WARM | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | No lead capture form
+2026-06-11 15:04:44,289 [INFO]   [8/10] Induyakha Group | Bookkeeping & Accounting Services
+2026-06-11 15:04:50,781 [INFO]     Score: HOT | Gaps: No online booking | No CRM detected | No lead capture form
+2026-06-11 15:04:50,782 [INFO]   [9/10] MBS Accounting Services (Pty) Ltd
+2026-06-11 15:04:50,782 [INFO]     Score: HOT | Gaps: 
+2026-06-11 15:04:50,782 [INFO]   [10/10] Q-Tax & Bookkeeping Inc | Accounting and Taxation Solutions
+2026-06-11 15:04:55,488 [INFO]     Score: WARM | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 15:04:55,488 [INFO] Enrichment complete: HOT=8 WARM=2 COLD=0
+2026-06-11 15:04:55,490 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/professional_stage2_enriched_2026-06-11.csv
+2026-06-11 15:04:55,490 [INFO] Running Claude on 10 actionable leads...
+2026-06-11 15:04:55,490 [INFO]   [1] Analysing: KMBFS Accountants and Tax Practitioners
+2026-06-11 15:05:16,930 [INFO]   [2] Analysing: Zuva Financial Services
+2026-06-11 15:05:42,277 [INFO]   [3] Analysing: NUE Chartered Accountants and Registered Auditors Inc.
+2026-06-11 15:06:02,655 [INFO]   [4] Analysing: GAS Accounting
+2026-06-11 15:06:21,957 [INFO]   [5] Analysing: PGCO
+2026-06-11 15:06:43,162 [INFO]   [6] Analysing: CFO360 - Accounting, tax, payroll and bookkeeping services
+2026-06-11 15:07:03,071 [INFO]   [7] Analysing: Total Bookkeeping Solutions
+2026-06-11 15:07:23,547 [INFO]   [8] Analysing: Induyakha Group | Bookkeeping & Accounting Services
+2026-06-11 15:07:47,207 [INFO]   [9] Analysing: MBS Accounting Services (Pty) Ltd
+2026-06-11 15:08:07,819 [INFO]   [10] Analysing: Q-Tax & Bookkeeping Inc | Accounting and Taxation Solutions
+2026-06-11 15:08:28,185 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/professional_stage3_drafted_2026-06-11.csv
+2026-06-11 15:08:28,187 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_professional_2026-06-11.csv
+2026-06-11 15:08:40,717 [INFO] 
+==================================================
+STARTING PIPELINE: LOGISTICS
+==================================================
+2026-06-11 15:08:40,718 [INFO] Scraping logistics — 8 searches, 10 leads target
+2026-06-11 15:08:40,718 [INFO]   → 'courier company Johannesburg'
+2026-06-11 15:08:44,721 [INFO]   → 'logistics company Gauteng'
+2026-06-11 15:08:48,358 [INFO]   → 'freight forwarding Johannesburg'
+2026-06-11 15:08:54,915 [INFO]   → 'transport company Johannesburg'
+2026-06-11 15:08:59,200 [INFO]   → 'warehousing company Gauteng'
+2026-06-11 15:09:03,079 [INFO] Raw: 24 | After dedup: 22
+2026-06-11 15:09:03,081 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/logistics_stage1_raw_2026-06-11.csv
+2026-06-11 15:09:03,081 [INFO] Enriching 10 leads...
+2026-06-11 15:09:03,082 [INFO]   [1/10] Aerospeed Couriers
+2026-06-11 15:09:06,793 [INFO]     Score: HOT | Gaps: No chatbot/AI assistant | No CRM detected
+2026-06-11 15:09:06,793 [INFO]   [2/10] Postex Couriers
+2026-06-11 15:09:10,163 [INFO]     Score: COLD | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 15:09:10,164 [INFO]   [3/10] Fastway Couriers (Johannesburg)
+2026-06-11 15:09:16,382 [INFO]     Score: WARM | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 15:09:16,383 [INFO]   [4/10] MDS Collivery.net
+2026-06-11 15:09:20,000 [INFO]     Score: WARM | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 15:09:20,000 [INFO]   [5/10] Just-In-Time Logistics
+2026-06-11 15:09:26,745 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected | Uses WhatsApp (good)
+2026-06-11 15:09:26,745 [INFO]   [6/10] Strata Logistics
+2026-06-11 15:09:31,354 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 15:09:31,354 [INFO]   [7/10] Rhenus Logistics (Pty) Ltd
+2026-06-11 15:09:35,100 [INFO]     Score: WARM | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 15:09:35,100 [INFO]   [8/10] Nace Logistics
+2026-06-11 15:09:40,517 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 15:09:40,517 [INFO]   [9/10] Natloc Logistics
+2026-06-11 15:09:43,941 [INFO]     Score: HOT | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 15:09:43,941 [INFO]   [10/10] Cargo Compass SA (Johannesburg)
+2026-06-11 15:09:47,381 [INFO]     Score: WARM | Gaps: No online booking | No chatbot/AI assistant | No CRM detected
+2026-06-11 15:09:47,382 [INFO] Enrichment complete: HOT=5 WARM=4 COLD=1
+2026-06-11 15:09:47,386 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/logistics_stage2_enriched_2026-06-11.csv
+2026-06-11 15:09:47,386 [INFO] Running Claude on 9 actionable leads...
+2026-06-11 15:09:47,386 [INFO]   [1] Analysing: Aerospeed Couriers
+2026-06-11 15:10:09,131 [INFO]   [3] Analysing: Fastway Couriers (Johannesburg)
+2026-06-11 15:10:29,205 [INFO]   [4] Analysing: MDS Collivery.net
+2026-06-11 15:10:51,062 [INFO]   [5] Analysing: Just-In-Time Logistics
+2026-06-11 15:11:11,452 [INFO]   [6] Analysing: Strata Logistics
+2026-06-11 15:11:31,141 [INFO]   [7] Analysing: Rhenus Logistics (Pty) Ltd
+2026-06-11 15:11:52,040 [INFO]   [8] Analysing: Nace Logistics
+2026-06-11 15:12:12,020 [INFO]   [9] Analysing: Natloc Logistics
+2026-06-11 15:12:33,821 [INFO]   [10] Analysing: Cargo Compass SA (Johannesburg)
+2026-06-11 15:12:52,694 [INFO] Saved 10 leads → /Users/lliam/Desktop/lead-pipeline/output/logistics_stage3_drafted_2026-06-11.csv
+2026-06-11 15:12:52,697 [INFO] Final output: /Users/lliam/Desktop/lead-pipeline/output/leads_logistics_2026-06-11.csv

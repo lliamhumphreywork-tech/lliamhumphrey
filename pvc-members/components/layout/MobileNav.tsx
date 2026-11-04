@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { Home, Users, Calendar, MessageSquare, Grid2x2, X, Trophy, BookOpen, Network, MessageCircle } from "lucide-react"
+import { Home, Users, Calendar, MessageSquare, Grid2x2, X, BookOpen, Network, MessageCircle } from "lucide-react"
 
 const mainItems = [
   { href: "/feed", icon: Home, label: "Feed" },
@@ -13,7 +13,6 @@ const mainItems = [
 ]
 
 const spaceItems = [
-  { href: "/spaces/wins", icon: Trophy, label: "Wins" },
   { href: "/spaces/resources", icon: BookOpen, label: "Info Library" },
   { href: "/spaces/talent-network", icon: Network, label: "Talent" },
 ]

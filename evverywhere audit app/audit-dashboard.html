@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Evverywhere Proprietary Audit System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --cream: #EAE3D9; --cream-2: #E2DAD0; --cream-3: #D8D0C5;
+      --ink: #1A1612; --ink-2: #2E2924; --muted: #8A7F73;
+      --line: #CEC6BA; --red: #BF3E28;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --mono: 'Courier New', 'Lucida Console', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--mono); background: var(--cream); color: var(--ink); }
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: block; }
+
+    /* ─── SHARED NAV ─── */
+    .top-nav {
+      background: var(--cream); border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 56px; position: sticky; top: 0; z-index: 100;
+    }
+    .top-nav-brand { font-family: var(--serif); font-size: 17px; }
+    .top-nav-brand em { font-style: italic; }
+    .top-nav-actions { display: flex; gap: 12px; }
+    .btn-ghost {
+      font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase;
+      background: none; border: 1px solid var(--line); color: var(--muted);
+      padding: 7px 16px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+    .btn-solid {
+      font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase;
+      background: var(--ink); color: var(--cream); border: 1px solid var(--ink);
+      padding: 9px 24px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-solid:hover { background: var(--ink-2); }
+
+    /* ─── SETUP FORM ─── */
+    .setup-body { max-width: 860px; margin: 0 auto; padding: 64px 48px 140px; }
+    .setup-intro { margin-bottom: 64px; }
+    .setup-intro h1 { font-family: var(--serif); font-size: clamp(44px, 5vw, 68px); font-weight: 300; line-height: 1.0; letter-spacing: -0.02em; margin-bottom: 14px; }
+    .setup-intro h1 em { font-style: italic; }
+    .setup-intro p { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); line-height: 2.2; }
+
+    .fs { margin-bottom: 64px; }
+    .fs-head { display: flex; align-items: baseline; gap: 20px; border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 36px; }
+    .fs-num { font-size: 9px; letter-spacing: 0.16em; color: var(--muted); }
+    .fs-title { font-family: var(--serif); font-size: 22px; font-weight: 400; }
+
+    .fg { display: grid; gap: 28px; margin-bottom: 28px; }
+    .fg2 { grid-template-columns: 1fr 1fr; }
+    .fg3 { grid-template-columns: 1fr 1fr 1fr; }
+    .fg4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+    .field label {
+      display: block; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .field input, .field textarea, .field select {
+      width: 100%; background: none; border: none; border-bottom: 1px solid var(--line);
+      font-family: var(--serif); font-size: 18px; font-weight: 300; color: var(--ink);
+      padding: 6px 0 10px; outline: none; transition: border-color 0.2s; border-radius: 0;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus { border-bottom-color: var(--ink); }
+    .field input::placeholder, .field textarea::placeholder { color: var(--line); font-style: italic; }
+    .field textarea { resize: vertical; min-height: 68px; line-height: 1.5; }
+    .field select { -webkit-appearance: none; cursor: pointer; }
+
+    .dyn-row { background: var(--cream-2); border: 1px solid var(--line); padding: 24px 28px; margin-bottom: 10px; }
+    .dyn-row-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .dyn-row-lbl { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+    .btn-rm { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: none; border: none; cursor: pointer; }
+    .btn-rm:hover { color: var(--red); }
+    .btn-add-row {
+      width: 100%; margin-top: 6px; padding: 12px; font-family: var(--mono);
+      font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+      background: none; border: 1px dashed var(--line); cursor: pointer; transition: all 0.2s;
+    }
+    .btn-add-row:hover { border-color: var(--ink); color: var(--ink); }
+
+    .act-row { display: grid; grid-template-columns: 1fr 120px; gap: 20px; margin-bottom: 12px; align-items: end; }
+
+    .setup-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 99;
+      background: var(--ink); display: flex; align-items: center;
+      justify-content: space-between; padding: 14px 48px;
+    }
+    .setup-bar span { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(234,227,217,0.35); }
+    .btn-generate {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+      background: var(--cream); color: var(--ink); border: none; padding: 14px 44px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-generate:hover { background: rgba(234,227,217,0.85); }
+
+    /* ─── DASHBOARD NAV ─── */
+    #ds nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: var(--cream); border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 56px;
+    }
+    .db-brand { font-family: var(--serif); font-size: 16px; }
+    .db-brand em { font-style: italic; }
+    .db-links { display: flex; gap: 36px; }
+    .db-links a { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .db-links a:hover { color: var(--ink); }
+    .db-nav-r { display: flex; gap: 12px; }
+    .db-edit { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); background: none; border: 1px solid var(--line); padding: 6px 14px; cursor: pointer; transition: all 0.2s; }
+    .db-edit:hover { color: var(--ink); border-color: var(--ink); }
+    .db-cta { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cream); background: var(--ink); border: 1px solid var(--ink); padding: 8px 18px; cursor: pointer; }
+
+    /* ─── DASHBOARD INFO BAR ─── */
+    #ds .info-bar {
+      position: fixed; top: 56px; left: 0; right: 0; z-index: 99;
+      background: var(--cream); border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 32px;
+      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+    }
+    .info-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); display: inline-block; margin-right: 8px; animation: pulse 2.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ─── DASHBOARD BODY ─── */
+    #ds .hero { padding: 148px 40px 80px; border-bottom: 1px solid var(--line); }
+    #ds .hero-top { display: flex; justify-content: space-between; margin-bottom: 60px; }
+    #ds .hero-lbl { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); line-height: 1.8; }
+    #ds .hero-lbl.right { text-align: right; }
+    #ds h1.big { font-family: var(--serif); font-size: clamp(54px, 8vw, 108px); font-weight: 300; line-height: 0.92; letter-spacing: -0.02em; margin-bottom: 48px; }
+    #ds h1.big em { font-style: italic; }
+    #ds .hero-stats { display: grid; grid-template-columns: repeat(4,1fr); border-top: 1px solid var(--line); }
+    #ds .h-stat { padding: 28px 32px 0 0; border-right: 1px solid var(--line); }
+    #ds .h-stat:last-child { border-right: none; }
+    #ds .h-stat-lbl { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    #ds .h-stat-val { font-family: var(--serif); font-size: 28px; font-weight: 400; }
+
+    #ds .val-hero { padding: 80px 40px; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: end; }
+    #ds .val-lbl { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+    #ds .val-num { font-family: var(--serif); font-size: clamp(56px,7vw,96px); font-weight: 300; line-height: 1; letter-spacing: -0.02em; }
+    #ds .val-sub { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 14px; line-height: 2; }
+    #ds .val-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); }
+    #ds .vg-item { padding: 22px 26px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    #ds .vg-item:nth-child(even) { border-right: none; }
+    #ds .vg-item:nth-child(3), #ds .vg-item:nth-child(4) { border-bottom: none; }
+    #ds .vg-lbl { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    #ds .vg-val { font-family: var(--serif); font-size: 24px; font-weight: 500; }
+    #ds .vg-val.red { color: var(--red); }
+    #ds .vg-val.muted { color: var(--muted); }
+
+    #ds .slbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 40px; border-bottom: 1px solid var(--line); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); background: var(--cream-2); }
+
+    #ds .tl-section { padding: 56px 40px; border-bottom: 1px solid var(--line); }
+    #ds .timeline { display: grid; grid-template-columns: repeat(6,1fr); border: 1px solid var(--line); }
+    #ds .tl-step { padding: 26px 22px; border-right: 1px solid var(--line); }
+    #ds .tl-step:last-child { border-right: none; }
+    #ds .tl-step.done .tl-title { color: var(--muted); }
+    #ds .tl-step.active { background: var(--ink); }
+    #ds .tl-step.active .tl-num, #ds .tl-step.active .tl-detail { color: rgba(234,227,217,.4); }
+    #ds .tl-step.active .tl-title { color: var(--cream); }
+    #ds .tl-step.active .tl-status { background: var(--red); border-color: var(--red); color: var(--cream); }
+    #ds .tl-num { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+    #ds .tl-title { font-family: var(--serif); font-size: 17px; font-weight: 500; margin-bottom: 8px; line-height: 1.2; }
+    #ds .tl-detail { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); line-height: 1.7; }
+    #ds .tl-status { display: inline-block; margin-top: 14px; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 10px; border: 1px solid var(--line); color: var(--muted); }
+
+    #ds .db-section { padding: 72px 40px; border-bottom: 1px solid var(--line); }
+    #ds .sec-eyebrow { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    #ds .sec-title { font-family: var(--serif); font-size: clamp(30px,4vw,52px); font-weight: 300; line-height: 1.05; }
+    #ds .sec-title em { font-style: italic; }
+    #ds .sec-desc { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+
+    #ds .quotes-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); }
+    #ds .q-card { padding: 34px 38px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    #ds .q-card:nth-child(even) { border-right: none; }
+    #ds .q-card:last-child, #ds .q-card:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+    #ds .q-text { font-family: var(--serif); font-size: 19px; font-style: italic; font-weight: 300; line-height: 1.65; margin-bottom: 18px; }
+    #ds .q-text::before { content: '\201C'; color: var(--muted); }
+    #ds .q-text::after { content: '\201D'; color: var(--muted); }
+    #ds .q-source { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+    #ds .q-tag { display: inline-block; margin-top: 7px; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 8px; border: 1px solid var(--line); color: var(--muted); }
+    #ds .q-tag.founder { border-color: var(--ink); color: var(--ink); }
+
+    #ds .kpi-row { display: grid; grid-template-columns: repeat(4,1fr); border: 1px solid var(--line); margin-bottom: 40px; }
+    #ds .kpi-cell { padding: 30px 28px; border-right: 1px solid var(--line); }
+    #ds .kpi-cell:last-child { border-right: none; }
+    #ds .kpi-lbl { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    #ds .kpi-val { font-family: var(--serif); font-size: 38px; font-weight: 400; line-height: 1; }
+    #ds .kpi-val.red { color: var(--red); }
+    #ds .kpi-sub { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 7px; }
+
+    #ds .issue-row { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 36px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+    #ds .issue-row:last-child { border-bottom: none; }
+    #ds .issue-lhs { display: flex; align-items: flex-start; gap: 14px; }
+    #ds .idot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); margin-top: 7px; flex-shrink: 0; }
+    #ds .idot.muted { background: var(--muted); }
+    #ds .iname { font-family: var(--serif); font-size: 17px; font-weight: 400; }
+    #ds .isource { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+    #ds .ihrs { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: right; white-space: nowrap; }
+    #ds .irand { font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--red); white-space: nowrap; text-align: right; }
+    #ds .isev { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+    #ds .isev.critical { border-color: var(--red); color: var(--red); }
+    #ds .isev.high { border-color: var(--ink); color: var(--ink); }
+
+    #ds .charts-row { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); margin-bottom: 40px; }
+    #ds .chart-cell { padding: 36px; border-right: 1px solid var(--line); }
+    #ds .chart-cell:last-child { border-right: none; }
+    #ds .chart-lbl { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 22px; }
+
+    #ds .insights-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 1px solid var(--line); }
+    #ds .in-card { padding: 32px 28px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    #ds .in-card:nth-child(3n) { border-right: none; }
+    #ds .in-card:nth-last-child(-n+3) { border-bottom: none; }
+    #ds .in-num { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    #ds .in-title { font-family: var(--serif); font-size: 20px; font-weight: 500; margin-bottom: 12px; line-height: 1.15; }
+    #ds .in-body { font-size: 11px; letter-spacing: 0.03em; color: var(--muted); line-height: 1.8; }
+    #ds .in-val { font-family: var(--serif); font-size: 24px; font-weight: 400; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+    #ds .in-val small { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; margin-top: 4px; }
+
+    #ds .db-table { width: 100%; border-collapse: collapse; }
+    #ds .db-table th { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); padding: 12px 0; text-align: left; border-bottom: 1px solid var(--line); }
+    #ds .db-table td { padding: 16px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+    #ds .db-table tr:last-child td { border-bottom: none; }
+    #ds .db-table tr:hover td { background: rgba(0,0,0,.015); }
+    #ds .pt-rank { font-size: 9px; color: var(--muted); padding-right: 28px; white-space: nowrap; }
+    #ds .pt-name { font-family: var(--serif); font-size: 18px; font-weight: 400; padding-right: 36px; }
+    #ds .pt-cat { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+    #ds .pt-effort { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+    #ds .pt-effort.low { border-color: var(--ink); color: var(--ink); }
+    #ds .pt-value { font-family: var(--serif); font-size: 18px; font-weight: 500; white-space: nowrap; text-align: right; padding-right: 36px; }
+    #ds .pt-timeline { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); white-space: nowrap; text-align: right; }
+
+    #ds .rec-row { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); margin-top: 40px; }
+    #ds .rec-cell { padding: 36px; border-right: 1px solid var(--line); }
+    #ds .rec-cell:last-child { border-right: none; }
+    #ds .rec-lbl { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 22px; }
+    #ds .prog-list { display: flex; flex-direction: column; gap: 14px; }
+    #ds .prog-head { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    #ds .prog-name { font-size: 10px; letter-spacing: 0.06em; }
+    #ds .prog-val { font-family: var(--serif); font-size: 14px; font-weight: 500; }
+    #ds .prog-track { height: 1px; background: var(--line); position: relative; }
+    #ds .prog-fill { position: absolute; top: 0; left: 0; height: 1px; background: var(--ink); }
+    #ds .sum-stats { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+    #ds .sum-stat { padding: 22px 0; border-bottom: 1px solid var(--line); }
+    #ds .sum-stat:last-child { border-bottom: none; }
+    #ds .sum-stat-lbl { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    #ds .sum-stat-val { font-family: var(--serif); font-size: 40px; font-weight: 300; line-height: 1; }
+    #ds .sum-stat-sub { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+
+    /* ─── RETAINER ─── */
+    #ds .ret-section { background: var(--ink); color: var(--cream); padding: 116px 40px 96px; text-align: center; }
+    #ds .ret-eyebrow { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(234,227,217,.35); margin-bottom: 28px; }
+    #ds .ret-headline { font-family: var(--serif); font-size: clamp(46px,6.5vw,90px); font-weight: 300; line-height: 1.0; letter-spacing: -0.02em; color: var(--cream); max-width: 900px; margin: 0 auto 18px; }
+    #ds .ret-headline em { font-style: italic; }
+    #ds .ret-sub { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(234,227,217,.38); max-width: 460px; margin: 0 auto 64px; line-height: 2.4; }
+    #ds .ret-roi-lbl { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(234,227,217,.3); margin-bottom: 10px; }
+    #ds .ret-roi-val { font-family: var(--serif); font-size: clamp(80px,14vw,180px); font-weight: 300; line-height: .9; color: var(--cream); letter-spacing: -0.03em; }
+    #ds .ret-roi-sub { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(234,227,217,.3); margin-top: 14px; margin-bottom: 64px; }
+    #ds .ret-nums { display: flex; border: 1px solid rgba(234,227,217,.12); max-width: 860px; margin: 0 auto 60px; }
+    #ds .ret-num { flex: 1; padding: 38px 28px; border-right: 1px solid rgba(234,227,217,.12); text-align: center; }
+    #ds .ret-num:last-child { border-right: none; }
+    #ds .ret-num-val { font-family: var(--serif); font-size: 44px; font-weight: 300; color: var(--cream); white-space: nowrap; }
+    #ds .ret-num-lbl { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(234,227,217,.38); margin-top: 9px; }
+    #ds .ret-div { width: 1px; height: 44px; background: rgba(234,227,217,.12); margin: 0 auto 60px; }
+    #ds .ret-cta { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink); background: var(--cream); border: none; padding: 20px 60px; cursor: pointer; transition: all 0.2s; }
+    #ds .ret-cta:hover { background: rgba(234,227,217,.85); }
+    #ds .ret-note { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(234,227,217,.2); margin-top: 22px; }
+
+    #ds footer { background: var(--ink); border-top: 1px solid rgba(234,227,217,.07); display: flex; justify-content: space-between; padding: 18px 40px; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(234,227,217,.25); }
+
+    .fade-in { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
+    .fade-in.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ SETUP SCREEN ═══════════════════ -->
+<div id="setup-screen" class="screen active">
+  <nav class="top-nav">
+    <div class="top-nav-brand">the evverywhere <em>proprietary audit</em> system.</div>
+    <div class="top-nav-actions">
+      <button class="btn-ghost" onclick="loadExample()">Load Example Data</button>
+      <button class="btn-solid" onclick="generate()">Generate Dashboard →</button>
+    </div>
+  </nav>
+
+  <div class="setup-body">
+    <div class="setup-intro">
+      <h1>New <em>audit.</em></h1>
+      <p>Fill in the client details · Add session quotes and key findings · Generate the live dashboard</p>
+    </div>
+
+    <!-- 01 CLIENT -->
+    <div class="fs">
+      <div class="fs-head"><span class="fs-num">01</span><span class="fs-title">Client Information</span></div>
+      <div class="fg fg2">
+        <div class="field"><label>Client / Business Name</label><input id="f-name" type="text" placeholder="Apex Holdings (Pty) Ltd"></div>
+        <div class="field"><label>Annual Revenue</label><input id="f-revenue" type="text" placeholder="R 42M"></div>
+        <div class="field"><label>Founder / MD Name</label><input id="f-founder" type="text" placeholder="Thabo Nkosi"></div>
+        <div class="field"><label>Founder Title</label><input id="f-title" type="text" placeholder="Founder & MD"></div>
+        <div class="field"><label>Staff Count</label><input id="f-headcount" type="text" placeholder="28 Staff"></div>
+        <div class="field"><label>Years in Business</label><input id="f-years" type="text" placeholder="12 Years"></div>
+        <div class="field"><label>Location</label><input id="f-location" type="text" placeholder="Cape Town"></div>
+        <div class="field"><label>Report Date</label><input id="f-date" type="text" placeholder="May 2026"></div>
+      </div>
+    </div>
+
+    <!-- 02 FINANCIALS -->
+    <div class="fs">
+      <div class="fs-head"><span class="fs-num">02</span><span class="fs-title">Financial Summary</span></div>
+      <div class="fg fg2" style="margin-bottom:28px;">
+        <div class="field"><label>Total Value Identified — number (e.g. 2886000)</label><input id="f-total-num" type="number" placeholder="2886000"></div>
+        <div class="field"><label>Total Value — display text (e.g. R 2 886 000)</label><input id="f-total-display" type="text" placeholder="R 2 886 000"></div>
+      </div>
+      <div class="fg fg4" style="margin-bottom:28px;">
+        <div class="field"><label>Time Drains R/yr</label><input id="f-td" type="text" placeholder="R 612 000"></div>
+        <div class="field"><label>Money Leaks R/yr</label><input id="f-ml" type="text" placeholder="R 487 000"></div>
+        <div class="field"><label>Revenue Gaps R/yr</label><input id="f-rg" type="text" placeholder="R 1 820 000"></div>
+        <div class="field"><label>System Failures R/yr</label><input id="f-sf" type="text" placeholder="R 340 000"></div>
+      </div>
+      <div class="fg fg3">
+        <div class="field"><label>Hours Wasted / Week</label><input id="f-hrs" type="text" placeholder="47 hrs"></div>
+        <div class="field"><label>Money Leaks Display (KPI card)</label><input id="f-ml-kpi" type="text" placeholder="R 487k"></div>
+        <div class="field"><label>System Failures Count</label><input id="f-sf-count" type="text" placeholder="9"></div>
+      </div>
+      <div style="margin-top:36px;">
+        <div class="fs-head" style="margin-bottom:24px;"><span class="fs-num" style="font-size:9px;">02B</span><span class="fs-title" style="font-size:16px;">Weekly Time Loss — Chart Data</span></div>
+        <div id="act-list"></div>
+      </div>
+    </div>
+
+    <!-- 03 QUOTES -->
+    <div class="fs">
+      <div class="fs-head"><span class="fs-num">03</span><span class="fs-title">Session Quotes</span></div>
+      <p style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:24px;">3–6 verbatim quotes from founder and team sessions</p>
+      <div id="quotes-list"></div>
+      <button class="btn-add-row" onclick="addQuote()">+ Add Quote</button>
+    </div>
+
+    <!-- 04 ISSUES -->
+    <div class="fs">
+      <div class="fs-head"><span class="fs-num">04</span><span class="fs-title">Key Issues & Findings</span></div>
+      <p style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:24px;">5–9 issues · Each needs a rand value and severity</p>
+      <div id="issues-list"></div>
+      <button class="btn-add-row" onclick="addIssue()">+ Add Issue</button>
+    </div>
+
+    <!-- 05 ROADMAP -->
+    <div class="fs">
+      <div class="fs-head"><span class="fs-num">05</span><span class="fs-title">Fix Roadmap</span></div>
+      <p style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:24px;">Prioritised fixes · Ranked by impact-to-effort</p>
+      <div id="roadmap-list"></div>
+      <button class="btn-add-row" onclick="addRoadmap()">+ Add Fix</button>
+    </div>
+
+    <!-- 06 RETAINER -->
+    <div class="fs">
+      <div class="fs-head"><span class="fs-num">06</span><span class="fs-title">Retainer Numbers</span></div>
+      <div class="fg fg2">
+        <div class="field"><label>ROI Multiple (e.g. ~14×)</label><input id="f-roi" type="text" placeholder="~14×"></div>
+        <div class="field"><label>Total Value (display, e.g. R 2.88M)</label><input id="f-ret-val" type="text" placeholder="R 2.88M"></div>
+        <div class="field"><label>Number of Fixes (e.g. 8 fixes)</label><input id="f-ret-fixes" type="text" placeholder="8 fixes"></div>
+        <div class="field"><label>Conservative Year-One Return</label><input id="f-ret-con" type="text" placeholder="R 1.31M"></div>
+      </div>
+    </div>
+
+  </div><!-- /setup-body -->
+
+  <div class="setup-bar">
+    <span>the evverywhere proprietary audit system · Fill in all sections then generate</span>
+    <button class="btn-generate" onclick="generate()">Generate Dashboard →</button>
+  </div>
+</div><!-- /setup-screen -->
+
+
+<!-- ═══════════════════ DASHBOARD SCREEN ═══════════════════ -->
+<div id="ds" class="screen">
+
+  <nav>
+    <div class="db-brand">the evverywhere <em>proprietary audit</em> system.</div>
+    <div class="db-links">
+      <a href="#db-sessions">01 Sessions</a>
+      <a href="#db-findings">02 Findings</a>
+      <a href="#db-analysis">03 Analysis</a>
+      <a href="#db-roadmap">04 Roadmap</a>
+      <a href="#db-retainer">05 Next Step</a>
+    </div>
+    <div class="db-nav-r">
+      <button class="db-edit" onclick="editMode()">← Edit Audit</button>
+      <button class="db-cta" onclick="document.getElementById('db-retainer').scrollIntoView({behavior:'smooth'})">Start Implementation →</button>
+    </div>
+  </nav>
+
+  <div class="info-bar">
+    <span><span class="info-dot"></span><span id="db-info-l"></span></span>
+    <span id="db-info-r"></span>
+  </div>
+
+  <section class="hero fade-in">
+    <div class="hero-top">
+      <div class="hero-lbl">The Evverywhere Proprietary Audit System<br/>Business Analysis Report</div>
+      <div class="hero-lbl right">Prepared for<br/><span id="db-founder"></span></div>
+    </div>
+    <h1 class="big">Here's what's <em>costing you money</em><br/>every single day.</h1>
+    <div class="hero-stats">
+      <div class="h-stat"><div class="h-stat-lbl">Client</div><div class="h-stat-val" id="db-name"></div></div>
+      <div class="h-stat"><div class="h-stat-lbl">Annual Revenue</div><div class="h-stat-val" id="db-revenue"></div></div>
+      <div class="h-stat"><div class="h-stat-lbl">Headcount</div><div class="h-stat-val" id="db-headcount"></div></div>
+      <div class="h-stat"><div class="h-stat-lbl">In Business</div><div class="h-stat-val" id="db-years"></div></div>
+    </div>
+  </section>
+
+  <section class="val-hero fade-in">
+    <div>
+      <div class="val-lbl">Total Annual Value Identified</div>
+      <div class="val-num" id="db-counter">R 0</div>
+      <div class="val-sub">in recoverable revenue, leaks & wasted time<br/>6 sessions · 5 hours of interviews · one AI analysis</div>
+    </div>
+    <div class="val-grid">
+      <div class="vg-item"><div class="vg-lbl">Time Drains</div><div class="vg-val red" id="db-td"></div></div>
+      <div class="vg-item"><div class="vg-lbl">Money Leaks</div><div class="vg-val red" id="db-ml"></div></div>
+      <div class="vg-item"><div class="vg-lbl">Revenue Gaps</div><div class="vg-val" id="db-rg"></div></div>
+      <div class="vg-item"><div class="vg-lbl">System Failures</div><div class="vg-val muted" id="db-sf"></div></div>
+    </div>
+  </section>
+
+  <div class="slbar"><div>The Six-Step Process</div><div>Steps 1–4 Complete · Step 5 Live · Step 6 Scheduled</div></div>
+  <section class="tl-section fade-in">
+    <div class="timeline">
+      <div class="tl-step done"><div class="tl-num">Step 01</div><div class="tl-title">Founder Session</div><div class="tl-detail">90 min · Recorded<br/>Deep diagnostic</div><div class="tl-status">Complete</div></div>
+      <div class="tl-step done"><div class="tl-num">Step 02</div><div class="tl-title">Team Sessions</div><div class="tl-detail">30–45 min each<br/>Key staff interviewed</div><div class="tl-status">Complete</div></div>
+      <div class="tl-step done"><div class="tl-num">Step 03</div><div class="tl-title">Data Compilation</div><div class="tl-detail">Drains · Leaks<br/>Gaps · Failures</div><div class="tl-status">Complete</div></div>
+      <div class="tl-step done"><div class="tl-num">Step 04</div><div class="tl-title">AI Analysis</div><div class="tl-detail">Claude extracted<br/>& quantified all findings</div><div class="tl-status">Complete</div></div>
+      <div class="tl-step active"><div class="tl-num">Step 05</div><div class="tl-title">Dashboard</div><div class="tl-detail">Live report<br/>You're looking at it now</div><div class="tl-status">Live Now</div></div>
+      <div class="tl-step"><div class="tl-num">Step 06</div><div class="tl-title">Presentation</div><div class="tl-detail">Walk-through<br/>& next steps</div><div class="tl-status">Scheduled</div></div>
+    </div>
+  </section>
+
+  <div class="slbar" id="db-sessions"><div><span style="color:var(--muted);margin-right:12px;">01–02</span>Session Findings</div><div>Founder + team members · Verbatim</div></div>
+  <section class="db-section fade-in">
+    <div class="sec-eyebrow">Steps 01 & 02 — Founder & Team Sessions</div>
+    <h2 class="sec-title">What we heard<br/><em>in the sessions.</em></h2>
+    <div class="sec-desc">Key quotes that surfaced the biggest problems · Verbatim from recorded sessions</div>
+    <div style="margin-top:40px;"><div class="quotes-grid" id="db-quotes"></div></div>
+  </section>
+
+  <div class="slbar" id="db-findings"><div><span style="color:var(--muted);margin-right:12px;">03</span>Data Compilation</div><div>Every issue categorised · quantified · ranked</div></div>
+  <section class="db-section fade-in">
+    <div class="sec-eyebrow">Step 03 — Data Compilation</div>
+    <h2 class="sec-title">What's <em>actually broken.</em></h2>
+    <div class="sec-desc" id="db-findings-desc">Issues identified · Total impact quantified in rand and hours</div>
+    <div style="margin-top:40px;">
+      <div class="kpi-row">
+        <div class="kpi-cell"><div class="kpi-lbl">Time Drains</div><div class="kpi-val red" id="db-kpi-hrs"></div><div class="kpi-sub">Wasted per week</div></div>
+        <div class="kpi-cell"><div class="kpi-lbl">Money Leaks</div><div class="kpi-val" id="db-kpi-ml"></div><div class="kpi-sub">Leaving annually</div></div>
+        <div class="kpi-cell"><div class="kpi-lbl">Revenue Gaps</div><div class="kpi-val" id="db-kpi-rg"></div><div class="kpi-sub">Unrealised revenue</div></div>
+        <div class="kpi-cell"><div class="kpi-lbl">System Failures</div><div class="kpi-val red" id="db-kpi-sf"></div><div class="kpi-sub">No system in place</div></div>
+      </div>
+      <div id="db-issues" style="border-top:1px solid var(--line);"></div>
+    </div>
+  </section>
+
+  <div class="slbar" id="db-analysis"><div><span style="color:var(--muted);margin-right:12px;">04</span>AI Analysis</div><div>Data fed into Claude · Every finding valued in rand</div></div>
+  <section class="db-section fade-in">
+    <div class="sec-eyebrow">Step 04 — AI Analysis</div>
+    <h2 class="sec-title"><em>Insights</em> & quantification.</h2>
+    <div class="sec-desc">High-confidence insights extracted from session data</div>
+    <div style="margin-top:40px;">
+      <div class="charts-row">
+        <div class="chart-cell"><div class="chart-lbl">Value Breakdown by Category</div><div style="position:relative;height:240px;"><canvas id="db-donut"></canvas></div></div>
+        <div class="chart-cell"><div class="chart-lbl">Weekly Time Lost by Activity (Hours)</div><div style="position:relative;height:240px;"><canvas id="db-bar"></canvas></div></div>
+      </div>
+      <div class="insights-grid" id="db-insights"></div>
+    </div>
+  </section>
+
+  <div class="slbar" id="db-roadmap"><div><span style="color:var(--muted);margin-right:12px;">05</span>Prioritised Roadmap</div><div>Ranked by impact-to-effort · Every fix valued</div></div>
+  <section class="db-section fade-in">
+    <div class="sec-eyebrow">Step 05 — Prioritised Fix Roadmap</div>
+    <h2 class="sec-title">The fixes.<br/><em>One year.</em></h2>
+    <div class="sec-desc">Sequenced for maximum early wins</div>
+    <div style="margin-top:40px;">
+      <table class="db-table">
+        <thead><tr><th style="width:48px">#</th><th>Fix</th><th style="width:100px">Effort</th><th style="width:160px;text-align:right;padding-right:36px">Annual Value</th><th style="width:120px;text-align:right">Timeline</th></tr></thead>
+        <tbody id="db-roadmap-tbody"></tbody>
+      </table>
+      <div class="rec-row">
+        <div class="rec-cell">
+          <div class="rec-lbl">Projected 12-Month Recovery</div>
+          <div class="prog-list" id="db-prog-list"></div>
+        </div>
+        <div class="rec-cell">
+          <div class="rec-lbl">Summary</div>
+          <div class="sum-stats">
+            <div class="sum-stat"><div class="sum-stat-lbl">Conservative (50% Realised)</div><div class="sum-stat-val" id="db-sum-con"></div><div class="sum-stat-sub">Minimum recoverable in year one</div></div>
+            <div class="sum-stat"><div class="sum-stat-lbl">Full Realisation</div><div class="sum-stat-val" id="db-sum-val"></div><div class="sum-stat-sub">Total annual value identified</div></div>
+            <div class="sum-stat"><div class="sum-stat-lbl">Return on Retainer</div><div class="sum-stat-val" id="db-sum-roi"></div><div class="sum-stat-sub">Estimated investment return</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ret-section fade-in" id="db-retainer">
+    <div class="ret-eyebrow">Step 06 — The Decision</div>
+    <h2 class="ret-headline">The audit found <span id="db-ret-hl"></span>.<br/><em>Now someone needs to go get it.</em></h2>
+    <p class="ret-sub">Every fix on this roadmap requires someone to own it, drive it, and hold the business accountable. That's what the retainer delivers.</p>
+    <div class="ret-roi-lbl">Estimated return on retainer investment</div>
+    <div class="ret-roi-val" id="db-roi"></div>
+    <div class="ret-roi-sub">Based on conservative 50% realisation of identified value</div>
+    <div class="ret-nums">
+      <div class="ret-num"><div class="ret-num-val" id="db-rn-val"></div><div class="ret-num-lbl">Total value identified</div></div>
+      <div class="ret-num"><div class="ret-num-val" id="db-rn-fixes"></div><div class="ret-num-lbl">Delivered in 12 months</div></div>
+      <div class="ret-num"><div class="ret-num-val" id="db-rn-con"></div><div class="ret-num-lbl">Conservative year-one return</div></div>
+    </div>
+    <div class="ret-div"></div>
+    <button class="ret-cta" onclick="alert('Let\'s talk — book a call to walk through this together.')">Let's talk about next steps →</button>
+    <div class="ret-note" id="db-ret-note"></div>
+  </section>
+
+  <footer>
+    <div id="db-footer-l"></div>
+    <div>the evverywhere proprietary audit system.</div>
+    <div id="db-footer-r"></div>
+  </footer>
+
+</div><!-- /ds -->
+
+<script>
+/* ─── EXAMPLE DATA ─── */
+const EXAMPLE = {
+  name:'Apex Holdings (Pty) Ltd', revenue:'R 42M', founder:'Thabo Nkosi',
+  founderTitle:'Founder & MD', headcount:'28 Staff', years:'12 Years',
+  location:'Cape Town', date:'May 2026',
+  totalNum: 2886000, totalDisplay:'R 2 886 000',
+  td:'R 612 000', ml:'R 487 000', rg:'R 1 820 000', sf:'R 340 000',
+  hrs:'47 hrs', mlKpi:'R 487k', sfCount:'9',
+  activities:[
+    {name:'Approvals',hrs:18},{name:'Manual Quoting',hrs:14},
+    {name:'Duplicate Entry',hrs:6},{name:'Late Invoicing',hrs:5},
+    {name:'Staff Ramp',hrs:4},{name:'Meetings',hrs:4}
+  ],
+  quotes:[
+    {text:"I quote every job myself because no one else knows how to price it. It takes me 2 hours minimum and I do 6 to 8 a week. Half the time the quote is off anyway.",source:"Thabo Nkosi — Founder & MD",type:"founder"},
+    {text:"We lose track of clients after the job is done. There's no follow-up system. I know we've lost repeat work because of it but I don't know how much.",source:"Thabo Nkosi — Founder & MD",type:"founder"},
+    {text:"I spend most of Monday just waiting for Thabo to approve the purchase orders. Everything is held up because he's the only one who can sign off.",source:"Zanele Dlamini — Operations Manager",type:"team"},
+    {text:"We've been using the same three suppliers for 8 years and no one has gone back to renegotiate pricing. I think we're paying 15–20% more than we need to.",source:"Sipho Mokoena — Procurement",type:"team"},
+    {text:"New staff take 6 to 8 weeks to become useful because everything is in people's heads. We don't have a single documented process.",source:"Ayanda Cele — Senior Technician",type:"team"},
+    {text:"The invoicing is all manual in Excel. I send them out late because I'm waiting on job sheets. Last month R180k in invoices went out 3 weeks late.",source:"Refilwe Sithole — Finance Admin",type:"team"}
+  ],
+  issues:[
+    {name:"Founder bottleneck on all approvals",source:"Founder + 3 Team Sessions",hrs:"18 hrs/week in delays",rand:"− R 310 000 / yr",sev:"critical"},
+    {name:"No post-job client follow-up system",source:"Founder Session",hrs:"Est. lost repeat revenue",rand:"− R 680 000 / yr",sev:"critical"},
+    {name:"Manual quoting — founder only, 2 hrs per quote",source:"Founder Session",hrs:"14 hrs/week founder time",rand:"− R 230 000 / yr",sev:"critical"},
+    {name:"Supplier pricing not renegotiated in 8 years",source:"Procurement Team Session",hrs:"Est. overpayment 15–20%",rand:"− R 186 000 / yr",sev:"high"},
+    {name:"Invoices sent 2–3 weeks late",source:"Finance Team Session",hrs:"Avg. R 180k delayed monthly",rand:"− R 142 000 / yr",sev:"high"},
+    {name:"Zero referral or repeat-client incentive programme",source:"Founder Session",hrs:"Est. unrealised referral revenue",rand:"− R 420 000 / yr",sev:"high"},
+    {name:"No onboarding documentation — 6–8 week ramp time",source:"Senior Technician Session",hrs:"3× slower new staff productivity",rand:"− R 198 000 / yr",sev:"medium"},
+    {name:"Pricing below market rate — not reviewed in 4 years",source:"Founder Session + Market Comparison",hrs:"8–12% below market",rand:"− R 720 000 / yr",sev:"critical"}
+  ],
+  roadmap:[
+    {name:"Supplier price benchmarking & renegotiation",cat:"Money Leak",effort:"low",val:"R 186 000",timeline:"2–4 weeks"},
+    {name:"Quoting template — delegate to operations manager",cat:"Time Drain",effort:"low",val:"R 230 000",timeline:"3–6 weeks"},
+    {name:"Approval delegation matrix",cat:"Time Drain",effort:"low",val:"R 310 000",timeline:"2–3 weeks"},
+    {name:"Invoicing automation via job sheet trigger (Xero)",cat:"System Failure",effort:"medium",val:"R 142 000",timeline:"4–8 weeks"},
+    {name:"7% price increase phased over Q3–Q4",cat:"Revenue Gap",effort:"medium",val:"R 720 000",timeline:"6–10 weeks"},
+    {name:"Post-job follow-up sequence + referral programme (CRM)",cat:"Revenue Gap",effort:"medium",val:"R 1 100 000",timeline:"8–12 weeks"},
+    {name:"Document 9 core SOPs — onboarding playbook",cat:"System Failure",effort:"high",val:"R 198 000",timeline:"6–10 weeks"},
+    {name:"KPI dashboard — weekly & monthly leadership reviews",cat:"System Failure",effort:"high",val:"Strategic",timeline:"10–14 weeks"}
+  ],
+  roi:'~14×', retVal:'R 2.88M', retFixes:'8 fixes', retCon:'R 1.31M'
+};
+
+/* ─── ACTIVITY ROWS ─── */
+const DEFAULT_ACTS = [
+  {name:'Approvals',hrs:''},{name:'Manual Quoting',hrs:''},
+  {name:'Duplicate Entry',hrs:''},{name:'Late Invoicing',hrs:''},
+  {name:'Staff Ramp',hrs:''},{name:'Meetings',hrs:''}
+];
+
+function buildActivityRows(acts) {
+  const list = document.getElementById('act-list');
+  list.innerHTML = '';
+  acts.forEach((a,i) => {
+    const row = document.createElement('div');
+    row.className = 'act-row';
+    row.innerHTML = `
+      <div class="field"><label>Activity Name</label><input class="act-name" type="text" value="${a.name}" placeholder="e.g. Approvals"></div>
+      <div class="field"><label>Hrs / Week</label><input class="act-hrs" type="number" value="${a.hrs}" placeholder="0"></div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+/* ─── DYNAMIC QUOTE ROWS ─── */
+function addQuote(data={}) {
+  const list = document.getElementById('quotes-list');
+  const row = document.createElement('div');
+  row.className = 'dyn-row';
+  row.innerHTML = `
+    <div class="dyn-row-head">
+      <span class="dyn-row-lbl">Quote ${list.children.length+1}</span>
+      <button class="btn-rm" onclick="this.closest('.dyn-row').remove();renumberRows('quotes-list','Quote')">Remove ×</button>
+    </div>
+    <div class="fg" style="margin-bottom:16px;">
+      <div class="field"><label>Quote Text</label><textarea class="q-text" placeholder="What they said...">${data.text||''}</textarea></div>
+    </div>
+    <div class="fg fg2">
+      <div class="field"><label>Person & Role</label><input class="q-source" type="text" placeholder="Name — Role" value="${data.source||''}"></div>
+      <div class="field"><label>Session Type</label>
+        <select class="q-type">
+          <option value="team" ${data.type==='team'?'selected':''}>Team Session</option>
+          <option value="founder" ${data.type==='founder'?'selected':''}>Founder Session</option>
+        </select>
+      </div>
+    </div>
+  `;
+  list.appendChild(row);
+}
+
+/* ─── DYNAMIC ISSUE ROWS ─── */
+function addIssue(data={}) {
+  const list = document.getElementById('issues-list');
+  const row = document.createElement('div');
+  row.className = 'dyn-row';
+  row.innerHTML = `
+    <div class="dyn-row-head">
+      <span class="dyn-row-lbl">Issue ${list.children.length+1}</span>
+      <button class="btn-rm" onclick="this.closest('.dyn-row').remove();renumberRows('issues-list','Issue')">Remove ×</button>
+    </div>
+    <div class="fg fg2" style="margin-bottom:16px;">
+      <div class="field"><label>Issue / Problem</label><input class="i-name" type="text" placeholder="e.g. No follow-up system" value="${data.name||''}"></div>
+      <div class="field"><label>Source (which session)</label><input class="i-source" type="text" placeholder="Founder Session" value="${data.source||''}"></div>
+    </div>
+    <div class="fg fg3">
+      <div class="field"><label>Hours / Detail</label><input class="i-hrs" type="text" placeholder="e.g. 18 hrs/week" value="${data.hrs||''}"></div>
+      <div class="field"><label>Rand Value / Year</label><input class="i-rand" type="text" placeholder="− R 310 000 / yr" value="${data.rand||''}"></div>
+      <div class="field"><label>Severity</label>
+        <select class="i-sev">
+          <option value="critical" ${data.sev==='critical'?'selected':''}>Critical</option>
+          <option value="high" ${data.sev==='high'?'selected':''}>High</option>
+          <option value="medium" ${data.sev==='medium'?'selected':''}>Medium</option>
+        </select>
+      </div>
+    </div>
+  `;
+  list.appendChild(row);
+}
+
+/* ─── DYNAMIC ROADMAP ROWS ─── */
+function addRoadmap(data={}) {
+  const list = document.getElementById('roadmap-list');
+  const row = document.createElement('div');
+  row.className = 'dyn-row';
+  row.innerHTML = `
+    <div class="dyn-row-head">
+      <span class="dyn-row-lbl">Fix ${list.children.length+1}</span>
+      <button class="btn-rm" onclick="this.closest('.dyn-row').remove();renumberRows('roadmap-list','Fix')">Remove ×</button>
+    </div>
+    <div class="fg fg2" style="margin-bottom:16px;">
+      <div class="field"><label>Fix / Action</label><input class="r-name" type="text" placeholder="e.g. Automate invoicing" value="${data.name||''}"></div>
+      <div class="field"><label>Category</label><input class="r-cat" type="text" placeholder="Time Drain / Revenue Gap / etc." value="${data.cat||''}"></div>
+    </div>
+    <div class="fg fg3">
+      <div class="field"><label>Effort Level</label>
+        <select class="r-effort">
+          <option value="low" ${data.effort==='low'?'selected':''}>Low</option>
+          <option value="medium" ${data.effort==='medium'?'selected':''}>Medium</option>
+          <option value="high" ${data.effort==='high'?'selected':''}>High</option>
+        </select>
+      </div>
+      <div class="field"><label>Annual Value</label><input class="r-val" type="text" placeholder="R 186 000" value="${data.val||''}"></div>
+      <div class="field"><label>Timeline</label><input class="r-timeline" type="text" placeholder="2–4 weeks" value="${data.timeline||''}"></div>
+    </div>
+  `;
+  list.appendChild(row);
+}
+
+function renumberRows(listId, label) {
+  document.querySelectorAll(`#${listId} .dyn-row-lbl`).forEach((el,i) => el.textContent = `${label} ${i+1}`);
+}
+
+/* ─── LOAD EXAMPLE ─── */
+function loadExample() {
+  const e = EXAMPLE;
+  document.getElementById('f-name').value = e.name;
+  document.getElementById('f-revenue').value = e.revenue;
+  document.getElementById('f-founder').value = e.founder;
+  document.getElementById('f-title').value = e.founderTitle;
+  document.getElementById('f-headcount').value = e.headcount;
+  document.getElementById('f-years').value = e.years;
+  document.getElementById('f-location').value = e.location;
+  document.getElementById('f-date').value = e.date;
+  document.getElementById('f-total-num').value = e.totalNum;
+  document.getElementById('f-total-display').value = e.totalDisplay;
+  document.getElementById('f-td').value = e.td;
+  document.getElementById('f-ml').value = e.ml;
+  document.getElementById('f-rg').value = e.rg;
+  document.getElementById('f-sf').value = e.sf;
+  document.getElementById('f-hrs').value = e.hrs;
+  document.getElementById('f-ml-kpi').value = e.mlKpi;
+  document.getElementById('f-sf-count').value = e.sfCount;
+  document.getElementById('f-roi').value = e.roi;
+  document.getElementById('f-ret-val').value = e.retVal;
+  document.getElementById('f-ret-fixes').value = e.retFixes;
+  document.getElementById('f-ret-con').value = e.retCon;
+  buildActivityRows(e.activities);
+  document.getElementById('quotes-list').innerHTML = '';
+  e.quotes.forEach(q => addQuote(q));
+  document.getElementById('issues-list').innerHTML = '';
+  e.issues.forEach(i => addIssue(i));
+  document.getElementById('roadmap-list').innerHTML = '';
+  e.roadmap.forEach(r => addRoadmap(r));
+}
+
+/* ─── COLLECT FORM DATA ─── */
+function getFormData() {
+  const acts = Array.from(document.querySelectorAll('#act-list .act-row')).map(r => ({
+    name: r.querySelector('.act-name').value || '',
+    hrs: parseFloat(r.querySelector('.act-hrs').value) || 0
+  })).filter(a => a.name && a.hrs > 0);
+
+  const quotes = Array.from(document.querySelectorAll('#quotes-list .dyn-row')).map(r => ({
+    text: r.querySelector('.q-text').value,
+    source: r.querySelector('.q-source').value,
+    type: r.querySelector('.q-type').value
+  })).filter(q => q.text.trim());
+
+  const issues = Array.from(document.querySelectorAll('#issues-list .dyn-row')).map(r => ({
+    name: r.querySelector('.i-name').value,
+    source: r.querySelector('.i-source').value,
+    hrs: r.querySelector('.i-hrs').value,
+    rand: r.querySelector('.i-rand').value,
+    sev: r.querySelector('.i-sev').value
+  })).filter(i => i.name.trim());
+
+  const roadmap = Array.from(document.querySelectorAll('#roadmap-list .dyn-row')).map(r => ({
+    name: r.querySelector('.r-name').value,
+    cat: r.querySelector('.r-cat').value,
+    effort: r.querySelector('.r-effort').value,
+    val: r.querySelector('.r-val').value,
+    timeline: r.querySelector('.r-timeline').value
+  })).filter(r => r.name.trim());
+
+  return {
+    name: document.getElementById('f-name').value,
+    revenue: document.getElementById('f-revenue').value,
+    founder: document.getElementById('f-founder').value,
+    founderTitle: document.getElementById('f-title').value,
+    headcount: document.getElementById('f-headcount').value,
+    years: document.getElementById('f-years').value,
+    location: document.getElementById('f-location').value,
+    date: document.getElementById('f-date').value,
+    totalNum: parseFloat(document.getElementById('f-total-num').value) || 0,
+    totalDisplay: document.getElementById('f-total-display').value,
+    td: document.getElementById('f-td').value,
+    ml: document.getElementById('f-ml').value,
+    rg: document.getElementById('f-rg').value,
+    sf: document.getElementById('f-sf').value,
+    hrs: document.getElementById('f-hrs').value,
+    mlKpi: document.getElementById('f-ml-kpi').value,
+    sfCount: document.getElementById('f-sf-count').value,
+    activities: acts,
+    quotes, issues, roadmap,
+    roi: document.getElementById('f-roi').value,
+    retVal: document.getElementById('f-ret-val').value,
+    retFixes: document.getElementById('f-ret-fixes').value,
+    retCon: document.getElementById('f-ret-con').value
+  };
+}
+
+/* ─── RENDER DASHBOARD ─── */
+let donutChart = null, barChart = null;
+
+function renderDashboard(d) {
+  const info = `Confidential · ${d.name} · ${d.date}`;
+  document.getElementById('db-info-l').textContent = info;
+  document.getElementById('db-info-r').textContent = `Business Analysis Report · ${d.location}`;
+  document.getElementById('db-founder').textContent = `${d.founder} — ${d.founderTitle}`;
+  document.getElementById('db-name').textContent = d.name;
+  document.getElementById('db-revenue').textContent = d.revenue;
+  document.getElementById('db-headcount').textContent = d.headcount;
+  document.getElementById('db-years').textContent = d.years;
+  document.getElementById('db-td').textContent = d.td;
+  document.getElementById('db-ml').textContent = d.ml;
+  document.getElementById('db-rg').textContent = d.rg;
+  document.getElementById('db-sf').textContent = d.sf;
+  document.getElementById('db-kpi-hrs').textContent = d.hrs;
+  document.getElementById('db-kpi-ml').textContent = d.mlKpi;
+  document.getElementById('db-kpi-rg').textContent = d.rg;
+  document.getElementById('db-kpi-sf').textContent = d.sfCount;
+  document.getElementById('db-roi').textContent = d.roi;
+  document.getElementById('db-rn-val').textContent = d.retVal;
+  document.getElementById('db-rn-fixes').textContent = d.retFixes;
+  document.getElementById('db-rn-con').textContent = d.retCon;
+  document.getElementById('db-ret-hl').textContent = d.retVal;
+  document.getElementById('db-sum-con').textContent = d.retCon;
+  document.getElementById('db-sum-val').textContent = d.retVal;
+  document.getElementById('db-sum-roi').textContent = d.roi;
+  document.getElementById('db-ret-note').textContent = `Confidential · ${d.name} · ${d.date}`;
+  document.getElementById('db-footer-l').textContent = `Confidential · ${d.name} · ${d.date}`;
+  document.getElementById('db-footer-r').textContent = d.location;
+  document.getElementById('db-findings-desc').textContent = `${d.issues.length} issues identified · Total impact quantified in rand and hours`;
+
+  // Quotes
+  const qGrid = document.getElementById('db-quotes');
+  qGrid.innerHTML = d.quotes.map(q => `
+    <div class="q-card">
+      <div class="q-text">${q.text}</div>
+      <div class="q-source">${q.source}</div>
+      <div class="q-tag ${q.type==='founder'?'founder':''}">${q.type==='founder'?'Founder Session':'Team Session'}</div>
+    </div>`).join('');
+
+  // Issues
+  const isCritical = (s) => s === 'critical';
+  document.getElementById('db-issues').innerHTML = d.issues.map(i => `
+    <div class="issue-row">
+      <div class="issue-lhs"><div class="idot ${isCritical(i.sev)?'':'muted'}"></div><div><div class="iname">${i.name}</div><div class="isource">Identified in: ${i.source}</div></div></div>
+      <div class="ihrs">${i.hrs}</div>
+      <div class="irand">${i.rand}</div>
+      <div class="isev ${i.sev==='critical'?'critical':i.sev==='high'?'high':''}">${i.sev.charAt(0).toUpperCase()+i.sev.slice(1)}</div>
+    </div>`).join('');
+
+  // Insights (auto-generated from top issues)
+  document.getElementById('db-insights').innerHTML = d.issues.slice(0,6).map((issue,i) => `
+    <div class="in-card">
+      <div class="in-num">Insight ${String(i+1).padStart(2,'0')}</div>
+      <div class="in-title">${issue.name}</div>
+      <div class="in-body">Identified across ${issue.source}. ${issue.hrs ? issue.hrs + '.' : ''} This issue has been quantified at ${issue.rand.replace('− ','')} per year and represents a significant opportunity for recovery.</div>
+      <div class="in-val">${issue.rand.replace('− ','')}<small>${issue.hrs||issue.source}</small></div>
+    </div>`).join('');
+
+  // Roadmap table
+  document.getElementById('db-roadmap-tbody').innerHTML = d.roadmap.map((r,i) => `
+    <tr>
+      <td class="pt-rank">${String(i+1).padStart(2,'0')}</td>
+      <td><div class="pt-name">${r.name}</div><div class="pt-cat">${r.cat}</div></td>
+      <td><span class="pt-effort ${r.effort==='low'?'low':''}">${r.effort.charAt(0).toUpperCase()+r.effort.slice(1)}</span></td>
+      <td class="pt-value">${r.val}</td>
+      <td class="pt-timeline">${r.timeline}</td>
+    </tr>`).join('');
+
+  // Progress bars
+  const maxVal = d.totalNum || 2886000;
+  document.getElementById('db-prog-list').innerHTML = d.roadmap.filter(r => r.val !== 'Strategic').map(r => {
+    const num = parseFloat(r.val.replace(/[^\d]/g,'')) || 0;
+    const pct = Math.min(Math.round((num/maxVal)*100), 95);
+    return `<div>
+      <div class="prog-head"><span class="prog-name">${r.name.split('—')[0].trim()}</span><span class="prog-val">${r.val}</span></div>
+      <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+
+  // Charts
+  renderCharts(d);
+
+  // Counter
+  animateCounter(d.totalNum);
+}
+
+function renderCharts(d) {
+  const p = {ink:'#1A1612',muted:'#8A7F73',line:'#CEC6BA',red:'#BF3E28'};
+  Chart.defaults.font.family = "'Courier New', monospace";
+  Chart.defaults.font.size = 10;
+
+  if (donutChart) donutChart.destroy();
+  const tdNum = parseFloat((d.td||'').replace(/[^\d]/g,''))||0;
+  const mlNum = parseFloat((d.ml||'').replace(/[^\d]/g,''))||0;
+  const rgNum = parseFloat((d.rg||'').replace(/[^\d]/g,''))||0;
+  const sfNum = parseFloat((d.sf||'').replace(/[^\d]/g,''))||0;
+  donutChart = new Chart(document.getElementById('db-donut'),{
+    type:'doughnut',
+    data:{labels:['Revenue Gaps','Time Drains','Money Leaks','System Failures'],
+      datasets:[{data:[rgNum,tdNum,mlNum,sfNum],backgroundColor:[p.ink,p.red,p.muted,p.line],borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',
+      plugins:{legend:{position:'bottom',labels:{color:p.muted,padding:14,boxWidth:8,boxHeight:8}},
+        tooltip:{callbacks:{label:ctx=>' R '+ctx.parsed.toLocaleString('en-ZA')}}}}
+  });
+
+  if (barChart) barChart.destroy();
+  const acts = d.activities.length ? d.activities : [{name:'No data',hrs:0}];
+  barChart = new Chart(document.getElementById('db-bar'),{
+    type:'bar',
+    data:{labels:acts.map(a=>a.name),
+      datasets:[{label:'hrs/week',data:acts.map(a=>a.hrs),
+        backgroundColor:acts.map((_,i)=>i<2?p.red:i<4?p.muted:p.line),
+        borderRadius:0,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.parsed.x+' hrs/week'}}},
+      scales:{x:{grid:{color:p.line},ticks:{color:p.muted}},y:{grid:{display:false},ticks:{color:p.muted}}}}
+  });
+}
+
+function animateCounter(target) {
+  const el = document.getElementById('db-counter');
+  const duration = 2000;
+  const start = Date.now();
+  const tick = () => {
+    const p = Math.min((Date.now()-start)/duration,1);
+    const ease = 1-Math.pow(1-p,3);
+    const n = Math.round(ease*target);
+    el.textContent = 'R '+n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+    if (p<1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* ─── NAVIGATION ─── */
+function generate() {
+  const data = getFormData();
+  renderDashboard(data);
+  document.getElementById('setup-screen').classList.remove('active');
+  document.getElementById('ds').classList.add('active');
+  document.getElementById('ds').scrollTo(0,0);
+  window.scrollTo(0,0);
+  // Fade-ins
+  setTimeout(() => {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} });
+    },{threshold:0.08});
+    document.querySelectorAll('#ds .fade-in').forEach(el=>obs.observe(el));
+  }, 100);
+}
+
+function editMode() {
+  document.getElementById('ds').classList.remove('active');
+  document.getElementById('setup-screen').classList.add('active');
+}
+
+/* ─── INIT ─── */
+buildActivityRows(DEFAULT_ACTS);
+</script>
+</body>
+</html>

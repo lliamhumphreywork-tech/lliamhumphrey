@@ -48,6 +48,8 @@ export function ProfileForm({ user }: { user: User }) {
     instagram: user.instagram ?? "",
     linkedin: user.linkedin ?? "",
     avatar: user.avatar ?? "",
+    skills: user.skills ?? "",
+    seeking: user.seeking ?? "",
   })
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState("")
@@ -224,6 +226,47 @@ export function ProfileForm({ user }: { user: User }) {
             value={form.location}
             onChange={(e) => update("location", e.target.value)}
             placeholder="Cape Town, South Africa"
+            onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+            onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+          />
+        </Row>
+      </div>
+
+      <div
+        style={{
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "24px",
+          marginBottom: 20,
+        }}
+      >
+        <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: 15, fontWeight: 600, marginBottom: 4, color: "var(--text-secondary)" }}>
+          Community context
+        </h2>
+        <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 20 }}>
+          Visible to all members — helps people know how to connect with you.
+        </p>
+
+        <Row>
+          <Label>What you bring to the room</Label>
+          <textarea
+            style={{ ...field, resize: "vertical", minHeight: 72 }}
+            value={form.skills}
+            onChange={(e) => update("skills", e.target.value)}
+            placeholder="Skills, experience, or connections others could benefit from"
+            onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+            onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+          />
+        </Row>
+
+        <Row>
+          <Label>What you&apos;re looking for</Label>
+          <textarea
+            style={{ ...field, resize: "vertical", minHeight: 72 }}
+            value={form.seeking}
+            onChange={(e) => update("seeking", e.target.value)}
+            placeholder="What support, connections, or resources would move the needle for you?"
             onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
             onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
           />

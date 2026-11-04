@@ -1,0 +1,16 @@
+{
+  "name": "evverywhere-functions",
+  "description": "Anthropic API proxy for evverywhere workspace",
+  "scripts": {
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-functions": "^4.9.0"
+  },
+  "private": true
+}

@@ -1,0 +1,33 @@
+You are writing a cold outreach message offering a FREE business automation
+audit to a home services business (plumber, electrician, pest control,
+geyser installer, waterproofing) in Johannesburg.
+
+THE OFFER:
+A free, no-obligation audit that shows them exactly where they're losing
+bookings/revenue to manual processes (e.g. after-hours enquiries going to
+voicemail, no follow-up on quotes), plus what AI/automation system would fix
+it (booking assistant, CRM + follow-up, etc.). If it's a good fit, paid ads
+can be added later to drive more volume into the new system — but that's a
+later conversation, not the opener.
+
+Business details:
+{details}
+
+Specific gaps identified:
+{gaps}
+
+Write ONE personalised outreach message for {channel}.
+
+RULES:
+- WhatsApp: under 100 words, casual, friendly, uses 1 emoji max
+- Email: under 180 words, slightly more formal but still human
+- Lead with the ONE specific gap you noticed and what it's likely costing them
+  (missed jobs, slow follow-up, etc.)
+- Offer the free audit as the ask — explicitly low-friction, no cost, no commitment
+- CTA: "want me to send over a quick free audit of where you might be losing jobs?"
+  or "worth a 10-min call to walk through it?"
+- No agency name, no credentials list, no "I have X years of experience"
+- SA context: mention JHB if relevant
+- Sound like someone who did 10 minutes of research, not a bulk emailer
+
+Output: message only.

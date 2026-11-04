@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>evverywhere — writing dump</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream:  #EAE3D9;
+    --cream-2:#E2DAD0;
+    --cream-3:#D8D0C5;
+    --ink:    #1A1612;
+    --ink-2:  #2E2924;
+    --muted:  #8A7F73;
+    --line:   #CEC6BA;
+    --red:    #BF3E28;
+    --serif:  'Cormorant Garamond', Georgia, serif;
+    --mono:   'Courier New', 'Lucida Console', monospace;
+    --sidebar: 280px;
+  }
+
+  html, body { height: 100%; background: var(--cream); color: var(--ink); }
+
+  /* ── Top bar ──────────────────────────────────────────── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: 52px;
+    background: var(--cream);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center;
+    padding: 0 20px;
+    gap: 20px;
+  }
+  .topbar-brand {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: lowercase;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .topbar-brand em { font-style: italic; font-family: var(--serif); font-size: 12px; }
+  .topbar-spacer { flex: 1; }
+  .save-status {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.3s;
+  }
+  .save-status.saving { color: var(--red); }
+  .save-status.saved  { color: var(--muted); }
+
+  .btn-new {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    padding: 7px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+  .btn-new:hover { opacity: 0.82; }
+
+  /* ── Layout ───────────────────────────────────────────── */
+  .layout {
+    display: flex;
+    height: 100vh;
+    padding-top: 52px;
+  }
+
+  /* ── Sidebar ──────────────────────────────────────────── */
+  .sidebar {
+    width: var(--sidebar);
+    flex-shrink: 0;
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
+    background: var(--cream-2);
+  }
+
+  .sidebar-header {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sidebar-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .entry-count {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--ink);
+    margin-top: 4px;
+  }
+  .entry-count-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Search */
+  .sidebar-search {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sidebar-search input {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink);
+    outline: none;
+  }
+  .sidebar-search input::placeholder { color: var(--muted); }
+  .sidebar-search input:focus { border-color: var(--ink); }
+
+  /* Entry list */
+  .entry-list { padding: 8px 0; }
+
+  .entry-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: background 0.1s, border-color 0.1s;
+    border-bottom: 1px solid rgba(206,198,186,0.4);
+  }
+  .entry-item:hover { background: rgba(206,198,186,0.4); }
+  .entry-item.active {
+    background: var(--cream);
+    border-left-color: var(--ink);
+  }
+  .entry-item-title {
+    font-family: var(--serif);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+  .entry-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+  }
+  .entry-tag {
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 2px 5px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .entry-tag.transcript { border-color: #8A7F73; color: #8A7F73; }
+  .entry-tag.copy       { border-color: var(--red); color: var(--red); }
+  .entry-tag.notes      { border-color: var(--ink); color: var(--ink-2); }
+  .entry-tag.ideas      { border-color: #6B8F71; color: #6B8F71; }
+  .entry-date {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .entry-preview {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+  }
+
+  .empty-state {
+    padding: 32px 16px;
+    text-align: center;
+  }
+  .empty-state p {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* ── Editor ───────────────────────────────────────────── */
+  .editor-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* Editor top bar */
+  .editor-topbar {
+    border-bottom: 1px solid var(--line);
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    background: var(--cream);
+  }
+  .editor-title-input {
+    flex: 1;
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 300;
+    font-style: italic;
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    outline: none;
+    min-width: 0;
+  }
+  .editor-title-input::placeholder { color: var(--muted); }
+
+  .tag-picker {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .tag-btn {
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+  .tag-btn:hover { border-color: var(--ink-2); color: var(--ink); }
+  .tag-btn.active-transcript { border-color: #8A7F73; color: #8A7F73; background: rgba(138,127,115,0.06); }
+  .tag-btn.active-copy       { border-color: var(--red); color: var(--red); background: rgba(191,62,40,0.05); }
+  .tag-btn.active-notes      { border-color: var(--ink); color: var(--ink); background: rgba(26,22,18,0.05); }
+  .tag-btn.active-ideas      { border-color: #6B8F71; color: #6B8F71; background: rgba(107,143,113,0.06); }
+
+  .btn-delete {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-delete:hover { border-color: var(--red); color: var(--red); }
+
+  .btn-copy-clip {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .btn-copy-clip:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* Textarea */
+  .editor-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 80px 80px;
+  }
+
+  @media (max-width: 900px) {
+    .editor-body { padding: 24px 32px 60px; }
+  }
+
+  .editor-textarea {
+    width: 100%;
+    min-height: 100%;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    caret-color: var(--red);
+  }
+  .editor-textarea::placeholder { color: rgba(138,127,115,0.5); }
+
+  /* Word count bar */
+  .editor-footer {
+    border-top: 1px solid var(--line);
+    padding: 8px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+    background: var(--cream-2);
+  }
+  .editor-stat {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .editor-stat span { color: var(--ink); font-weight: 600; }
+
+  /* ── Empty editor ─────────────────────────────────────── */
+  .no-entry {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .no-entry-heading {
+    font-family: var(--serif);
+    font-size: 48px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--line);
+  }
+  .no-entry-sub {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .btn-start {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    padding: 10px 24px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .btn-start:hover { opacity: 0.82; }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-brand">the evverywhere <em>writing</em> dump.</div>
+  <div class="topbar-spacer"></div>
+  <div class="save-status" id="save-status">All saved</div>
+  <button class="btn-new" onclick="newEntry()">+ New Entry</button>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-label">Entries</div>
+      <div class="entry-count" id="entry-count">0</div>
+      <div class="entry-count-label">Total documents</div>
+    </div>
+    <div class="sidebar-search">
+      <input type="text" id="search-input" placeholder="Search…" oninput="renderList()">
+    </div>
+    <div class="entry-list" id="entry-list"></div>
+  </div>
+
+  <!-- Editor -->
+  <div class="editor-pane" id="editor-pane">
+    <div class="no-entry" id="no-entry">
+      <div class="no-entry-heading">Empty.</div>
+      <div class="no-entry-sub">No entry selected</div>
+      <button class="btn-start" onclick="newEntry()">Start writing →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Storage key ──────────────────────────────────────────
+const STORE = 'evv-writing-dump-v1';
+
+// ── State ────────────────────────────────────────────────
+let entries = [];
+let activeId = null;
+let saveTimer = null;
+
+// ── Init ─────────────────────────────────────────────────
+function init() {
+  const raw = localStorage.getItem(STORE);
+  if (raw) {
+    try { entries = JSON.parse(raw); } catch(e) { entries = []; }
+  }
+  // Seed with a welcome entry if empty
+  if (entries.length === 0) {
+    const welcome = makeEntry();
+    welcome.title = 'Welcome to the writing dump';
+    welcome.tag = 'notes';
+    welcome.body = `This is your writing dump.\n\nPaste session transcripts, client quotes, raw copy, ideas — anything that needs a home.\n\nEach entry auto-saves as you type. Use the tags (transcript / copy / notes / ideas) to keep things organised.\n\nStart a new entry with the button in the top right.`;
+    entries.push(welcome);
+    save();
+  }
+  renderList();
+  // Open first entry
+  if (entries.length > 0) openEntry(entries[0].id);
+}
+
+// ── Entry factory ────────────────────────────────────────
+function makeEntry() {
+  return {
+    id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
+    title: 'Untitled',
+    tag: 'notes',
+    body: '',
+    created: new Date().toISOString(),
+    updated: new Date().toISOString()
+  };
+}
+
+// ── Save ─────────────────────────────────────────────────
+function save() {
+  localStorage.setItem(STORE, JSON.stringify(entries));
+}
+
+function scheduleSave() {
+  const el = document.getElementById('save-status');
+  el.textContent = 'Saving…';
+  el.className = 'save-status saving';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    save();
+    el.textContent = 'All saved';
+    el.className = 'save-status saved';
+  }, 600);
+}
+
+// ── Render list ───────────────────────────────────────────
+function renderList() {
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+  const filtered = entries.filter(e =>
+    e.title.toLowerCase().includes(q) ||
+    e.body.toLowerCase().includes(q) ||
+    e.tag.toLowerCase().includes(q)
+  );
+
+  document.getElementById('entry-count').textContent = entries.length;
+
+  const list = document.getElementById('entry-list');
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-state"><p>No entries found.</p></div>`;
+    return;
+  }
+
+  // Sort newest first
+  const sorted = [...filtered].sort((a,b) => new Date(b.updated) - new Date(a.updated));
+
+  list.innerHTML = sorted.map(e => `
+    <div class="entry-item${e.id === activeId ? ' active' : ''}" onclick="openEntry('${e.id}')">
+      <div class="entry-item-title">${escHtml(e.title)}</div>
+      <div class="entry-item-meta">
+        <span class="entry-tag ${e.tag}">${e.tag}</span>
+        <span class="entry-date">${fmtDate(e.updated)}</span>
+      </div>
+      <div class="entry-preview">${escHtml(e.body.slice(0, 80).replace(/\n/g,' '))}</div>
+    </div>
+  `).join('');
+}
+
+// ── Open entry ────────────────────────────────────────────
+function openEntry(id) {
+  // Flush any pending save first
+  flushPending();
+
+  activeId = id;
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+
+  const pane = document.getElementById('editor-pane');
+  pane.innerHTML = `
+    <div class="editor-topbar">
+      <input
+        class="editor-title-input"
+        id="ed-title"
+        type="text"
+        value="${escAttr(e.title)}"
+        placeholder="Entry title…"
+        oninput="onTitleChange()"
+      >
+      <div class="tag-picker" id="tag-picker">
+        ${['transcript','copy','notes','ideas'].map(t => `
+          <button class="tag-btn${e.tag===t?' active-'+t:''}" onclick="setTag('${t}')">${t}</button>
+        `).join('')}
+      </div>
+      <button class="btn-copy-clip" onclick="copyToClipboard()">Copy all</button>
+      <button class="btn-delete" onclick="deleteEntry('${e.id}')">Delete</button>
+    </div>
+    <div class="editor-body">
+      <textarea
+        class="editor-textarea"
+        id="ed-body"
+        placeholder="Start writing, or paste your transcript here…"
+        oninput="onBodyChange()"
+        spellcheck="true"
+      >${escHtml(e.body)}</textarea>
+    </div>
+    <div class="editor-footer">
+      <div class="editor-stat">Words <span id="word-count">0</span></div>
+      <div class="editor-stat">Characters <span id="char-count">0</span></div>
+      <div class="editor-stat">Created <span>${fmtDateLong(e.created)}</span></div>
+    </div>
+  `;
+
+  updateCounts();
+  renderList();
+  document.getElementById('ed-body').focus();
+}
+
+// ── Flush pending edits ───────────────────────────────────
+function flushPending() {
+  if (!activeId) return;
+  const titleEl = document.getElementById('ed-title');
+  const bodyEl  = document.getElementById('ed-body');
+  if (!titleEl || !bodyEl) return;
+  const e = entries.find(x => x.id === activeId);
+  if (!e) return;
+  e.title   = titleEl.value.trim() || 'Untitled';
+  e.body    = bodyEl.value;
+  e.updated = new Date().toISOString();
+  save();
+}
+
+// ── Title change ──────────────────────────────────────────
+function onTitleChange() {
+  const e = entries.find(x => x.id === activeId);
+  if (!e) return;
+  e.title   = document.getElementById('ed-title').value.trim() || 'Untitled';
+  e.updated = new Date().toISOString();
+  scheduleSave();
+  renderList();
+}
+
+// ── Body change ───────────────────────────────────────────
+function onBodyChange() {
+  const e = entries.find(x => x.id === activeId);
+  if (!e) return;
+  e.body    = document.getElementById('ed-body').value;
+  e.updated = new Date().toISOString();
+  scheduleSave();
+  updateCounts();
+  renderList();
+}
+
+// ── Word / char count ─────────────────────────────────────
+function updateCounts() {
+  const body = document.getElementById('ed-body')?.value || '';
+  const words = body.trim() ? body.trim().split(/\s+/).length : 0;
+  const chars = body.length;
+  const wc = document.getElementById('word-count');
+  const cc = document.getElementById('char-count');
+  if (wc) wc.textContent = words.toLocaleString();
+  if (cc) cc.textContent = chars.toLocaleString();
+}
+
+// ── Set tag ───────────────────────────────────────────────
+function setTag(tag) {
+  const e = entries.find(x => x.id === activeId);
+  if (!e) return;
+  e.tag = tag;
+  e.updated = new Date().toISOString();
+  scheduleSave();
+  // Update buttons
+  document.querySelectorAll('.tag-btn').forEach(btn => {
+    btn.className = 'tag-btn';
+    if (btn.textContent === tag) btn.classList.add('active-' + tag);
+  });
+  renderList();
+}
+
+// ── New entry ─────────────────────────────────────────────
+function newEntry() {
+  flushPending();
+  const e = makeEntry();
+  entries.unshift(e);
+  save();
+  renderList();
+  openEntry(e.id);
+  // Focus title
+  setTimeout(() => {
+    const t = document.getElementById('ed-title');
+    if (t) { t.select(); }
+  }, 50);
+}
+
+// ── Delete entry ──────────────────────────────────────────
+function deleteEntry(id) {
+  if (!confirm('Delete this entry? This cannot be undone.')) return;
+  entries = entries.filter(e => e.id !== id);
+  save();
+  activeId = null;
+  const pane = document.getElementById('editor-pane');
+  pane.innerHTML = `
+    <div class="no-entry" id="no-entry">
+      <div class="no-entry-heading">Empty.</div>
+      <div class="no-entry-sub">Entry deleted</div>
+      <button class="btn-start" onclick="newEntry()">Start writing →</button>
+    </div>
+  `;
+  renderList();
+  if (entries.length > 0) openEntry(entries[0].id);
+}
+
+// ── Copy to clipboard ─────────────────────────────────────
+function copyToClipboard() {
+  const body = document.getElementById('ed-body')?.value || '';
+  navigator.clipboard.writeText(body).then(() => {
+    const btn = document.querySelector('.btn-copy-clip');
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy all', 1500); }
+  });
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  return String(s).replace(/"/g,'&quot;');
+}
+function fmtDate(iso) {
+  const d = new Date(iso);
+  const today = new Date();
+  const diff = (today - d) / 1000;
+  if (diff < 60)    return 'just now';
+  if (diff < 3600)  return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return d.toLocaleDateString('en-ZA', {day:'numeric',month:'short'});
+}
+function fmtDateLong(iso) {
+  return new Date(iso).toLocaleDateString('en-ZA', {day:'numeric',month:'long',year:'numeric'});
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────
+document.addEventListener('keydown', e => {
+  // Cmd/Ctrl+N = new entry
+  if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
+    e.preventDefault();
+    newEntry();
+  }
+});
+
+// ── Run ───────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

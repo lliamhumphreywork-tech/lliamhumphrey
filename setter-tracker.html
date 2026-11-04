@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setter Tracker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --border: #2a2a2a;
+    --accent: #3b82f6;
+    --text: #e5e5e5;
+    --muted: #888;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --purple: #a855f7;
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
+
+  .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .tab { padding: 14px 24px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; font-weight: 500; transition: all 0.15s; white-space: nowrap; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text); }
+  .tab-badge { display: inline-block; background: var(--red); color: #fff; border-radius: 10px; font-size: 10px; padding: 1px 6px; margin-left: 4px; vertical-align: middle; }
+
+  .page { display: none; padding: 24px; max-width: 960px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  h2 { font-size: 20px; margin-bottom: 20px; }
+  h3 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 12px; }
+
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .row { display: grid; gap: 12px; margin-bottom: 0; }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  input[type=text], input[type=date], input[type=time], select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; color: var(--text); font-size: 14px; outline: none; transition: border 0.15s;
+    font-family: inherit;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+
+  .btn { padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity 0.15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { opacity: 0.85; }
+  .btn-danger { background: var(--red); color: #fff; font-size: 12px; padding: 4px 10px; }
+  .btn-sm { background: var(--border); color: var(--text); font-size: 12px; padding: 5px 12px; }
+
+  .quick-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+  .quick-bar > div { display: flex; flex-direction: column; }
+  .quick-bar input[type=time] { width: 110px; }
+  .quick-bar input[type=date] { width: 140px; }
+  .quick-bar .btn { align-self: flex-end; padding: 8px 16px; }
+
+  .filter-row { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-row select { width: auto; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 12px; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .empty { text-align: center; padding: 48px; color: var(--muted); }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-open        { background: rgba(245,158,11,0.15); color: var(--yellow); }
+  .badge-done        { background: rgba(34,197,94,0.15);  color: var(--green); }
+  .badge-pending     { background: rgba(245,158,11,0.15); color: var(--yellow); }
+  .badge-confirmed   { background: rgba(59,130,246,0.15); color: var(--accent); }
+  .badge-showed      { background: rgba(34,197,94,0.15);  color: var(--green); }
+  .badge-noshow      { background: rgba(239,68,68,0.15);  color: var(--red); }
+  .badge-rescheduled { background: rgba(168,85,247,0.15); color: var(--purple); }
+
+  .overdue { color: var(--red); font-size: 11px; font-weight: 600; margin-left: 6px; }
+  .urgent td { background: rgba(239,68,68,0.03); }
+
+  .add-form { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .add-form.open { display: block; }
+  .form-grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr 1fr; margin-bottom: 12px; }
+  .submit-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 500; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; z-index: 999; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('callbacks')">
+    Callbacks <span class="tab-badge" id="callbackBadge" style="display:none">0</span>
+  </div>
+  <div class="tab" onclick="switchTab('pipeline')">
+    Pipeline <span class="tab-badge" id="pipelineBadge" style="display:none">0</span>
+  </div>
+</div>
+
+<!-- ═══════════════ CALLBACKS ═══════════════ -->
+<div class="page active" id="tab-callbacks">
+  <h2>Callbacks</h2>
+
+  <div class="section">
+    <h3>Add Callback</h3>
+    <div class="quick-bar">
+      <div><label>Name</label><input type="text" id="cb_name" placeholder="John Smith"></div>
+      <div><label>Number</label><input type="text" id="cb_number" placeholder="+1 555 000 0000"></div>
+      <div><label>Call Date</label><input type="date" id="cb_date"></div>
+      <div><label>Best Time</label><input type="time" id="cb_time"></div>
+      <div><label>Notes</label><input type="text" id="cb_notes" placeholder="Optional"></div>
+      <button class="btn btn-primary" onclick="addCallback()">+ Add</button>
+    </div>
+  </div>
+
+  <div class="filter-row">
+    <select id="cb_filter" onchange="renderCallbacks()">
+      <option value="open">Open</option>
+      <option value="all">All</option>
+    </select>
+  </div>
+
+  <div class="section table-wrap">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Number</th><th>Call Date</th><th>Time</th><th>Notes</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody id="callbackBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════ PIPELINE ═══════════════ -->
+<div class="page" id="tab-pipeline">
+  <h2>Booking Pipeline</h2>
+
+  <button class="btn btn-primary" onclick="togglePipelineForm()" style="margin-bottom:16px">+ Add Booking</button>
+
+  <div class="add-form" id="pipelineForm">
+    <h3>New Booking</h3>
+    <div class="form-grid">
+      <div><label>Name</label><input type="text" id="pl_name" placeholder="Lead name"></div>
+      <div><label>Phone</label><input type="text" id="pl_phone" placeholder="Number"></div>
+      <div><label>Email</label><input type="text" id="pl_email" placeholder="Optional"></div>
+      <div><label>Appt Date</label><input type="date" id="pl_apptdate"></div>
+      <div><label>Appt Time</label><input type="time" id="pl_appttime"></div>
+      <div><label>Closer</label><input type="text" id="pl_closer" placeholder="Who's closing?"></div>
+    </div>
+    <div><label>Notes</label><input type="text" id="pl_notes" placeholder="Anything relevant about this lead"></div>
+    <div class="submit-row" style="margin-top:12px">
+      <button class="btn btn-sm" onclick="togglePipelineForm()">Cancel</button>
+      <button class="btn btn-primary" onclick="addBooking()">Save Booking</button>
+    </div>
+  </div>
+
+  <div class="filter-row">
+    <select id="pl_filter" onchange="renderPipeline()">
+      <option value="active">Active</option>
+      <option value="noshow">No-shows</option>
+      <option value="showed">Showed</option>
+      <option value="all">All</option>
+    </select>
+  </div>
+
+  <div class="section table-wrap">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Appt</th><th>Phone</th><th>Confirmed?</th><th>Status</th><th>Follow-up Note</th><th></th></tr>
+      </thead>
+      <tbody id="pipelineBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const store = {
+  get: k => JSON.parse(localStorage.getItem(k) || '[]'),
+  set: (k,v) => localStorage.setItem(k, JSON.stringify(v)),
+};
+const getCallbacks = () => store.get('eod_callbacks');
+const saveCallbacks = a => store.set('eod_callbacks', a);
+const getPipeline  = () => store.get('eod_pipeline');
+const savePipeline = a => store.set('eod_pipeline', a);
+
+function today() { return new Date().toISOString().slice(0,10); }
+function uid()   { return Date.now() + Math.random().toString(36).slice(2,6); }
+function esc(s)  { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = color || 'var(--green)';
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+document.getElementById('cb_date').value = today();
+document.getElementById('pl_apptdate').value = today();
+
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', ['callbacks','pipeline'][i] === t));
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if (t === 'callbacks') renderCallbacks();
+  if (t === 'pipeline')  renderPipeline();
+}
+
+function updateBadges() {
+  const open = getCallbacks().filter(c => c.status === 'open').length;
+  const cb = document.getElementById('callbackBadge');
+  cb.textContent = open; cb.style.display = open ? 'inline-block' : 'none';
+
+  const action = getPipeline().filter(p => p.status === 'noshow' || (p.status === 'pending' && p.apptdate && p.apptdate < today())).length;
+  const pl = document.getElementById('pipelineBadge');
+  pl.textContent = action; pl.style.display = action ? 'inline-block' : 'none';
+}
+
+// ── Callbacks ────────────────────────────────────────────────────
+function addCallback() {
+  const name = document.getElementById('cb_name').value.trim();
+  if (!name) { showToast('Name required', 'var(--red)'); return; }
+  const cb = {
+    id: uid(), name,
+    number: document.getElementById('cb_number').value.trim(),
+    date:   document.getElementById('cb_date').value,
+    time:   document.getElementById('cb_time').value,
+    notes:  document.getElementById('cb_notes').value.trim(),
+    status: 'open', added: today(),
+  };
+  const arr = getCallbacks(); arr.unshift(cb); saveCallbacks(arr);
+  ['cb_name','cb_number','cb_notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cb_time').value = '';
+  document.getElementById('cb_date').value = today();
+  renderCallbacks(); updateBadges(); showToast('Callback added!');
+}
+
+function markCallbackDone(id) {
+  saveCallbacks(getCallbacks().map(c => c.id===id ? {...c, status:'done'} : c));
+  renderCallbacks(); updateBadges();
+}
+
+function deleteCallback(id) {
+  saveCallbacks(getCallbacks().filter(c => c.id!==id));
+  renderCallbacks(); updateBadges();
+}
+
+function renderCallbacks() {
+  const filter = document.getElementById('cb_filter').value;
+  let arr = getCallbacks();
+  if (filter === 'open') arr = arr.filter(c => c.status === 'open');
+  arr.sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+  const tbody = document.getElementById('callbackBody');
+  if (!arr.length) { tbody.innerHTML = `<tr><td colspan="7" class="empty">No callbacks ${filter==='open'?'pending':'logged'}.</td></tr>`; return; }
+  const isOverdue = c => c.status==='open' && c.date && c.date < today();
+  tbody.innerHTML = arr.map(c => `<tr class="${isOverdue(c)?'urgent':''}">
+    <td><strong>${esc(c.name)}</strong>${isOverdue(c)?'<span class="overdue">OVERDUE</span>':''}</td>
+    <td>${esc(c.number)}</td>
+    <td>${c.date||'—'}</td>
+    <td>${c.time||'—'}</td>
+    <td style="color:var(--muted)">${esc(c.notes)}</td>
+    <td><span class="badge badge-${c.status}">${c.status}</span></td>
+    <td style="white-space:nowrap">
+      ${c.status==='open'?`<button class="btn btn-green btn-sm" onclick="markCallbackDone('${c.id}')" style="margin-right:4px">Done</button>`:''}
+      <button class="btn btn-danger" onclick="deleteCallback('${c.id}')">Del</button>
+    </td>
+  </tr>`).join('');
+}
+
+// ── Pipeline ─────────────────────────────────────────────────────
+function togglePipelineForm() {
+  document.getElementById('pipelineForm').classList.toggle('open');
+}
+
+function addBooking() {
+  const name = document.getElementById('pl_name').value.trim();
+  if (!name) { showToast('Name required', 'var(--red)'); return; }
+  const b = {
+    id: uid(), name,
+    phone:    document.getElementById('pl_phone').value.trim(),
+    email:    document.getElementById('pl_email').value.trim(),
+    apptdate: document.getElementById('pl_apptdate').value,
+    appttime: document.getElementById('pl_appttime').value,
+    closer:   document.getElementById('pl_closer').value.trim(),
+    notes:    document.getElementById('pl_notes').value.trim(),
+    confirmed: false, status: 'pending', followup: '', added: today(),
+  };
+  const arr = getPipeline(); arr.unshift(b); savePipeline(arr);
+  ['pl_name','pl_phone','pl_email','pl_closer','pl_notes'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('pl_appttime').value = '';
+  document.getElementById('pl_apptdate').value = today();
+  togglePipelineForm(); renderPipeline(); updateBadges(); showToast('Booking added!');
+}
+
+function setBookingStatus(id, status) {
+  savePipeline(getPipeline().map(p => p.id===id ? {...p, status} : p));
+  renderPipeline(); updateBadges();
+}
+
+function toggleConfirmed(id) {
+  savePipeline(getPipeline().map(p => p.id===id ? {...p, confirmed:!p.confirmed} : p));
+  renderPipeline();
+}
+
+function updateFollowup(id, val) {
+  savePipeline(getPipeline().map(p => p.id===id ? {...p, followup:val} : p));
+}
+
+function deleteBooking(id) {
+  if (!confirm('Delete this booking?')) return;
+  savePipeline(getPipeline().filter(p => p.id!==id));
+  renderPipeline(); updateBadges();
+}
+
+function renderPipeline() {
+  const filter = document.getElementById('pl_filter').value;
+  let arr = getPipeline();
+  if (filter==='active')  arr = arr.filter(p => p.status!=='showed');
+  if (filter==='noshow')  arr = arr.filter(p => p.status==='noshow');
+  if (filter==='showed')  arr = arr.filter(p => p.status==='showed');
+  arr.sort((a,b) => (a.apptdate+a.appttime).localeCompare(b.apptdate+b.appttime));
+  const tbody = document.getElementById('pipelineBody');
+  if (!arr.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">No bookings here.</td></tr>'; return; }
+  const isPast = p => p.apptdate && p.apptdate < today() && p.status==='pending';
+  const statusOpts = s => ['pending','confirmed','showed','noshow','rescheduled']
+    .map(o => `<option value="${o}" ${s===o?'selected':''}>${o}</option>`).join('');
+  tbody.innerHTML = arr.map(p => `<tr class="${isPast(p)?'urgent':''}">
+    <td>
+      <strong>${esc(p.name)}</strong>
+      ${p.notes?`<br><span style="color:var(--muted);font-size:12px">${esc(p.notes)}</span>`:''}
+    </td>
+    <td style="white-space:nowrap">
+      ${[p.apptdate,p.appttime].filter(Boolean).join(' ')||'—'}
+      ${isPast(p)?'<span class="overdue">past due</span>':''}
+    </td>
+    <td>${esc(p.phone)}</td>
+    <td>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin:0">
+        <input type="checkbox" ${p.confirmed?'checked':''} onchange="toggleConfirmed('${p.id}')" style="width:auto">
+        <span style="font-size:12px;color:${p.confirmed?'var(--green)':'var(--muted)'}">${p.confirmed?'Yes':'No'}</span>
+      </label>
+    </td>
+    <td>
+      <select onchange="setBookingStatus('${p.id}',this.value)" style="width:auto;font-size:12px;padding:4px 8px">
+        ${statusOpts(p.status)}
+      </select>
+    </td>
+    <td><input type="text" value="${esc(p.followup)}" placeholder="Follow-up note…" style="font-size:12px;padding:5px 8px;min-width:160px" onchange="updateFollowup('${p.id}',this.value)"></td>
+    <td><button class="btn btn-danger" onclick="deleteBooking('${p.id}')">Del</button></td>
+  </tr>`).join('');
+}
+
+updateBadges();
+renderCallbacks();
+
+// ── Notifications ─────────────────────────────────────────────────
+const NOTIF_KEY = 'eod_notif_fired';
+
+function getNotifRecord() { return JSON.parse(localStorage.getItem(NOTIF_KEY) || '{}'); }
+function markNotifFired(key) {
+  const r = getNotifRecord(); r[key] = true; localStorage.setItem(NOTIF_KEY, JSON.stringify(r));
+}
+function wasNotifFired(key) { return !!getNotifRecord()[key]; }
+
+async function requestNotifPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') await Notification.requestPermission();
+}
+
+function fireNotif(title, body) {
+  if (Notification.permission !== 'granted') return;
+  new Notification(title, { body, icon: '' });
+}
+
+function checkNotifications() {
+  if (Notification.permission !== 'granted') return;
+  const now = new Date();
+  const pipeline = getPipeline().filter(p => !['showed','noshow'].includes(p.status));
+
+  for (const p of pipeline) {
+    if (!p.apptdate || !p.appttime) continue;
+    const appt = new Date(`${p.apptdate}T${p.appttime}`);
+    if (isNaN(appt)) continue;
+    const diffMs = appt - now;
+    const diffHrs = diffMs / 36e5;
+
+    // Day before: fire between 9:00–9:01am the previous day
+    const dayBefore = new Date(appt); dayBefore.setDate(dayBefore.getDate() - 1); dayBefore.setHours(9,0,0,0);
+    const keyDay = `day_${p.id}_${p.apptdate}`;
+    if (!wasNotifFired(keyDay) && now >= dayBefore && now < new Date(dayBefore.getTime() + 60000)) {
+      fireNotif(`📅 Appt tomorrow — ${p.name}`, `Confirm & text them today. Appt: ${p.appttime}`);
+      markNotifFired(keyDay);
+    }
+
+    // 2 hours before
+    const key2h = `2h_${p.id}_${p.apptdate}`;
+    if (!wasNotifFired(key2h) && diffHrs <= 2 && diffHrs > 0) {
+      fireNotif(`⏰ 2 hrs — ${p.name}`, `Appointment at ${p.appttime}. Send a reminder text now.`);
+      markNotifFired(key2h);
+    }
+
+    // 30 min before
+    const key30 = `30m_${p.id}_${p.apptdate}`;
+    if (!wasNotifFired(key30) && diffHrs <= 0.5 && diffHrs > 0) {
+      fireNotif(`🔔 30 min — ${p.name}`, `Appointment at ${p.appttime}. Are they confirmed?`);
+      markNotifFired(key30);
+    }
+  }
+
+  // Callbacks due today that are still open
+  const callbacks = getCallbacks().filter(c => c.status === 'open' && c.date === today());
+  for (const c of callbacks) {
+    if (!c.time) continue;
+    const callAt = new Date(`${c.date}T${c.time}`);
+    if (isNaN(callAt)) continue;
+    const diffMin = (callAt - now) / 60000;
+    const keyCB = `cb_${c.id}_${c.date}`;
+    if (!wasNotifFired(keyCB) && diffMin <= 5 && diffMin > -1) {
+      fireNotif(`📞 Call ${c.name}`, `Callback due now${c.notes ? ' — ' + c.notes : ''}`);
+      markNotifFired(keyCB);
+    }
+  }
+}
+
+requestNotifPermission().then(() => {
+  checkNotifications();
+  setInterval(checkNotifications, 60000);
+});
+</script>
+</body>
+</html>

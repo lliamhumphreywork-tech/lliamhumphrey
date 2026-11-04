@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bungee&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        /* near-black with a subtle indigo/violet hue tint */
+        background: #0a0712;
+      }
+
+      /* ---------- background layer ---------- */
+      .bg-fill {
+        position: absolute;
+        inset: 0;
+        background: #0a0712;
+        z-index: 0;
+      }
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(8px);
+        transform: scale(1);
+        will-change: transform, opacity;
+      }
+      /* warm orb — top-left */
+      .orb-warm {
+        top: -340px;
+        left: -300px;
+        width: 1180px;
+        height: 1180px;
+        background: radial-gradient(
+          circle,
+          rgba(255, 96, 126, 0.55) 0%,
+          rgba(255, 96, 126, 0.22) 38%,
+          rgba(255, 96, 126, 0) 70%
+        );
+      }
+      /* cool orb — bottom-right */
+      .orb-cool {
+        bottom: -360px;
+        right: -320px;
+        width: 1260px;
+        height: 1260px;
+        background: radial-gradient(
+          circle,
+          rgba(46, 122, 255, 0.5) 0%,
+          rgba(46, 122, 255, 0.2) 40%,
+          rgba(46, 122, 255, 0) 72%
+        );
+      }
+      /* neutral orb — centre */
+      .orb-neutral {
+        top: 50%;
+        left: 50%;
+        width: 1000px;
+        height: 1000px;
+        margin: -500px 0 0 -500px;
+        background: radial-gradient(
+          circle,
+          rgba(168, 176, 214, 0.28) 0%,
+          rgba(168, 176, 214, 0.1) 45%,
+          rgba(168, 176, 214, 0) 72%
+        );
+      }
+      .dot-grid {
+        position: absolute;
+        inset: -40px;
+        background-image: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.07) 1.5px,
+          rgba(255, 255, 255, 0) 1.6px
+        );
+        background-size: 46px 46px;
+        will-change: transform;
+        z-index: 1;
+      }
+
+      /* ---------- scenes ---------- */
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 40px;
+        z-index: 10;
+      }
+      .words {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        line-height: 0.92;
+      }
+      .word {
+        font-family: "Bungee", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+        will-change: transform, opacity;
+      }
+      .underline {
+        width: 340px;
+        height: 6px;
+        border-radius: 4px;
+        transform: scaleX(0);
+        will-change: transform;
+      }
+
+      /* ---------- UI: dots + progress ---------- */
+      .ui-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        pointer-events: none;
+      }
+      .dots {
+        position: absolute;
+        left: 50%;
+        bottom: 56px;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 22px;
+      }
+      .dot {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.18);
+        will-change: transform, background-color;
+      }
+      .progress-track {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .progress-fill {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 6px;
+        width: 100%;
+        transform: scaleX(0);
+        transform-origin: left center;
+        background: linear-gradient(
+          90deg,
+          #ff2d78 0%,
+          #21e6ff 50%,
+          #c2ff3d 100%
+        );
+        will-change: transform;
+      }
+
+      /* ---------- transition overlays ---------- */
+      .flash {
+        position: absolute;
+        inset: 0;
+        background: #fff6fb;
+        opacity: 0;
+        z-index: 40;
+        pointer-events: none;
+        will-change: opacity;
+      }
+      .blackout {
+        position: absolute;
+        inset: 0;
+        background: #000;
+        opacity: 0;
+        z-index: 50;
+        pointer-events: none;
+        will-change: opacity;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="6"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- ===== persistent background ===== -->
+      <div
+        id="bg"
+        class="clip"
+        data-start="0"
+        data-duration="6"
+        data-track-index="0"
+        style="z-index: 0"
+      >
+        <div class="bg-fill"></div>
+        <div class="orb orb-warm"></div>
+        <div class="orb orb-cool"></div>
+        <div class="orb orb-neutral"></div>
+        <div class="dot-grid"></div>
+      </div>
+
+      <!-- ===== scene 1 : CREATE STUNNING ===== -->
+      <div
+        id="scene1"
+        class="clip scene"
+        data-start="0"
+        data-duration="2"
+        data-track-index="1"
+        data-layout-allow-overflow
+      >
+        <div class="words">
+          <span
+            class="word"
+            style="
+              font-size: 178px;
+              color: #ff2d78;
+              text-shadow: 0 0 38px rgba(255, 45, 120, 0.85),
+                0 0 88px rgba(255, 45, 120, 0.5);
+            "
+            >Create</span
+          >
+          <span
+            class="word"
+            style="
+              font-size: 150px;
+              color: #21e6ff;
+              text-shadow: 0 0 38px rgba(33, 230, 255, 0.85),
+                0 0 88px rgba(33, 230, 255, 0.5);
+            "
+            >Stunning</span
+          >
+        </div>
+        <div
+          id="ul1"
+          class="underline"
+          style="
+            background: #21e6ff;
+            box-shadow: 0 0 22px rgba(33, 230, 255, 0.8);
+          "
+        ></div>
+      </div>
+
+      <!-- ===== scene 2 : VIDEOS WITH AI ===== -->
+      <div
+        id="scene2"
+        class="clip scene"
+        data-start="2"
+        data-duration="2"
+        data-track-index="1"
+        data-layout-allow-overflow
+      >
+        <div class="words">
+          <span
+            class="word"
+            style="
+              font-size: 172px;
+              color: #ff2d78;
+              text-shadow: 0 0 38px rgba(255, 45, 120, 0.85),
+                0 0 88px rgba(255, 45, 120, 0.5);
+            "
+            >Videos</span
+          >
+          <span
+            class="word"
+            style="
+              font-size: 190px;
+              color: #21e6ff;
+              text-shadow: 0 0 38px rgba(33, 230, 255, 0.85),
+                0 0 88px rgba(33, 230, 255, 0.5);
+            "
+            >With</span
+          >
+          <span
+            class="word"
+            style="
+              font-size: 210px;
+              color: #c2ff3d;
+              text-shadow: 0 0 38px rgba(194, 255, 61, 0.85),
+                0 0 88px rgba(194, 255, 61, 0.5);
+            "
+            >AI</span
+          >
+        </div>
+        <div
+          id="ul2"
+          class="underline"
+          style="
+            background: #c2ff3d;
+            box-shadow: 0 0 22px rgba(194, 255, 61, 0.8);
+          "
+        ></div>
+      </div>
+
+      <!-- ===== scene 3 : IN SECONDS ===== -->
+      <div
+        id="scene3"
+        class="clip scene"
+        data-start="4"
+        data-duration="2"
+        data-track-index="1"
+        data-layout-allow-overflow
+      >
+        <div class="words">
+          <span
+            class="word"
+            style="
+              font-size: 210px;
+              color: #ff2d78;
+              text-shadow: 0 0 38px rgba(255, 45, 120, 0.85),
+                0 0 88px rgba(255, 45, 120, 0.5);
+            "
+            >In</span
+          >
+          <span
+            class="word"
+            style="
+              font-size: 162px;
+              color: #21e6ff;
+              text-shadow: 0 0 38px rgba(33, 230, 255, 0.85),
+                0 0 88px rgba(33, 230, 255, 0.5);
+            "
+            >Seconds</span
+          >
+        </div>
+        <div
+          id="ul3"
+          class="underline"
+          style="
+            background: #ff2d78;
+            box-shadow: 0 0 22px rgba(255, 45, 120, 0.8);
+          "
+        ></div>
+      </div>
+
+      <!-- ===== persistent UI : dots + progress ===== -->
+      <div
+        id="ui"
+        class="clip ui-layer"
+        data-start="0"
+        data-duration="6"
+        data-track-index="2"
+        style="z-index: 20"
+      >
+        <div class="dots">
+          <div id="dot1" class="dot"></div>
+          <div id="dot2" class="dot"></div>
+          <div id="dot3" class="dot"></div>
+        </div>
+        <div class="progress-track"></div>
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <!-- ===== transition flash ===== -->
+      <div
+        id="flash"
+        class="clip flash"
+        data-start="0"
+        data-duration="6"
+        data-track-index="3"
+        style="z-index: 40"
+      ></div>
+
+      <!-- ===== final fade to black ===== -->
+      <div
+        id="blackout"
+        class="clip blackout"
+        data-start="0"
+        data-duration="6"
+        data-track-index="4"
+        style="z-index: 50"
+      ></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* ---- ambient background: orbs gently scale up over full duration ---- */
+      tl.fromTo(
+        ".orb-warm",
+        { scale: 0.86, opacity: 0.0 },
+        { scale: 1.22, opacity: 1, duration: 6, ease: "sine.inOut" },
+        0
+      );
+      tl.fromTo(
+        ".orb-cool",
+        { scale: 0.82, opacity: 0.0 },
+        { scale: 1.26, opacity: 1, duration: 6, ease: "sine.inOut" },
+        0
+      );
+      tl.fromTo(
+        ".orb-neutral",
+        { scale: 0.9, opacity: 0.0 },
+        { scale: 1.18, opacity: 1, duration: 6, ease: "sine.inOut" },
+        0
+      );
+      /* subtle dot-grid drift */
+      tl.fromTo(
+        ".dot-grid",
+        { scale: 1, opacity: 0.7 },
+        { scale: 1.05, opacity: 1, duration: 6, ease: "none" },
+        0
+      );
+
+      /* ---- progress bar sweeps left -> right over full duration ---- */
+      tl.fromTo(
+        "#progressFill",
+        { scaleX: 0 },
+        { scaleX: 1, duration: 6, ease: "none" },
+        0
+      );
+
+      /* ---- scene 1 : words rise up from below ---- */
+      tl.fromTo(
+        "#scene1 .word",
+        { y: 130, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.22, ease: "back.out(2)", stagger: 0.05 },
+        0.12
+      );
+      tl.fromTo(
+        "#ul1",
+        { scaleX: 0 },
+        { scaleX: 1, duration: 0.3, ease: "power3.out" },
+        0.5
+      );
+
+      /* ---- scene 2 : words drop in from above ---- */
+      tl.fromTo(
+        "#scene2 .word",
+        { y: -130, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.22, ease: "power4.out", stagger: 0.05 },
+        2.12
+      );
+      tl.fromTo(
+        "#ul2",
+        { scaleX: 0 },
+        { scaleX: 1, duration: 0.3, ease: "power3.out" },
+        2.55
+      );
+
+      /* ---- scene 3 : words slide in from the left ---- */
+      tl.fromTo(
+        "#scene3 .word",
+        { x: -190, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.22, ease: "expo.out", stagger: 0.05 },
+        4.12
+      );
+      tl.fromTo(
+        "#ul3",
+        { scaleX: 0 },
+        { scaleX: 1, duration: 0.3, ease: "power3.out" },
+        4.5
+      );
+
+      /* ---- dot indicators: light the active scene's dot ---- */
+      tl.to("#dot1", { scale: 1.5, backgroundColor: "#ff2d78", duration: 0.2 }, 0.1);
+      tl.to("#dot1", { scale: 1, backgroundColor: "rgba(255,255,255,0.18)", duration: 0.2 }, 1.95);
+      tl.to("#dot2", { scale: 1.5, backgroundColor: "#21e6ff", duration: 0.2 }, 2.1);
+      tl.to("#dot2", { scale: 1, backgroundColor: "rgba(255,255,255,0.18)", duration: 0.2 }, 3.95);
+      tl.to("#dot3", { scale: 1.5, backgroundColor: "#c2ff3d", duration: 0.2 }, 4.1);
+
+      /* ---- fast background flash between scenes (~160ms total) ---- */
+      tl.to("#flash", { opacity: 0.92, duration: 0.08, ease: "power2.in" }, 1.92);
+      tl.to("#flash", { opacity: 0, duration: 0.08, ease: "power2.out" }, 2.0);
+      tl.to("#flash", { opacity: 0.92, duration: 0.08, ease: "power2.in" }, 3.92);
+      tl.to("#flash", { opacity: 0, duration: 0.08, ease: "power2.out" }, 4.0);
+
+      /* ---- final scene fades to black ---- */
+      tl.to("#blackout", { opacity: 1, duration: 0.38, ease: "power2.in" }, 5.62);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

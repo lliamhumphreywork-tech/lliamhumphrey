@@ -26,7 +26,6 @@ const GROUPS: SidebarGroup[] = [
       { href: "/feed", tag: "FD", label: "Feed", icon: Home },
       { href: "/members", tag: "MB", label: "Members", icon: Users },
       { href: "/events", tag: "EV", label: "Events", icon: Calendar },
-      { href: "/spaces/wins", tag: "WN", label: "Wins", icon: Trophy },
     ],
   },
   {

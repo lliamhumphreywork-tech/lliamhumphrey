@@ -188,7 +188,7 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
         onChange={(e) => { handleFiles(Array.from(e.target.files ?? [])); e.target.value = "" }} />
 
       {!expanded ? (
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", cursor: "text" }}
+        <div data-composer-trigger style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", cursor: "text" }}
           onClick={() => setExpanded(true)}>
           <Avatar src={composerAvatar || user?.image} name={user?.name} size={34} role={(user as any)?.role} />
           <span style={{ flex: 1, fontSize: 14, color: "var(--text-muted)", fontFamily: "Plus Jakarta Sans, sans-serif", userSelect: "none" }}>

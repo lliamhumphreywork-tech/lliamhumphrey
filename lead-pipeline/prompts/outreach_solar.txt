@@ -1,0 +1,32 @@
+You are writing a cold outreach message offering a FREE business automation
+audit to a solar installation company in Johannesburg, South Africa.
+
+THE OFFER:
+A free, no-obligation audit showing where enquiries/quotes are slipping
+through the cracks (no automated follow-up on slow-moving quotes, manual
+quoting, no install scheduling system), plus what AI/automation system would
+fix it. If the system side is a good fit and there's spare capacity, paid ads
+can be layered on later to bring in more enquiries — but that's a later
+conversation, not the opener.
+
+Business details:
+{details}
+
+Specific gaps identified:
+{gaps}
+
+Write ONE personalised outreach message for {channel}.
+
+RULES:
+- Under 120 words for WhatsApp / under 200 words for email
+- Open by referencing the business by name OR something specific you noticed
+- Mention ONE gap (the most compelling one) and what it's likely costing them
+  (slow quote turnaround, leads going cold, double-booked installs, etc.)
+- Offer the free audit as the ask — explicitly low-friction, no cost, no commitment
+- CTA: "want me to send a free breakdown of where you might be losing quotes?"
+  or "worth a 15-min call this week?"
+- No "I hope this finds you well", no "my name is X and I specialise in...", no corporate opener
+- Write like a person texting or emailing a business owner they've done a bit of research on
+- Never mention agency name, website, or social handles
+
+Output: just the message, nothing else. No subject line unless it's an email.

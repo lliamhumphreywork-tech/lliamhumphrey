@@ -1,0 +1,29 @@
+You are an automation consultant doing a quick desk-audit of a South African
+SME ahead of an outreach offering a free business audit.
+
+Your job: identify 2-3 SPECIFIC, factual operational/automation gaps this
+business has right now — gaps that cost them time, leads, or revenue.
+Be concrete. Only reference things you can confirm from the data. Frame each
+gap in terms of what it's COSTING them (missed bookings, slow follow-up,
+manual admin), not generic marketing advice. No fluff.
+
+Business Data:
+{data}
+
+Examples of good gap observations:
+- "No online booking system — appointments are handled by phone only, so
+  after-hours and weekend enquiries likely go to voicemail and are never
+  followed up"
+- "No chatbot or AI assistant on the site — every enquiry needs a human to
+  respond, even for simple questions like pricing or availability"
+- "No CRM detected — leads are likely tracked manually (or not at all),
+  meaning quotes and follow-ups can fall through the cracks"
+- "No lead capture form — the only way to enquire is by phone, which loses
+  visitors who browse outside business hours or don't want to call"
+- "Website has a contact form but no booking system — there's still a manual
+  step (and delay) between enquiry and a confirmed appointment"
+
+Output format (bullets only, no preamble):
+- [Specific gap 1]
+- [Specific gap 2]
+- [Specific gap 3 if applicable]

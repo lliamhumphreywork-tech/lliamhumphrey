@@ -1,0 +1,2478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>evverywhere workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<style>
+/* ── Reset & Variables ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --cream:  #F4F2EF; --cream-2: #ECEAE7; --cream-3: #E3E1DD;
+  --ink:    #111111; --ink-2:   #1E1E1E; --muted:   #8F8F8F;
+  --line:   #DDDBD8; --red:     #BF3E28;
+  --serif:  'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --mono:   'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --nav-h:  52px;
+  --sidebar:280px;
+}
+html, body { height: 100%; background: var(--cream); color: var(--ink); font-family: var(--mono); }
+input, textarea, select, button { font-family: inherit; }
+
+/* ── Login Screen ──────────────────────────────────────── */
+#screen-login {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--ink);
+}
+.login-box { text-align: center; max-width: 420px; padding: 0 24px; }
+.login-logo {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+  text-transform: lowercase; color: rgba(234,227,217,.4); margin-bottom: 64px;
+}
+.login-logo em { font-style: italic; font-family: var(--serif); font-size: 14px; }
+.login-heading {
+  font-family: var(--serif); font-size: clamp(48px,8vw,80px); font-weight: 300;
+  font-style: italic; line-height: .95; color: var(--cream); margin-bottom: 20px;
+}
+.login-sub {
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(234,227,217,.35); margin-bottom: 56px; line-height: 2;
+}
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--cream); border: none; width: 100%;
+  padding: 14px 24px; cursor: pointer;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink);
+  font-family: inherit; transition: opacity 0.15s;
+}
+.btn-google:hover { opacity: 0.88; }
+.btn-google:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-google svg { flex-shrink: 0; }
+.login-error {
+  margin-top: 16px; font-size: 10px; letter-spacing: 0.12em;
+  color: #e06060; text-transform: uppercase; line-height: 1.5;
+}
+
+/* ── Main App ──────────────────────────────────────────── */
+#screen-app { display: none; height: 100vh; flex-direction: column; }
+#screen-app.visible { display: flex; }
+
+/* ── Top Navigation ────────────────────────────────────── */
+#main-nav {
+  height: var(--nav-h); flex-shrink: 0;
+  background: var(--ink); color: var(--cream);
+  display: flex; align-items: center; padding: 0 24px; gap: 0;
+  border-bottom: 1px solid rgba(234,227,217,.08);
+  position: relative; z-index: 200;
+}
+.nav-brand {
+  font-size: 10px; letter-spacing: 0.12em; text-transform: lowercase; color: rgba(234,227,217,.7);
+  margin-right: 32px; white-space: nowrap;
+}
+.nav-brand em { font-style: italic; font-family: var(--serif); font-size: 13px; color: var(--cream); }
+.nav-tabs { display: flex; gap: 0; }
+.nav-tab {
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(234,227,217,.35); padding: 0 20px; height: var(--nav-h);
+  display: flex; align-items: center; cursor: pointer; border: none;
+  background: transparent; transition: color 0.15s;
+  border-bottom: 2px solid transparent; position: relative; top: 1px;
+}
+.nav-tab:hover { color: rgba(234,227,217,.7); }
+.nav-tab.active { color: var(--cream); border-bottom-color: var(--cream); }
+.nav-spacer { flex: 1; }
+.nav-user {
+  display: flex; align-items: center; gap: 10px; margin-right: 16px;
+}
+.nav-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(234,227,217,.15); overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.nav-avatar-initial {
+  font-size: 11px; letter-spacing: 0; color: var(--cream); font-weight: 600;
+}
+.nav-name { font-size: 11px; letter-spacing: 0.1em; color: rgba(255,255,255,.5); }
+.btn-signout {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  background: transparent; border: 1px solid rgba(234,227,217,.15);
+  color: rgba(234,227,217,.4); padding: 5px 12px; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-signout:hover { border-color: rgba(234,227,217,.4); color: rgba(234,227,217,.7); }
+
+/* ── Section shell ─────────────────────────────────────── */
+.main-section {
+  flex: 1; display: none; overflow: hidden;
+  height: calc(100vh - var(--nav-h));
+}
+.main-section.active { display: flex; }
+
+/* ═══════════════════════════════════════════════════════ */
+/*  WRITING SECTION                                        */
+/* ═══════════════════════════════════════════════════════ */
+#section-writing { background: var(--cream); }
+
+.wr-sidebar {
+  width: var(--sidebar); flex-shrink: 0;
+  border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--cream-2);
+}
+.wr-sidebar-hdr {
+  padding: 16px 16px 12px; border-bottom: 1px solid var(--line); flex-shrink: 0;
+}
+.wr-lbl { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+.wr-count { font-family: var(--serif); font-size: 32px; font-weight: 300; color: var(--ink); line-height: 1; margin-top: 4px; }
+.wr-count-sub { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.wr-search { padding: 10px 12px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+.wr-search input {
+  width: 100%; background: transparent; border: 1px solid var(--line);
+  padding: 6px 10px; font-size: 10px; color: var(--ink); outline: none;
+}
+.wr-search input::placeholder { color: var(--muted); }
+.wr-search input:focus { border-color: var(--ink); }
+.wr-list { flex: 1; overflow-y: auto; }
+
+.wr-item {
+  padding: 10px 16px; cursor: pointer; border-left: 2px solid transparent;
+  border-bottom: 1px solid rgba(206,198,186,.4); transition: background 0.1s;
+}
+.wr-item:hover { background: rgba(206,198,186,.4); }
+.wr-item.active { background: var(--cream); border-left-color: var(--ink); }
+.wr-item-title {
+  font-family: var(--serif); font-size: 14px; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;
+}
+.wr-item-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+.wr-tag {
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 2px 5px; border: 1px solid var(--line); color: var(--muted);
+}
+.wr-tag.transcript { border-color: #8A7F73; color: #8A7F73; }
+.wr-tag.copy       { border-color: var(--red); color: var(--red); }
+.wr-tag.notes      { border-color: var(--ink); color: var(--ink-2); }
+.wr-tag.ideas      { border-color: #6B8F71; color: #6B8F71; }
+.wr-item-date { font-size: 10px; color: var(--muted); }
+.wr-item-preview { font-size: 11px; color: var(--muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wr-author { font-size: 10px; color: rgba(138,127,115,.6); margin-top: 2px; }
+
+.wr-empty { padding: 40px 16px; text-align: center; }
+.wr-empty p { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); line-height: 2; }
+
+.wr-editor-pane { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.wr-ed-bar {
+  border-bottom: 1px solid var(--line); padding: 10px 24px;
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.wr-ed-title {
+  flex: 1; font-family: var(--serif); font-size: 20px; font-weight: 300;
+  font-style: italic; background: transparent; border: none; color: var(--ink); outline: none;
+}
+.wr-ed-title::placeholder { color: var(--muted); }
+.wr-tag-btns { display: flex; gap: 4px; }
+.wr-tag-btn {
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 3px 7px; border: 1px solid var(--line); background: transparent;
+  color: var(--muted); cursor: pointer; transition: all 0.1s;
+}
+.wr-tag-btn:hover { border-color: var(--ink-2); color: var(--ink); }
+.wr-tag-btn.active-transcript { border-color: #8A7F73; color: #8A7F73; background: rgba(138,127,115,.06); }
+.wr-tag-btn.active-copy       { border-color: var(--red); color: var(--red); background: rgba(191,62,40,.05); }
+.wr-tag-btn.active-notes      { border-color: var(--ink); color: var(--ink); background: rgba(26,22,18,.05); }
+.wr-tag-btn.active-ideas      { border-color: #6B8F71; color: #6B8F71; background: rgba(107,143,113,.06); }
+.wr-btn-clip, .wr-btn-del, .wr-btn-audit {
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+  padding: 4px 10px; cursor: pointer; transition: all 0.15s;
+}
+.wr-btn-clip:hover  { border-color: var(--ink); color: var(--ink); }
+.wr-btn-del:hover   { border-color: var(--red); color: var(--red); }
+.wr-btn-audit       { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+.wr-btn-audit:hover { opacity: 0.82; }
+.wr-ed-body { flex: 1; overflow-y: auto; padding: 36px 72px 60px; }
+.wr-textarea {
+  width: 100%; min-height: 100%; background: transparent; border: none;
+  font-size: 13px; line-height: 1.9; color: var(--ink); outline: none;
+  resize: none; caret-color: var(--red);
+}
+.wr-textarea::placeholder { color: rgba(138,127,115,.4); }
+.wr-ed-footer {
+  border-top: 1px solid var(--line); padding: 7px 24px;
+  display: flex; gap: 24px; align-items: center; background: var(--cream-2); flex-shrink: 0;
+}
+.wr-btn-new-foot {
+  margin-left: auto; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  background: var(--ink); color: var(--cream); border: none;
+  padding: 5px 14px; cursor: pointer; transition: opacity 0.15s; flex-shrink: 0;
+}
+.wr-btn-new-foot:hover { opacity: 0.82; }
+.wr-stat { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.wr-stat span { color: var(--ink); }
+.wr-no-entry {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px;
+}
+.wr-no-entry-h { font-family: var(--serif); font-size: 52px; font-weight: 300; font-style: italic; color: var(--line); }
+.wr-no-entry-s { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.wr-btn-start {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  background: var(--ink); color: var(--cream); border: none;
+  padding: 10px 24px; cursor: pointer; margin-top: 8px; transition: opacity 0.15s;
+}
+.wr-btn-start:hover { opacity: 0.82; }
+
+/* ═══════════════════════════════════════════════════════ */
+/*  AUDITS SECTION                                         */
+/* ═══════════════════════════════════════════════════════ */
+#section-audits { background: var(--cream); }
+
+.au-sidebar {
+  width: var(--sidebar); flex-shrink: 0; border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; overflow: hidden; background: var(--cream-2);
+}
+.au-sidebar-hdr {
+  padding: 16px 16px 12px; border-bottom: 1px solid var(--line); flex-shrink: 0;
+}
+.au-lbl { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.btn-new-audit {
+  width: 100%; background: var(--ink); color: var(--cream); border: none;
+  padding: 9px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.btn-new-audit:hover { opacity: 0.82; }
+.au-list { flex: 1; overflow-y: auto; }
+.au-item {
+  padding: 12px 16px; cursor: pointer; border-left: 2px solid transparent;
+  border-bottom: 1px solid rgba(206,198,186,.4); transition: background 0.1s;
+}
+.au-item:hover { background: rgba(206,198,186,.4); }
+.au-item.active { background: var(--cream); border-left-color: var(--ink); }
+.au-item-name { font-family: var(--serif); font-size: 15px; color: var(--ink); line-height: 1.2; }
+.au-item-meta { font-size: 10px; color: var(--muted); margin-top: 4px; letter-spacing: 0.08em; }
+.au-item-value { font-size: 11px; color: var(--red); margin-top: 3px; }
+
+.au-main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-width: 0; }
+
+/* Audit empty */
+.au-empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px;
+}
+.au-empty-h { font-family: var(--serif); font-size: 52px; font-weight: 300; font-style: italic; color: var(--line); }
+.au-empty-s { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+
+/* ═══════════════════════════════════════════════════════ */
+/*  AUDIT FORM (scoped to #audit-form-wrap)               */
+/* ═══════════════════════════════════════════════════════ */
+#audit-form-wrap {
+  flex: 1; overflow-y: auto; padding: 40px 60px 120px;
+  background: var(--cream);
+}
+#audit-form-wrap .form-hdr { margin-bottom: 56px; }
+#audit-form-wrap .form-headline {
+  font-family: var(--serif); font-size: clamp(40px,5vw,64px);
+  font-weight: 300; font-style: italic; line-height: .95; color: var(--ink);
+}
+#audit-form-wrap .form-subtitle {
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted); margin-top: 16px; line-height: 2.2;
+}
+#audit-form-wrap .form-section { margin-bottom: 52px; }
+#audit-form-wrap .section-label {
+  display: flex; align-items: baseline; gap: 16px; margin-bottom: 24px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--line);
+}
+#audit-form-wrap .section-num {
+  font-size: 11px; letter-spacing: 0.18em; color: var(--muted);
+}
+#audit-form-wrap .section-title {
+  font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink);
+}
+#audit-form-wrap .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 32px; }
+#audit-form-wrap .field-full { grid-column: 1/-1; }
+#audit-form-wrap .field { display: flex; flex-direction: column; gap: 6px; }
+#audit-form-wrap label {
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+}
+#audit-form-wrap input[type=text],
+#audit-form-wrap input[type=number],
+#audit-form-wrap textarea,
+#audit-form-wrap select {
+  background: transparent; border: none; border-bottom: 1px solid var(--line);
+  padding: 8px 0; font-family: var(--serif); font-size: 17px;
+  color: var(--ink); outline: none; width: 100%; transition: border-color 0.2s;
+}
+#audit-form-wrap input:focus, #audit-form-wrap textarea:focus, #audit-form-wrap select:focus {
+  border-bottom-color: var(--ink);
+}
+#audit-form-wrap textarea { resize: vertical; min-height: 72px; }
+#audit-form-wrap select { cursor: pointer; }
+
+/* Dynamic rows */
+#audit-form-wrap .dyn-row {
+  display: grid; gap: 12px; padding: 16px;
+  border: 1px solid var(--line); margin-bottom: 10px; position: relative;
+}
+#audit-form-wrap .dyn-row .btn-remove {
+  position: absolute; top: 10px; right: 10px;
+  background: transparent; border: none; color: var(--muted); cursor: pointer;
+  font-size: 16px; line-height: 1; padding: 2px 6px; transition: color 0.15s;
+}
+#audit-form-wrap .dyn-row .btn-remove:hover { color: var(--red); }
+#audit-form-wrap .btn-add {
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+  padding: 8px 16px; font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; cursor: pointer; transition: all 0.15s; margin-top: 8px;
+}
+#audit-form-wrap .btn-add:hover { border-color: var(--ink); color: var(--ink); }
+
+/* Form top bar */
+.form-top-bar {
+  background: var(--cream); border-bottom: 1px solid var(--line);
+  padding: 10px 60px; display: flex; align-items: center; justify-content: space-between;
+}
+.form-top-label {
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+}
+.btn-see-dashboard {
+  background: var(--red); color: var(--cream); border: none;
+  padding: 8px 22px; font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase; cursor: pointer; transition: opacity 0.15s;
+}
+.btn-see-dashboard:hover { opacity: 0.85; }
+
+/* Sidebar dashboard button */
+.au-dash-btn {
+  display: block; width: 100%; margin-top: 7px;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  background: transparent; border: 1px solid var(--line);
+  color: var(--muted); padding: 4px 8px; cursor: pointer; text-align: left;
+  transition: all 0.15s;
+}
+.au-dash-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* Form action bar */
+.form-actions {
+  position: fixed; bottom: 0; right: 0;
+  background: var(--cream-2); border-top: 1px solid var(--line);
+  padding: 12px 24px; display: flex; align-items: center; gap: 16px;
+  z-index: 100;
+}
+.form-action-info {
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+}
+.btn-save-audit {
+  background: transparent; border: 1px solid var(--line);
+  color: var(--muted); padding: 9px 20px;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-save-audit:hover { border-color: var(--ink); color: var(--ink); }
+.btn-generate {
+  background: var(--ink); color: var(--cream); border: none;
+  padding: 10px 28px; font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase; cursor: pointer; transition: opacity 0.15s;
+}
+.btn-generate:hover { opacity: 0.82; }
+
+/* ═══════════════════════════════════════════════════════ */
+/*  AUDIT DASHBOARD (scoped to #ds)                        */
+/* ═══════════════════════════════════════════════════════ */
+#ds { background: var(--cream); }
+#ds *,#ds *::before,#ds *::after { box-sizing: border-box; }
+
+/* Nav */
+#ds .ds-nav {
+  position: sticky; top: 0; z-index: 100; background: var(--cream);
+  border-bottom: 1px solid var(--line); height: 48px;
+  display: flex; align-items: center; padding: 0 24px; gap: 0;
+}
+#ds .ds-nav-brand { font-size: 10px; letter-spacing: .1em; text-transform: lowercase; color: var(--muted); margin-right: 24px; }
+#ds .ds-nav-brand em { font-style: italic; font-family: var(--serif); font-size: 12px; color: var(--ink); }
+#ds .ds-nav-links { display: flex; }
+#ds .ds-nav-links a {
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+  text-decoration: none; padding: 0 14px; height: 48px; display: flex; align-items: center;
+  transition: color .15s;
+}
+#ds .ds-nav-links a:hover { color: var(--ink); }
+#ds .ds-spacer { flex: 1; }
+#ds .ds-nav-cta {
+  background: var(--ink); color: var(--cream); border: none;
+  padding: 7px 18px; font-size: 10px; letter-spacing: .18em;
+  text-transform: uppercase; cursor: pointer; transition: opacity .15s;
+}
+#ds .ds-nav-cta:hover { opacity: .82; }
+#ds .btn-back-edit {
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+  padding: 6px 14px; font-size: 10px; letter-spacing: .16em;
+  text-transform: uppercase; cursor: pointer; margin-right: 10px;
+  transition: all .15s;
+}
+#ds .btn-back-edit:hover { border-color: var(--ink); color: var(--ink); }
+
+/* Info bar */
+#ds .info-bar {
+  border-bottom: 1px solid var(--line); padding: 10px 32px;
+  display: flex; align-items: center; font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted); gap: 0;
+}
+#ds .info-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--red); margin-right: 10px;
+}
+#ds .info-sep { margin: 0 10px; opacity: .4; }
+#ds .info-spacer { flex: 1; }
+
+/* Hero */
+#ds .hero { padding: 80px 40px 60px; }
+#ds .hero-eyebrow {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 40px;
+}
+#ds .hero-label {
+  font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); line-height: 2;
+}
+#ds .hero-prep { text-align: right; }
+#ds .hero-prep-lbl { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+#ds .hero-prep-val { font-family: var(--serif); font-size: 16px; font-weight: 400; color: var(--ink); margin-top: 4px; }
+#ds .hero-h { font-family: var(--serif); font-size: clamp(40px,6vw,84px); font-weight: 300; line-height: .95; color: var(--ink); }
+#ds .hero-h em { font-style: italic; }
+#ds .client-row {
+  display: grid; grid-template-columns: repeat(4,1fr); border-top: 1px solid var(--line); margin-top: 56px;
+}
+#ds .client-cell { padding: 20px 0; border-right: 1px solid var(--line); padding-right: 24px; }
+#ds .client-cell:last-child { border-right: none; }
+#ds .client-cell + .client-cell { padding-left: 24px; }
+#ds .cl-lbl { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+#ds .cl-val { font-family: var(--serif); font-size: 22px; font-weight: 300; color: var(--ink); }
+
+/* Value hero */
+#ds .val-hero { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 56px 40px; }
+#ds .val-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+#ds .val-lbl { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+#ds .val-eyebrow { text-align: right; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); line-height: 2; }
+#ds .val-counter { font-family: var(--serif); font-size: clamp(56px,10vw,120px); font-weight: 300; line-height: .9; color: var(--ink); letter-spacing: -.02em; }
+#ds .val-sub { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 14px; }
+#ds .val-cats {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 0; margin-top: 32px;
+  border-top: 1px solid var(--line);
+}
+#ds .val-cat { padding: 20px 0; border-right: 1px solid var(--line); padding-right: 20px; }
+#ds .val-cat:last-child { border-right: none; }
+#ds .val-cat + .val-cat { padding-left: 20px; }
+#ds .vc-lbl { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+#ds .vc-val { font-family: var(--serif); font-size: 26px; font-weight: 300; color: var(--red); }
+
+/* Timeline */
+#ds .tl-section { border-bottom: 1px solid var(--line); padding: 36px 40px; }
+#ds .tl-label { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; display: flex; justify-content: space-between; }
+#ds .tl-steps { display: grid; grid-template-columns: repeat(6,1fr); gap: 0; }
+#ds .tl-step { padding: 16px; border: 1px solid var(--line); margin-right: -1px; }
+#ds .tl-step.active { background: var(--ink); border-color: var(--ink); }
+#ds .tl-step-num { font-size: 10px; letter-spacing: .14em; color: var(--muted); margin-bottom: 6px; }
+#ds .tl-step.active .tl-step-num { color: rgba(234,227,217,.4); }
+#ds .tl-step-name { font-family: var(--serif); font-size: 14px; font-weight: 400; color: var(--ink); line-height: 1.2; }
+#ds .tl-step.active .tl-step-name { color: var(--cream); }
+#ds .tl-step-desc { font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+#ds .tl-step.active .tl-step-desc { color: rgba(234,227,217,.4); }
+#ds .tl-step-tag { display: inline-block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; margin-top: 10px; padding: 3px 6px; border: 1px solid var(--line); color: var(--muted); }
+#ds .tl-step.active .tl-step-tag { border-color: rgba(234,227,217,.2); color: rgba(234,227,217,.5); }
+#ds .tl-live { background: var(--red); border-color: var(--red); color: var(--cream); font-size: 11px; letter-spacing: .14em; padding: 2px 6px; display: inline-block; margin-top: 8px; }
+
+/* Shared section header */
+#ds .db-section { border-bottom: 1px solid var(--line); }
+#ds .slbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 40px; border-bottom: 1px solid var(--line);
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+}
+#ds .slbar span { color: var(--ink); }
+
+/* Sessions */
+#ds .sessions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; padding: 40px; }
+#ds .session-hdr { grid-column: 1/-1; margin-bottom: 32px; }
+#ds .session-hdr-h { font-family: var(--serif); font-size: clamp(32px,4vw,52px); font-weight: 300; line-height: .95; color: var(--ink); }
+#ds .session-hdr-h em { font-style: italic; }
+#ds .session-hdr-s { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 12px; }
+#ds .quote-card { padding: 24px; border: 1px solid var(--line); margin-bottom: -1px; margin-right: -1px; }
+#ds .quote-body { font-family: var(--serif); font-size: 16px; font-weight: 300; font-style: italic; line-height: 1.5; color: var(--ink); }
+#ds .quote-attr { margin-top: 12px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+#ds .quote-tag { display: inline-block; margin-top: 6px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 2px 6px; border: 1px solid var(--line); color: var(--muted); }
+#ds .quote-tag.founder { border-color: var(--ink); color: var(--ink-2); }
+
+/* Findings */
+#ds .findings-wrap { padding: 40px; }
+#ds .findings-hdr-h { font-family: var(--serif); font-size: clamp(32px,4vw,52px); font-weight: 300; line-height: .95; color: var(--ink); margin-bottom: 8px; }
+#ds .findings-hdr-h em { font-style: italic; }
+#ds .findings-hdr-s { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
+#ds .findings-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; border: 1px solid var(--line); margin-bottom: 32px; }
+#ds .fs-cell { padding: 16px 20px; border-right: 1px solid var(--line); }
+#ds .fs-cell:last-child { border-right: none; }
+#ds .fs-lbl { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+#ds .fs-val { font-family: var(--serif); font-size: 28px; font-weight: 300; color: var(--red); }
+#ds .issue-row {
+  display: flex; align-items: baseline; gap: 0; padding: 14px 0;
+  border-bottom: 1px solid rgba(206,198,186,.5);
+}
+#ds .issue-num { font-size: 11px; color: var(--muted); width: 32px; flex-shrink: 0; }
+#ds .issue-name { font-family: var(--serif); font-size: 16px; font-weight: 300; flex: 1; color: var(--ink); }
+#ds .issue-detail { font-size: 10px; color: var(--muted); letter-spacing: .08em; }
+#ds .issue-val { font-size: 11px; letter-spacing: .06em; color: var(--red); text-align: right; flex-shrink: 0; width: 120px; }
+#ds .issue-sev {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  padding: 2px 6px; border: 1px solid; margin-left: 12px; flex-shrink: 0;
+}
+#ds .issue-sev.critical { background: var(--red); color: var(--cream); border-color: var(--red); }
+#ds .issue-sev.high { border-color: #C17A3A; color: #C17A3A; }
+#ds .issue-sev.medium { border-color: var(--muted); color: var(--muted); }
+
+/* ── Highlighting: most important info ─────────────────── */
+#ds .issue-row.issue-top {
+  background: rgba(191,62,40,.06);
+  border-left: 3px solid var(--red);
+  padding-left: 14px; margin-left: -14px;
+  border-bottom-color: rgba(191,62,40,.2);
+}
+#ds .issue-row.issue-top .issue-name { font-size: 19px; font-weight: 400; }
+#ds .issue-row.issue-top .issue-val  { font-size: 13px; letter-spacing: .04em; }
+
+#ds .val-cat.dominant .vc-val { font-size: 34px; color: var(--red); }
+#ds .val-cat.dominant .vc-lbl { color: var(--red); }
+#ds .val-cat.dominant { position: relative; }
+#ds .val-cat.dominant::after {
+  content: 'HIGHEST'; position: absolute; top: 20px; right: 0;
+  font-size: 11px; letter-spacing: .18em; color: rgba(191,62,40,.5);
+}
+
+#ds .quick-win {
+  background: var(--ink); color: var(--cream);
+  padding: 18px 24px; margin-bottom: 28px;
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+#ds .qw-label {
+  font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+  color: rgba(234,227,217,.35); flex-shrink: 0; white-space: nowrap;
+  border: 1px solid rgba(234,227,217,.15); padding: 3px 8px;
+}
+#ds .qw-name {
+  font-family: var(--serif); font-size: 18px; font-weight: 300; font-style: italic;
+  color: var(--cream); flex: 1; min-width: 0;
+}
+#ds .qw-val {
+  font-family: var(--serif); font-size: 22px; font-weight: 300;
+  color: var(--cream); flex-shrink: 0; white-space: nowrap;
+}
+#ds .qw-effort {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  padding: 3px 8px; border: 1px solid rgba(107,143,113,.5);
+  color: #6B8F71; flex-shrink: 0;
+}
+
+#ds tr.rm-top td { background: rgba(191,62,40,.04); }
+#ds tr.rm-top .pt-name { font-weight: 500; }
+
+/* Analysis */
+#ds .analysis-wrap { padding: 40px; }
+#ds .analysis-h { font-family: var(--serif); font-size: clamp(32px,4vw,52px); font-weight: 300; font-style: italic; line-height: .95; margin-bottom: 8px; }
+#ds .analysis-s { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
+#ds .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 36px; }
+#ds .chart-cell { }
+#ds .chart-lbl { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+#ds .insights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 28px; }
+#ds .insight-card { border: 1px solid var(--line); padding: 16px 20px; }
+#ds .insight-tag { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+#ds .insight-body { font-family: var(--serif); font-size: 14px; line-height: 1.5; color: var(--ink); }
+
+/* Roadmap */
+#ds .roadmap-wrap { padding: 40px; overflow-x: auto; }
+#ds .roadmap-h { font-family: var(--serif); font-size: clamp(32px,4vw,52px); font-weight: 300; line-height: .95; margin-bottom: 8px; }
+#ds .roadmap-h em { font-style: italic; }
+#ds .roadmap-s { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 24px; }
+#ds table { width: 100%; border-collapse: collapse; }
+#ds thead tr { border-bottom: 1px solid var(--line); }
+#ds th { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); padding: 8px 12px; text-align: left; }
+#ds td { padding: 12px; border-bottom: 1px solid rgba(206,198,186,.4); vertical-align: top; }
+#ds .pt-rank { font-size: 11px; color: var(--muted); text-align: center; width: 36px; }
+#ds .pt-name { font-family: var(--serif); font-size: 15px; font-weight: 400; color: var(--ink); }
+#ds .pt-cat { font-size: 10px; color: var(--muted); margin-top: 2px; }
+#ds .pt-effort {
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  padding: 2px 6px; border: 1px solid var(--line); white-space: nowrap;
+}
+#ds .pt-effort.low    { border-color: #6B8F71; color: #6B8F71; }
+#ds .pt-effort.medium { border-color: #C17A3A; color: #C17A3A; }
+#ds .pt-effort.high   { border-color: var(--red); color: var(--red); }
+#ds .pt-value { font-family: var(--serif); font-size: 15px; color: var(--red); white-space: nowrap; }
+#ds .pt-timeline { font-size: 11px; color: var(--muted); white-space: nowrap; }
+#ds .pt-bar-wrap { height: 3px; background: var(--cream-3); margin-top: 8px; }
+#ds .pt-bar { height: 100%; background: var(--red); }
+
+/* Retainer */
+#ds .ret-section { background: var(--ink); color: var(--cream); padding: 96px 40px; text-align: center; }
+#ds .ret-eyebrow { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(234,227,217,.3); margin-bottom: 12px; }
+#ds .ret-h { font-family: var(--serif); font-size: clamp(28px,4vw,44px); font-weight: 300; color: var(--cream); margin-bottom: 12px; }
+#ds .ret-sub { font-size: 10px; letter-spacing: .1em; color: rgba(234,227,217,.4); max-width: 560px; margin: 0 auto 56px; line-height: 1.8; }
+#ds .ret-roi-lbl { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(234,227,217,.3); margin-bottom: 10px; }
+#ds .ret-roi-val { font-family: var(--serif); font-size: clamp(80px,14vw,180px); font-weight: 300; line-height: .9; color: var(--cream); letter-spacing: -.03em; }
+#ds .ret-roi-sub { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: rgba(234,227,217,.3); margin-top: 12px; margin-bottom: 56px; }
+#ds .ret-nums { display: flex; border: 1px solid rgba(234,227,217,.12); max-width: 860px; margin: 0 auto 56px; }
+#ds .ret-num-cell { flex: 1; padding: 28px 24px; border-right: 1px solid rgba(234,227,217,.12); }
+#ds .ret-num-cell:last-child { border-right: none; }
+#ds .ret-num-lbl { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: rgba(234,227,217,.3); margin-bottom: 10px; }
+#ds .ret-num-val { font-family: var(--serif); font-size: 36px; font-weight: 300; color: var(--cream); white-space: nowrap; }
+#ds .ret-cta-lbl { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(234,227,217,.3); margin-bottom: 16px; }
+#ds .ret-cta-btn { background: var(--cream); color: var(--ink); border: none; padding: 16px 48px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; cursor: pointer; transition: opacity .15s; }
+#ds .ret-cta-btn:hover { opacity: .88; }
+
+/* Fade animations */
+#ds .fade-in { opacity: 0; transform: translateY(16px); transition: opacity .65s cubic-bezier(.25,.46,.45,.94), transform .65s cubic-bezier(.25,.46,.45,.94); }
+#ds .fade-in.visible { opacity: 1; transform: none; }
+
+/* ══ Global animation keyframes ═══════════════════════════ */
+@keyframes ev-fade-up  { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+@keyframes ev-fade-in  { from { opacity:0; } to { opacity:1; } }
+@keyframes ev-slide-in { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+/* ══ Login screen -- staggered entrance ════════════════════ */
+.login-logo    { animation: ev-fade-up .8s .05s cubic-bezier(.25,.46,.45,.94) both; }
+.login-heading { animation: ev-fade-up .9s .18s cubic-bezier(.25,.46,.45,.94) both; }
+.login-sub     { animation: ev-fade-up .7s .34s cubic-bezier(.25,.46,.45,.94) both; }
+.btn-google    { animation: ev-fade-up .7s .48s cubic-bezier(.25,.46,.45,.94) both; }
+
+/* ══ Screen-level transitions ═════════════════════════════ */
+#screen-login  { transition: opacity .32s ease; }
+#screen-login.ev-out { opacity: 0; pointer-events: none; }
+#screen-app.visible  { animation: ev-fade-in .3s .05s ease both; }
+
+/* ══ Tab section enter ════════════════════════════════════ */
+.main-section.ev-enter {
+  animation: ev-slide-in .28s cubic-bezier(.25,.46,.45,.94) both;
+}
+
+/* ══ Content pane enter (editor / audit main) ═════════════ */
+.ev-content-enter {
+  animation: ev-slide-in .22s cubic-bezier(.25,.46,.45,.94) both;
+}
+
+/* ══ Nav tab ══════════════════════════════════════════════ */
+.nav-tab { transition: color .2s ease, border-bottom-color .22s ease; }
+
+/* ══ Sidebar collapse ════════════════════════════════════ */
+.wr-sidebar, .au-sidebar {
+  transition: width .3s cubic-bezier(.25,.46,.45,.94), min-width .3s cubic-bezier(.25,.46,.45,.94);
+}
+.wr-sidebar.collapsed, .au-sidebar.collapsed { width: 40px; min-width: 40px; }
+.wr-sidebar.collapsed .wr-search,
+.wr-sidebar.collapsed .wr-list,
+.wr-sidebar.collapsed .wr-count,
+.wr-sidebar.collapsed .wr-count-sub { opacity: 0; pointer-events: none; transition: opacity .15s; }
+.au-sidebar.collapsed .au-list,
+.au-sidebar.collapsed .btn-new-audit { opacity: 0; pointer-events: none; transition: opacity .15s; }
+.wr-sidebar-hdr, .au-sidebar-hdr { position: relative; }
+.sidebar-toggle {
+  position: absolute; top: 12px; right: 10px;
+  width: 26px; height: 26px; background: transparent;
+  border: 1px solid var(--line); color: var(--muted); cursor: pointer;
+  font-size: 13px; display: flex; align-items: center; justify-content: center;
+  transition: border-color .15s, color .15s; flex-shrink: 0; z-index: 2;
+}
+.sidebar-toggle:hover { border-color: var(--ink); color: var(--ink); }
+.wr-sidebar.collapsed .wr-lbl,
+.au-sidebar.collapsed .au-lbl { opacity: 0; transition: opacity .15s; }
+.wr-sidebar.collapsed .sidebar-toggle,
+.au-sidebar.collapsed .sidebar-toggle { right: 7px; top: 7px; }
+
+/* ══ Sidebar item delete button ══════════════════════════ */
+.wr-item, .au-item { position: relative; }
+.item-del-btn {
+  position: absolute; top: 50%; right: 8px; transform: translateY(-50%);
+  width: 20px; height: 20px; background: transparent; border: none;
+  color: var(--muted); cursor: pointer; font-size: 16px; line-height: 1;
+  opacity: 0; transition: opacity .15s, color .15s;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.wr-item:hover .item-del-btn,
+.au-item:hover .item-del-btn { opacity: 1; }
+.item-del-btn:hover { color: var(--red) !important; opacity: 1 !important; }
+
+/* ══ Sidebar items ════════════════════════════════════════ */
+.wr-item { transition: background .18s ease, border-left-color .18s ease; }
+.au-item { transition: background .18s ease, border-left-color .18s ease; }
+
+/* ══ Dashboard interactive polish ════════════════════════ */
+#ds .quote-card    { transition: background .18s ease; }
+#ds .quote-card:hover { background: rgba(206,198,186,.22); }
+#ds .issue-row     { transition: background .15s ease, border-left-color .15s ease; }
+#ds .insight-card  { transition: border-color .18s ease, background .18s ease; }
+#ds .insight-card:hover { border-color: var(--muted); background: rgba(206,198,186,.1); }
+#ds tr             { transition: background .15s ease; }
+#ds tbody tr:hover td { background: rgba(206,198,186,.18); }
+
+/* ══ Dashboard section stagger ═══════════════════════════ */
+#ds .hero.fade-in      { transition-delay: 0s; }
+#ds .val-hero.fade-in  { transition-delay: .06s; }
+#ds .tl-section.fade-in{ transition-delay: .1s; }
+#ds #ds-sessions .fade-in { transition-delay: .04s; }
+#ds #ds-findings .fade-in  { transition-delay: .04s; }
+#ds #ds-analysis .fade-in  { transition-delay: .04s; }
+#ds #ds-roadmap .fade-in   { transition-delay: .04s; }
+
+/* ══ Form field focus ════════════════════════════════════ */
+#audit-form-wrap input,
+#audit-form-wrap textarea,
+#audit-form-wrap select { transition: border-color .2s ease; }
+
+/* ══ All buttons -- consistent feel ══════════════════════ */
+button { transition: opacity .15s ease, background .18s ease, border-color .18s ease, color .18s ease; }
+
+/* ══ Form top bar entrance ═══════════════════════════════ */
+.form-top-bar { animation: ev-fade-in .25s ease both; }
+
+/* ══ Audit sidebar dashboard btn ════════════════════════ */
+.au-dash-btn { transition: border-color .15s ease, color .15s ease; }
+
+/* ══ Quick-win banner entrance ═══════════════════════════ */
+#ds .quick-win { animation: ev-slide-in .35s .1s cubic-bezier(.25,.46,.45,.94) both; }
+
+/* ══ Toast notifications ════════════════════════════════ */
+.ev-toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--ink); color: var(--cream);
+  padding: 11px 22px; font-size: 11px; letter-spacing: 0.16em;
+  text-transform: uppercase; opacity: 0;
+  transition: opacity .22s cubic-bezier(.25,.46,.45,.94), transform .22s cubic-bezier(.25,.46,.45,.94);
+  z-index: 9999; pointer-events: none; white-space: nowrap;
+}
+.ev-toast.ev-toast-show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.ev-toast.ev-toast-warn { background: var(--red); }
+.ev-toast.ev-toast-ok   { background: #3a6644; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  LOGIN SCREEN                                          -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="screen-login">
+  <div class="login-box">
+    <div class="login-logo">the evverywhere <em>workspace</em></div>
+    <div class="login-heading">Welcome<br>back.</div>
+    <div class="login-sub">The evverywhere proprietary audit system<br>+ writing workspace</div>
+    <button class="btn-google" id="btn-google" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+        <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
+        <path d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05"/>
+        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.962L3.964 6.294C4.672 4.167 6.656 3.58 9 3.58z" fill="#EA4335"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <div class="login-error" id="login-error" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  MAIN APP                                              -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="screen-app">
+
+  <!-- Top nav -->
+  <nav id="main-nav">
+    <span class="nav-brand">the evverywhere <em>workspace</em></span>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('writing')" id="tab-writing">Writing</button>
+      <button class="nav-tab" onclick="switchTab('audits')" id="tab-audits">Audits</button>
+    </div>
+    <div class="nav-spacer"></div>
+    <div class="nav-user">
+      <div class="nav-avatar" id="nav-avatar">
+        <span class="nav-avatar-initial" id="nav-initial">?</span>
+      </div>
+      <span class="nav-name" id="nav-name"></span>
+    </div>
+    <button class="btn-signout" onclick="signOut()">Sign out</button>
+  </nav>
+
+  <!-- ── Writing Section ────────────────────────────────── -->
+  <div id="section-writing" class="main-section active">
+    <div class="wr-sidebar" id="wr-sidebar">
+      <div class="wr-sidebar-hdr">
+        <div class="wr-lbl">Writing dump</div>
+        <div class="wr-count" id="wr-count">0</div>
+        <div class="wr-count-sub">Documents</div>
+        <button class="sidebar-toggle" id="wr-toggle" onclick="toggleWrSidebar()" title="Collapse sidebar">‹</button>
+      </div>
+      <div class="wr-search">
+        <input type="text" id="wr-search" placeholder="Search entries…" oninput="renderWritingList()">
+      </div>
+      <div class="wr-list" id="wr-list">
+        <div class="wr-empty"><p>Loading…</p></div>
+      </div>
+    </div>
+    <div class="wr-editor-pane">
+      <div id="wr-editor-content" style="display:flex;flex:1;flex-direction:column;">
+        <div class="wr-no-entry">
+          <div class="wr-no-entry-h">Empty.</div>
+          <div class="wr-no-entry-s">No entry selected</div>
+          <button class="wr-btn-start" onclick="newWritingEntry()">+ New entry</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Audits Section ────────────────────────────────── -->
+  <div id="section-audits" class="main-section">
+    <div class="au-sidebar" id="au-sidebar">
+      <div class="au-sidebar-hdr">
+        <div class="au-lbl">Saved audits</div>
+        <button class="btn-new-audit" onclick="newAudit()">+ New audit</button>
+        <button class="sidebar-toggle" id="au-toggle" onclick="toggleAuSidebar()" title="Collapse sidebar">‹</button>
+      </div>
+      <div class="au-list" id="au-list">
+        <div class="wr-empty"><p>No audits yet.</p></div>
+      </div>
+    </div>
+    <div class="au-main" id="au-main">
+      <div class="au-empty">
+        <div class="au-empty-h">Ready.</div>
+        <div class="au-empty-s">Select an audit or create a new one</div>
+      </div>
+    </div>
+  </div>
+
+
+</div><!-- #screen-app -->
+
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  AUDIT FORM TEMPLATE (hidden, cloned into au-main)     -->
+<!-- ══════════════════════════════════════════════════════ -->
+<template id="tpl-audit-form">
+<div id="audit-form-wrap">
+  <div class="form-top-bar">
+    <span class="form-top-label">THE EVVERYWHERE PROPRIETARY AUDIT SYSTEM</span>
+    <button class="btn-see-dashboard" onclick="generateAuditDashboard()">See Dashboard →</button>
+  </div>
+  <div class="form-hdr">
+    <div class="form-headline">New <em>audit.</em></div>
+    <div class="form-subtitle">Fill in the client details - Add session quotes and key findings - Generate the live dashboard</div>
+  </div>
+
+  <!-- 01 Client -->
+  <div class="form-section">
+    <div class="section-label"><span class="section-num">01</span><span class="section-title">Client Information</span></div>
+    <div class="field-grid">
+      <div class="field"><label>Client / Business Name</label><input type="text" id="f-name" placeholder="Apex Holdings (Pty) Ltd"></div>
+      <div class="field"><label>Annual Revenue</label><input type="text" id="f-revenue" placeholder="R 42M"></div>
+      <div class="field"><label>Founder / MD Name</label><input type="text" id="f-founder" placeholder="Thabo Nkosi"></div>
+      <div class="field"><label>Founder Title</label><input type="text" id="f-ftitle" placeholder="Founder & MD"></div>
+      <div class="field"><label>Staff Count</label><input type="text" id="f-headcount" placeholder="28 Staff"></div>
+      <div class="field"><label>Years in Business</label><input type="text" id="f-years" placeholder="12 Years"></div>
+      <div class="field"><label>Location</label><input type="text" id="f-location" placeholder="Cape Town"></div>
+      <div class="field"><label>Report Date</label><input type="text" id="f-date" placeholder="May 2026"></div>
+    </div>
+  </div>
+
+  <!-- 02 Financials -->
+  <div class="form-section">
+    <div class="section-label"><span class="section-num">02</span><span class="section-title">Financial Snapshot</span></div>
+    <div class="field-grid">
+      <div class="field"><label>Total Annual Value at Stake (number, e.g. 2886000)</label><input type="number" id="f-total-num" placeholder="2886000"></div>
+      <div class="field"><label>Display Total (e.g. R 2 886 000)</label><input type="text" id="f-total-display" placeholder="R 2 886 000"></div>
+      <div class="field"><label>Tech Debt / Inefficiency</label><input type="text" id="f-td" placeholder="R 612 000"></div>
+      <div class="field"><label>Money Leaks</label><input type="text" id="f-ml" placeholder="R 487 000"></div>
+      <div class="field"><label>Revenue Gaps</label><input type="text" id="f-rg" placeholder="R 1 820 000"></div>
+      <div class="field"><label>Staff / Fulfilment Friction</label><input type="text" id="f-sf" placeholder="R 340 000"></div>
+    </div>
+  </div>
+
+  <!-- 03 Time wasters -->
+  <div class="form-section">
+    <div class="section-label"><span class="section-num">03</span><span class="section-title">Time-Wasting Activities (for bar chart)</span></div>
+    <div class="field-grid">
+      <div class="field"><label>Activity 1 label</label><input type="text" id="f-a1l" placeholder="Approvals"></div>
+      <div class="field"><label>Activity 1 hours/week</label><input type="number" id="f-a1h" placeholder="18"></div>
+      <div class="field"><label>Activity 2 label</label><input type="text" id="f-a2l" placeholder="Manual Quoting"></div>
+      <div class="field"><label>Activity 2 hours/week</label><input type="number" id="f-a2h" placeholder="14"></div>
+      <div class="field"><label>Activity 3 label</label><input type="text" id="f-a3l" placeholder="Chasing Payments"></div>
+      <div class="field"><label>Activity 3 hours/week</label><input type="number" id="f-a3h" placeholder="9"></div>
+      <div class="field"><label>Activity 4 label</label><input type="text" id="f-a4l" placeholder="Supplier Admin"></div>
+      <div class="field"><label>Activity 4 hours/week</label><input type="number" id="f-a4h" placeholder="7"></div>
+      <div class="field"><label>Activity 5 label</label><input type="text" id="f-a5l" placeholder="Training Gaps"></div>
+      <div class="field"><label>Activity 5 hours/week</label><input type="number" id="f-a5h" placeholder="6"></div>
+      <div class="field"><label>Activity 6 label</label><input type="text" id="f-a6l" placeholder="Report Building"></div>
+      <div class="field"><label>Activity 6 hours/week</label><input type="number" id="f-a6h" placeholder="5"></div>
+    </div>
+  </div>
+
+  <!-- 04 Quotes -->
+  <div class="form-section">
+    <div class="section-label"><span class="section-num">04</span><span class="section-title">Session Quotes</span></div>
+    <div id="f-quotes-list"></div>
+    <button class="btn-add" onclick="addQuote()">+ Add Quote</button>
+  </div>
+
+  <!-- 05 Issues -->
+  <div class="form-section">
+    <div class="section-label"><span class="section-num">05</span><span class="section-title">Key Issues Found</span></div>
+    <div id="f-issues-list"></div>
+    <button class="btn-add" onclick="addIssue()">+ Add Issue</button>
+  </div>
+
+  <!-- 06 Roadmap -->
+  <div class="form-section">
+    <div class="section-label"><span class="section-num">06</span><span class="section-title">Prioritised Roadmap</span></div>
+    <div id="f-roadmap-list"></div>
+    <button class="btn-add" onclick="addRoadmap()">+ Add Roadmap Item</button>
+  </div>
+
+  <!-- 07 Retainer -->
+  <div class="form-section">
+    <div class="section-label"><span class="section-num">07</span><span class="section-title">Retainer / Next Step</span></div>
+    <div class="field-grid">
+      <div class="field"><label>ROI Multiple (e.g. ~14×)</label><input type="text" id="f-roi" placeholder="~14×"></div>
+      <div class="field"><label>Value recovered highlight (e.g. R 2.88M)</label><input type="text" id="f-ret-val" placeholder="R 2.88M"></div>
+      <div class="field"><label>Number of fixes</label><input type="text" id="f-ret-fixes" placeholder="8 fixes"></div>
+      <div class="field"><label>Retainer / consulting cost</label><input type="text" id="f-ret-con" placeholder="R 1.31M"></div>
+    </div>
+  </div>
+
+  <!-- Bottom action bar -->
+  <div class="form-actions" id="form-actions">
+    <span class="form-action-info">THE EVVERYWHERE PROPRIETARY AUDIT SYSTEM</span>
+    <button class="btn-save-audit" onclick="saveAuditDraft()">Save draft</button>
+    <button class="btn-save-audit" onclick="loadAuditExample()">Load example</button>
+    <button class="btn-generate" onclick="generateAuditDashboard()">Generate Dashboard →</button>
+  </div>
+</div>
+</template>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  AUDIT DASHBOARD TEMPLATE                             -->
+<!-- ══════════════════════════════════════════════════════ -->
+<template id="tpl-audit-dashboard">
+<div id="ds" style="overflow-y:auto;height:100%;">
+  <div class="ds-nav">
+    <span class="ds-nav-brand">the evverywhere <em>proprietary audit</em> system.</span>
+    <div class="ds-nav-links">
+      <a href="#ds-sessions">01 Sessions</a>
+      <a href="#ds-findings">02 Findings</a>
+      <a href="#ds-analysis">03 Analysis</a>
+      <a href="#ds-roadmap">04 Roadmap</a>
+      <a href="#ds-retainer">05 Next Step</a>
+    </div>
+    <div class="ds-spacer"></div>
+    <button class="btn-back-edit" onclick="backToAuditForm()">← Edit Audit</button>
+    <button class="ds-nav-cta" onclick="document.querySelector('#ds .ret-section').scrollIntoView({behavior:'smooth'})">Start Implementation →</button>
+  </div>
+  <div class="info-bar">
+    <div class="info-dot"></div>
+    <span>Confidential</span><span class="info-sep">-</span>
+    <span id="db-info-client"></span><span class="info-sep">-</span>
+    <span id="db-info-date"></span>
+    <div class="info-spacer"></div>
+    <span>Business Analysis Report</span><span class="info-sep">-</span>
+    <span id="db-info-location"></span>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero fade-in">
+    <div class="hero-eyebrow">
+      <div class="hero-label">THE EVVERYWHERE PROPRIETARY AUDIT SYSTEM<br>BUSINESS ANALYSIS REPORT</div>
+      <div class="hero-prep"><div class="hero-prep-lbl">Prepared for</div><div class="hero-prep-val" id="db-founder"></div></div>
+    </div>
+    <div class="hero-h">Here's what's <em>costing you money</em><br>every single day.</div>
+    <div class="client-row">
+      <div class="client-cell"><div class="cl-lbl">Client</div><div class="cl-val" id="db-name"></div></div>
+      <div class="client-cell"><div class="cl-lbl">Annual Revenue</div><div class="cl-val" id="db-revenue"></div></div>
+      <div class="client-cell"><div class="cl-lbl">Headcount</div><div class="cl-val" id="db-headcount"></div></div>
+      <div class="client-cell"><div class="cl-lbl">In Business</div><div class="cl-val" id="db-years"></div></div>
+    </div>
+  </section>
+
+  <!-- Value -->
+  <section class="val-hero fade-in">
+    <div class="val-top">
+      <div class="val-lbl">Total Annual Value at Stake</div>
+      <div class="val-eyebrow">IN PREVENTABLE REVENUE, LEAKS &amp; WASTED TIME<br>AS IDENTIFIED ACROSS ALL SESSIONS</div>
+    </div>
+    <div class="val-counter" id="db-counter">R 0</div>
+    <div class="val-sub">Confirmed value at stake across all audit categories</div>
+    <div class="val-cats">
+      <div class="val-cat"><div class="vc-lbl">Tech Debt</div><div class="vc-val" id="db-td"></div></div>
+      <div class="val-cat"><div class="vc-lbl">Money Leaks</div><div class="vc-val" id="db-ml"></div></div>
+      <div class="val-cat"><div class="vc-lbl">Revenue Gaps</div><div class="vc-val" id="db-rg"></div></div>
+      <div class="val-cat"><div class="vc-lbl">Staff Friction</div><div class="vc-val" id="db-sf"></div></div>
+    </div>
+  </section>
+
+  <!-- Timeline -->
+  <section class="tl-section fade-in">
+    <div class="tl-label"><span>THE SIX-STEP PROCESS</span><span>STEPS 1–5 COMPLETE - STEP 6 LIVE - DONE IN 6 WEEKS</span></div>
+    <div class="tl-steps">
+      <div class="tl-step"><div class="tl-step-num">STEP 01</div><div class="tl-step-name">Founder Session</div><div class="tl-step-desc">Founder only - 3 hrs deep-dive into the business</div><div class="tl-step-tag">COMPLETE</div></div>
+      <div class="tl-step"><div class="tl-step-num">STEP 02</div><div class="tl-step-name">Team Sessions</div><div class="tl-step-desc">1hr per team - See every department's issues</div><div class="tl-step-tag">COMPLETE</div></div>
+      <div class="tl-step"><div class="tl-step-num">STEP 03</div><div class="tl-step-name">Data Compilation</div><div class="tl-step-desc">Cross-ref all intel - Value every finding</div><div class="tl-step-tag">COMPLETE</div></div>
+      <div class="tl-step"><div class="tl-step-num">STEP 04</div><div class="tl-step-name">AI Analysis</div><div class="tl-step-desc">Pattern recognition across all findings</div><div class="tl-step-tag">COMPLETE</div></div>
+      <div class="tl-step active"><div class="tl-step-num">STEP 05</div><div class="tl-step-name">Dashboard</div><div class="tl-step-desc">Your live audit -- happening right now</div><div class="tl-live">LIVE NOW</div></div>
+      <div class="tl-step"><div class="tl-step-num">STEP 06</div><div class="tl-step-name">Presentation</div><div class="tl-step-desc">Full findings walkthrough + retainer proposal</div><div class="tl-step-tag">NEXT STEP</div></div>
+    </div>
+  </section>
+
+  <!-- Sessions -->
+  <section class="db-section" id="ds-sessions">
+    <div class="slbar"><div><span>01</span> Session Findings</div><div>FOUNDER + TEAM MEMBERS - THEMATIC</div></div>
+    <div class="sessions-grid fade-in">
+      <div class="session-hdr">
+        <div class="session-hdr-h">What we heard<br><em>in the sessions.</em></div>
+        <div class="session-hdr-s">Key quotes from the founder and business sessions - Verbatim from session recording</div>
+      </div>
+      <div id="db-quotes" style="display:contents"></div>
+    </div>
+  </section>
+
+  <!-- Findings -->
+  <section class="db-section" id="ds-findings">
+    <div class="slbar"><div><span>02</span> Data Compilation</div><div>EVERY ISSUE QUANTIFIED - ATTRIBUTED - RANKED</div></div>
+    <div class="findings-wrap fade-in">
+      <div class="findings-hdr-h">What's <em>actually broken.</em></div>
+      <div class="findings-hdr-s" id="db-findings-sub"></div>
+      <div class="findings-stats">
+        <div class="fs-cell"><div class="fs-lbl">Time Lost/Week</div><div class="fs-val" id="db-hrs"></div></div>
+        <div class="fs-cell"><div class="fs-lbl">Money Leaks</div><div class="fs-val" id="db-ml2"></div></div>
+        <div class="fs-cell"><div class="fs-lbl">Revenue Gaps</div><div class="fs-val" id="db-rg2"></div></div>
+        <div class="fs-cell"><div class="fs-lbl">Issues in Total</div><div class="fs-val" id="db-issue-count"></div></div>
+      </div>
+      <div id="db-issues"></div>
+    </div>
+  </section>
+
+  <!-- Analysis -->
+  <section class="db-section" id="ds-analysis">
+    <div class="slbar"><div><span>03</span> AI Analysis</div><div>PATTERN RECOGNITION ACROSS ALL SESSION DATA</div></div>
+    <div class="analysis-wrap fade-in">
+      <div class="analysis-h">Insights &amp; quantification.</div>
+      <div class="analysis-s">Cross-referenced from founder &amp; team session data - Modelled against industry benchmarks</div>
+      <div class="charts-row">
+        <div class="chart-cell"><div class="chart-lbl">Value Breakdown by Category</div><div style="position:relative;height:220px"><canvas id="db-donut"></canvas></div></div>
+        <div class="chart-cell"><div class="chart-lbl">Weekly Time Lost by Activity (Hours)</div><div style="position:relative;height:220px"><canvas id="db-bar"></canvas></div></div>
+      </div>
+      <div class="insights-grid" id="db-insights"></div>
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section class="db-section" id="ds-roadmap">
+    <div class="slbar" id="db-roadmap-bar"><div><span>04</span> Prioritised Roadmap</div><div>RANKED BY IMPACT-TO-EFFORT - EVERY FIX VALUED</div></div>
+    <div class="roadmap-wrap fade-in">
+      <div class="roadmap-h">The fix <em>plan.</em></div>
+      <div class="roadmap-s">Ordered by impact-to-effort ratio - Timelines are conservative estimates</div>
+      <table>
+        <thead><tr><th>#</th><th>Fix</th><th>Effort</th><th>Value/yr</th><th>Timeline</th></tr></thead>
+        <tbody id="db-roadmap-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Retainer -->
+  <section class="ret-section" id="ds-retainer">
+    <div class="ret-eyebrow">STEP 06 -- THE DECISION</div>
+    <div class="ret-h">The numbers make the case.</div>
+    <div class="ret-sub">Every fix on this roadmap requires someone to own it, drive it, and hold the business accountable. That's what the retainer delivers.</div>
+    <div class="ret-roi-lbl">Estimated return on retainer investment</div>
+    <div class="ret-roi-val" id="db-roi"></div>
+    <div class="ret-roi-sub">Based on conservative 50% realisation of identified value</div>
+    <div class="ret-nums">
+      <div class="ret-num-cell"><div class="ret-num-lbl">Value recovered</div><div class="ret-num-val" id="db-ret-hl"></div></div>
+      <div class="ret-num-cell"><div class="ret-num-lbl">Roadmap fixes</div><div class="ret-num-val" id="db-ret-fixes"></div></div>
+      <div class="ret-num-cell"><div class="ret-num-lbl">Retainer cost</div><div class="ret-num-val" id="db-ret-con"></div></div>
+    </div>
+    <div class="ret-cta-lbl">READY TO START</div>
+    <button class="ret-cta-btn">Begin implementation</button>
+  </section>
+</div><!-- #ds -->
+</template>
+
+
+<!-- Firebase SDKs already loaded in <head> -->
+<script>
+// ══════════════════════════════════════════════════════════
+//  FIREBASE CONFIG  ←  paste your config object here
+// ══════════════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyCCxa3SeyEQPSpa60WkZT7LHZQnNnBQVXY",
+  authDomain:        "evverywhere-workspace-a654e.firebaseapp.com",
+  projectId:         "evverywhere-workspace-a654e",
+  storageBucket:     "evverywhere-workspace-a654e.firebasestorage.app",
+  messagingSenderId: "135496507700",
+  appId:             "1:135496507700:web:74e9a292ca51eb1a754561"
+};
+
+// Optional: restrict to one email domain (e.g. 'evverywhere.com').
+// Leave empty to allow any Google account.
+const ALLOWED_DOMAIN = 'evverywhere.com';
+
+// ── Init ─────────────────────────────────────────────────
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+let currentUser = null;
+let wrEntries   = [];
+let wrActiveId  = null;
+let wrUnsubscribe   = null;
+let auAudits    = [];
+let auActiveId  = null;
+let auUnsubscribe   = null;
+let auMode      = 'list'; // 'list' | 'form' | 'dashboard'
+let auCurrentFormData = null;
+let donutChart = null, barChart = null;
+let wrSaveTimer = null;
+let wrCreating  = false; // guard against double-click creating two entries
+
+// ── Auth state ────────────────────────────────────────────
+auth.onAuthStateChanged(user => {
+  if (user) {
+    if (ALLOWED_DOMAIN && !user.email.endsWith('@' + ALLOWED_DOMAIN)) {
+      const errEl = document.getElementById('login-error');
+      errEl.textContent = 'Access restricted to @' + ALLOWED_DOMAIN + ' accounts.';
+      errEl.style.display = 'block';
+      auth.signOut();
+      return;
+    }
+    currentUser = user;
+    initApp(user);
+  } else {
+    currentUser = null;
+    showLogin();
+  }
+});
+
+function showLogin() {
+  const app = document.getElementById('screen-app');
+  app.style.transition = 'opacity .28s ease';
+  app.style.opacity = '0';
+  setTimeout(() => {
+    app.classList.remove('visible');
+    app.style.opacity = '';
+    app.style.transition = '';
+    const login = document.getElementById('screen-login');
+    login.style.display = 'flex';
+    login.style.opacity = '0';
+    requestAnimationFrame(() => {
+      login.style.transition = 'opacity .32s ease';
+      login.style.opacity = '1';
+      setTimeout(() => { login.style.transition = ''; login.style.opacity = ''; }, 380);
+    });
+  }, 300);
+  if (wrUnsubscribe) { wrUnsubscribe(); wrUnsubscribe = null; }
+  if (auUnsubscribe) { auUnsubscribe(); auUnsubscribe = null; }
+}
+
+function initApp(user) {
+  const login = document.getElementById('screen-login');
+  login.classList.add('ev-out');
+  setTimeout(() => {
+    login.style.display = 'none';
+    login.classList.remove('ev-out');
+    document.getElementById('screen-app').classList.add('visible');
+  }, 340);
+
+  // Nav user info
+  const initial = user.displayName ? user.displayName[0].toUpperCase() : user.email[0].toUpperCase();
+  document.getElementById('nav-initial').textContent = initial;
+  document.getElementById('nav-name').textContent = user.displayName || user.email.split('@')[0];
+  if (user.photoURL) {
+    document.getElementById('nav-avatar').innerHTML = `<img src="${user.photoURL}" alt="" referrerpolicy="no-referrer" crossorigin="anonymous">`;
+  }
+
+  // Start Firestore listeners
+  startWritingListener();
+  startAuditsListener();
+}
+
+// ── Auth actions ──────────────────────────────────────────
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+function signInWithGoogle() {
+  const btn = document.getElementById('btn-google');
+  const errEl = document.getElementById('login-error');
+
+  btn.disabled = true;
+  errEl.style.display = 'none';
+
+  auth.signInWithPopup(googleProvider).catch(err => {
+    if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+      // user just closed the popup — no error needed
+    } else {
+      const msgs = {
+        'auth/popup-blocked':      'Popup blocked. Please allow popups for this site and try again.',
+        'auth/account-exists-with-different-credential': 'An account already exists with this email using a different sign-in method.',
+        'auth/network-request-failed': 'Network error. Check your connection and try again.',
+      };
+      errEl.textContent = msgs[err.code] || err.message;
+      errEl.style.display = 'block';
+    }
+    btn.disabled = false;
+  });
+}
+function signOut() {
+  auth.signOut();
+}
+
+// ── Navigation ────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.main-section').forEach(s => s.classList.remove('active', 'ev-enter'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const next = document.getElementById('section-' + tab);
+  next.classList.add('active', 'ev-enter');
+  setTimeout(() => next.classList.remove('ev-enter'), 320);
+  // Remove any stray form-actions bar
+  const stray = document.getElementById('form-actions');
+  if (stray && tab !== 'audits') stray.remove();
+}
+
+// ══════════════════════════════════════════════════════════
+//  WRITING DUMP MODULE
+// ══════════════════════════════════════════════════════════
+
+function startWritingListener() {
+  if (wrUnsubscribe) { try { wrUnsubscribe(); } catch(e) {} wrUnsubscribe = null; }
+  wrUnsubscribe = db.collection('writing')
+    .orderBy('updated', 'desc')
+    .onSnapshot(snap => {
+      wrEntries = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderWritingList();
+    }, err => {
+      console.error('Writing listener error:', err);
+      wrUnsubscribe = null;
+      showToast('Sync issue -- reconnecting…', 'warn');
+      setTimeout(() => { if (currentUser) startWritingListener(); }, 3000);
+    });
+}
+
+function renderWritingList() {
+  const q = (document.getElementById('wr-search')?.value || '').toLowerCase();
+  const filtered = q
+    ? wrEntries.filter(e => e.title.toLowerCase().includes(q) || (e.body||'').toLowerCase().includes(q))
+    : wrEntries;
+
+  document.getElementById('wr-count').textContent = wrEntries.length;
+
+  const list = document.getElementById('wr-list');
+  if (!list) return;
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="wr-empty"><p>${q ? 'No matches.' : 'No entries yet.\nCreate one →'}</p></div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(e => `
+    <div class="wr-item${e.id === wrActiveId ? ' active' : ''}" onclick="openWritingEntry('${e.id}')">
+      <div class="wr-item-title">${escH(e.title)}</div>
+      <div class="wr-item-meta">
+        <span class="wr-tag ${e.tag||'notes'}">${e.tag||'notes'}</span>
+        <span class="wr-item-date">${relDate(e.updated)}</span>
+      </div>
+      <div class="wr-item-preview">${escH((e.body||'').slice(0,80).replace(/\n/g,' '))}</div>
+      ${e.authorName ? `<div class="wr-author">${escH(e.authorName)}</div>` : ''}
+      <button class="item-del-btn" onclick="deleteWritingEntry('${e.id}',event)" title="Delete">×</button>
+    </div>
+  `).join('');
+}
+
+function openWritingEntry(id) {
+  flushWriting();
+  wrActiveId = id;
+  const e = wrEntries.find(x => x.id === id);
+  if (!e) return;
+
+  const pane = document.getElementById('wr-editor-content');
+  pane.innerHTML = `
+    <div class="wr-ed-bar">
+      <input class="wr-ed-title" id="wr-ed-title" type="text" value="${escAttr(e.title)}" placeholder="Entry title…" oninput="onWrTitleChange()">
+      <div class="wr-tag-btns">
+        ${['transcript','copy','notes','ideas'].map(t => `
+          <button class="wr-tag-btn${e.tag===t?' active-'+t:''}" onclick="setWrTag('${t}')">${t}</button>
+        `).join('')}
+      </div>
+      <button class="wr-btn-clip" onclick="wrCopyAll()">Copy all</button>
+      <button class="wr-btn-audit" onclick="generateAuditFromEntry()">Generate Audit →</button>
+      <button class="wr-btn-del" onclick="deleteWritingEntry('${e.id}')">Delete</button>
+    </div>
+    <div class="wr-ed-body">
+      <textarea class="wr-textarea" id="wr-ed-body" placeholder="Start writing, or paste your transcript here…" oninput="onWrBodyChange()" spellcheck="true">${escH(e.body||'')}</textarea>
+    </div>
+    <div class="wr-ed-footer">
+      <div class="wr-stat">Words <span id="wr-wc">0</span></div>
+      <div class="wr-stat">Characters <span id="wr-cc">0</span></div>
+      <div class="wr-stat">Created <span>${longDate(e.created)}</span></div>
+      <div class="wr-stat">By <span>${escH(e.authorName||'--')}</span></div>
+      <button class="wr-btn-new-foot" onclick="newWritingEntry()">+ New entry</button>
+    </div>
+  `;
+  pane.classList.add('ev-content-enter');
+  setTimeout(() => pane.classList.remove('ev-content-enter'), 280);
+  updateWrCounts();
+  renderWritingList();
+  document.getElementById('wr-ed-body')?.focus();
+}
+
+function flushWriting() {
+  if (!wrActiveId) return;
+  const titleEl = document.getElementById('wr-ed-title');
+  const bodyEl  = document.getElementById('wr-ed-body');
+  if (!titleEl || !bodyEl) return;
+  db.collection('writing').doc(wrActiveId).update({
+    title:   titleEl.value.trim() || 'Untitled',
+    body:    bodyEl.value,
+    updated: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(err => {
+    console.warn('Write save failed:', err);
+    showToast('Could not save -- check connection', 'warn');
+  });
+}
+
+function onWrTitleChange() {
+  const e = wrEntries.find(x => x.id === wrActiveId);
+  if (!e) return;
+  scheduleWrSave();
+}
+function onWrBodyChange() {
+  scheduleWrSave();
+  updateWrCounts();
+}
+function scheduleWrSave() {
+  clearTimeout(wrSaveTimer);
+  wrSaveTimer = setTimeout(() => flushWriting(), 800);
+}
+
+function updateWrCounts() {
+  const body = document.getElementById('wr-ed-body')?.value || '';
+  const wc = document.getElementById('wr-wc');
+  const cc = document.getElementById('wr-cc');
+  if (wc) wc.textContent = body.trim() ? body.trim().split(/\s+/).length.toLocaleString() : '0';
+  if (cc) cc.textContent = body.length.toLocaleString();
+}
+
+function setWrTag(tag) {
+  if (!wrActiveId) return;
+  db.collection('writing').doc(wrActiveId).update({ tag, updated: firebase.firestore.FieldValue.serverTimestamp() });
+  document.querySelectorAll('.wr-tag-btn').forEach(b => {
+    b.className = 'wr-tag-btn';
+    if (b.textContent === tag) b.classList.add('active-' + tag);
+  });
+}
+
+function newWritingEntry() {
+  if (wrCreating) return; // prevent double-click duplicates
+  wrCreating = true;
+  flushWriting();
+  db.collection('writing').add({
+    title:      'Untitled',
+    tag:        'notes',
+    body:       '',
+    created:    firebase.firestore.FieldValue.serverTimestamp(),
+    updated:    firebase.firestore.FieldValue.serverTimestamp(),
+    authorId:   currentUser.uid,
+    authorName: currentUser.displayName || currentUser.email
+  }).then(ref => {
+    wrActiveId = ref.id;
+    wrCreating = false;
+    renderWritingList();
+    setTimeout(() => { openWritingEntry(ref.id); document.getElementById('wr-ed-title')?.select(); }, 300);
+  }).catch(err => {
+    wrCreating = false;
+    console.warn('New entry failed:', err);
+    showToast('Could not create entry -- check connection', 'warn');
+  });
+}
+
+function deleteWritingEntry(id, e) {
+  if (e) e.stopPropagation();
+  if (!confirm('Delete this entry? Cannot be undone.')) return;
+  db.collection('writing').doc(id).delete();
+  if (wrActiveId === id) {
+    wrActiveId = null;
+    document.getElementById('wr-editor-content').innerHTML = `
+      <div class="wr-no-entry">
+        <div class="wr-no-entry-h">Deleted.</div>
+        <div class="wr-no-entry-s">Entry removed</div>
+        <button class="wr-btn-start" onclick="newWritingEntry()">+ New entry</button>
+      </div>`;
+  }
+}
+
+function toggleWrSidebar() {
+  const sb  = document.getElementById('wr-sidebar');
+  const btn = document.getElementById('wr-toggle');
+  sb.classList.toggle('collapsed');
+  btn.textContent = sb.classList.contains('collapsed') ? '›' : '‹';
+  btn.title       = sb.classList.contains('collapsed') ? 'Expand sidebar' : 'Collapse sidebar';
+}
+
+function toggleAuSidebar() {
+  const sb  = document.getElementById('au-sidebar');
+  const btn = document.getElementById('au-toggle');
+  sb.classList.toggle('collapsed');
+  btn.textContent = sb.classList.contains('collapsed') ? '›' : '‹';
+  btn.title       = sb.classList.contains('collapsed') ? 'Expand sidebar' : 'Collapse sidebar';
+}
+
+function deleteAudit(id, e) {
+  if (e) e.stopPropagation();
+  if (!confirm('Delete this audit? Cannot be undone.')) return;
+  db.collection('audits').doc(id).delete();
+  if (auActiveId === id) {
+    auActiveId = null;
+    document.getElementById('form-actions')?.remove();
+    const main = document.getElementById('au-main');
+    main.innerHTML = `
+      <div class="au-empty">
+        <div class="au-empty-h">Deleted.</div>
+        <div class="au-empty-s">Select an audit or create a new one</div>
+      </div>`;
+    main.classList.add('ev-content-enter');
+    setTimeout(() => main.classList.remove('ev-content-enter'), 280);
+  }
+}
+
+function wrCopyAll() {
+  const body = document.getElementById('wr-ed-body')?.value || '';
+  navigator.clipboard.writeText(body).then(() => {
+    const btn = document.querySelector('.wr-btn-clip');
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy all', 1500); }
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  AUDITS MODULE
+// ══════════════════════════════════════════════════════════
+
+function startAuditsListener() {
+  if (auUnsubscribe) { try { auUnsubscribe(); } catch(e) {} auUnsubscribe = null; }
+  auUnsubscribe = db.collection('audits')
+    .orderBy('updated', 'desc')
+    .onSnapshot(snap => {
+      auAudits = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderAuditList();
+    }, err => {
+      console.error('Audits listener error:', err);
+      auUnsubscribe = null;
+      showToast('Audit sync issue -- reconnecting…', 'warn');
+      setTimeout(() => { if (currentUser) startAuditsListener(); }, 3000);
+    });
+}
+
+function renderAuditList() {
+  const list = document.getElementById('au-list');
+  if (!list) return;
+  if (auAudits.length === 0) {
+    list.innerHTML = `<div class="wr-empty"><p>No audits yet.</p></div>`;
+    return;
+  }
+  list.innerHTML = auAudits.map(a => `
+    <div class="au-item${a.id === auActiveId ? ' active' : ''}" onclick="openAudit('${a.id}')">
+      <div class="au-item-name">${escH(a.clientName || 'Untitled')}</div>
+      <div class="au-item-meta">${relDate(a.updated)} - ${escH(a.createdByName||'')}</div>
+      ${a.totalDisplay ? `<div class="au-item-value">${escH(a.totalDisplay)}</div>` : ''}
+      ${a.formData && a.totalDisplay ? `<button class="au-dash-btn" onclick="openAuditDashboard('${a.id}',event)">See Dashboard →</button>` : ''}
+      <button class="item-del-btn" onclick="deleteAudit('${a.id}',event)" title="Delete">×</button>
+    </div>
+  `).join('');
+}
+
+function openAuditDashboard(id, e) {
+  if (e) e.stopPropagation();
+  auActiveId = id;
+  const a = auAudits.find(x => x.id === id);
+  if (!a || !a.formData || !Object.keys(a.formData).length) {
+    openAudit(id); // fall back to form if no data yet
+    return;
+  }
+  renderAuditList();
+  document.getElementById('form-actions')?.remove();
+  showAuditDashboard(a.formData);
+}
+
+function openAudit(id) {
+  auActiveId = id;
+  const a = auAudits.find(x => x.id === id);
+  if (!a) return;
+  renderWritingList(); // in case we switched
+  renderAuditList();
+  // Load form with saved data, then switch to form view
+  renderAuditForm(a.formData);
+}
+
+function newAudit() {
+  auActiveId = null;
+  auCurrentFormData = null;
+  renderAuditList();
+  renderAuditForm(null);
+  // Doc is created in Firestore only on first save -- no eager write
+}
+
+function renderAuditForm(data) {
+  const main = document.getElementById('au-main');
+  const tpl  = document.getElementById('tpl-audit-form');
+  main.innerHTML = '';
+  main.appendChild(tpl.content.cloneNode(true));
+  main.classList.add('ev-content-enter');
+  setTimeout(() => main.classList.remove('ev-content-enter'), 280);
+
+  if (data) loadAuditFormFields(data);
+
+  // Remove any existing form-actions and re-append to ensure it's in the new DOM
+  const existingBar = document.getElementById('form-actions');
+  if (existingBar) existingBar.remove();
+}
+
+function loadAuditFormFields(d) {
+  const f = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+  f('f-name', d.name); f('f-revenue', d.revenue); f('f-founder', d.founder);
+  f('f-ftitle', d.founderTitle); f('f-headcount', d.headcount); f('f-years', d.years);
+  f('f-location', d.location); f('f-date', d.date);
+  f('f-total-num', d.totalNum); f('f-total-display', d.totalDisplay);
+  f('f-td', d.td); f('f-ml', d.ml); f('f-rg', d.rg); f('f-sf', d.sf);
+  // Activities
+  if (d.activities) d.activities.forEach((a,i) => {
+    const n = i+1;
+    f(`f-a${n}l`, a.label); f(`f-a${n}h`, a.hours);
+  });
+  // Dynamic rows
+  if (d.quotes)   d.quotes.forEach(q => addQuote(q));
+  if (d.issues)   d.issues.forEach(x => addIssue(x));
+  if (d.roadmap)  d.roadmap.forEach(r => addRoadmap(r));
+  // Retainer
+  f('f-roi', d.roi); f('f-ret-val', d.retVal);
+  f('f-ret-fixes', d.retFixes); f('f-ret-con', d.retCon);
+}
+
+// ── Dynamic row helpers ───────────────────────────────────
+function addQuote(data = {}) {
+  const list = document.getElementById('f-quotes-list');
+  if (!list) return;
+  const div = document.createElement('div');
+  div.className = 'dyn-row';
+  div.style.gridTemplateColumns = '1fr 1fr';
+  div.innerHTML = `
+    <button class="btn-remove" onclick="this.parentElement.remove()">×</button>
+    <div class="field field-full" style="grid-column:1/-1"><label>Quote</label>
+      <textarea placeholder="Quote text…">${escH(data.text||'')}</textarea></div>
+    <div class="field"><label>Name</label><input type="text" placeholder="Name" value="${escAttr(data.name||'')}"></div>
+    <div class="field"><label>Role / Title</label><input type="text" placeholder="Operations Manager" value="${escAttr(data.role||'')}"></div>
+    <div class="field"><label>Session type</label>
+      <select><option value="team" ${data.session==='team'?'selected':''}>Team Session</option>
+              <option value="founder" ${data.session==='founder'?'selected':''}>Founder Session</option></select></div>
+  `;
+  list.appendChild(div);
+}
+
+function addIssue(data = {}) {
+  const list = document.getElementById('f-issues-list');
+  if (!list) return;
+  const div = document.createElement('div');
+  div.className = 'dyn-row';
+  div.style.gridTemplateColumns = '1fr 1fr';
+  div.innerHTML = `
+    <button class="btn-remove" onclick="this.parentElement.remove()">×</button>
+    <div class="field field-full" style="grid-column:1/-1"><label>Issue Name</label>
+      <input type="text" placeholder="Founder bottleneck on all approvals" value="${escAttr(data.name||'')}"></div>
+    <div class="field"><label>Detail / context</label>
+      <input type="text" placeholder="Causes 10–20 hrs delay per week" value="${escAttr(data.detail||'')}"></div>
+    <div class="field"><label>Annual value (e.g. R 311 000)</label>
+      <input type="text" placeholder="R 311 000 / yr" value="${escAttr(data.val||'')}"></div>
+    <div class="field"><label>Severity</label>
+      <select>
+        <option value="critical" ${data.sev==='critical'?'selected':''}>Critical</option>
+        <option value="high" ${data.sev==='high'?'selected':''}>High</option>
+        <option value="medium" ${data.sev==='medium'?'selected':''}>Medium</option>
+      </select></div>
+    <div class="field"><label>Who flagged it</label>
+      <input type="text" placeholder="Founder - Ops Manager" value="${escAttr(data.from||'')}"></div>
+  `;
+  list.appendChild(div);
+}
+
+function addRoadmap(data = {}) {
+  const list = document.getElementById('f-roadmap-list');
+  if (!list) return;
+  const div = document.createElement('div');
+  div.className = 'dyn-row';
+  div.style.gridTemplateColumns = '1fr 1fr';
+  div.innerHTML = `
+    <button class="btn-remove" onclick="this.parentElement.remove()">×</button>
+    <div class="field field-full" style="grid-column:1/-1"><label>Fix / Action</label>
+      <input type="text" placeholder="Supplier price benchmarking & renegotiation" value="${escAttr(data.name||'')}"></div>
+    <div class="field"><label>Category</label>
+      <input type="text" placeholder="Money Leak" value="${escAttr(data.cat||'')}"></div>
+    <div class="field"><label>Effort</label>
+      <select>
+        <option value="Low" ${data.effort==='Low'?'selected':''}>Low</option>
+        <option value="Medium" ${data.effort==='Medium'?'selected':''}>Medium</option>
+        <option value="High" ${data.effort==='High'?'selected':''}>High</option>
+      </select></div>
+    <div class="field"><label>Annual value (e.g. R 186 000)</label>
+      <input type="text" placeholder="R 186 000" value="${escAttr(data.val||'')}"></div>
+    <div class="field"><label>Value as number (for bar)</label>
+      <input type="number" placeholder="186000" value="${data.valNum||''}"></div>
+    <div class="field"><label>Timeline</label>
+      <input type="text" placeholder="2–4 weeks" value="${escAttr(data.timeline||'')}"></div>
+  `;
+  list.appendChild(div);
+}
+
+// ── Read form data ────────────────────────────────────────
+function getAuditFormData() {
+  const v = id => (document.getElementById(id)?.value || '').trim();
+  const n = id => parseFloat(document.getElementById(id)?.value) || 0;
+
+  const activities = [1,2,3,4,5,6].map(i => ({
+    label: v(`f-a${i}l`), hours: n(`f-a${i}h`)
+  })).filter(a => a.label);
+
+  const quotes = [...document.querySelectorAll('#f-quotes-list .dyn-row')].map(row => {
+    const inputs = row.querySelectorAll('input,textarea,select');
+    return { text: inputs[0].value.trim(), name: inputs[1].value.trim(), role: inputs[2].value.trim(), session: inputs[3].value };
+  }).filter(q => q.text);
+
+  const issues = [...document.querySelectorAll('#f-issues-list .dyn-row')].map(row => {
+    const inputs = row.querySelectorAll('input,select');
+    return { name: inputs[0].value.trim(), detail: inputs[1].value.trim(), val: inputs[2].value.trim(), sev: inputs[3].value, from: inputs[4].value.trim() };
+  }).filter(i => i.name);
+
+  const roadmap = [...document.querySelectorAll('#f-roadmap-list .dyn-row')].map(row => {
+    const inputs = row.querySelectorAll('input,select');
+    return { name: inputs[0].value.trim(), cat: inputs[1].value.trim(), effort: inputs[2].value, val: inputs[3].value.trim(), valNum: parseFloat(inputs[4].value)||0, timeline: inputs[5].value.trim() };
+  }).filter(r => r.name);
+
+  return {
+    name: v('f-name'), revenue: v('f-revenue'), founder: v('f-founder'),
+    founderTitle: v('f-ftitle'), headcount: v('f-headcount'), years: v('f-years'),
+    location: v('f-location'), date: v('f-date'),
+    totalNum: n('f-total-num'), totalDisplay: v('f-total-display'),
+    td: v('f-td'), ml: v('f-ml'), rg: v('f-rg'), sf: v('f-sf'),
+    activities, quotes, issues, roadmap,
+    roi: v('f-roi'), retVal: v('f-ret-val'), retFixes: v('f-ret-fixes'), retCon: v('f-ret-con')
+  };
+}
+
+// ── Save draft ────────────────────────────────────────────
+async function saveAuditDraft() {
+  const d = getAuditFormData();
+  const payload = {
+    clientName:    d.name || 'Untitled',
+    totalDisplay:  d.totalDisplay,
+    formData:      d,
+    updated:       firebase.firestore.FieldValue.serverTimestamp(),
+    updatedByName: currentUser.displayName || currentUser.email
+  };
+  try {
+    if (auActiveId) {
+      await db.collection('audits').doc(auActiveId).update(payload);
+    } else {
+      payload.created       = firebase.firestore.FieldValue.serverTimestamp();
+      payload.createdByName = currentUser.displayName || currentUser.email;
+      payload.createdById   = currentUser.uid;
+      const ref = await db.collection('audits').add(payload);
+      auActiveId = ref.id;
+    }
+    const btn = document.querySelector('.btn-save-audit');
+    if (btn) { btn.textContent = 'Saved ✓'; setTimeout(() => btn.textContent = 'Save draft', 2000); }
+  } catch(err) {
+    console.warn('Save audit draft failed:', err);
+    showToast('Could not save audit -- check connection', 'warn');
+    throw err; // re-throw so callers can catch
+  }
+}
+
+// ── Generate dashboard ────────────────────────────────────
+async function generateAuditDashboard() {
+  const d = getAuditFormData();
+  // Auto-save first
+  await saveAuditDraft().catch(() => {});
+  // Render dashboard
+  showAuditDashboard(d);
+}
+
+function backToAuditForm() {
+  const a = auAudits.find(x => x.id === auActiveId);
+  renderAuditForm(a ? a.formData : null);
+}
+
+function showAuditDashboard(d) {
+  const main = document.getElementById('au-main');
+  const tpl  = document.getElementById('tpl-audit-dashboard');
+  main.innerHTML = '';
+  main.appendChild(tpl.content.cloneNode(true));
+  main.classList.add('ev-content-enter');
+  setTimeout(() => main.classList.remove('ev-content-enter'), 280);
+
+  // Remove form-actions if present
+  document.getElementById('form-actions')?.remove();
+
+  // Populate
+  renderDashboard(d);
+  renderCharts(d);
+  animateCounter(d.totalNum || 0);
+  initFadeIn();
+}
+
+function renderDashboard(d) {
+  const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+
+  el('db-info-client', d.name);
+  el('db-info-date', d.date);
+  el('db-info-location', d.location);
+  el('db-name', d.name);
+  el('db-revenue', d.revenue);
+  el('db-headcount', d.headcount);
+  el('db-years', d.years);
+  el('db-founder', (d.founder||'') + ' -- ' + (d.founderTitle||''));
+  el('db-td', d.td); el('db-ml', d.ml); el('db-rg', d.rg); el('db-sf', d.sf);
+  el('db-ml2', d.ml); el('db-rg2', d.rg);
+
+  // Highlight dominant financial category
+  const _catNums = {
+    td: parseRandNum(d.td), ml: parseRandNum(d.ml),
+    rg: parseRandNum(d.rg), sf: parseRandNum(d.sf)
+  };
+  const _domCat = Object.entries(_catNums).sort((a,b)=>b[1]-a[1])[0]?.[0];
+  const _catElMap = { td:'db-td', ml:'db-ml', rg:'db-rg', sf:'db-sf' };
+  if (_domCat && _catNums[_domCat] > 0) {
+    const _domEl = document.getElementById(_catElMap[_domCat])?.closest('.val-cat');
+    if (_domEl) _domEl.classList.add('dominant');
+  }
+  el('db-issue-count', d.issues.length);
+  el('db-findings-sub', `${d.issues.length} issues confirmed - Total value quantified in rand per day`);
+
+  // Time lost from activities
+  const totalHrs = d.activities.reduce((s,a) => s + (a.hours||0), 0);
+  el('db-hrs', totalHrs + ' hrs');
+
+  // Quotes
+  const qWrap = document.getElementById('db-quotes');
+  if (qWrap) qWrap.innerHTML = d.quotes.map(q => `
+    <div class="quote-card">
+      <div class="quote-body">"${escH(q.text)}"</div>
+      <div class="quote-attr">${escH(q.name)} -- ${escH(q.role)}</div>
+      <span class="quote-tag ${q.session}">${q.session === 'founder' ? 'Founder Session' : 'Team Session'}</span>
+    </div>
+  `).join('');
+
+  // Issues -- sorted by severity then value, top issue highlighted
+  const _sevRank = { critical: 3, high: 2, medium: 1 };
+  const _sortedIssues = [...d.issues].sort((a, b) =>
+    (_sevRank[b.sev]||1) - (_sevRank[a.sev]||1) ||
+    parseRandNum(b.val) - parseRandNum(a.val)
+  );
+  const iWrap = document.getElementById('db-issues');
+  if (iWrap) iWrap.innerHTML = _sortedIssues.map((x,i) => `
+    <div class="issue-row${i === 0 ? ' issue-top' : ''}">
+      <span class="issue-num">${String(i+1).padStart(2,'0')}</span>
+      <div style="flex:1">
+        <div class="issue-name">${escH(x.name)}</div>
+        <div class="issue-detail">${escH(x.detail)}</div>
+      </div>
+      <span class="issue-sev ${x.sev}">${x.sev}</span>
+      <span class="issue-val">${escH(x.val)}</span>
+    </div>
+  `).join('');
+
+  // AI insights (auto-generated from top issues, sorted)
+  const insWrap = document.getElementById('db-insights');
+  if (insWrap) insWrap.innerHTML = _sortedIssues.slice(0,4).map((x,i) => `
+    <div class="insight-card">
+      <div class="insight-tag">Insight ${i+1} -- ${x.sev} priority</div>
+      <div class="insight-body">${escH(x.name)}. ${escH(x.detail)}</div>
+    </div>
+  `).join('');
+
+  // Quick-win banner -- highest-value Low-effort roadmap item
+  const _quickWin = [...d.roadmap]
+    .filter(r => (r.effort||'').toLowerCase() === 'low')
+    .sort((a,b) => (b.valNum||0) - (a.valNum||0))[0];
+  const _roadmapWrap = document.querySelector('#ds .roadmap-wrap');
+  const _existingQW  = _roadmapWrap?.querySelector('.quick-win');
+  if (_existingQW) _existingQW.remove();
+  if (_quickWin && _roadmapWrap) {
+    const _qwDiv = document.createElement('div');
+    _qwDiv.className = 'quick-win';
+    _qwDiv.innerHTML = `
+      <span class="qw-label">Top quick win</span>
+      <span class="qw-name">${escH(_quickWin.name)}</span>
+      <span class="qw-val">${escH(_quickWin.val)}</span>
+      <span class="qw-effort">Low effort</span>
+    `;
+    const _table = _roadmapWrap.querySelector('table');
+    if (_table) _roadmapWrap.insertBefore(_qwDiv, _table);
+  }
+
+  // Roadmap table
+  const tbody = document.getElementById('db-roadmap-tbody');
+  if (tbody) tbody.innerHTML = d.roadmap.map((r,i) => {
+    const pct = d.totalNum ? Math.min(95, Math.round((r.valNum||0) / d.totalNum * 100)) : 0;
+    return `<tr${i===0?' class="rm-top"':''}>
+      <td class="pt-rank">${String(i+1).padStart(2,'0')}</td>
+      <td><div class="pt-name">${escH(r.name)}</div><div class="pt-cat">${escH(r.cat)}</div>
+        <div class="pt-bar-wrap"><div class="pt-bar" style="width:${pct}%"></div></div></td>
+      <td><span class="pt-effort ${(r.effort||'').toLowerCase()}">${escH(r.effort)}</span></td>
+      <td class="pt-value">${escH(r.val)}</td>
+      <td class="pt-timeline">${escH(r.timeline)}</td>
+    </tr>`;
+  }).join('');
+
+  // Retainer
+  el('db-roi', d.roi);
+  el('db-ret-hl', d.retVal);
+  el('db-ret-fixes', d.retFixes);
+  el('db-ret-con', d.retCon);
+}
+
+function renderCharts(d) {
+  if (donutChart) { donutChart.destroy(); donutChart = null; }
+  if (barChart)   { barChart.destroy();   barChart   = null; }
+
+  const donutEl = document.getElementById('db-donut');
+  const barEl   = document.getElementById('db-bar');
+  if (!donutEl || !barEl) return;
+
+  const cream = '#EAE3D9', red = '#BF3E28', ink = '#1A1612', muted = '#8A7F73', line = '#CEC6BA';
+  Chart.defaults.color = muted;
+  Chart.defaults.font.family = "'Courier New', monospace";
+  Chart.defaults.font.size = 10;
+
+  const tdN  = parseFloat(String(d.td).replace(/[^0-9.]/g,''))||0;
+  const mlN  = parseFloat(String(d.ml).replace(/[^0-9.]/g,''))||0;
+  const rgN  = parseFloat(String(d.rg).replace(/[^0-9.]/g,''))||0;
+  const sfN  = parseFloat(String(d.sf).replace(/[^0-9.]/g,''))||0;
+
+  donutChart = new Chart(donutEl, {
+    type: 'doughnut',
+    data: {
+      labels: ['Tech Debt', 'Money Leaks', 'Revenue Gaps', 'Staff Friction'],
+      datasets: [{ data: [tdN, mlN, rgN, sfN], backgroundColor: [ink, red, muted, line], borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 16 } } } }
+  });
+
+  barChart = new Chart(barEl, {
+    type: 'bar',
+    data: {
+      labels: d.activities.map(a => a.label),
+      datasets: [{ data: d.activities.map(a => a.hours), backgroundColor: red, borderWidth: 0 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: line }, ticks: { color: muted } },
+        y: { grid: { display: false }, ticks: { color: muted } }
+      }
+    }
+  });
+}
+
+function animateCounter(target) {
+  const el = document.getElementById('db-counter');
+  if (!el || !target) return;
+  const start = Date.now(), dur = 1800;
+  const fmt = n => 'R ' + Math.round(n).toLocaleString('en-ZA').replace(/,/g,' ');
+  function tick() {
+    const t = Math.min(1, (Date.now()-start)/dur);
+    const ease = 1 - Math.pow(1-t, 3);
+    el.textContent = fmt(ease * target);
+    if (t < 1) requestAnimationFrame(tick);
+    else el.textContent = fmt(target);
+  }
+  requestAnimationFrame(tick);
+}
+
+function initFadeIn() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.05 });
+  document.querySelectorAll('#ds .fade-in').forEach(el => obs.observe(el));
+}
+
+// ── Example data loader ───────────────────────────────────
+function loadAuditExample() {
+  const EX = {
+    name:'Apex Holdings (Pty) Ltd', revenue:'R 42M', founder:'Thabo Nkosi',
+    founderTitle:'Founder & MD', headcount:'28 Staff', years:'12 Years',
+    location:'Cape Town', date:'May 2026',
+    totalNum:2886000, totalDisplay:'R 2 886 000',
+    td:'R 612 000', ml:'R 487 000', rg:'R 1 820 000', sf:'R 340 000',
+    activities:[
+      {label:'Approvals',hours:18},{label:'Manual Quoting',hours:14},{label:'Chasing Payments',hours:9},
+      {label:'Supplier Admin',hours:7},{label:'Training Gaps',hours:6},{label:'Report Building',hours:5}
+    ],
+    quotes:[
+      {text:'I quote every job myself because no one else knows how to price it.',name:'Thabo Nkosi',role:'Founder & MD',session:'founder'},
+      {text:'We lose track of clients after the job is done. There\'s no follow-up system.',name:'Thabo Nkosi',role:'Founder & MD',session:'founder'},
+      {text:'I spend most of Monday just waiting for Thabo to approve the purchase orders.',name:'Sandra Dlamini',role:'Operations Manager',session:'team'},
+      {text:'We\'ve been using the same three suppliers for 8 years and no one has renegotiated prices.',name:'James Broster',role:'Procurement',session:'team'},
+      {text:'New staff take 6 to 8 weeks to become useful because everything is in people\'s heads.',name:'Darius Young',role:'Projects',session:'team'},
+      {text:'The invoicing is all manual in Excel. I send them out late because I\'m waiting on job sheets.',name:'Portia Sithole',role:'Finance Admin',session:'team'}
+    ],
+    issues:[
+      {name:'Founder bottleneck on all approvals',detail:'10–20 hrs delay per week',val:'R 311 000 / yr',sev:'critical',from:'Founder - Ops Manager'},
+      {name:'No post-job client follow-up system',detail:'Lost repeat revenue',val:'R 612 000 / yr',sev:'critical',from:'Founder'},
+      {name:'Manual quoting -- founder only',detail:'1 hrs min per quote',val:'R 330 000 / yr',sev:'high',from:'Founder - Finance'},
+      {name:'Supplier pricing not renegotiated in 8 years',detail:'15–20% overmarket estimate',val:'R 186 000 / yr',sev:'high',from:'Procurement'},
+      {name:'Invoices sent 2–3 weeks late',detail:'Cash flow delayed',val:'R 141 000 / yr',sev:'high',from:'Finance Admin'},
+      {name:'Zero referral or repeat-client incentive programme',detail:'No referral tracking exists',val:'R 420 000 / yr',sev:'high',from:'Founder'},
+      {name:'No onboarding documentation -- 6–8 week ramp time',detail:'Lost productivity on new hires',val:'R 198 000 / yr',sev:'medium',from:'Projects'},
+      {name:'Pricing below market rate -- not reviewed in 4 years',detail:'10+ hours below market',val:'R 700 000 / yr',sev:'medium',from:'Founder - Competition'}
+    ],
+    roadmap:[
+      {name:'Supplier price benchmarking & renegotiation',cat:'Money Leak',effort:'Low',val:'R 186 000',valNum:186000,timeline:'2–4 weeks'},
+      {name:'Automated invoicing system',cat:'Tech Debt',effort:'Low',val:'R 141 000',valNum:141000,timeline:'1–2 weeks'},
+      {name:'Client follow-up CRM sequence',cat:'Revenue Gap',effort:'Medium',val:'R 612 000',valNum:612000,timeline:'3–4 weeks'},
+      {name:'Approval delegation framework',cat:'Staff Friction',effort:'Low',val:'R 311 000',valNum:311000,timeline:'1 week'},
+      {name:'Quoting template + team training',cat:'Tech Debt',effort:'Medium',val:'R 330 000',valNum:330000,timeline:'2–3 weeks'},
+      {name:'Referral incentive programme',cat:'Revenue Gap',effort:'Low',val:'R 420 000',valNum:420000,timeline:'1–2 weeks'},
+      {name:'Pricing model review + market positioning',cat:'Revenue Gap',effort:'Medium',val:'R 700 000',valNum:700000,timeline:'4 weeks'},
+      {name:'Staff onboarding documentation',cat:'Staff Friction',effort:'Medium',val:'R 198 000',valNum:198000,timeline:'2–3 weeks'}
+    ],
+    roi:'~14×', retVal:'R 2.88M', retFixes:'8 fixes', retCon:'R 1.31M'
+  };
+  loadAuditFormFields(EX);
+}
+
+// ══════════════════════════════════════════════════════════
+//  GENERATE AUDIT FROM WRITING ENTRY
+// ══════════════════════════════════════════════════════════
+
+function parseRandNum(str) {
+  if (!str) return 0;
+  const s = String(str).replace(/\s/g, '');
+  const n = parseFloat(s.replace(/[^0-9.]/g, ''));
+  if (isNaN(n)) return 0;
+  if (/m(?:illion)?/i.test(s)) return n * 1000000;
+  if (/k(?:ilo|thousand)?/i.test(s)) return n * 1000;
+  return n;
+}
+
+function fmtR(n) {
+  if (!n) return '';
+  return 'R ' + Math.round(n).toLocaleString('en-ZA').replace(/,/g, ' ');
+}
+
+function detectCat(text) {
+  if (/supplier|pric(?:ing|e)|overmarket|overcharg|fee|margin|markup|cost(?:ing| over)|bulk.buy|material|purchasing|overspend/i.test(text)) return 'Money Leak';
+  if (/follow.?up|referral|repeat.client|new client|pipeline|lead|retention|upsell|lost.revenue|no.client|marketing|word.of.mouth|website|growth/i.test(text)) return 'Revenue Gap';
+  if (/onboard|training|ramp.time|staff|new.hire|document|knowledge|handover|shadow|turnover|poach|retention|recruit/i.test(text)) return 'Staff Friction';
+  return 'Tech Debt';
+}
+
+function issueToFix(name) {
+  return name
+    .replace(/^[-–]\s*/,'')
+    .replace(/^no\s+/i, 'Implement ')
+    .replace(/^zero\s+/i, 'Create ')
+    .replace(/^lack of\s+/i, 'Build ')
+    .replace(/^manual\s+/i, 'Automate ')
+    .replace(/founder bottleneck on\s*/i, 'Delegation framework for ')
+    .replace(/not renegotiated.*$/i, 'renegotiation programme')
+    .replace(/sent\s+\d+.*late.*$/i, 'automation')
+    .replace(/\s+in \d+ years?.*$/i, '')
+    .replace(/\s*--\s*estimated.*$/i, '')
+    .replace(/[,.]$/, '')
+    .trim();
+}
+
+function generateAuditFromEntry() {
+  const title  = document.getElementById('wr-ed-title')?.value || '';
+  const rawBody = document.getElementById('wr-ed-body')?.value || '';
+  if (!rawBody.trim()) { alert('Entry is empty -- add your session notes first.'); return; }
+
+  // ── Pre-process: merge wrapped dialogue continuation lines ──
+  // Lines that start with lowercase and follow a dialogue/continuation line are joined
+  const rawLines = rawBody.split('\n');
+  const merged = [];
+  for (let i = 0; i < rawLines.length; i++) {
+    const t = rawLines[i].trim();
+    const isDialogue = /^[A-Za-z][a-zA-Z .'-]{1,40}:\s/.test(t);
+    const isCont = t.length > 0 && /^[a-z]/.test(t) && !isDialogue && !/^[-•]/.test(t);
+    const prev = merged[merged.length - 1] || '';
+    const prevIsDialogueOrCont = /^[A-Za-z][a-zA-Z .'-]{1,40}:\s/.test(prev.trim())
+      || (/^[a-z]/.test(prev.trim()) && prev.trim().length > 0);
+    if (isCont && merged.length > 0 && prevIsDialogueOrCont) {
+      merged[merged.length - 1] += ' ' + t;
+    } else {
+      merged.push(rawLines[i]);
+    }
+  }
+  const body = merged.join('\n');
+
+  // ── Extract client name from title ──
+  // If title has "Company -- Person" format, take only what's before the separator
+  const _sepIdx = title.search(/\s*[–-]\s*/);
+  const _titleBase = _sepIdx > 0 ? title.slice(0, _sepIdx) : title;
+  const clientName = _titleBase
+    .replace(/\b(transcript|session|notes|audit|founder|team|interview|dump|visit|ops|CEO|CTO|MD|CFO|COO|HR|VP|Director|Manager|meeting|call|review)\b/gi, '')
+    .replace(/[&|:–-]/g, ' ')
+    .replace(/\s{2,}/g, ' ').trim();
+
+  // ── Hyphen-aware name token: supports "Jean-Pierre", "O'Brien", "Van Rensburg" ──
+  // W = one name word (letters, hyphens, apostrophes)
+  // NAME = 2–3 such words separated by spaces
+  // (used as inline regex fragments, not new RegExp, to keep patterns readable)
+
+  // ── Build founder name set ──
+  const intro = body.split('\n').slice(0, 10).join(' ');
+  const founderNames = new Set();
+  let fi;
+  // Pattern A: "Name … MD/CEO/CTO/founder" -- hyphen-aware
+  const introFounderRe = /([A-Za-z][A-Za-z'-]*(?:\s+[A-Za-z][A-Za-z'-]*){1,2})[^.\n]*?\b(?:MD|CEO|CTO|co-?founder|founder|director|owner|managing director)\b/gi;
+  while ((fi = introFounderRe.exec(body)) !== null) founderNames.add(fi[1].toLowerCase());
+  // Pattern B: informal intros -- "spoke to / met / session with [Name]"
+  const informalRe = /(?:spoke to|met with?|visited|session with|talked to|call with|spoke with|interview with)\s+([A-Za-z][A-Za-z'-]*(?:\s+[A-Za-z][A-Za-z'-]*){1,2})/gi;
+  while ((fi = informalRe.exec(intro)) !== null) founderNames.add(fi[1].toLowerCase());
+  // Pattern C: "Name, CEO/CTO/MD" in intro header lines
+  const nameTitleRe = /([A-Za-z][A-Za-z'-]*(?:\s+[A-Za-z][A-Za-z'-]*){1,2})\s*,\s*(?:CEO|CTO|MD|Founder|Co-?Founder|Director|Owner)/gi;
+  while ((fi = nameTitleRe.exec(intro)) !== null) founderNames.add(fi[1].toLowerCase());
+
+  // ── Founder name & title for form fields ──
+  let founderName = '';
+  let founderTitle = 'Founder & MD';
+  // Known title words (won't accidentally consume location names)
+  const TITLE_RE = '(?:CEO|CTO|MD|CFO|COO|Founder|Co-?Founder|Director|Owner|Managing\\s+Director|Managing\\s+Partner|GM|Principal)(?:\\s*&\\s*(?:CEO|CTO|MD|CFO|COO|Founder|Director|Owner|Managing\\s+Director|Managing\\s+Partner|GM|Principal))?';
+  // Try: "session/meeting/interview with Name[, Title]"
+  const fdrFormal = intro.match(new RegExp('(?:session|meeting|interview)\\s+with\\s+([A-Za-z][A-Za-z\'-]*(?:\\s+[A-Za-z][A-Za-z\'-]*){1,2})[,.]?\\s*(' + TITLE_RE + ')?', 'i'));
+  // Try: "spoke to / met / visited Name"
+  const fdrInformal = intro.match(/(?:spoke to|met with?|visited|talked to|call with)\s+([A-Za-z][A-Za-z'-]*(?:\s+[A-Za-z][A-Za-z'-]*){1,2})[,\s]/i);
+  // Try: "Name, CEO/CTO/Founder[& MD]" in intro
+  const fdrTitle = intro.match(new RegExp('([A-Za-z][A-Za-z\'-]*(?:\\s+[A-Za-z][A-Za-z\'-]*){1,2})\\s*,\\s*(' + TITLE_RE + ')', 'i'));
+
+  if (fdrFormal) {
+    founderName  = fdrFormal[1].trim().replace(/\b\w/g, c => c.toUpperCase());
+    if (fdrFormal[2]) founderTitle = fdrFormal[2].replace(/of\s+.*/i, '').trim();
+  } else if (fdrTitle) {
+    founderName  = fdrTitle[1].trim().replace(/\b\w/g, c => c.toUpperCase());
+    founderTitle = (fdrTitle[2] || '').trim();
+  } else if (fdrInformal) {
+    founderName  = fdrInformal[1].trim().replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  // Fallback: first dialogue speaker (often the founder/CEO who drives the session)
+  if (!founderName) {
+    const firstSpM = body.match(/^([A-Za-z][A-Za-z'-]*(?:\s+[A-Za-z][A-Za-z'-]*){1,2}):\s/m);
+    if (firstSpM) {
+      const sp = firstSpM[1].trim();
+      const notNameFallback = /\b(he|she|main|key|probl|issue|mention|activ|section|said|note|total|summary|things?)\b/i;
+      if (sp.split(/\s+/).length <= 3 && !notNameFallback.test(sp)) {
+        founderName = sp.replace(/\b\w/g, c => c.toUpperCase());
+      }
+    }
+  }
+
+  // ── Helpers ──
+  // Extract annual rand value from a line -- handles ranges, per-month, per-year
+  function extractIssueVal(line) {
+    // Range: "R 75 000 to R 100 000" -- take higher
+    const range = line.match(/R[\s]?([\d\s,]+)\s*(?:to|-)\s*R[\s]?([\d\s,]+)/i);
+    if (range) {
+      const hi = parseFloat(range[2].replace(/[\s,]/g,''));
+      // Only multiply by 12 if "per month"/"monthly" appears AFTER the R value (within 50 chars)
+      const afterR = line.slice(line.indexOf(range[0]) + range[0].length);
+      const isMonth = /^.{0,50}(?:per\s*month|\/\s*month\b|monthly)/i.test(afterR);
+      return fmtR(isMonth ? hi * 12 : hi) + ' / yr';
+    }
+    const single = line.match(/R[\s]?([\d\s,]+(?:\s*(?:k|K|m|M|million|thousand))?)\s*(?:per year|\/\s*yr|a year|per annum)?/i);
+    if (!single) return '';
+    const n = parseRandNum('R ' + single[1].trim());
+    if (!n) return '';
+    // Only multiply by 12 if "per month" appears close after the R value
+    const rIdx = line.indexOf(single[0]);
+    const afterRSingle = rIdx >= 0 ? line.slice(rIdx, rIdx + 60) : '';
+    const isMonth = /per\s*month|\/\s*month\b|monthly/i.test(afterRSingle);
+    return fmtR(isMonth ? n * 12 : n) + ' / yr';
+  }
+
+  // Clean issue name -- strip value/estimate/suffix
+  function cleanIssueName(raw) {
+    return raw
+      .replace(/\s*[–-]\s*estimated.*$/i, '')
+      .replace(/\s*is causing an estimated.*$/i, '')
+      .replace(/\s*--\s*R[\d\s,kmKM]+.*$/i, '')
+      .replace(/\s*estimated\s+(?:cost|value|impact).*$/i, '')
+      .replace(/\s*(?:roughly|about|approximately)\s*R[\d\s,.kmKM]+.*$/i, '')
+      // IMPORTANT: no /i flag here -- uppercase R only, to avoid stripping 'r' in words like "customer"
+      .replace(/\s*\bR\s*\d[\d\s,]*(?:\s*(?:k|m|M|million|thousand))?\s*(?:[Pp]er\s*(?:month|year)|\/\s*(?:yr|month))?.*$/, '')
+      .replace(/^[-•]\s*/,'')
+      .replace(/[,.]$/, '')
+      .trim()
+      .slice(0, 90);
+  }
+
+  function issueSev(name) {
+    return /critical|bottleneck|founder|never|no system|zero/i.test(name) ? 'critical'
+         : /manual|late|delay|overdue|overmarket|risk|losing|missed|poach/i.test(name) ? 'high'
+         : 'medium';
+  }
+
+  // ── Extract issues ──
+  const issues = [];
+
+  // Strategy 1: bullet points (- or •)
+  const bulletRe = /^[-•]\s*(.+)/gm;
+  let m;
+  while ((m = bulletRe.exec(body)) !== null) {
+    const line = m[1].trim();
+    if (line.length < 15) continue;
+    // Skip activity/time lines -- they belong in the activities section, not issues
+    if (/\d+\s*h(?:ours?|rs?)?\s*(?:\/\s*(?:week|wk)|a\s+week|per\s+week)/i.test(line)) continue;
+    const val  = extractIssueVal(line);
+    const name = cleanIssueName(line);
+    if (name.length < 8) continue;
+    issues.push({ name, detail: '', val, sev: issueSev(name), from: '' });
+  }
+
+  // Narrative starters that indicate a sentence fragment, not an issue label
+  const narrativeStartRe = /^(he\s|she\s|it\s|they\s|we\s|his\s|her\s|our\s|said\s|feels?\s|felt\s|probably|maybe|i\s|there\s|its\s|this\s)/i;
+
+  // Strategy 1.5: bare lines with rand values (messy transcripts -- no bullet prefix)
+  if (issues.length < 3) {
+    const dlRe = /^[A-Za-z][a-zA-Z .'-]{1,40}:\s/;
+    const skipRe = /^(note|key|total|summary|rough|section|step|the|this|that|a|an)[\s:]/i;
+    body.split('\n').forEach(line => {
+      const l = line.trim();
+      if (l.length < 20 || /^[-•]/.test(l) || dlRe.test(l) || skipRe.test(l)) return;
+      if (narrativeStartRe.test(l)) return; // handled by Strategy 1.6 below
+      const val = extractIssueVal(l);
+      if (!val) return;
+      const name = cleanIssueName(l);
+      if (name.length < 8) return;
+      if (issues.some(x => x.name.slice(0,20) === name.slice(0,20))) return;
+      issues.push({ name, detail: '', val, sev: issueSev(name), from: '' });
+    });
+  }
+
+  // Strategy 1.6: narrative sentences with R values -- infer issue name from keywords
+  // Handles note-style transcripts: "He misses 5 calls a day -- R 3K–R 8K each", "Feels like R 800K sitting on the table"
+  if (issues.length < 5) {
+    body.split('\n').forEach(line => {
+      const l = line.trim();
+      if (l.length < 20 || /^[-•]/.test(l) || !narrativeStartRe.test(l)) return;
+      const val = extractIssueVal(l);
+      if (!val) return;
+      let name = '';
+      if      (/missed?\s*call|call.*miss|unanswer|no\s*answer|miss.*job/i.test(l))       name = 'Missed inbound calls -- jobs going to competitors';
+      else if (/sitting.on|on.the.table|unrealis|opportunit.gap|left.on/i.test(l))        name = 'Unrealised revenue -- identified opportunity gap';
+      else if (/overquot|underquot|pric.*wrong|wrong.*pric|quot.*wife|wife.*quot/i.test(l)) name = 'Inconsistent quoting causing revenue loss';
+      else if (/late.pay|pay.*late|cash.flow.*tight|outstanding|collection/i.test(l))     name = 'Late payments impacting cash flow';
+      else if (/compet|respond.*fast|fast.*respond|loses.*job|losing.*bid/i.test(l))       name = 'Losing jobs to faster-responding competitors';
+      else if (/no\s+website|no\s+online|whatsapp.*schedule|schedule.*whatsapp/i.test(l)) name = 'No digital presence -- missing inbound leads';
+      else if (/can.*find.*staff|find.*plumb|recruit|staffing/i.test(l))                  name = 'Difficulty recruiting skilled staff';
+      else return; // can't infer a clean name -- skip
+      if (issues.some(x => x.name.slice(0,25) === name.slice(0,25))) return;
+      issues.push({ name, detail: '', val, sev: issueSev(name), from: '' });
+    });
+  }
+
+  // Strategy 1.7: colon-separated issue lists from note-style transcripts
+  // e.g. "Main problems he mentioned: can't find staff, cash flow tight, manual quoting"
+  if (issues.length < 4) {
+    const colonListRe = /(?:problems?|issues?|challenges?|pain\s*points?|mentioned|says?)\s*:?\s*([^\n]{20,})/gi;
+    let clm;
+    while ((clm = colonListRe.exec(body)) !== null) {
+      clm[1].split(/[,;]/).forEach(item => {
+        item = item.trim().replace(/[.,]$/, '');
+        if (item.length < 10 || item.length > 90) return;
+        // Only useful if it describes a real problem
+        if (!/can.?t|no |never |manual|late|slow|miss|over|under|not |too /i.test(item)) return;
+        const name = cleanIssueName(item.replace(/^(?:he\s+)?(?:said\s+)?(?:there.?s\s+)?/i, ''));
+        if (name.length < 8) return;
+        const val = extractIssueVal(item);
+        if (issues.some(x => x.name.slice(0,20) === name.slice(0,20))) return;
+        issues.push({ name, detail: '', val, sev: issueSev(name), from: '' });
+      });
+    }
+  }
+
+  // Strategy 2: keyword fallback
+  if (issues.length < 2) {
+    const kwRe = /bottleneck|delay|problem|issue|broken|manual|inefficien|no system|not tracked|wast|overdue/i;
+    const dlRe2 = /^[A-Za-z][a-zA-Z .'-]{1,40}:/;
+    body.split('\n').forEach(line => {
+      const l = line.trim();
+      if (narrativeStartRe.test(l)) return; // skip narrative starters here too
+      if (l.length > 35 && kwRe.test(l) && !dlRe2.test(l) && !l.startsWith('-')) {
+        const val = extractIssueVal(l);
+        const name = cleanIssueName(l.slice(0, 80));
+        if (name.length < 8) return;
+        issues.push({ name, detail: '', val, sev: 'medium', from: '' });
+      }
+    });
+  }
+
+  // ── Extract quotes -- supports lowercase names, capitalises output ──
+  const titlePrefixes = /^(founder|md|ceo|director|owner|operations manager|finance admin|site manager|manager|admin|head of|vp|cfo|coo|hr|project manager|procurement|accountant)\s+/i;
+  const skipNames = /^(note|key|total|summary|issues?|section|step|the|this|that|a|an|and|or|but|if|so|main|said|probl|challeng|mention|action|activity|activit|things?|re:?|update|follow|regarding|what|how|why|when|where)$/i;
+  // Words that appear in note headers / financial summaries but never in real names
+  const notNameWords = /\b(he\b|she\b|his\b|her\b|main\b|probl|issues?\b|mention|activ|wasters?\b|identified\b|section|challeng|summ|said\b|things?\b|what\b|how\b|why\b|when\b|update\b|action\b|following\b|re:\b|revenue\b|programme\b|program\b|channel\b|delivery\b|loyalty\b|pricing\b|rough\b|total\b|cost\b|estimate\b|breakdown\b|financial\b|opportunit|budget\b|margin\b|profit\b|found\b)\b/i;
+  const dialogueRe = /^([A-Za-z][a-zA-Z .'-]{1,40}):\s*["']?(.{20,})/gm;
+  const quotes = [];
+  const usedTexts = new Set();
+
+  while ((m = dialogueRe.exec(body)) !== null) {
+    let rawName = m[1].trim();
+    if (skipNames.test(rawName)) continue;
+    // Reject note-style headers: >3 words, or contains non-name vocabulary
+    if (rawName.split(/\s+/).length > 3) continue;
+    if (notNameWords.test(rawName)) continue;
+    const text = m[2].replace(/["']/g, '').trim();
+    // Skip financial summary lines -- content starting with R value signals a section, not a person
+    if (/^\s*R\s*\d/.test(text)) continue;
+    if (text.length > 20 && !usedTexts.has(text.slice(0,30))) {
+      usedTexts.add(text.slice(0,30));
+      let role = '';
+      const titleMatch = rawName.match(titlePrefixes);
+      if (titleMatch) { role = titleMatch[0].trim(); rawName = rawName.slice(titleMatch[0].length).trim(); }
+      // Capitalise name
+      rawName = rawName.replace(/\b\w/g, c => c.toUpperCase());
+      const isFounder = founderNames.has(rawName.toLowerCase())
+        || founderNames.has(m[1].trim().toLowerCase())
+        || /founder|md|ceo|director|owner/i.test(role)
+        || /founder|md|ceo|director|owner/i.test(rawName);
+      quotes.push({ text, name: rawName, role, session: isFounder ? 'founder' : 'team' });
+    }
+  }
+  // Strategy 2: quoted strings
+  if (quotes.length < 2) {
+    const quotedRe = /["""]((?:[^"""]{25,}))["""]/g;
+    while ((m = quotedRe.exec(body)) !== null) {
+      const text = m[1].trim();
+      if (!usedTexts.has(text.slice(0,30))) { usedTexts.add(text.slice(0,30)); quotes.push({ text, name: '', role: '', session: 'team' }); }
+    }
+  }
+  // Strategy 3: paragraph fallback
+  if (quotes.length < 2) {
+    body.split(/\n{2,}/).forEach(para => {
+      const p = para.trim();
+      if (p.length > 40 && !usedTexts.has(p.slice(0,30))) { usedTexts.add(p.slice(0,30)); quotes.push({ text: p, name: '', role: '', session: 'team' }); }
+    });
+  }
+
+  // ── Revenue -- handles "R XM", "X million", "roughly X million" ──
+  // IMPORTANT: put longer alternatives before shorter ones (million before M, thousand before k)
+  // to prevent "R 22 million" matching as "R 22 m" via the single-char M alternative
+  const randRe = /R\s?([\d\s,.]+(?:million|thousand|k|K|m|M)?)/g;
+  const rands = [];
+  while ((m = randRe.exec(body)) !== null) rands.push('R ' + m[1].trim());
+
+  const revenue = (() => {
+    // Tier 1: explicit "revenue/turnover R X"
+    const m1 = intro.match(/(?:revenue|turnover)[^R\d]*(R\s*[\d.]+\s*(?:million|thousand|M|k|K)?)/i)
+      || body.match(/(R\s*[\d.]+\s*(?:million|M))\s*(?:per year|annual|revenue)/i);
+    if (m1) return m1[1].trim();
+    // Tier 2a: range "X to Y million" or "X-Y million" -- use higher end
+    const m2r = intro.match(/(\d+(?:\.\d+)?)\s*(?:to|-)\s*(\d+(?:\.\d+)?)\s*million/i)
+      || body.match(/(\d+(?:\.\d+)?)\s*(?:to|-)\s*(\d+(?:\.\d+)?)\s*million/i);
+    if (m2r) return 'R ' + m2r[2] + 'M';
+    // Tier 2b: single "X million" with optional qualifier word (probably, about, roughly…)
+    const m2 = intro.match(/(?:probably|roughly|about|approximately|around|nearly|maybe|roughly)?\s*([\d]+\.?\d*)\s*million/i)
+      || body.match(/([\d]+\.?\d*)\s*million\s*(?:a year|per year|rand|ZAR)/i);
+    if (m2) return 'R ' + m2[1] + 'M';
+    return rands[0] || '';
+  })();
+
+  // ── Headcount ──
+  const hcMatch = body.match(/(\d+)\s*(?:staff|employees|people|team members|fulltime|full.time|on the books)/i);
+  const headcount = hcMatch ? hcMatch[1] + ' Staff' : '';
+
+  // ── Location ──
+  const locMatch = body.match(/\b(Cape Town|Johannesburg|Durban|Pretoria|Port Elizabeth|Sandton|Stellenbosch|Paarl|George|East London|Bloemfontein|Midrand|Randburg|Centurion)\b/i);
+  const location = locMatch ? locMatch[1] : '';
+
+  // ── Date ──
+  const dateMatch = body.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}\b/i);
+  const date = dateMatch ? dateMatch[0] : new Date().toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
+
+  // ── Years in business ──
+  let years = '';
+  const yM1 = body.match(/(\d+)\s*years?\s+(?:in business|running|operating|old|established|in (?:financial|the|this) (?:industry|space|market|sector|game))/i);
+  const yM2 = body.match(/(?:been|running|open|in business|established|operating|exist(?:ed|ing))\s+(?:for\s+)?(\d+)\s*years?/i);
+  const yM3 = body.match(/(?:founded|started|opened|built|launched|started up)\s+(?:the (?:business|company|firm|practice))?\s*(?:in|around|back in|circa)?\s*((?:19|20)\d{2})/i);
+  const yM4 = body.match(/(\d+)[- ]year[- ](?:old|established)/i);
+  if      (yM1) { years = yM1[1] + ' Years'; }
+  else if (yM2) { years = yM2[1] + ' Years'; }
+  else if (yM3) { const yrsSince = new Date().getFullYear() - parseInt(yM3[1]); if (yrsSince > 0 && yrsSince < 80) years = yrsSince + ' Years'; }
+  else if (yM4) { years = yM4[1] + ' Years'; }
+
+  // ── Time-wasting activities ──
+  const activities = [];
+  const usedActKeys = new Set();
+  const skipActRe = /^(total|revenue|cost|r\s?\d|the\b|we\b|i\b|our\b|it\b|that\b|this\b|there\b|those\b)/i;
+
+  function tryAddAct(label, hrs) {
+    label = label.trim().replace(/\s+/g, ' ').replace(/[.,;:–-]$/, '');
+    hrs   = parseFloat(hrs);
+    if (hrs < 1 || hrs > 80 || label.length < 3 || label.length > 40) return;
+    if (skipActRe.test(label)) return;
+    const key = label.toLowerCase().slice(0, 14);
+    if (!usedActKeys.has(key) && activities.length < 6) {
+      usedActKeys.add(key);
+      activities.push({ label: label.charAt(0).toUpperCase() + label.slice(1), hours: String(hrs) });
+    }
+  }
+
+  // Strategy A: "Label -- N hours" / "Label: N hrs/week" (structured bullet or inline)
+  const actA = /(?:^|[-•])\s*([A-Za-z][A-Za-z\s\-\/&']{2,30}?)\s*[:\-–]+\s*(\d+(?:\.\d+)?)\s*h(?:ours?|rs?)?\s*(?:\/?\s*(?:a\s+)?week|per\s+week|weekly)?/gim;
+  let actM;
+  while ((actM = actA.exec(body)) !== null) tryAddAct(actM[1], actM[2]);
+
+  // Strategy B: "N hours [a/per] week on/for/doing Label"
+  const actB = /(\d+(?:\.\d+)?)\s*h(?:ours?|rs?)?(?:\s*(?:a|per|\/)\s*week)?\s+(?:on|for|doing|to handle|chasing|managing|in|of|just for)\s+([A-Za-z][A-Za-z\s\-\/&']{3,35}?)(?=[,.\n–;]|$)/gi;
+  while ((actM = actB.exec(body)) !== null) tryAddAct(actM[2], actM[1]);
+
+  // Strategy C: "Label takes/consumes/costs N hours [a week]"
+  const actC = /([A-Za-z][A-Za-z\s\-\/&']{2,30}?)\s+(?:takes?|consumes?|costs?|requires?|is)\s+(?:about\s+|approximately\s+|around\s+|easily\s+|roughly\s+)?(\d+(?:\.\d+)?)\s*h(?:ours?|rs?)?(?:\s*(?:a|per|\/)\s*week)?/gi;
+  while ((actM = actC.exec(body)) !== null) tryAddAct(actM[1], actM[2]);
+
+  // Strategy D: "spend N hours [a week] on Label"
+  const actD = /spend(?:ing)?\s+(?:about\s+|roughly\s+|around\s+|easily\s+)?(\d+(?:\.\d+)?)\s*h(?:ours?|rs?)?(?:\s*(?:a|per|\/)\s*week|\s*a week)?\s+(?:on|for|doing|just on|in)?\s+([A-Za-z][A-Za-z\s\-\/&']{3,35}?)(?=[,.\n–;]|$)/gi;
+  while ((actM = actD.exec(body)) !== null) tryAddAct(actM[2], actM[1]);
+
+  activities.sort((a, b) => parseFloat(b.hours) - parseFloat(a.hours));
+
+  // ── Financial totals from issues ──
+  const cats = { td: 0, ml: 0, rg: 0, sf: 0 };
+  issues.forEach(issue => {
+    const val = parseRandNum(issue.val);
+    const cat = detectCat(issue.name);
+    if (cat === 'Tech Debt')      cats.td += val;
+    else if (cat === 'Money Leak') cats.ml += val;
+    else if (cat === 'Revenue Gap') cats.rg += val;
+    else                           cats.sf += val;
+  });
+
+  // Try to read explicit total from transcript -- handles various phrasings
+  const totalLineMatch =
+    body.match(/total\s+value\s+at\s+stake[^R\n]*(R[\d\s,.]+)/i) ||
+    body.match(/(?:rough|estimated|approx\.?)\s+total[^R\n]*[:\-–]?\s*(R[\d\s,.]+)/i) ||
+    body.match(/total\s+opportunit[^R\n]*(R[\d\s,.]+)/i) ||
+    body.match(/total[^R\n]{0,30}(R[\d\s,.]+\s*(?:to|-)\s*R[\d\s,.]+)/i); // range total
+  const totalNum = totalLineMatch
+    ? parseRandNum(totalLineMatch[1])
+    : Object.values(cats).reduce((s, v) => s + v, 0);
+
+  // ── Retainer estimate ──
+  const retainerCost  = Math.round(totalNum * 0.45);
+  const roiMultiple   = retainerCost ? Math.round(totalNum / retainerCost) + '×' : '';
+  const retVal        = fmtR(Math.round(totalNum * 0.5));
+
+  // ── Auto-generate roadmap from issues ──
+  const roadmap = issues.slice(0, 8).map(issue => {
+    const cat    = detectCat(issue.name);
+    const effort = issue.sev === 'critical' ? 'Low'
+                 : issue.sev === 'high'     ? 'Medium'
+                 :                            'Medium';
+    const tl     = effort === 'Low' ? '1–2 weeks' : effort === 'Medium' ? '2–4 weeks' : '4–8 weeks';
+    const valNum = parseRandNum(issue.val);
+    return {
+      name:     issueToFix(issue.name),
+      cat,
+      effort,
+      val:      issue.val.replace(/\s*\/\s*yr/i, '').trim(),
+      valNum,
+      timeline: tl
+    };
+  }).sort((a, b) => b.valNum - a.valNum); // highest value first
+
+  // ── Build prefill ──
+  const prefill = {
+    name: clientName, revenue, founder: founderName, founderTitle,
+    headcount, years, location, date,
+    totalNum,
+    totalDisplay: fmtR(totalNum),
+    td: cats.td ? fmtR(cats.td) : '',
+    ml: cats.ml ? fmtR(cats.ml) : '',
+    rg: cats.rg ? fmtR(cats.rg) : '',
+    sf: cats.sf ? fmtR(cats.sf) : '',
+    activities: activities.slice(0, 6),
+    quotes:  quotes.slice(0, 8),
+    issues:  issues.slice(0, 8),
+    roadmap,
+    roi:      roiMultiple,
+    retVal,
+    retFixes: issues.length + ' fixes',
+    retCon:   fmtR(retainerCost)
+  };
+
+  // ── Switch to audits, fill form, then save once ──
+  switchTab('audits');
+  auActiveId = null;
+  renderAuditList();
+  renderAuditForm(prefill); // fills all fields synchronously via loadAuditFormFields inside
+  document.getElementById('audit-form-wrap')?.scrollIntoView({ block: 'start' });
+
+  // Single save -- saveAuditDraft reads from the now-populated DOM and creates one doc
+  saveAuditDraft().then(() => {
+    showToast('Audit saved', 'ok');
+  }).catch(err => {
+    console.warn('Audit auto-save failed:', err);
+    showToast('Could not save audit -- check connection', 'warn');
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  UTILITIES
+// ══════════════════════════════════════════════════════════
+
+function showToast(msg, type = 'info') {
+  const existing = document.getElementById('ev-toast');
+  if (existing) { clearTimeout(existing._hideTimer); existing.remove(); }
+  const t = document.createElement('div');
+  t.id = 'ev-toast';
+  t.className = 'ev-toast ev-toast-' + type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('ev-toast-show')));
+  t._hideTimer = setTimeout(() => {
+    t.classList.remove('ev-toast-show');
+    setTimeout(() => { if (t.parentNode) t.remove(); }, 300);
+  }, 3200);
+}
+
+function escH(s)    { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s) { return String(s||'').replace(/"/g,'&quot;'); }
+
+function relDate(val) {
+  if (!val) return '';
+  const d = val.toDate ? val.toDate() : new Date(val);
+  const diff = (Date.now() - d) / 1000;
+  if (diff < 60)    return 'just now';
+  if (diff < 3600)  return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return d.toLocaleDateString('en-ZA', {day:'numeric', month:'short'});
+}
+function longDate(val) {
+  if (!val) return '';
+  const d = val.toDate ? val.toDate() : new Date(val);
+  return d.toLocaleDateString('en-ZA', {day:'numeric', month:'long', year:'numeric'});
+}
+
+// Keyboard shortcut: Cmd+N for new writing entry
+document.addEventListener('keydown', e => {
+  if ((e.metaKey||e.ctrlKey) && e.key === 'n') {
+    const wrActive = document.getElementById('section-writing').classList.contains('active');
+    if (wrActive) { e.preventDefault(); newWritingEntry(); }
+  }
+});
+
+</script>
+</body>
+</html>

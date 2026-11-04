@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { PostComposer } from "@/components/feed/PostComposer"
 import { FeedClient } from "@/components/feed/FeedClient"
+import { IntroNudge } from "@/components/feed/IntroNudge"
 
 export const metadata = { title: "Feed — PVC Members" }
 
@@ -11,7 +12,7 @@ export default async function FeedPage() {
   const role = (session!.user as any).role
 
   const [currentUser, posts] = await Promise.all([
-    db.user.findUnique({ where: { id: userId }, select: { avatar: true } }),
+    db.user.findUnique({ where: { id: userId }, select: { avatar: true, name: true, createdAt: true, _count: { select: { posts: true } } } }),
     db.post.findMany({
       orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
       take: 20,
@@ -48,6 +49,14 @@ export default async function FeedPage() {
       </div>
 
       <div className="page-container" style={{ maxWidth: 720, margin: "0 auto", padding: "20px 24px" }}>
+      {(() => {
+        if (!currentUser) return null
+        const daysSinceJoin = (Date.now() - new Date(currentUser.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+        if (currentUser._count.posts === 0 && daysSinceJoin <= 30) {
+          return <IntroNudge name={currentUser.name} />
+        }
+        return null
+      })()}
       <PostComposer composerAvatar={currentUser?.avatar} />
       <FeedClient initialPosts={posts as any} currentUserId={userId} currentUserRole={role} />
       </div>

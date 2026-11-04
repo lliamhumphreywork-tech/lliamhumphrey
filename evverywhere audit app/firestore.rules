@@ -1,0 +1,54 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper: only @evverywhere.com team members, email verified ──
+    function isTeamMember() {
+      return request.auth != null
+          && request.auth.token.email_verified == true
+          && request.auth.token.email.matches('.*@evverywhere\\.com');
+    }
+
+    // ── Writing entries ─────────────────────────────────────────────
+    match /writing/{docId} {
+      // Any verified team member can read all writing entries
+      allow read: if isTeamMember();
+
+      // Create: must be authenticated as themselves (can't spoof authorId)
+      allow create: if isTeamMember()
+                   && request.resource.data.authorId == request.auth.uid;
+
+      // Update: team members can edit any entry (collaborative editing)
+      allow update: if isTeamMember();
+
+      // Delete: only the original author can delete their own entry
+      allow delete: if isTeamMember()
+                   && resource.data.authorId == request.auth.uid;
+    }
+
+    // ── Audit documents ─────────────────────────────────────────────
+    match /audits/{docId} {
+      // Any verified team member can read all audits
+      allow read: if isTeamMember();
+
+      // Create: must be authenticated as themselves (can't spoof createdById)
+      allow create: if isTeamMember()
+                   && request.resource.data.createdById == request.auth.uid;
+
+      // Update: any team member can update (collaborative workflow)
+      allow update: if isTeamMember();
+
+      // Delete: only the creator can delete (protects client data)
+      allow delete: if isTeamMember()
+                   && resource.data.createdById == request.auth.uid;
+    }
+
+    // ── Deny everything else ─────────────────────────────────────────
+    // Any collection not explicitly listed above is locked to everyone.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+  }
+}

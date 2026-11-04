@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Evvrywhere — Speed-to-Lead Carousel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Libre+Caslon+Display&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --cream:#F5F0E8;
+    --ink:#1A1A1A;
+    --brown:#6B4C2A;
+    --white:#FFFFFF;
+    --ink-70: rgba(26,26,26,.66);
+    --ink-45: rgba(26,26,26,.45);
+    --ink-30: rgba(26,26,26,.3);
+    --line: rgba(26,26,26,.16);
+    --brown-12: rgba(107,76,42,.12);
+    --brown-20: rgba(107,76,42,.22);
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --logo: var(--ink);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; }
+  body{
+    background:#23211d;
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    overflow:hidden;
+  }
+  #root{ height:100vh; }
+
+  /* ============ SLIDE CANVAS ============ */
+  .slide{
+    width:1080px; height:1350px;
+    background:var(--cream);
+    position:relative;
+    overflow:hidden;
+    display:grid;
+    grid-template-rows: auto auto 1fr auto;
+    padding:84px 84px 70px;
+  }
+  .slide.landscape{ width:1200px; height:627px; padding:64px 90px; grid-template-rows:auto auto 1fr; }
+
+  /* header */
+  .s-head{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
+  .kicker{
+    font-family:var(--sans); font-size:21px; font-weight:500;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--ink);
+    display:flex; align-items:center; gap:14px;
+  }
+  .kicker .dot{ width:9px; height:9px; background:var(--brown); border-radius:50%; display:inline-block; }
+  .pill{
+    font-family:var(--sans); font-size:19px; font-weight:600;
+    letter-spacing:.12em; text-transform:uppercase;
+    background:var(--brown); color:var(--white);
+    padding:13px 28px; border-radius:999px; white-space:nowrap;
+  }
+  .pill.outline{ background:transparent; color:var(--brown); box-shadow: inset 0 0 0 2px var(--brown); }
+  .rule{ height:1.5px; background:var(--ink); margin-top:34px; opacity:.9; }
+
+  /* headline block */
+  .head-block{ margin-top:60px; align-self:start; }
+  .headline{
+    font-family:var(--serif); font-weight:400;
+    color:var(--ink); line-height:.98; letter-spacing:-.006em;
+    margin:0; text-wrap:balance;
+  }
+  .headline em{ font-style:italic; }
+  .headline .acc{ color:var(--brown); }
+  .dek{
+    font-family:var(--sans); font-size:27px; line-height:1.4; font-weight:400;
+    color:var(--ink-70); margin:30px 0 0; max-width:760px;
+  }
+
+  /* visual zone */
+  .vzone{ align-self:stretch; min-height:0; display:flex; flex-direction:column; justify-content:center; }
+
+  /* footer / logo */
+  .s-foot{ display:flex; align-items:flex-end; justify-content:center; position:relative; margin-top:24px; }
+  .wmark{ height:40px; width:auto; display:block; }
+  .page-num{
+    position:absolute; right:0; bottom:2px;
+    font-family:var(--sans); font-size:19px; letter-spacing:.16em;
+    color:var(--ink-45); font-weight:500;
+  }
+  .corner-id{
+    position:absolute; left:0; bottom:2px;
+    font-family:var(--sans); font-size:19px; letter-spacing:.16em;
+    color:var(--ink-45); font-weight:500; text-transform:uppercase;
+  }
+
+  /* ============ shared visual primitives ============ */
+  .chip{ width:34px; height:34px; border-radius:7px; background:var(--ink); }
+  .chip.brown{ background:var(--brown); }
+  .chip.ghost{ background:transparent; box-shadow: inset 0 0 0 2px var(--brown-20); }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:14px; }
+
+  .stat-caption{ font-family:var(--sans); font-size:23px; color:var(--ink-70); line-height:1.4; }
+  .footnote{ font-family:var(--sans); font-size:18px; color:var(--ink-45); letter-spacing:.02em; }
+  .lbl{ font-family:var(--sans); font-size:20px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--ink); }
+  .lbl.muted{ color:var(--ink-45); font-weight:500; }
+
+  /* bar (stat) */
+  .bar{ width:100%; height:84px; border-radius:14px; overflow:hidden; display:flex; background:var(--white); box-shadow: inset 0 0 0 1.5px var(--line); }
+  .bar .seg-a{ background:var(--brown); }
+  .bar .seg-b{ background:var(--brown-12); }
+
+  /* card (chat / dashboard) */
+  .card{ background:var(--white); border-radius:26px; box-shadow: inset 0 0 0 1.5px var(--line); padding:34px 36px; }
+  .card-head{ display:flex; align-items:center; gap:18px; padding-bottom:24px; border-bottom:1.5px solid var(--line); margin-bottom:26px; }
+  .avatar{ width:54px; height:54px; border-radius:50%; background:var(--brown); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:600; font-size:22px; font-family:var(--sans); }
+
+  .bubble{ max-width:74%; padding:22px 26px; border-radius:22px; font-family:var(--sans); font-size:25px; line-height:1.32; }
+  .bubble .time{ display:block; font-size:17px; color:var(--ink-45); margin-top:10px; letter-spacing:.02em; }
+  .bubble.in{ background:var(--cream); color:var(--ink); border-bottom-left-radius:7px; align-self:flex-start; }
+  .bubble.out{ background:var(--brown); color:#fff; border-bottom-right-radius:7px; align-self:flex-end; }
+  .bubble.out .time{ color: rgba(255,255,255,.7); }
+  .thread{ display:flex; flex-direction:column; gap:20px; }
+  .gap-chip{ align-self:center; font-family:var(--sans); font-size:18px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-45); background:var(--cream); padding:9px 20px; border-radius:999px; box-shadow: inset 0 0 0 1.5px var(--line); }
+
+  /* flow nodes */
+  .flow{ display:flex; flex-direction:column; gap:0; }
+  .node{ display:flex; align-items:center; gap:28px; }
+  .node .num{ width:64px; height:64px; flex:0 0 64px; border-radius:50%; background:var(--brown); color:#fff; font-family:var(--serif); font-size:30px; display:flex; align-items:center; justify-content:center; }
+  .node .num.ghost{ background:transparent; color:var(--brown); box-shadow: inset 0 0 0 2px var(--brown); }
+  .node .body .t{ font-family:var(--sans); font-size:30px; font-weight:600; color:var(--ink); letter-spacing:-.01em; }
+  .node .body .s{ font-family:var(--sans); font-size:22px; color:var(--ink-70); margin-top:4px; }
+  .connector{ width:64px; display:flex; justify-content:center; }
+  .connector .line{ width:2px; height:34px; background:var(--brown-20); }
+
+  /* stat tiles (dashboard) */
+  .tiles{ display:flex; flex-direction:column; gap:20px; }
+  .tile{ display:flex; align-items:center; justify-content:space-between; gap:24px; padding:26px 30px; border-radius:18px; background:var(--cream); }
+  .tile .name{ font-family:var(--sans); font-size:23px; color:var(--ink-70); font-weight:500; }
+  .tile .vals{ display:flex; align-items:baseline; gap:18px; }
+  .tile .before{ font-family:var(--sans); font-size:26px; color:var(--ink-45); text-decoration:line-through; }
+  .tile .arrow{ color:var(--brown); font-size:24px; }
+  .tile .after{ font-family:var(--serif); font-size:42px; color:var(--ink); line-height:1; }
+
+  /* ============ entry animations ============ */
+  @media (prefers-reduced-motion: no-preference){
+    .stage[data-animate="on"] .head-block{ animation: fadeUp .62s cubic-bezier(.2,.7,.2,1) both; }
+    .stage[data-animate="on"] .s-head{ animation: fadeUp .5s cubic-bezier(.2,.7,.2,1) both; }
+    .stage[data-animate="on"] .vzone{ animation: slideInR .7s cubic-bezier(.2,.7,.2,1) .12s both; }
+    .stage[data-animate="on"] .s-foot{ animation: fadeUp .5s ease .2s both; }
+  }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(26px); } to{ opacity:1; transform:none; } }
+  @keyframes slideInR{ from{ opacity:0; transform:translateX(70px); } to{ opacity:1; transform:none; } }
+
+  /* ============ APP CHROME ============ */
+  .stage{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .scaled{ transform-origin: top left; box-shadow: 0 40px 120px rgba(0,0,0,.45); }
+
+  .topbar{
+    position:fixed; top:0; left:0; right:0; height:58px; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 20px; background: rgba(20,19,16,.82); backdrop-filter: blur(10px);
+    color:#e9e4da; font-family:var(--sans); font-size:14px;
+  }
+  .topbar .brand{ display:flex; align-items:center; gap:11px; font-weight:600; letter-spacing:.04em; }
+  .topbar .brand .w{ height:17px; width:auto; display:block; }
+  .seg{ display:flex; background:rgba(255,255,255,.08); border-radius:999px; padding:4px; gap:2px; }
+  .seg button{ border:0; background:transparent; color:#b8b1a4; font:inherit; font-weight:600; padding:7px 18px; border-radius:999px; cursor:pointer; letter-spacing:.02em; }
+  .seg button.on{ background:#e9e4da; color:#1a1a1a; }
+  .topbar .meta{ color:#8c857a; font-variant-numeric:tabular-nums; min-width:90px; text-align:right; }
+
+  /* swipe nav */
+  .nav{ position:fixed; bottom:26px; left:50%; transform:translateX(-50%); z-index:50; display:flex; align-items:center; gap:18px; background:rgba(20,19,16,.82); backdrop-filter:blur(10px); padding:10px 14px; border-radius:999px; }
+  .nav button{ width:46px; height:46px; border-radius:50%; border:0; background:rgba(255,255,255,.1); color:#e9e4da; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; }
+  .nav button:hover{ background:rgba(255,255,255,.2); }
+  .nav button:disabled{ opacity:.3; cursor:default; }
+  .dots{ display:flex; gap:9px; align-items:center; padding:0 6px; }
+  .dots i{ width:8px; height:8px; border-radius:50%; background:rgba(233,228,218,.32); cursor:pointer; transition:all .2s; }
+  .dots i.on{ background:#e9e4da; transform:scale(1.3); }
+
+  /* review grid */
+  .review{ position:absolute; inset:0; overflow:auto; background:#23211d; padding:78px 40px 80px; }
+  .review-inner{ max-width:1320px; margin:0 auto; }
+  .review h2{ color:#e9e4da; font-family:var(--serif); font-weight:400; font-size:34px; margin:0 0 6px; }
+  .review .sub{ color:#8c857a; font-family:var(--sans); font-size:15px; margin:0 0 34px; max-width:680px; line-height:1.5; }
+  .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap:34px 30px; }
+  .cell { }
+  .cell .cap{ display:flex; align-items:center; gap:10px; color:#cfc8ba; font-family:var(--sans); font-size:13px; margin-bottom:12px; font-weight:600; letter-spacing:.04em; }
+  .cell .cap .n{ color:#8c857a; }
+  .cell .cap .flag{ margin-left:auto; background:var(--brown); color:#fff; font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:4px 9px; border-radius:5px; font-weight:700; }
+  .frame{ border-radius:8px; overflow:hidden; box-shadow:0 18px 50px rgba(0,0,0,.4); position:relative; }
+  .review .section-h{ color:#8c857a; font-family:var(--sans); font-size:12px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; margin:48px 0 22px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,.1); }
+  .note-card{ background:rgba(255,255,255,.05); border-radius:14px; padding:22px 24px; color:#cfc8ba; font-family:var(--sans); font-size:14px; line-height:1.6; }
+  .note-card b{ color:#e9e4da; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+  <script type="text/babel">
+// @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
+
+/* BEGIN USAGE */
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+// Exports (to window): useTweaks, TweaksPanel, TweakSection, TweakRow, TweakSlider,
+//   TweakToggle, TweakRadio, TweakSelect, TweakText, TweakNumber, TweakColor, TweakButton.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "palette": ["#D97757", "#29261b", "#f6f4ef"],
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        options={['#D97757', '#2A6FDB', '#1F8A5B', '#7A5AE0']}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakColor  label="Palette" value={t.palette}
+//                        options={[['#D97757', '#29261b', '#f6f4ef'],
+//                                  ['#475569', '#0f172a', '#f1f5f9']]}
+//                        onChange={(v) => setTweak('palette', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// TweakRadio is the segmented control for 2–3 short options (auto-falls-back to
+// TweakSelect past ~16/~10 chars per label); reach for TweakSelect directly when
+// options are many or long. For color tweaks always curate 3-4 options rather than
+// a free picker; an option can also be a whole 2–5 color palette (the stored value
+// is the array). The Tweak* controls are a floor, not a ceiling — build custom
+// controls inside the panel if a tweak calls for UI they don't cover.
+/* END USAGE */
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom right;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;box-sizing:border-box;width:100%;min-width:0;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;box-sizing:border-box;min-width:0;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+
+  .twk-chips{display:flex;gap:6px}
+  .twk-chip{position:relative;appearance:none;flex:1;min-width:0;height:46px;
+    padding:0;border:0;border-radius:6px;overflow:hidden;cursor:default;
+    box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06);
+    transition:transform .12s cubic-bezier(.3,.7,.4,1),box-shadow .12s}
+  .twk-chip:hover{transform:translateY(-1px);
+    box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12)}
+  .twk-chip[data-on="1"]{box-shadow:0 0 0 1.5px rgba(0,0,0,.85),
+    0 2px 6px rgba(0,0,0,.15)}
+  .twk-chip>span{position:absolute;top:0;bottom:0;right:0;width:34%;
+    display:flex;flex-direction:column;box-shadow:-1px 0 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i{flex:1;box-shadow:0 -1px 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i:first-child{box-shadow:none}
+  .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    // Same-window signal so in-page listeners (deck-stage rail thumbnails)
+    // can react — the parent message only reaches the host, not peers.
+    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" data-omelette-chrome=""
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">
+          {children}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  // Segments wrap mid-word once per-segment width runs out. The track is
+  // ~248px (280 panel − 28 body pad − 4 seg pad), each button loses 12px
+  // to its own padding, and 11.5px system-ui averages ~6.3px/char — so 2
+  // options fit ~16 chars each, 3 fit ~10. Past that (or >3 options), fall
+  // back to a dropdown rather than wrap.
+  const labelLen = (o) => String(typeof o === 'object' ? o.label : o).length;
+  const maxLen = options.reduce((m, o) => Math.max(m, labelLen(o)), 0);
+  const fitsAsSegments = maxLen <= ({ 2: 16, 3: 10 }[options.length] ?? 0);
+  if (!fitsAsSegments) {
+    // <select> emits strings — map back to the original option value so the
+    // fallback stays type-preserving (numbers, booleans) like the segment path.
+    const resolve = (s) => {
+      const m = options.find((o) => String(typeof o === 'object' ? o.value : o) === s);
+      return m === undefined ? s : typeof m === 'object' ? m.value : m;
+    };
+    return <TweakSelect label={label} value={value} options={options}
+                        onChange={(s) => onChange(resolve(s))} />;
+  }
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+// Relative-luminance contrast pick — checkmarks drawn over a swatch need to
+// read on both #111 and #fafafa without per-option configuration. Hex input
+// only (#rgb / #rrggbb); named or rgb()/hsl() colors fall through to "light".
+function __twkIsLight(hex) {
+  const h = String(hex).replace('#', '');
+  const x = h.length === 3 ? h.replace(/./g, (c) => c + c) : h.padEnd(6, '0');
+  const n = parseInt(x.slice(0, 6), 16);
+  if (Number.isNaN(n)) return true;
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return r * 299 + g * 587 + b * 114 > 148000;
+}
+
+const __TwkCheck = ({ light }) => (
+  <svg viewBox="0 0 14 14" aria-hidden="true">
+    <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2"
+          strokeLinecap="round" strokeLinejoin="round"
+          stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
+  </svg>
+);
+
+// TweakColor — curated color/palette picker. Each option is either a single
+// hex string or an array of 1-5 hex strings; the card adapts — a lone color
+// renders solid, a palette renders colors[0] as the hero (left ~2/3) with the
+// rest stacked in a sharp column on the right. onChange emits the
+// option in the shape it was passed (string stays string, array stays array).
+// Without options it falls back to the native color input for back-compat.
+function TweakColor({ label, value, options, onChange }) {
+  if (!options || !options.length) {
+    return (
+      <div className="twk-row twk-row-h">
+        <div className="twk-lbl"><span>{label}</span></div>
+        <input type="color" className="twk-swatch" value={value}
+               onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
+  // Native <input type=color> emits lowercase hex per the HTML spec, so
+  // compare case-insensitively. String() guards JSON.stringify(undefined),
+  // which returns the primitive undefined (no .toLowerCase).
+  const key = (o) => String(JSON.stringify(o)).toLowerCase();
+  const cur = key(value);
+  return (
+    <TweakRow label={label}>
+      <div className="twk-chips" role="radiogroup">
+        {options.map((o, i) => {
+          const colors = Array.isArray(o) ? o : [o];
+          const [hero, ...rest] = colors;
+          const sup = rest.slice(0, 4);
+          const on = key(o) === cur;
+          return (
+            <button key={i} type="button" className="twk-chip" role="radio"
+                    aria-checked={on} data-on={on ? '1' : '0'}
+                    aria-label={colors.join(', ')} title={colors.join(' · ')}
+                    style={{ background: hero }}
+                    onClick={() => onChange(o)}>
+              {sup.length > 0 && (
+                <span>
+                  {sup.map((c, j) => <i key={j} style={{ background: c }} />)}
+                </span>
+              )}
+              {on && <__TwkCheck light={__twkIsLight(hero)} />}
+            </button>
+          );
+        })}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+
+  </script>
+  <script type="text/babel">
+/* ============================================================
+   Evvrywhere — Speed-to-Lead carousel
+   Slide chrome (Frame) + visual zones + slide data
+   ============================================================ */
+
+function logoSrc(color) {
+  return color === "#6B4C2A" ? "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJMAAABPCAYAAADvGfdBAAADyUlEQVR4AeyZ4W3dMAyE3Y7TWbpJ5+kmnaXrJOAPvzhBJJMSRR7lCyDE71km746fDAT5efCHCTglQJicgmSZ4yBMpMAtAcLkFiULESYy4JYAYXKLkoXUMP35/ettxVoxghU6V9Ss5P2ltXNxC9MZYqfG1C3P+p61pkwpH/bU61nrO/ma+l2YpMB3hVd8N9tr9vkVnrQ1Z7XPPq/VKft6vZow9R6SokirktZWbpU8tLQ2YWqZXvl9S+TKntVrI2UGBVP1wT5df3mYkE7mLEzVvcDBVD3QWaAsz6/LyqLiYy8cTB/SeFUtgSZMf//9/4FuBu1keuRVwVOLjSZMHsGwxrMSgISpwunMxgQxoy5MrddZdpDSHzFM0bX76jHRhWn3YFD9VT0osDBVDTQCUKdszFJ7byUpdgvTXQEpwsUEJIFbmGQT2so6mZE5VPSoginr7VQx0NXAZWWiYUAF0+qAWH+PBMrBlHUyM8ZdzasaJs1rbkXg1QJdkcFZMysL7ezVMJ2G+LtWApFqS8GUeTK1pzNyeGi9TDAx0PjxnQfo/B2twDJzE0zRRs5+WUFKf0uYsv/JqwRMMqBMoKS/rCywELyL/7tlhikr0DsjvO+fgHXWZpj8JeNWtIaJ6yRGGWEy5gwJmNGDZvuIzyGYRhppDHBP7QSGYKptWaeeB0aX03XXMExPDnt376P+hmG6EslrJiAJTMEkBO+6JJze2tW3+Or57t2bgqlXmPeelwBhKjNzfKGECX9GZRSGwCT/W9pljUz2Kd5DYBoZAJ+pl0AITDN/IdSL9LmKQ2DaJd4nHwqNd8IUQLpmEAEylrcIg6l6oEH6lw98ZYMwmFaaYO21CWgPEmFaO4dXde1AXg8UvAiFqWqgVXVH8xgKU7Q5tH4VobRoDofJIg4NBurpJxAOU18O3l3Cr58JYdJn5bJT4HQpFFDEqjUFJqvIgNzYwiGBFJgcdIeUIPS2mAmTLS+X3RUgHdGYBtOIWJdJssiyBNJgWubIqfCTYR/1Tpic4LOWGR2YtU/k/lSYUAN10RU5RZBeqTCBZEAZlwRmDhJhugQZfTkzuGitmn7pMKEFiqZHM0SUPekwoQRBHccxe5AIUzJFswNMlv+pPQRMKIGi6Pg0oUIfIGAqlNcXqft89DhIMDB5mKk62l28w8CUDcIuAx3J0cs7FExepqyBZvW96kTQcNUzcg0FkxiIDjW6n3hsLdEiq3Xf+3vpJcurLhxMYkwMRi3ph7aqeoeECW241KNLgDDd58QdygQIkzIobrtPgDDdZ8QdygTeAQAA//9ZbdOxAAAABklEQVQDAFQWtMz43cl+AAAAAElFTkSuQmCC" : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJMAAABPCAYAAADvGfdBAAADwklEQVR4AeyZUW7jMAxEvXuM3P9sucYu+OHULSqZlChyKE8BoU4skzPDJwNF/x78YQJOCRAmpyBZ5jgIEylwS4AwuUXJQoSJDLglQJjcomQhNUyv1+vfirViBCt0rqhZyftHa+fiFqYzxE6NqVue9T1rTZlSPuyp17PWb/I19bswSYHfCq/4brbX7PMrPGlrzmqffV6rU/b1ejVh6j0kRZFWJa2t3Cp5aGltwtQyvfL7lsiVPavXRsoMCqbqg326/vIwIZ3MWZiqe4GDqXqgs0BZnl+XlUXF1144mL6k8apaAk2Y3u/3H3QzaCfTI68KnlpsNGHyCIY1npUAJEwVTmc2JogZdWFqvc6yg5T+iGGKrt1Xj4kuTLsHg+qv6kGBhalqoBGAOmVjltp7K0mxW5juCkgRLiYgCdzCJJvQVtbJjMyhokcVTFlvp4qBrgYuKxMNAyqYVgfE+nskUA6mrJOZMe5qXtUwaV5zKwKvFuiKDM6aWVloZ6+G6TTE37USiFRbCqbMk6k9nZHDQ+tlgomBxo/vPEDn72gFlpmbYIo2cvbLClL6W8KU/U9eJWCSAWUCJf1lZYGF4F383y0zTFmB3hnhff8ErLM2w+QvGbeiNUxcJzHKCJMxZ0jAjB4020d8DsE00khjgHtqJzAEU23LOvU8MLqcrruGYXpy2Lt7H/U3DNOVSF4zAUlgCiYheNcl4fTWrr7FV893794UTL3CvPe8BAhTmZnjCyVM+DMqozAEJvnf0i5rZLJP8R4C08gA+Ey9BEJgmvkLoV6kz1UcAtMu8T75UGi8E6YA0jWDCJCxvEUYTNUDDdK/fOArG4TBtNIEa69NQHuQCNPaOXyqawfyeaDgRShMVQOtqjuax1CYos2h9asIpUVzOEwWcWgwUE8/gXCY+nLw7hJ+/UwIkz4rl50Cp0uhgCJWrSkwWUUG5MYWDgmkwOSgO6QEobfFTJhsebnsrgDpiMY0mEbEukySRZYlkAbTMkdOhZ8M+6h3wuQEn7XM6MCsfSL3p8KEGqiLrsgpgvRKhQkkA8q4JDBzkAjTJcjoy5nBRWvV9EuHCS1QND2aIaLsSYcJJQjqOI7Zg0SYkimaHWCy/G/tIWBCCRRFx7cJFfoAAVOhvH5I3eejx0GCgcnDTNXR7uIdBqZsEHYZ6EiOXt6hYPIyZQ00q+9VJ4KGq56RayiYxEB0qNH9xGNriRZZrfve30svWV514WASY2Iwakk/tFXVOyRMaMOlHl0ChOk+J+5QJkCYlEFx230ChOk+I+5QJvAfAAD//xcgJC8AAAAGSURBVAMA/Uy0zKmVNJcAAAAASUVORK5CYII=";
+}
+
+function Frame({ meta, t, children }) {
+  const pillCls = "pill" + (t.pillStyle === "outline" ? " outline" : "");
+  return (
+    <div className="slide" data-screen-label={meta.page}>
+      <div className="s-head">
+        <div className="kicker"><span className="dot"></span>{meta.label}</div>
+        {meta.tag ? <div className={pillCls}>{meta.tag}</div> : <span></span>}
+      </div>
+      <div className="rule"></div>
+
+      <div className="head-block">
+        <h1 className="headline" style={{ fontSize: (meta.size || 100) + "px" }}>
+          {meta.headline}
+        </h1>
+        {meta.dek ? <p className="dek">{meta.dek}</p> : null}
+      </div>
+
+      <div className="vzone">{children}</div>
+
+      <div className="s-foot">
+        {t.pageNumbers && meta.page ? <span className="corner-id">Evvrywhere</span> : null}
+        <img className="wmark" src={logoSrc(t.logoColor)} alt="Evvrywhere" />
+        {t.pageNumbers && meta.page ? <span className="page-num">{meta.page} / 07</span> : null}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- S1 : leaking pipe ---------- */
+function VisualLeak() {
+  const inDots = Array.from({ length: 12 });
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 30, width: "100%" }}>
+      <div>
+        <div className="lbl" style={{ marginBottom: 16 }}>12 leads come in</div>
+        <div className="chip-row">{inDots.map((_, i) => <span key={i} className="chip brown"></span>)}</div>
+      </div>
+
+      {/* pipe with a crack */}
+      <div style={{ position: "relative", height: 130, margin: "6px 0" }}>
+        <div style={{ position: "absolute", left: 0, right: 0, top: 52, height: 26, background: "var(--ink)", borderRadius: 6 }}></div>
+        {/* crack */}
+        <div style={{ position: "absolute", left: "44%", top: 50, width: 30, height: 30, background: "var(--cream)", transform: "rotate(45deg)", boxShadow: "inset 0 0 0 0", borderRadius: 4 }}></div>
+        {/* leaking dots */}
+        {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+          <span key={i} className="chip brown" style={{
+            position: "absolute", left: `${40 + i * 3}%`, top: 92 + (i % 4) * 12,
+            opacity: 0.55 - (i % 4) * 0.08, transform: `rotate(${i * 12}deg)`
+          }}></span>
+        ))}
+        <div style={{ position: "absolute", left: "40%", top: 0, fontFamily: "var(--sans)", fontSize: 19, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--brown)", fontWeight: 600 }}>↓ lost to slow replies</div>
+      </div>
+
+      <div>
+        <div className="lbl" style={{ marginBottom: 16 }}>4 actually reach you</div>
+        <div className="chip-row">
+          {[0, 1, 2, 3].map((i) => <span key={i} className="chip"></span>)}
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <span key={"g" + i} className="chip ghost"></span>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- S2 : 78% stat (bars OR big-number) ---------- */
+function VisualStat({ t }) {
+  if (t.statStyle === "number") {
+    return (
+      <div style={{ width: "100%" }}>
+        <div style={{ fontFamily: "var(--serif)", fontSize: 300, lineHeight: .82, color: "var(--brown)", letterSpacing: "-.02em" }}>78%</div>
+        <div className="bar" style={{ height: 26, marginTop: 26, borderRadius: 8 }}>
+          <div className="seg-a" style={{ width: "78%" }}></div>
+          <div className="seg-b" style={{ width: "22%" }}></div>
+        </div>
+        <p className="stat-caption" style={{ marginTop: 24 }}>of buyers go with the company that gives the first credible response — not the cheapest, not the best known.</p>
+        <p className="footnote" style={{ marginTop: 20 }}>Based on B2B lead-response studies</p>
+      </div>
+    );
+  }
+  return (
+    <div style={{ width: "100%" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 18 }}>
+        <span className="lbl">First to reply</span>
+        <span className="lbl muted">Everyone else</span>
+      </div>
+      <div className="bar">
+        <div className="seg-a" style={{ width: "78%", display: "flex", alignItems: "center", paddingLeft: 26, color: "#fff", fontFamily: "var(--serif)", fontSize: 40 }}>78%</div>
+        <div className="seg-b" style={{ width: "22%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brown)", fontFamily: "var(--serif)", fontSize: 34 }}>22%</div>
+      </div>
+      <p className="stat-caption" style={{ marginTop: 30 }}>It's rarely the cheapest or best-known business that wins. It's the one that answers <em>first</em>.</p>
+      <p className="footnote" style={{ marginTop: 22 }}>Based on B2B lead-response studies</p>
+    </div>
+  );
+}
+
+/* ---------- S3 : chat mockup ---------- */
+function VisualChat() {
+  return (
+    <div className="card" style={{ width: "100%" }}>
+      <div className="card-head">
+        <div className="avatar">N</div>
+        <div>
+          <div style={{ fontFamily: "var(--sans)", fontSize: 24, fontWeight: 600 }}>New enquiry</div>
+          <div style={{ fontFamily: "var(--sans)", fontSize: 18, color: "var(--ink-45)" }}>Website form · WhatsApp</div>
+        </div>
+      </div>
+      <div className="thread">
+        <div className="bubble in">Hi, do you still have the 2.4L in stock? Looking to order today.<span className="time">14:02</span></div>
+        <div className="bubble in">Hello? Anyone there?<span className="time">14:41</span></div>
+        <div className="gap-chip">3 hours 24 minutes later</div>
+        <div className="bubble out">Hi! Yes, we do — happy to help. When suits you?<span className="time">17:26 · Delivered</span></div>
+      </div>
+      <div style={{ marginTop: 26, fontFamily: "var(--sans)", fontSize: 21, color: "var(--brown)", fontWeight: 600 }}>
+        She'd already ordered elsewhere at 14:18.
+      </div>
+    </div>
+  );
+}
+
+/* ---------- S4 : decay curve (LinkedIn one-pager) ---------- */
+function VisualCurve({ chartOnly }) {
+  // chart geometry
+  const W = 920, H = chartOnly ? 400 : 460, padL = 70, padB = 64, padT = 30;
+  const pts = [ [0,0.98],[0.10,0.93],[0.22,0.62],[0.40,0.30],[0.62,0.16],[1,0.07] ];
+  const x = (u) => padL + u * (W - padL - 20);
+  const y = (v) => padT + (1 - v) * (H - padT - padB);
+  const line = pts.map((p, i) => (i ? "L" : "M") + x(p[0]).toFixed(1) + " " + y(p[1]).toFixed(1)).join(" ");
+  const area = line + ` L ${x(1).toFixed(1)} ${y(0).toFixed(1)} L ${x(0).toFixed(1)} ${y(0).toFixed(1)} Z`;
+  const ticks = [["0", 0], ["5 min", 0.10], ["30 min", 0.40], ["1 hr", 0.62], ["24 hr", 1]];
+  const svg = (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", overflow: "visible", display: "block" }}>
+      <line x1={padL} y1={padT} x2={padL} y2={H - padB} stroke="var(--line)" strokeWidth="2" />
+      <line x1={padL} y1={H - padB} x2={W - 20} y2={H - padB} stroke="var(--line)" strokeWidth="2" />
+      <path d={area} fill="var(--brown-12)" />
+      <path d={line} fill="none" stroke="var(--brown)" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={x(0.10)} cy={y(0.93)} r="9" fill="var(--brown)" />
+      <line x1={x(0.10)} y1={y(0.93)} x2={x(0.10)} y2={H - padB} stroke="var(--brown)" strokeWidth="1.5" strokeDasharray="4 5" />
+      <text x={x(0.10)} y={y(0.93) - 18} textAnchor="middle" fontFamily="var(--sans)" fontSize="19" fontWeight="600" fill="var(--brown)">5 min</text>
+      <circle cx={x(0.40)} cy={y(0.30)} r="9" fill="var(--ink)" />
+      <line x1={x(0.40)} y1={y(0.30)} x2={x(0.40)} y2={H - padB} stroke="var(--ink)" strokeWidth="1.5" strokeDasharray="4 5" />
+      {ticks.map((tk, i) => (
+        <text key={i} x={x(tk[1])} y={H - padB + 30} textAnchor="middle" fontFamily="var(--sans)" fontSize="20" fill="var(--ink-45)">{tk[0]}</text>
+      ))}
+      <text x={padL - 14} y={y(0.98)} textAnchor="end" fontFamily="var(--sans)" fontSize="18" fill="var(--ink-45)">high</text>
+      <text x={padL - 14} y={y(0.08)} textAnchor="end" fontFamily="var(--sans)" fontSize="18" fill="var(--ink-45)">low</text>
+    </svg>
+  );
+  if (chartOnly) {
+    return (
+      <div style={{ width: "100%" }}>
+        <div style={{ fontFamily: "var(--sans)", fontSize: 19, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--ink-45)", marginBottom: 8 }}>Likelihood to qualify a lead</div>
+        {svg}
+      </div>
+    );
+  }
+  return (
+    <div style={{ width: "100%" }}>
+      {svg}
+      <div style={{ display: "flex", gap: 40, alignItems: "center", paddingLeft: 70, marginTop: 10 }}>
+        <div style={{ fontFamily: "var(--serif)", fontSize: 92, color: "var(--brown)", lineHeight: .9 }}>21×</div>
+        <div style={{ fontFamily: "var(--sans)", fontSize: 23, color: "var(--ink-70)", lineHeight: 1.4, maxWidth: 360 }}>
+          more likely to qualify a lead at <b style={{ color: "var(--ink)" }}>5 minutes</b> than at 30.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- S5 : flow diagram ---------- */
+function VisualFlow() {
+  const steps = [
+    ["01", "A lead comes in", "Form, WhatsApp, missed call or paid ad"],
+    ["02", "AI replies in 30 seconds", "On-brand, in their language, day or night"],
+    ["03", "Qualifies & books the call", "Asks the right questions, drops it in your calendar"],
+    ["04", "Your team gets the brief", "Warm lead, full context — ready to close"],
+  ];
+  return (
+    <div className="flow" style={{ width: "100%" }}>
+      {steps.map((s, i) => (
+        <React.Fragment key={i}>
+          <div className="node">
+            <div className={"num" + (i === steps.length - 1 ? " ghost" : "")}>{s[0]}</div>
+            <div className="body">
+              <div className="t">{s[1]}</div>
+              <div className="s">{s[2]}</div>
+            </div>
+          </div>
+          {i < steps.length - 1 ? <div className="connector"><div className="line"></div></div> : null}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- S6 : dashboard mockup ---------- */
+function VisualDash() {
+  const tiles = [
+    ["Avg. first reply", "3h 12m", "28 sec"],
+    ["Lead-to-call rate", "9%", "22%"],
+    ["Booked calls / week", "14", "31"],
+  ];
+  return (
+    <div className="card" style={{ width: "100%" }}>
+      <div className="card-head">
+        <div style={{ fontFamily: "var(--sans)", fontSize: 23, fontWeight: 600 }}>Lead response</div>
+        <div style={{ marginLeft: "auto", fontFamily: "var(--sans)", fontSize: 19, color: "var(--ink-45)" }}>Last 30 days</div>
+      </div>
+      <div className="tiles">
+        {tiles.map((row, i) => (
+          <div className="tile" key={i}>
+            <span className="name">{row[0]}</span>
+            <span className="vals">
+              <span className="before">{row[1]}</span>
+              <span className="arrow">→</span>
+              <span className="after">{row[2]}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- S7 : CTA (no visual) ---------- */
+function VisualCTA() {
+  return (
+    <div style={{ width: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%", paddingBottom: 10 }}>
+      <p className="dek" style={{ fontSize: 30, color: "var(--ink-70)", maxWidth: 720, margin: 0 }}>
+        We build the AI systems that make sure the answer is <em style={{ fontFamily: "var(--serif)", color: "var(--ink)" }}>zero</em>.
+      </p>
+      <div style={{ marginTop: 40, display: "flex", alignItems: "center", gap: 18 }}>
+        <span className="pill" style={{ fontSize: 21, padding: "16px 32px" }}>DM us “SPEED”</span>
+        <span style={{ fontFamily: "var(--sans)", fontSize: 23, color: "var(--ink-70)" }}>and we'll map your lead flow — free.</span>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================ */
+function hookHeadline(variant) {
+  if (variant === "math") return (<>Every slow reply is a <span className="acc">cheque</span> you hand a competitor.</>);
+  if (variant === "blunt") return (<>You're not losing deals on price. You're losing them on <span className="acc">silence</span>.</>);
+  return (<>Your leads aren't the problem. Your <span className="acc">reply time</span> is.</>);
+}
+
+function buildSlides(t) {
+  return [
+    {
+      meta: { label: "The silent leak", tag: "Growth", page: "01", size: 104,
+        headline: hookHeadline(t.hook) },
+      Visual: VisualLeak,
+    },
+    {
+      meta: { label: "What buyers actually do", tag: "Growth", page: "02", size: 96,
+        headline: (<>78% of buyers choose <em>whoever replies first</em>.</>) },
+      Visual: VisualStat,
+    },
+    {
+      meta: { label: "Meanwhile, in your inbox", tag: "AI Systems", page: "03", size: 84,
+        headline: (<>By the time you reply, they've messaged your competitor.</>) },
+      Visual: VisualChat,
+    },
+    {
+      meta: { label: "The 5-minute rule", tag: "AI Systems", page: "04", size: 86,
+        headline: (<>Reply in 5 minutes, convert <span className="acc">21× more</span>.</>) },
+      Visual: VisualCurve, onePager: true,
+    },
+    {
+      meta: { label: "The fix", tag: "AI Systems", page: "05", size: 90,
+        headline: (<>An AI system that replies in 30 seconds. Every time.</>) },
+      Visual: VisualFlow,
+    },
+    {
+      meta: { label: "What changes", tag: "Growth", page: "06", size: 96,
+        headline: (<>Same ad spend. <span className="acc">Twice</span> the booked calls.</>) },
+      Visual: VisualDash,
+    },
+    {
+      meta: { label: "Evvrywhere", tag: null, page: "07", size: 92,
+        headline: (<>How many leads did you lose this week — without ever knowing?</>) },
+      Visual: VisualCTA,
+    },
+  ];
+}
+
+Object.assign(window, {
+  Frame, VisualLeak, VisualStat, VisualChat, VisualCurve, VisualFlow, VisualDash, VisualCTA,
+  buildSlides, logoSrc,
+});
+
+  </script>
+  <script type="text/babel">
+/* ============================================================
+   Evvrywhere carousel — app shell
+   ============================================================ */
+const { useState, useEffect, useRef, useCallback } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "serif": "DM Serif Display",
+  "hook": "leads",
+  "statStyle": "bars",
+  "pillStyle": "filled",
+  "logoColor": "#1A1A1A",
+  "pageNumbers": true
+}/*EDITMODE-END*/;
+
+const SERIF_STACK = {
+  "DM Serif Display": "'DM Serif Display', Georgia, serif",
+  "Playfair Display": "'Playfair Display', Georgia, serif",
+  "Libre Caslon Display": "'Libre Caslon Display', Georgia, serif",
+  "Fraunces": "'Fraunces', Georgia, serif",
+};
+
+/* a fixed-size slide scaled to a target width */
+function Scaled({ w, h, scale, children, animate }) {
+  return (
+    <div style={{ width: w * scale, height: h * scale }}>
+      <div className="scaled" data-animate={animate ? "on" : undefined}
+           style={{ transform: `scale(${scale})`, width: w, height: h }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function SlideView({ slide, t }) {
+  const V = slide.Visual;
+  return <Frame meta={slide.meta} t={t}><V t={t} /></Frame>;
+}
+
+/* Landscape 1200x627 one-pager crop of slide 04 */
+function OnePagerLandscape({ t }) {
+  return (
+    <div className="slide landscape" style={{ padding: "54px 80px" }}>
+      <div className="s-head">
+        <div className="kicker"><span className="dot"></span>The 5-minute rule</div>
+        <div className={"pill" + (t.pillStyle === "outline" ? " outline" : "")}>AI Systems</div>
+      </div>
+      <div style={{ display: "flex", gap: 56, alignItems: "center", marginTop: 26, minHeight: 0 }}>
+        <div style={{ flex: "0 0 420px" }}>
+          <h1 className="headline" style={{ fontSize: 58, lineHeight: 1.0 }}>
+            Reply in 5 minutes, convert <span className="acc">21× more</span>.
+          </h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 22, marginTop: 22 }}>
+            <div style={{ fontFamily: "var(--serif)", fontSize: 72, color: "var(--brown)", lineHeight: .85 }}>21×</div>
+            <div style={{ fontFamily: "var(--sans)", fontSize: 20, color: "var(--ink-70)", lineHeight: 1.35, maxWidth: 250 }}>
+              more likely to qualify a lead at <b style={{ color: "var(--ink)" }}>5 min</b> than at 30.
+            </div>
+          </div>
+          <img className="wmark" src={logoSrc(t.logoColor)} alt="Evvrywhere" style={{ marginTop: 30 }} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <VisualCurve chartOnly={true} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [view, setView] = useState("swipe");
+  const [idx, setIdx] = useState(0);
+  const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight });
+
+  const slides = buildSlides(t);
+  const N = slides.length;
+
+  // apply tweaks to CSS vars
+  useEffect(() => {
+    const r = document.documentElement;
+    r.style.setProperty("--serif", SERIF_STACK[t.serif] || SERIF_STACK["DM Serif Display"]);
+    r.style.setProperty("--logo", t.logoColor);
+  }, [t.serif, t.logoColor]);
+
+  useEffect(() => {
+    const on = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", on);
+    return () => window.removeEventListener("resize", on);
+  }, []);
+
+  const go = useCallback((d) => setIdx((i) => Math.max(0, Math.min(N - 1, i + d))), [N]);
+  useEffect(() => {
+    const k = (e) => {
+      if (view !== "swipe") return;
+      if (e.key === "ArrowRight") go(1);
+      if (e.key === "ArrowLeft") go(-1);
+    };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [view, go]);
+
+  // swipe scale
+  const availH = vp.h - 58 - 130;
+  const availW = vp.w - 90;
+  const scale = Math.min(availH / 1350, availW / 1080);
+
+  return (
+    <React.Fragment>
+      <div className="topbar">
+        <div className="brand"><img className="w" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJMAAABPCAYAAADvGfdBAAADyUlEQVR4AeyZQW7dMAxE3V6im657//N03U1PkYAL/zhBJJMSRQ7lCSDE/1smZ4ZPBoL8PPjDBJwSIExOQbLMcRAmUuCWAGFyi5KFCBMZcEuAMLlFyUJqmP7/+/u2Yq0YwQqdK2pW8v7S2rm4hekMsVNj6pZnfc9aU6aUD3vq9az1nXxN/S5MUuC7wiu+m+01+/wKT9qas9pnn9fqlH29Xk2Yeg9JUaRVSWsrt0oeWlqbMLVMr/y+JXJlz+q1kTKDgqn6YJ+uvzxMSCdzFqbqXuBgqh7oLFCW59dlZVHxsRcOpg9pvKqWQBOmX7///EA3g3YyPfKq4KnFRhMmj2BY41kJQMJU4XRmY4KYURem1ussO0jpjxim6Np99ZjowrR7MKj+qh4UWJiqBhoBqFM2Zqm9t5IUu4XproAU4WICksAtTLIJbWWdzMgcKnpUwZT1dqoY6GrgsjLRMKCCaXVArL9HAuVgyjqZGeOu5lUNk+Y1tyLwaoGuyOCsmZWFdvZqmE5D/F0rgUi1pWDKPJna0xk5PLReJpgYaPz4zgN0/o5WYJm5CaZoI2e/rCClvyVM2f/kVQImGVAmUNJfVhZYCN7F/90yw5QV6J0R3vdPwDprM0z+knErWsPEdRKjjDAZc4YEzOhBs33E5xBMI400BrindgJDMNW2rFPPA6PL6bprGKYnh72791F/wzBdieQ1E5AEpmASgnddEk5v7epbfPV89+5NwdQrzHvPS4AwlZk5vlDChD+jMgpDYJL/Le2yRib7FO8hMI0MgM/USyAEppm/EOpF+lzFITDtEu+TD4XGO2EKIF0ziAAZy1uEwVQ90CD9ywe+skEYTCtNsPbaBLQHiTCtncOrunYgrwcKXoTCVDXQqrqjeQyFKdocWr+KUFo0h8NkEYcGA/X0EwiHqS8H7y7h18+EMOmzctkpcLoUCihi1ZoCk1VkQG5s4ZBACkwOukNKEHpbzITJlpfL7gqQjmhMg2lErMskWWRZAmkwLXPkVPjJsI96J0xO8FnLjA7M2idyfypMqIG66IqcIkivVJhAMqCMSwIzB4kwXYKMvpwZXLRWTb90mNACRdOjGSLKnnSYUIKgjuOYPUiEKZmi2QEmy//UHgImlEBRdHyaUKEPEDAVyuuL1H0+ehwkGJg8zFQd7S7eYWDKBmGXgY7k6OUdCiYvU9ZAs/pedSJouOoZuYaCSQxEhxrdTzy2lmiR1brv/b30kuVVFw4mMSYGo5b0Q1tVvUPChDZc6tElQJjuc+IOZQKESRkUt90nQJjuM+IOZQLvAAAA//9LNQ5vAAAABklEQVQDAI8EtMwWKoD4AAAAAElFTkSuQmCC" alt="" />EVVRYWHERE</div>
+        <div className="seg">
+          <button className={view === "swipe" ? "on" : ""} onClick={() => setView("swipe")}>Swipe</button>
+          <button className={view === "review" ? "on" : ""} onClick={() => setView("review")}>Review</button>
+        </div>
+        <div className="meta">{view === "swipe" ? `${slides[idx].meta.page} / 07` : "7 slides + crop"}</div>
+      </div>
+
+      {view === "swipe" ? (
+        <div className="stage">
+          <Scaled key={idx} w={1080} h={1350} scale={scale} animate={true}>
+            <SlideView slide={slides[idx]} t={t} />
+          </Scaled>
+        </div>
+      ) : (
+        <ReviewGrid slides={slides} t={t} />
+      )}
+
+      {view === "swipe" && (
+        <div className="nav">
+          <button onClick={() => go(-1)} disabled={idx === 0}>‹</button>
+          <div className="dots">
+            {slides.map((_, i) => <i key={i} className={i === idx ? "on" : ""} onClick={() => setIdx(i)}></i>)}
+          </div>
+          <button onClick={() => go(1)} disabled={idx === N - 1}>›</button>
+        </div>
+      )}
+
+      <TweaksPanel>
+        <TweakSection label="Typography" />
+        <TweakSelect label="Headline serif" value={t.serif}
+          options={Object.keys(SERIF_STACK)} onChange={(v) => setTweak("serif", v)} />
+        <TweakSection label="Copy" />
+        <TweakRadio label="Hook line" value={t.hook}
+          options={[{ value: "leads", label: "Reply time" }, { value: "blunt", label: "Silence" }, { value: "math", label: "Cheque" }]}
+          onChange={(v) => setTweak("hook", v)} />
+        <TweakSection label="Visual variants" />
+        <TweakRadio label="Stat slide (02)" value={t.statStyle}
+          options={[{ value: "bars", label: "Bar" }, { value: "number", label: "Big number" }]}
+          onChange={(v) => setTweak("statStyle", v)} />
+        <TweakRadio label="Pill tag" value={t.pillStyle}
+          options={[{ value: "filled", label: "Filled" }, { value: "outline", label: "Outline" }]}
+          onChange={(v) => setTweak("pillStyle", v)} />
+        <TweakSection label="Brand" />
+        <TweakColor label="Logo mark" value={t.logoColor}
+          options={["#1A1A1A", "#6B4C2A"]} onChange={(v) => setTweak("logoColor", v)} />
+        <TweakToggle label="Page numbers" value={t.pageNumbers}
+          onChange={(v) => setTweak("pageNumbers", v)} />
+      </TweaksPanel>
+    </React.Fragment>
+  );
+}
+
+function ReviewGrid({ slides, t }) {
+  const rs = 300 / 1080; // thumb scale
+  const labels = ["Hook", "Stat · save-worthy", "Reality · share/inquiry", "The math", "The fix", "Proof · inquiry", "CTA · comment driver"];
+  return (
+    <div className="review">
+      <div className="review-inner">
+        <h2>Speed-to-Lead</h2>
+        <p className="sub">7-slide Instagram carousel · 1080×1350 · Problem/solution pillar. Built to drive saves (02, 04), shares &amp; inquiries (03), and a specific reflective comment (07).</p>
+
+        <div className="section-h">The carousel</div>
+        <div className="grid">
+          {slides.map((s, i) => (
+            <div className="cell" key={i}>
+              <div className="cap">
+                <span className="n">{s.meta.page}</span>
+                <span>{labels[i]}</span>
+                {s.onePager ? <span className="flag">LinkedIn one-pager</span> : null}
+              </div>
+              <div className="frame">
+                <Scaled w={1080} h={1350} scale={rs}><SlideView slide={s} t={t} /></Scaled>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="section-h">LinkedIn one-pager — landscape crop (1200×627)</div>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 320px", gap: 30, alignItems: "start" }}>
+          <div className="frame" style={{ borderRadius: 8 }}>
+            <Scaled w={1200} h={627} scale={(vw()) / 1200}><OnePagerLandscape t={t} /></Scaled>
+          </div>
+          <div className="note-card">
+            <b>Why slide 04 is the standalone.</b><br />
+            It communicates a complete idea with no other slide for context: one punchy headline + one clear stat (21×), logo visible, core content centred so it survives both the 4:5 carousel crop and this 1200×627 landscape post. Drop it on LinkedIn on its own.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+// landscape thumb width helper (responsive-ish, capped)
+function vw() {
+  const inner = Math.min(1320, window.innerWidth - 80);
+  return Math.max(420, inner - 350);
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+  </script>
+</body>
+</html>

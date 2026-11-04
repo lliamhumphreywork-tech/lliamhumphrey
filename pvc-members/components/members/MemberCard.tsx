@@ -72,7 +72,7 @@ export function MemberCard({ member }: MemberCardProps) {
             fontSize: 13,
             color: "var(--text-secondary)",
             lineHeight: 1.6,
-            marginBottom: 12,
+            marginBottom: 10,
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
@@ -81,6 +81,23 @@ export function MemberCard({ member }: MemberCardProps) {
         >
           {member.bio}
         </p>
+      )}
+
+      {(member.skills || member.seeking) && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12 }}>
+          {member.skills && (
+            <div style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
+              <span style={{ fontSize: 11, color: "var(--accent)", fontWeight: 600, whiteSpace: "nowrap", paddingTop: 1 }}>Brings</span>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{member.skills}</span>
+            </div>
+          )}
+          {member.seeking && (
+            <div style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, whiteSpace: "nowrap", paddingTop: 1 }}>Needs</span>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{member.seeking}</span>
+            </div>
+          )}
+        </div>
       )}
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>

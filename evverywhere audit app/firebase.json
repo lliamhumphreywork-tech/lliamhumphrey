@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "site": "evverywhere-workspace-a654e",
+    "public": ".",
+    "ignore": ["firebase.json", "firestore.rules", ".DS_Store", "*.md", "functions/**"],
+    "rewrites": [{ "source": "**", "destination": "/index.html" }]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

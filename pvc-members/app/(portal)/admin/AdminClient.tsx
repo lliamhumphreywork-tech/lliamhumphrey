@@ -22,7 +22,7 @@ type OnboardingResponse = {
 }
 
 type Props = {
-  members: (User & { _count: { posts: number } })[]
+  members: (User & { _count: { posts: number }; skills?: string | null; seeking?: string | null })[]
   events: (Event & { _count: { rsvps: number } })[]
   onboarding: OnboardingResponse[]
 }
@@ -41,6 +41,7 @@ const TAB_STYLES = (active: boolean) => ({
 
 export function AdminClient({ members, events, onboarding }: Props) {
   const [tab, setTab] = useState<"members" | "events" | "crm">("members")
+  const [expandedMemberId, setExpandedMemberId] = useState<string | null>(null)
   const [showEventForm, setShowEventForm] = useState(false)
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -238,49 +239,76 @@ export function AdminClient({ members, events, onboarding }: Props) {
 
       {tab === "members" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {members.map((m) => (
-            <div
-              key={m.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "12px 16px",
-                background: "var(--bg-surface)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius-sm)",
-              }}
-            >
-              <Avatar src={m.avatar} name={m.name} size={36} role={m.role} online={m.isOnline} />
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontWeight: 600, fontSize: 14 }}>{m.name ?? m.email.split("@")[0]}</span>
-                  <Badge role={m.role} />
-                </div>
-                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                  {m.email} · {m._count.posts} posts · joined {formatRelativeTime(m.createdAt)}
-                </div>
-              </div>
-              <select
-                value={m.role}
-                onChange={(e) => updateRole(m.id, e.target.value)}
+          {members.map((m) => {
+            const isExpanded = expandedMemberId === m.id
+            const hasContext = !!(m.skills || m.seeking)
+            return (
+              <div
+                key={m.id}
                 style={{
-                  padding: "6px 10px",
-                  background: "var(--bg-elevated)",
+                  background: "var(--bg-surface)",
                   border: "1px solid var(--border)",
                   borderRadius: "var(--radius-sm)",
-                  color: "var(--text-secondary)",
-                  fontSize: 13,
-                  cursor: "pointer",
-                  outline: "none",
-                  fontFamily: "Plus Jakarta Sans, sans-serif",
+                  overflow: "hidden",
                 }}
               >
-                <option value="GA">Member</option>
-                <option value="ADMIN">Admin</option>
-              </select>
-            </div>
-          ))}
+                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setExpandedMemberId(isExpanded ? null : m.id)}
+                    style={{ background: "none", border: "none", padding: 0, cursor: hasContext ? "pointer" : "default" }}
+                    title={hasContext ? (isExpanded ? "Hide context" : "Show context") : undefined}
+                  >
+                    <Avatar src={m.avatar} name={m.name} size={36} role={m.role} online={m.isOnline} />
+                  </button>
+                  <div style={{ flex: 1, cursor: hasContext ? "pointer" : "default" }} onClick={() => hasContext && setExpandedMemberId(isExpanded ? null : m.id)}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontWeight: 600, fontSize: 14 }}>{m.name ?? m.email.split("@")[0]}</span>
+                      <Badge role={m.role} />
+                      {hasContext && <span style={{ fontSize: 11, color: "var(--accent)", fontWeight: 600 }}>HAS CONTEXT</span>}
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                      {m.email} · {m._count.posts} posts · joined {formatRelativeTime(m.createdAt)}
+                    </div>
+                  </div>
+                  <select
+                    value={m.role}
+                    onChange={(e) => updateRole(m.id, e.target.value)}
+                    style={{
+                      padding: "6px 10px",
+                      background: "var(--bg-elevated)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius-sm)",
+                      color: "var(--text-secondary)",
+                      fontSize: 13,
+                      cursor: "pointer",
+                      outline: "none",
+                      fontFamily: "Plus Jakarta Sans, sans-serif",
+                    }}
+                  >
+                    <option value="GA">Member</option>
+                    <option value="ADMIN">Admin</option>
+                  </select>
+                </div>
+                {isExpanded && hasContext && (
+                  <div style={{ padding: "0 16px 14px", display: "flex", flexDirection: "column", gap: 8, borderTop: "1px solid var(--border)", paddingTop: 12, marginTop: 0 }}>
+                    {m.skills && (
+                      <div>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>Brings to the room</p>
+                        <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>{m.skills}</p>
+                      </div>
+                    )}
+                    {m.seeking && (
+                      <div>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>Looking for</p>
+                        <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>{m.seeking}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
 
@@ -488,7 +516,7 @@ export function AdminClient({ members, events, onboarding }: Props) {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {onboarding.length === 0 ? (
             <div style={{ padding: "40px 0", textAlign: "center", color: "var(--text-muted)", fontSize: 14 }}>
-              No onboarding responses yet. Responses will appear here once members submit the Tally form.
+              No onboarding responses yet.
             </div>
           ) : onboarding.map((r) => (
             <div

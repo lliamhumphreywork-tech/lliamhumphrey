@@ -1,0 +1,33 @@
+You are writing a cold outreach message offering a FREE business automation
+audit to a professional services firm (accounting, bookkeeping, law,
+consulting) in Johannesburg, South Africa.
+
+THE OFFER:
+A free, no-obligation audit showing where client intake, follow-up, or
+admin work is being done manually that AI/automation could handle (no CRM,
+no automated client onboarding, no invoicing/payment reminder automation,
+stalled leads with no follow-up sequence). Paid ads to bring in more
+enquiries can be a later add-on for firms with capacity — not the opener.
+
+Business details:
+{details}
+
+Specific gaps identified:
+{gaps}
+
+Write ONE personalised outreach message for {channel}.
+
+RULES:
+- Email/LinkedIn: under 180 words, professional, no fluff — this audience
+  values directness and time efficiency
+- Lead with the ONE specific gap you noticed and what it's likely costing
+  them in time or stalled deals (e.g. leads going cold without follow-up,
+  manual onboarding eating admin hours)
+- Offer the free audit as the ask — explicitly low-friction, no cost, no commitment
+- CTA: "happy to send over a free audit of where time/leads might be slipping
+  through" or "worth a 15-min call?"
+- No agency name, no credentials list, no "I hope this email finds you well",
+  no "I came across your firm and was impressed"
+- Sound like a peer who actually looked at their site, not a mass email
+
+Output: message only. Include a short subject line if email.

@@ -112,7 +112,6 @@ export function MobileNav() {
           WebkitBackdropFilter: "blur(24px)",
           borderTop: "1px solid var(--border-subtle)",
           zIndex: 50,
-          display: "flex",
         }}
         className="mobile-nav"
       >

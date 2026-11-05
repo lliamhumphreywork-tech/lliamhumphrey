@@ -22,17 +22,27 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     return NextResponse.json(updated)
   }
 
-  // Edit content — author or admin
+  // Edit content/attachments — author or admin
   if (post.authorId !== session!.user!.id && role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
-  const { content } = body
-  if (!content?.trim()) return NextResponse.json({ error: "Content required" }, { status: 400 })
+  const { content, attachments } = body
+  const data: Record<string, unknown> = {}
+  if (content !== undefined) {
+    if (!content?.trim()) return NextResponse.json({ error: "Content required" }, { status: 400 })
+    data.content = content.trim()
+  }
+  if (Array.isArray(attachments)) {
+    data.attachments = attachments.filter((a: unknown) => typeof a === "string")
+  }
+  if (Object.keys(data).length === 0) {
+    return NextResponse.json({ error: "Nothing to update" }, { status: 400 })
+  }
 
   const updated = await db.post.update({
     where: { id: params.id },
-    data: { content: content.trim() },
+    data,
   })
   return NextResponse.json(updated)
 }

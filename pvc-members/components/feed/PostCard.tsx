@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   MessageCircle,
-  Trash2, Paperclip, Download, Pencil, Check, X, Pin, PinOff,
+  Trash2, Paperclip, Download, Pencil, Check, X, Pin, PinOff, ImagePlus,
 } from "lucide-react"
 import { Avatar } from "@/components/ui/Avatar"
 import { Badge } from "@/components/ui/Badge"
@@ -34,7 +34,13 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [editContent, setEditContent] = useState(post.content)
+  const [editAttachments, setEditAttachments] = useState<string[]>((post as any).attachments ?? [])
+  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
+  const [addingPhoto, setAddingPhoto] = useState(false)
   const editRef = useRef<HTMLDivElement>(null)
+  const replaceInputRef = useRef<HTMLInputElement>(null)
+  const addPhotoInputRef = useRef<HTMLInputElement>(null)
+  const replacingIdxRef = useRef<number | null>(null)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -98,27 +104,100 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
 
   function startEdit() {
     setEditContent(post.content)
+    setEditAttachments((post as any).attachments ?? [])
     setIsEditing(true)
   }
 
   function cancelEdit() {
     setIsEditing(false)
     setEditContent(post.content)
+    setEditAttachments((post as any).attachments ?? [])
   }
 
   async function saveEdit() {
     const content = editRef.current?.innerHTML ?? ""
-    if (!content.trim()) return
     setIsSaving(true)
     const res = await fetch(`/api/posts/${post.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content: content || post.content, attachments: editAttachments }),
     })
     setIsSaving(false)
     if (res.ok) {
       setIsEditing(false)
       router.refresh()
+    }
+  }
+
+  async function uploadAndReplace(file: File, idx: number) {
+    setUploadingIdx(idx)
+    try {
+      const fd = new FormData()
+      const img = new Image()
+      const url = URL.createObjectURL(file)
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          const max = 1920
+          let { width, height } = img
+          if (width > max || height > max) {
+            const r = Math.min(max / width, max / height)
+            width = Math.round(width * r); height = Math.round(height * r)
+          }
+          const canvas = document.createElement("canvas")
+          canvas.width = width; canvas.height = height
+          canvas.getContext("2d")!.drawImage(img, 0, 0, width, height)
+          URL.revokeObjectURL(url)
+          canvas.toBlob((blob) => {
+            fd.append("file", blob!, file.name.replace(/\.[^.]+$/, ".jpg"))
+            resolve()
+          }, "image/jpeg", 0.82)
+        }
+        img.src = url
+      })
+      const res = await fetch("/api/upload-image", { method: "POST", body: fd })
+      if (!res.ok) throw new Error()
+      const { url: newUrl } = await res.json()
+      setEditAttachments(prev => prev.map((a, i) => i === idx ? newUrl : a))
+    } catch {
+      // silent — keep old image
+    } finally {
+      setUploadingIdx(null)
+    }
+  }
+
+  async function uploadAndAdd(file: File) {
+    setAddingPhoto(true)
+    try {
+      const fd = new FormData()
+      const img = new Image()
+      const url = URL.createObjectURL(file)
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          const max = 1920
+          let { width, height } = img
+          if (width > max || height > max) {
+            const r = Math.min(max / width, max / height)
+            width = Math.round(width * r); height = Math.round(height * r)
+          }
+          const canvas = document.createElement("canvas")
+          canvas.width = width; canvas.height = height
+          canvas.getContext("2d")!.drawImage(img, 0, 0, width, height)
+          URL.revokeObjectURL(url)
+          canvas.toBlob((blob) => {
+            fd.append("file", blob!, file.name.replace(/\.[^.]+$/, ".jpg"))
+            resolve()
+          }, "image/jpeg", 0.82)
+        }
+        img.src = url
+      })
+      const res = await fetch("/api/upload-image", { method: "POST", body: fd })
+      if (!res.ok) throw new Error()
+      const { url: newUrl } = await res.json()
+      setEditAttachments(prev => [...prev, newUrl])
+    } catch {
+      // silent
+    } finally {
+      setAddingPhoto(false)
     }
   }
 
@@ -143,6 +222,20 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
   }
 
   return (
+    <>
+    <input ref={replaceInputRef} type="file" accept="image/*" style={{ display: "none" }}
+      onChange={(e) => {
+        const file = e.target.files?.[0]
+        const idx = replacingIdxRef.current
+        e.target.value = ""
+        if (file && idx !== null) uploadAndReplace(file, idx)
+      }} />
+    <input ref={addPhotoInputRef} type="file" accept="image/*" style={{ display: "none" }}
+      onChange={(e) => {
+        const file = e.target.files?.[0]
+        e.target.value = ""
+        if (file) uploadAndAdd(file)
+      }} />
     <article
       className={`fade-in${pinned ? "" : " post-card"}`}
       style={{
@@ -340,7 +433,83 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
           </p>
         )}
 
-        {/* Attachments */}
+        {/* Attachments — editable in edit mode */}
+        {isEditing && (
+          <div style={{ marginBottom: 12 }}>
+            {editAttachments.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+                {editAttachments.map((src, i) => {
+                  const proxied = src.includes("blob.vercel-storage.com") && !src.includes(".public.")
+                    ? `/api/img?url=${encodeURIComponent(src)}` : src
+                  const isUploading = uploadingIdx === i
+                  return (
+                    <div key={i} className="edit-img-thumb" style={{ position: "relative", flexShrink: 0 }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={proxied} alt=""
+                        style={{
+                          width: 80, height: 80, objectFit: "cover",
+                          borderRadius: "var(--radius)", border: "1px solid var(--border)",
+                          display: "block", opacity: isUploading ? 0.4 : 1,
+                        }} />
+                      {/* Replace overlay — always shown on mobile, hover on desktop */}
+                      {!isUploading && (
+                        <button
+                          type="button"
+                          className="edit-img-replace"
+                          onClick={() => { replacingIdxRef.current = i; replaceInputRef.current?.click() }}
+                          style={{
+                            position: "absolute", inset: 0, borderRadius: "var(--radius)",
+                            background: "rgba(0,0,0,0.55)", border: "none",
+                            color: "#fff", fontSize: 10, fontWeight: 600,
+                            fontFamily: "Plus Jakarta Sans, sans-serif", letterSpacing: "0.04em",
+                            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                          }}>
+                          Replace
+                        </button>
+                      )}
+                      {isUploading && (
+                        <div style={{
+                          position: "absolute", inset: 0, display: "flex",
+                          alignItems: "center", justifyContent: "center",
+                          borderRadius: "var(--radius)",
+                        }}>
+                          <div style={{ width: 16, height: 16, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+                        </div>
+                      )}
+                      {/* Remove */}
+                      <button type="button"
+                        onClick={() => setEditAttachments(prev => prev.filter((_, j) => j !== i))}
+                        style={{
+                          position: "absolute", top: -6, right: -6,
+                          width: 18, height: 18, borderRadius: "50%",
+                          background: "var(--bg-base)", border: "1px solid var(--border)",
+                          color: "var(--text-muted)", display: "flex", alignItems: "center",
+                          justifyContent: "center", cursor: "pointer", padding: 0, zIndex: 2,
+                        }}>
+                        <X size={10} />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+            <button type="button"
+              onClick={() => addPhotoInputRef.current?.click()}
+              disabled={addingPhoto}
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "5px 10px", background: "none",
+                border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)",
+                color: "var(--text-muted)", fontSize: 12, cursor: "pointer",
+                fontFamily: "Plus Jakarta Sans, sans-serif",
+                opacity: addingPhoto ? 0.5 : 1,
+              }}>
+              <ImagePlus size={12} /> {addingPhoto ? "Uploading…" : "Add photo"}
+            </button>
+          </div>
+        )}
+
+        {/* Attachments — read-only view */}
         {!isEditing && (post as any).attachments?.length > 0 && (() => {
           const atts: string[] = (post as any).attachments
           // Proxy any private Vercel Blob URLs (no ".public." in hostname)
@@ -549,5 +718,6 @@ export function PostCard({ post, currentUserId, currentUserRole }: PostCardProps
         </div>
       )}
     </article>
+    </>
   )
 }

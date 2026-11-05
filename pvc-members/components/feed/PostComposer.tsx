@@ -78,7 +78,9 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
   const [error, setError] = useState("")
   const [key, setKey] = useState(0)
   const [draftSaved, setDraftSaved] = useState(false)
+  const [replacingIdx, setReplacingIdx] = useState<number | null>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
+  const replaceInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const user = session?.user
@@ -135,6 +137,31 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
     setAttachments((prev) => prev.filter((_, i) => i !== idx))
   }
 
+  function replaceImage(idx: number) {
+    setReplacingIdx(idx)
+    replaceInputRef.current?.click()
+  }
+
+  async function handleReplaceFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    const idx = replacingIdx
+    e.target.value = ""
+    setReplacingIdx(null)
+    if (!file || idx === null) return
+    setUploading(true)
+    setUploadProgress(0)
+    setError("")
+    try {
+      const uploaded = await uploadFile(file, (pct) => setUploadProgress(pct))
+      setAttachments((prev) => prev.map((a, i) => i === idx ? uploaded : a))
+    } catch {
+      setError("Upload failed. Try again.")
+    } finally {
+      setUploading(false)
+      setUploadProgress(0)
+    }
+  }
+
   function reset() {
     setContent("")
     setInitialContent("")
@@ -184,6 +211,8 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
     }}>
       <input ref={imageInputRef} type="file" accept="image/*" multiple style={{ display: "none" }}
         onChange={(e) => { handleFiles(Array.from(e.target.files ?? [])); e.target.value = "" }} />
+      <input ref={replaceInputRef} type="file" accept="image/*" style={{ display: "none" }}
+        onChange={handleReplaceFile} />
       <input ref={fileInputRef} type="file" multiple style={{ display: "none" }}
         onChange={(e) => { handleFiles(Array.from(e.target.files ?? [])); e.target.value = "" }} />
 
@@ -224,24 +253,41 @@ export function PostComposer({ spaceId, placeholder = "Share something with the 
           {/* Image previews */}
           {images.length > 0 && (
             <div style={{ padding: "0 16px 10px 62px", display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {images.map((att, i) => (
-                <div key={i} style={{ position: "relative", flexShrink: 0 }}>
-                  <img src={att.url} alt="" style={{
-                    width: 80, height: 80, objectFit: "cover",
-                    borderRadius: "var(--radius)", border: "1px solid var(--border)",
-                  }} />
-                  <button type="button" onClick={() => removeAttachment(attachments.indexOf(att))}
-                    style={{
-                      position: "absolute", top: -6, right: -6,
-                      width: 18, height: 18, borderRadius: "50%",
-                      background: "var(--bg-base)", border: "1px solid var(--border)",
-                      color: "var(--text-muted)", display: "flex", alignItems: "center",
-                      justifyContent: "center", cursor: "pointer", padding: 0,
-                    }}>
-                    <X size={10} />
-                  </button>
-                </div>
-              ))}
+              {images.map((att, i) => {
+                const absIdx = attachments.indexOf(att)
+                return (
+                  <div key={i} style={{ position: "relative", flexShrink: 0 }} className="img-thumb">
+                    <img src={att.url} alt="" style={{
+                      width: 80, height: 80, objectFit: "cover",
+                      borderRadius: "var(--radius)", border: "1px solid var(--border)",
+                      display: "block",
+                    }} />
+                    {/* Replace overlay on hover */}
+                    <button type="button" onClick={() => replaceImage(absIdx)}
+                      className="img-replace-btn"
+                      style={{
+                        position: "absolute", inset: 0, borderRadius: "var(--radius)",
+                        background: "rgba(0,0,0,0.55)", border: "none",
+                        color: "#fff", fontSize: 10, fontWeight: 600,
+                        fontFamily: "Plus Jakarta Sans, sans-serif", letterSpacing: "0.04em",
+                        cursor: "pointer", opacity: 0, transition: "opacity 0.15s",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                      }}>
+                      Replace
+                    </button>
+                    <button type="button" onClick={() => removeAttachment(absIdx)}
+                      style={{
+                        position: "absolute", top: -6, right: -6,
+                        width: 18, height: 18, borderRadius: "50%",
+                        background: "var(--bg-base)", border: "1px solid var(--border)",
+                        color: "var(--text-muted)", display: "flex", alignItems: "center",
+                        justifyContent: "center", cursor: "pointer", padding: 0,
+                      }}>
+                      <X size={10} />
+                    </button>
+                  </div>
+                )
+              })}
             </div>
           )}
 

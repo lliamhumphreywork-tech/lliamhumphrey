@@ -298,9 +298,27 @@ input, textarea {
   display: none;
 }
 
-/* Image thumbnail replace overlay */
+/* Image thumbnail replace overlay (composer) */
 .img-thumb:hover .img-replace-btn {
   opacity: 1;
+}
+
+/* Edit-mode image replace overlay — hover on desktop, always visible on mobile */
+.edit-img-replace {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.edit-img-thumb:hover .edit-img-replace {
+  opacity: 1;
+}
+@media (hover: none) {
+  .edit-img-replace {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Hide scrollbar while preserving scroll */

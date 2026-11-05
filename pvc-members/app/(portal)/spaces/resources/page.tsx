@@ -285,11 +285,17 @@ export default function ResourcesPage() {
 
       {/* Category filter tabs */}
       <div style={{ borderBottom: "1px solid var(--border-subtle)", background: "var(--bg-base)" }}>
-        <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px", display: "flex", gap: 4 }}>
+        <div style={{
+          maxWidth: 800, margin: "0 auto", padding: "0 16px",
+          display: "flex", gap: 4,
+          overflowX: "auto", WebkitOverflowScrolling: "touch",
+        }}
+          className="hide-scrollbar"
+        >
           {CATEGORIES.map(c => (
             <button key={c.key} onClick={() => setActiveCategory(c.key)}
               style={{
-                padding: "10px 14px", background: "none", border: "none",
+                padding: "10px 14px", background: "none", border: "none", flexShrink: 0,
                 borderBottom: activeCategory === c.key ? "2px solid var(--accent)" : "2px solid transparent",
                 color: activeCategory === c.key ? "var(--text-primary)" : "var(--text-muted)",
                 fontSize: 13, fontWeight: activeCategory === c.key ? 600 : 400,

@@ -298,6 +298,20 @@ input, textarea {
   display: none;
 }
 
+/* Image thumbnail replace overlay */
+.img-thumb:hover .img-replace-btn {
+  opacity: 1;
+}
+
+/* Hide scrollbar while preserving scroll */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .mobile-header {
     display: flex;

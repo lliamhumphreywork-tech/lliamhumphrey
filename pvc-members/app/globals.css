@@ -450,4 +450,9 @@ input, textarea {
   .members-grid-auto {
     grid-template-columns: 1fr !important;
   }
+
+  /* Feed header: hide subtitle on mobile (title already visible in mobile header bar) */
+  .feed-header-subtitle {
+    display: none;
+  }
 }

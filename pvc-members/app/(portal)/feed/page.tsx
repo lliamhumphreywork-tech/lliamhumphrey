@@ -34,17 +34,17 @@ export default async function FeedPage() {
     <div>
       {/* Feed header */}
       <div style={{ borderBottom: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
-        <div className="page-container" style={{ maxWidth: 720, margin: "0 auto", padding: "28px 24px 0" }}>
-          <div style={{ marginBottom: 16 }}>
-            <h1 style={{ fontFamily: "Syne, sans-serif", fontSize: 22, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
+        <div className="page-container" style={{ maxWidth: 720, margin: "0 auto", padding: "16px 24px 0" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 10 }}>
+            <h1 style={{ fontFamily: "Syne, sans-serif", fontSize: 20, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
               Feed
             </h1>
-            <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4, letterSpacing: "0.01em" }}>
+            <span style={{ fontSize: 12.5, color: "var(--text-muted)", letterSpacing: "0.01em" }}>
               What&apos;s happening in the community
-            </p>
+            </span>
           </div>
           <div style={{ display: "flex", gap: 24 }}>
-            <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text-primary)", paddingBottom: 12, borderBottom: "2px solid var(--accent)", letterSpacing: "0.02em" }}>
+            <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text-primary)", paddingBottom: 8, borderBottom: "2px solid var(--accent)", letterSpacing: "0.02em" }}>
               All posts
             </div>
           </div>

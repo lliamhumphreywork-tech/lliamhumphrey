@@ -5,7 +5,7 @@ import { postWebhook } from '../../lib/slack';
 
 const NOTION_MI_DB   = 'd7f078c6-fd75-4feb-aba1-6d5d41d5c956';
 const NOTION_TOKEN   = import.meta.env.NOTION_TOKEN ?? '';
-const SLACK_OPS_URL  = import.meta.env.SLACK_MEMBERS_URL ?? import.meta.env.SLACK_LEADS_URL ?? '';
+const SLACK_OPS_URL  = import.meta.env.SLACK_MEMBER_INTEL_URL ?? '';
 
 function richText(content: string) {
   return [{ type: 'text', text: { content: content || '' } }];

@@ -1,90 +1,54 @@
 export const prerender = false;
-
 import type { APIRoute } from 'astro';
 import crypto from 'crypto';
-import { findContactByEmail, updateContactStatus } from '../../lib/notion-crm';
 
-const POSTHOG_HOST    = 'https://eu.posthog.com';
-const POSTHOG_API_KEY = import.meta.env.POSTHOG_API_KEY ?? '';
 const CAL_WEBHOOK_SECRET = import.meta.env.CAL_WEBHOOK_SECRET ?? '';
+const BREVO_API_KEY      = import.meta.env.BREVO_API_KEY ?? '';
 
-function verifyCalSignature(body: string, signature: string | null, secret: string): boolean {
-  if (!secret || !signature) return !secret; // if no secret configured, allow all
-  const hash = crypto.createHmac('sha256', secret).update(body).digest('hex');
-  return `sha256=${hash}` === signature;
+function verifySignature(body: string, signature: string | null): boolean {
+  if (!CAL_WEBHOOK_SECRET || !signature) return !CAL_WEBHOOK_SECRET; // allow if no secret set
+  const expected = crypto.createHmac('sha256', CAL_WEBHOOK_SECRET).update(body).digest('hex');
+  return expected === signature;
 }
 
-async function captureEvent(event: string, distinctId: string, properties: Record<string, any>) {
-  if (!POSTHOG_API_KEY) return;
-  await fetch(`${POSTHOG_HOST}/capture/`, {
+async function markCallBooked(email: string, bookedAt: string): Promise<void> {
+  if (!BREVO_API_KEY || !email) return;
+  await fetch('https://api.brevo.com/v3/contacts', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      api_key: POSTHOG_API_KEY,
-      event,
-      distinct_id: distinctId,
-      properties,
+      email,
+      attributes: { CALL_BOOKED: bookedAt },
+      updateEnabled: true,
     }),
-  }).catch(e => console.error('[cal-webhook] PostHog capture failed:', e.message));
+  });
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const body      = await request.text();
+  const body = await request.text();
   const signature = request.headers.get('x-cal-signature-256');
 
-  if (!verifyCalSignature(body, signature, CAL_WEBHOOK_SECRET)) {
-    console.warn('[cal-webhook] Signature verification failed');
+  if (!verifySignature(body, signature)) {
     return new Response('Unauthorized', { status: 401 });
   }
 
   let payload: any;
-  try { payload = JSON.parse(body); } catch { return new Response('Invalid JSON', { status: 400 }); }
+  try { payload = JSON.parse(body); } catch {
+    return new Response('Invalid JSON', { status: 400 });
+  }
 
-  const triggerEvent = payload.triggerEvent ?? payload.type ?? '';
-  const booking      = payload.payload ?? payload;
+  const event = payload.triggerEvent ?? payload.type ?? '';
+  if (!['BOOKING_CREATED', 'booking.created'].includes(event)) {
+    return new Response('OK', { status: 200 });
+  }
 
-  const attendee  = booking.attendees?.[0] ?? {};
-  const email     = attendee.email ?? booking.responses?.email?.value ?? '';
-  const name      = attendee.name  ?? booking.responses?.name?.value  ?? '';
-  const eventTitle = booking.title ?? booking.eventType?.title ?? '';
-  const startTime  = booking.startTime ?? '';
-  const bookingUid = booking.uid ?? '';
+  const p = payload.payload ?? payload;
+  const attendeeEmail: string = p.attendees?.[0]?.email ?? p.responses?.email?.value ?? '';
+  const bookedAt = p.startTime ?? new Date().toISOString();
 
-  console.log(`[cal-webhook] ${triggerEvent} | ${name} (${email}) | ${eventTitle}`);
-
-  if (triggerEvent === 'BOOKING_CREATED' || triggerEvent === 'booking.created') {
-    await captureEvent('call_booked', email || bookingUid, {
-      email,
-      name,
-      event_title: eventTitle,
-      start_time: startTime,
-      booking_uid: bookingUid,
-      $set: { email, name },
-    });
-    // Update CRM status so the funnel reflects the booking
-    if (email) {
-      const pageId = await findContactByEmail(email).catch(() => null);
-      if (pageId) {
-        await updateContactStatus(pageId, 'Call Booked').catch(e =>
-          console.error('[cal-webhook] CRM status update failed:', e.message)
-        );
-      }
-    }
-  } else if (triggerEvent === 'BOOKING_CANCELLED' || triggerEvent === 'booking.cancelled') {
-    await captureEvent('call_cancelled', email || bookingUid, {
-      email,
-      name,
-      event_title: eventTitle,
-      booking_uid: bookingUid,
-    });
-  } else if (triggerEvent === 'BOOKING_RESCHEDULED' || triggerEvent === 'booking.rescheduled') {
-    await captureEvent('call_rescheduled', email || bookingUid, {
-      email,
-      name,
-      event_title: eventTitle,
-      new_start_time: startTime,
-      booking_uid: bookingUid,
-    });
+  if (attendeeEmail) {
+    await markCallBooked(attendeeEmail, bookedAt);
+    console.log(`[cal-webhook] Marked CALL_BOOKED for ${attendeeEmail}`);
   }
 
   return new Response('OK', { status: 200 });

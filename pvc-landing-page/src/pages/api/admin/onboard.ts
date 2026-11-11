@@ -17,6 +17,9 @@ const SLACK_MEMBER_INTEL_URL  = import.meta.env.SLACK_MEMBER_INTEL_URL ?? '';
 const BREVO_TEMPLATE_ONBOARD  = import.meta.env.BREVO_TEMPLATE_ONBOARDING
   ? parseInt(import.meta.env.BREVO_TEMPLATE_ONBOARDING, 10)
   : null;
+const PVC_BOOKING_URL         = import.meta.env.PVC_BOOKING_URL ?? 'https://cal.com/lliam-humphrey-q82xct/pvcintegrationcall';
+const PVC_WHATSAPP_URL        = import.meta.env.PVC_WHATSAPP_URL ?? 'https://chat.whatsapp.com/DuGhsjERYRPCsnxWSUU17L';
+const PVC_ONBOARDING_FORM_URL = 'https://privatevictoriesclub.com/onboardingform';
 
 function auth(req: Request) {
   return ADMIN_KEY !== '' && req.headers.get('x-admin-key') === ADMIN_KEY;
@@ -150,7 +153,13 @@ export const POST: APIRoute = async ({ request }) => {
       steps.push('Onboarding email skipped — payment already processed this member');
     } else if (BREVO_TEMPLATE_ONBOARD && memberEmail) {
       try {
-        await sendTemplate(BREVO_TEMPLATE_ONBOARD, { email: memberEmail, name: firstName }, { FIRST_NAME: firstName });
+        await sendTemplate(BREVO_TEMPLATE_ONBOARD, { email: memberEmail, name: firstName }, {
+          firstName,
+          portalLink: MEMBERS_PORTAL_URL,
+          whatsappLink: PVC_WHATSAPP_URL,
+          onboardingFormLink: PVC_ONBOARDING_FORM_URL,
+          bookingLink: PVC_BOOKING_URL,
+        });
         steps.push('Onboarding email sent');
       } catch (e: any) {
         warnings.push(`Onboarding email failed: ${e.message}`);

@@ -1,91 +1,98 @@
 export const prerender = false;
-
 import type { APIRoute } from 'astro';
 import crypto from 'crypto';
-import { findContactByEmail, updateContactStatus } from '../../lib/notion-crm';
 
-const POSTHOG_HOST    = 'https://eu.posthog.com';
-const POSTHOG_API_KEY = import.meta.env.POSTHOG_API_KEY ?? '';
-const CAL_WEBHOOK_SECRET = import.meta.env.CAL_WEBHOOK_SECRET ?? '';
+const CAL_WEBHOOK_SECRET      = import.meta.env.CAL_WEBHOOK_SECRET ?? '';
+const BREVO_API_KEY           = import.meta.env.BREVO_API_KEY ?? '';
+const SLACK_BOOKED_CALLS_URL  = import.meta.env.SLACK_BOOKED_CALLS_URL ?? '';
+const ADMIN_URL               = 'https://privatevictoriesclub.com/admin';
 
-function verifyCalSignature(body: string, signature: string | null, secret: string): boolean {
-  if (!secret || !signature) return !secret; // if no secret configured, allow all
-  const hash = crypto.createHmac('sha256', secret).update(body).digest('hex');
-  return `sha256=${hash}` === signature;
+function verifySignature(body: string, signature: string | null): boolean {
+  if (!CAL_WEBHOOK_SECRET || !signature) return !CAL_WEBHOOK_SECRET;
+  const expected = crypto.createHmac('sha256', CAL_WEBHOOK_SECRET).update(body).digest('hex');
+  return expected === signature;
 }
 
-async function captureEvent(event: string, distinctId: string, properties: Record<string, any>) {
-  if (!POSTHOG_API_KEY) return;
-  await fetch(`${POSTHOG_HOST}/capture/`, {
+async function markCallBooked(email: string, bookedAt: string): Promise<void> {
+  if (!BREVO_API_KEY || !email) return;
+  await fetch('https://api.brevo.com/v3/contacts', {
+    method: 'POST',
+    headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email,
+      attributes: { CALL_BOOKED: bookedAt },
+      updateEnabled: true,
+    }),
+  });
+}
+
+function formatSAST(iso: string): string {
+  try {
+    return new Date(iso).toLocaleString('en-ZA', {
+      timeZone: 'Africa/Johannesburg',
+      weekday: 'short', day: 'numeric', month: 'short',
+      hour: '2-digit', minute: '2-digit',
+      hour12: false,
+    }) + ' SAST';
+  } catch {
+    return iso;
+  }
+}
+
+async function postSlack(name: string, email: string, callTitle: string, startTime: string, meetingUrl: string): Promise<void> {
+  if (!SLACK_BOOKED_CALLS_URL) return;
+  const time = formatSAST(startTime);
+  const adminLink = `${ADMIN_URL}`;
+  const isAppCall = callTitle.toLowerCase().includes('application');
+  const callLabel = isAppCall ? 'Application Call' : callTitle;
+
+  const text = [
+    `📅 *New call booked*`,
+    `*${name}* — ${callLabel}`,
+    `${time}`,
+    meetingUrl ? meetingUrl : '',
+    `<${adminLink}|Open CRM> · search: ${name}`,
+  ].filter(Boolean).join('\n');
+
+  await fetch(SLACK_BOOKED_CALLS_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      api_key: POSTHOG_API_KEY,
-      event,
-      distinct_id: distinctId,
-      properties,
-    }),
-  }).catch(e => console.error('[cal-webhook] PostHog capture failed:', e.message));
+    body: JSON.stringify({ text }),
+  });
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const body      = await request.text();
+  const body = await request.text();
   const signature = request.headers.get('x-cal-signature-256');
 
-  if (!verifyCalSignature(body, signature, CAL_WEBHOOK_SECRET)) {
-    console.warn('[cal-webhook] Signature verification failed');
+  if (!verifySignature(body, signature)) {
     return new Response('Unauthorized', { status: 401 });
   }
 
   let payload: any;
-  try { payload = JSON.parse(body); } catch { return new Response('Invalid JSON', { status: 400 }); }
-
-  const triggerEvent = payload.triggerEvent ?? payload.type ?? '';
-  const booking      = payload.payload ?? payload;
-
-  const attendee  = booking.attendees?.[0] ?? {};
-  const email     = attendee.email ?? booking.responses?.email?.value ?? '';
-  const name      = attendee.name  ?? booking.responses?.name?.value  ?? '';
-  const eventTitle = booking.title ?? booking.eventType?.title ?? '';
-  const startTime  = booking.startTime ?? '';
-  const bookingUid = booking.uid ?? '';
-
-  console.log(`[cal-webhook] ${triggerEvent} | ${name} (${email}) | ${eventTitle}`);
-
-  if (triggerEvent === 'BOOKING_CREATED' || triggerEvent === 'booking.created') {
-    await captureEvent('call_booked', email || bookingUid, {
-      email,
-      name,
-      event_title: eventTitle,
-      start_time: startTime,
-      booking_uid: bookingUid,
-      $set: { email, name },
-    });
-    // Update CRM status so the funnel reflects the booking
-    if (email) {
-      const pageId = await findContactByEmail(email).catch(() => null);
-      if (pageId) {
-        await updateContactStatus(pageId, 'Call Booked').catch(e =>
-          console.error('[cal-webhook] CRM status update failed:', e.message)
-        );
-      }
-    }
-  } else if (triggerEvent === 'BOOKING_CANCELLED' || triggerEvent === 'booking.cancelled') {
-    await captureEvent('call_cancelled', email || bookingUid, {
-      email,
-      name,
-      event_title: eventTitle,
-      booking_uid: bookingUid,
-    });
-  } else if (triggerEvent === 'BOOKING_RESCHEDULED' || triggerEvent === 'booking.rescheduled') {
-    await captureEvent('call_rescheduled', email || bookingUid, {
-      email,
-      name,
-      event_title: eventTitle,
-      new_start_time: startTime,
-      booking_uid: bookingUid,
-    });
+  try { payload = JSON.parse(body); } catch {
+    return new Response('Invalid JSON', { status: 400 });
   }
+
+  const event = payload.triggerEvent ?? payload.type ?? '';
+  if (!['BOOKING_CREATED', 'booking.created'].includes(event)) {
+    return new Response('OK', { status: 200 });
+  }
+
+  const p = payload.payload ?? payload;
+  const attendee        = p.attendees?.[0] ?? {};
+  const attendeeEmail   = attendee.email ?? p.responses?.email?.value ?? '';
+  const attendeeName    = attendee.name  ?? p.responses?.name?.value  ?? attendeeEmail;
+  const startTime       = p.startTime ?? new Date().toISOString();
+  const callTitle       = p.title ?? p.eventTitle ?? 'Private Victories Call';
+  const meetingUrl      = p.metadata?.videoCallUrl ?? p.videoCallUrl ?? '';
+
+  await Promise.allSettled([
+    attendeeEmail ? markCallBooked(attendeeEmail, startTime) : Promise.resolve(),
+    postSlack(attendeeName, attendeeEmail, callTitle, startTime, meetingUrl),
+  ]);
+
+  if (attendeeEmail) console.log(`[cal-webhook] BOOKING_CREATED — ${attendeeName} <${attendeeEmail}>`);
 
   return new Response('OK', { status: 200 });
 };

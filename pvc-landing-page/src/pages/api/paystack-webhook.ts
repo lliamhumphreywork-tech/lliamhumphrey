@@ -15,7 +15,7 @@ const MEMBERS_PORTAL_URL    = 'https://members.privatevictoriesclub.com';
 const MEMBERS_API_TOKEN     = import.meta.env.MEMBERS_API_TOKEN;
 const PVC_WHATSAPP_GROUP_URL  = 'https://chat.whatsapp.com/DuGhsjERYRPCsnxWSUU17L?mode=gi_t';
 const PVC_ONBOARDING_FORM_URL = 'https://privatevictoriesclub.com/onboardingform';
-const PVC_BOOKING_URL         = import.meta.env.PVC_BOOKING_URL ?? 'https://cal.com/lliam-humphrey-q82xct/pvcapplicationcall';
+const PVC_BOOKING_URL         = import.meta.env.PVC_BOOKING_URL ?? 'https://cal.com/lliam-humphrey-q82xct/pvcintegrationcall';
 
 const TEMPLATE_MEMBERSHIP_ONBOARDING = 28;
 const TEMPLATE_EVENT_CONFIRMATION    = 29;

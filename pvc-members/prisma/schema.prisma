@@ -254,6 +254,15 @@ model OnboardingResponse {
   rawPayload  Json?
 }
 
+model TalentOverride {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  roleOverride String?
+  availability String?
+  social       String?
+  updatedAt    DateTime @updatedAt
+}
+
 enum Role {
   GA
   VIP

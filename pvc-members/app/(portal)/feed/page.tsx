@@ -39,7 +39,7 @@ export default async function FeedPage() {
             <h1 style={{ fontFamily: "Syne, sans-serif", fontSize: 20, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
               Feed
             </h1>
-            <span style={{ fontSize: 12.5, color: "var(--text-muted)", letterSpacing: "0.01em" }}>
+            <span className="feed-header-subtitle" style={{ fontSize: 12.5, color: "var(--text-muted)", letterSpacing: "0.01em" }}>
               What&apos;s happening in the community
             </span>
           </div>

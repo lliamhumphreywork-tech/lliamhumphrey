@@ -142,6 +142,7 @@ export const GET: APIRoute = async ({ request }) => {
     // 4. LLM matching — only if we have profiles and Anthropic key
     let pairs: { a: string; b: string; reason: string; draft: string }[] = [];
 
+    console.log('[member-intros] profiles with data:', profiles.filter(p => p.what_you_bring || p.support_areas).length, '/', profiles.length, 'total. API key set:', !!ANTHROPIC_API_KEY);
     if (ANTHROPIC_API_KEY && profiles.length >= 2) {
       const profileSummaries = profiles.map(p =>
         `${p.name}:\n  Brings: ${p.what_you_bring || 'not specified'}\n  Needs support with: ${p.support_areas || 'not specified'}\n  Goals: ${p.pvc_goals || 'not specified'}\n  Wants from the room: ${p.wants_from_room || 'not specified'}\n  Intro request: ${p.introductions || 'not specified'}`
@@ -182,8 +183,12 @@ Return ONLY valid JSON, no markdown fences.`;
             pairs = JSON.parse(text);
             if (!Array.isArray(pairs)) pairs = [];
           } catch {
+            console.error('[member-intros] JSON parse failed, raw text:', text.slice(0, 200));
             pairs = [];
           }
+        } else {
+          const errText = await llmRes.text();
+          console.error('[member-intros] LLM non-ok:', llmRes.status, errText.slice(0, 300));
         }
       } catch (e: any) {
         console.error('[member-intros] LLM call failed:', e.message);

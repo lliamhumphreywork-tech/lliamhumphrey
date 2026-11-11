@@ -178,12 +178,14 @@ Return ONLY valid JSON, no markdown fences.`;
 
         if (llmRes.ok) {
           const llmData = await llmRes.json();
-          const text = llmData.content?.[0]?.text ?? '';
+          const rawText = llmData.content?.[0]?.text ?? '';
+          // Strip markdown fences if present
+          const text = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
           try {
             pairs = JSON.parse(text);
             if (!Array.isArray(pairs)) pairs = [];
           } catch {
-            console.error('[member-intros] JSON parse failed, raw text:', text.slice(0, 200));
+            console.error('[member-intros] JSON parse failed, raw text:', rawText.slice(0, 300));
             pairs = [];
           }
         } else {

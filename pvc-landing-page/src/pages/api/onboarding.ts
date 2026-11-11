@@ -1,6 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
-import { notionQuery, notionPatch, notionCreate, titleProp, textProp, selectProp, dateProp } from '../../lib/notion';
+import { notionQuery, notionPatch, notionCreate, titleProp, textProp, selectProp, dateProp, checkProp } from '../../lib/notion';
 import { postWebhook } from '../../lib/slack';
 
 const NOTION_MI_DB   = 'd7f078c6-fd75-4feb-aba1-6d5d41d5c956';
@@ -69,9 +69,10 @@ export const POST: APIRoute = async ({ request }) => {
     if (existing.length) {
       miPageId = existing[0].id;
       await notionPatch(miPageId, {
-        'Goal (3 months)':    textProp(goal_90_days ?? ''),
-        'Current Bottleneck': textProp(challenge ?? ''),
-        'Last Check-in':      dateProp(today),
+        'Goal (3 months)':          textProp(goal_90_days ?? ''),
+        'Current Bottleneck':       textProp(challenge ?? ''),
+        'Last Check-in':            dateProp(today),
+        'Onboarding Form Complete': checkProp(true),
       });
     } else {
       const created = await notionCreate(NOTION_MI_DB, {

@@ -178,6 +178,7 @@ Return ONLY valid JSON, no markdown fences.`;
 
         if (llmRes.ok) {
           const llmData = await llmRes.json();
+          console.log('[member-intros] LLM response keys:', Object.keys(llmData), 'stop_reason:', llmData.stop_reason, 'content length:', llmData.content?.length, 'content[0] type:', llmData.content?.[0]?.type, 'text preview:', JSON.stringify(llmData.content?.[0]?.text ?? '').slice(0, 100));
           const rawText = llmData.content?.[0]?.text ?? '';
           // Strip markdown fences if present
           const text = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();

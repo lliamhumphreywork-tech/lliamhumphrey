@@ -4,6 +4,7 @@ import type { APIRoute } from 'astro';
 const NOTION_TOKEN         = import.meta.env.NOTION_TOKEN ?? '';
 const NOTION_MEMBERS_DB_ID = import.meta.env.NOTION_MEMBERS_DB_ID ?? 'd7f078c6-fd75-4feb-aba1-6d5d41d5c956';
 const NOTION_CRM_DB_ID     = '872bd20eee31468f91bed1cd472e157a';
+const NOTION_INTROS_DB_ID  = '1b79aa5765af471582f672445e05173b';
 const ADMIN_KEY            = import.meta.env.ADMIN_KEY ?? '';
 const ANTHROPIC_API_KEY    = import.meta.env.ANTHROPIC_API_KEY ?? '';
 
@@ -139,7 +140,24 @@ export const GET: APIRoute = async ({ request }) => {
       })
       .filter(c => c.email && !miEmails.has(c.email.toLowerCase()));
 
-    // 4. LLM matching — only if we have profiles and Anthropic key
+    // 4. Fetch already-sent intro pairs to avoid re-suggesting them
+    let sentPairs: string[] = [];
+    try {
+      const sentPages = await queryDB(NOTION_INTROS_DB_ID, {
+        property: 'Status',
+        select: { equals: 'Sent' },
+      });
+      sentPairs = sentPages.map((page: any) => {
+        const p = page.properties;
+        const a = (p['Member A']?.rich_text ?? []).map((t: any) => t.plain_text).join('').trim();
+        const b = (p['Member B']?.rich_text ?? []).map((t: any) => t.plain_text).join('').trim();
+        return a && b ? `${a} ↔ ${b}` : '';
+      }).filter(Boolean);
+    } catch {
+      // non-fatal — just suggest freely if we can't fetch history
+    }
+
+    // 5. LLM matching — only if we have profiles and Anthropic key
     let pairs: { a: string; b: string; reason: string; draft: string }[] = [];
 
     console.log('[member-intros] profiles with data:', profiles.filter(p => p.what_you_bring || p.support_areas).length, '/', profiles.length, 'total. API key set:', !!ANTHROPIC_API_KEY);
@@ -148,8 +166,12 @@ export const GET: APIRoute = async ({ request }) => {
         `${p.name}:\n  Brings: ${p.what_you_bring || 'not specified'}\n  Needs support with: ${p.support_areas || 'not specified'}\n  Goals: ${p.pvc_goals || 'not specified'}\n  Wants from the room: ${p.wants_from_room || 'not specified'}\n  Intro request: ${p.introductions || 'not specified'}`
       ).join('\n\n');
 
-      const prompt = `You are matching members of a private business owners community for introductions. Based on their onboarding profiles, suggest up to 5 member pairs who would genuinely benefit from being introduced.
+      const alreadySentSection = sentPairs.length
+        ? `\nPairs already introduced (do NOT suggest these again):\n${sentPairs.map(p => `- ${p}`).join('\n')}\n`
+        : '';
 
+      const prompt = `You are matching members of a private business owners community for introductions. Based on their onboarding profiles, suggest up to 5 member pairs who would genuinely benefit from being introduced.
+${alreadySentSection}
 Member profiles:
 ${profileSummaries}
 

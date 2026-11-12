@@ -1277,15 +1277,20 @@ function loadIntros() {
     var pairs = data.pairs || [];
     var crossCheck = data.crossCheck || [];
 
-    var pairsHTML = pairs.length ? pairs.map(function(p) {
-      return '<div class="card" style="margin-bottom:16px">' +
+    window._introPairs = pairs;
+    var pairsHTML = pairs.length ? pairs.map(function(p, idx) {
+      return '<div class="card intro-pair-card" id="intro-pair-' + idx + '" style="margin-bottom:16px">' +
         '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">' +
           '<span style="font-weight:700;font-size:14px;color:var(--text-primary)">' + esc(p.a) + '</span>' +
           '<span style="color:var(--text-muted)">↔</span>' +
           '<span style="font-weight:700;font-size:14px;color:var(--text-primary)">' + esc(p.b) + '</span>' +
         '</div>' +
         '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">' + esc(p.reason) + '</div>' +
-        '<div style="background:var(--surface-l);border-radius:8px;padding:12px;font-size:13px;white-space:pre-wrap;color:var(--text-primary)">' + esc(p.draft) + '</div>' +
+        '<div style="background:var(--surface-l);border-radius:8px;padding:12px;font-size:13px;white-space:pre-wrap;color:var(--text-primary);margin-bottom:12px">' + esc(p.draft) + '</div>' +
+        '<div style="display:flex;gap:8px">' +
+          '<a href="https://wa.me/?text=' + encodeURIComponent(p.draft) + '" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#25D366;color:#fff;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">Send on WhatsApp</a>' +
+          '<button onclick="markIntroSent(' + idx + ', this)" style="padding:7px 14px;background:var(--surface-l);border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer">Mark as sent</button>' +
+        '</div>' +
       '</div>';
     }).join('') : '<div class="empty-state"><p>No intro pairs generated yet</p></div>';
 
@@ -1305,6 +1310,29 @@ function loadIntros() {
       pairsHTML + crossHTML;
   }).catch(function(e) {
     if (panel) panel.innerHTML = '<div class="empty-state"><p>' + esc(e.message) + '</p></div>';
+  });
+}
+
+function markIntroSent(idx, btn) {
+  var pair = (window._introPairs || [])[idx];
+  if (!pair) return;
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  api('/api/admin/mark-intro-sent', {
+    method: 'POST',
+    body: JSON.stringify({ a: pair.a, b: pair.b, reason: pair.reason, draft: pair.draft }),
+  }).then(function() {
+    var card = document.getElementById('intro-pair-' + idx);
+    if (card) {
+      card.style.opacity = '0.45';
+      card.style.pointerEvents = 'none';
+    }
+    btn.textContent = 'Sent ✓';
+    toast('Intro marked as sent');
+  }).catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Mark as sent';
+    toast('Failed to save — try again');
   });
 }
 

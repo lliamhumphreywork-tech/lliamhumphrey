@@ -172,6 +172,7 @@ Return ONLY valid JSON, no markdown fences.`;
           body: JSON.stringify({
             model: 'claude-haiku-5-5',
             max_tokens: 4096,
+            thinking: { type: 'disabled' },
             messages: [{ role: 'user', content: prompt }],
           }),
         });

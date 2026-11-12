@@ -171,15 +171,16 @@ Return ONLY valid JSON, no markdown fences.`;
           },
           body: JSON.stringify({
             model: 'claude-haiku-5-5',
-            max_tokens: 2048,
+            max_tokens: 4096,
             messages: [{ role: 'user', content: prompt }],
           }),
         });
 
         if (llmRes.ok) {
           const llmData = await llmRes.json();
-          console.log('[member-intros] LLM response keys:', Object.keys(llmData), 'stop_reason:', llmData.stop_reason, 'content length:', llmData.content?.length, 'content[0] type:', llmData.content?.[0]?.type, 'text preview:', JSON.stringify(llmData.content?.[0]?.text ?? '').slice(0, 100));
-          const rawText = llmData.content?.[0]?.text ?? '';
+          // Find the text block — may be after a thinking block in extended thinking mode
+          const textBlock = (llmData.content ?? []).find((b: any) => b.type === 'text');
+          const rawText = textBlock?.text ?? '';
           // Strip markdown fences if present
           const text = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
           try {

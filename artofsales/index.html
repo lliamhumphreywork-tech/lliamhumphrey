@@ -193,6 +193,15 @@ section { padding: 72px 0; }
 .form input::placeholder { color: rgba(255,255,255,.4); }
 .form input:focus { outline: 2px solid var(--cream); outline-offset: 1px; }
 .hp { position: absolute; left: -9999px; }
+.q-intro { margin: 14px 0 0; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.14); font-size: .92rem; color: rgba(255,255,255,.75); }
+.q { border: 0; margin: 0; padding: 0; min-width: 0; }
+.q legend { font-size: .88rem; color: rgba(255,255,255,.7); padding: 0; margin-bottom: 8px; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pills label { position: relative; }
+.pills input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.pills span { display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); color: var(--white); font-size: .92rem; transition: background .2s, color .2s, border-color .2s; }
+.pills input:checked + span { background: var(--cream); color: var(--black); border-color: var(--cream); }
+.pills input:focus-visible + span { outline: 2px solid var(--cream); outline-offset: 2px; }
 .form-note { font-size: .84rem; color: rgba(255,255,255,.6); margin: 4px 0 0; }
 .form-note a { color: var(--cream); }
 .form-msg { min-height: 1.5em; font-size: .95rem; color: var(--cream); margin: 0; }
@@ -346,7 +355,7 @@ footer .mark { color: var(--cream); }
         <p class="story-p">So I started posting online. 100 days straight, no audience, no results. Then one honest video about my gap year hit 500K views, and the people who reached out after it got me my first sales role.</p>
         <p class="story-p">That role was appointment setting: getting on calls with people who were interested, finding out what they needed, and booking them in with a closer. I didn't need a degree or experience. I needed to learn how to have the conversation.</p>
         <p class="quote">"Since March I've set the calls behind $200K+ in cash collected, working remotely as an appointment setter. I booked the calls, I didn't close them. I made six figures in rand doing it."</p>
-        <p class="story-p">I also run <a href="https://www.privatevictoriesclub.com" rel="noopener">Private Victories Club</a>, a private community for young founders. Art of Sales is what I wish someone had shown me at the start.</p>
+        <p class="story-p">Art of Sales is what I wish someone had shown me at the start.</p>
       </div>
     </div>
   </section>
@@ -449,7 +458,7 @@ footer .mark { color: var(--cream); }
         <details><summary>Is this a job?</summary><p>No. Art of Sales is training and a community. It doesn't employ you or pay you. It gets you ready to apply for remote sales roles.</p></details>
         <details><summary>Can I cancel?</summary><p>Yes, anytime. You pay month to month.</p></details>
         <details><summary>What if I don't get hired?</summary><p>There's no guarantee you will. Most first roles are commission-only, and it can take a while. The skills stay with you either way, and you can keep practising with us.</p></details>
-        <details><summary>Who runs this?</summary><p>Me, Lliam Humphrey. I'm 20, based in Johannesburg. I set calls remotely for a living, and I run Private Victories Club, a community for young founders.</p></details>
+        <details><summary>Who runs this?</summary><p>Me, Lliam Humphrey. I'm 20, based in Johannesburg, and I set calls remotely for a living.</p></details>
       </div>
     </div>
   </section>
@@ -464,6 +473,12 @@ footer .mark { color: var(--cream); }
         <input id="w-name" name="name" autocomplete="given-name" placeholder="Thabo" required>
         <label for="w-email">Email</label>
         <input id="w-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@email.com" required>
+        <p class="q-intro">Four quick questions, all optional. They help me build this for you.</p>
+        <fieldset class="q"><legend>Would you pay R499 a month for this?</legend><div class="pills"><label><input type="radio" name="wouldPay" value="Yes"><span>Yes</span></label><label><input type="radio" name="wouldPay" value="Maybe"><span>Maybe</span></label><label><input type="radio" name="wouldPay" value="No"><span>No</span></label></div></fieldset>
+        <fieldset class="q"><legend>What do you earn a month?</legend><div class="pills"><label><input type="radio" name="income" value="Under R8K"><span>Under R8K</span></label><label><input type="radio" name="income" value="R8K to R20K"><span>R8K to R20K</span></label><label><input type="radio" name="income" value="Over R20K"><span>Over R20K</span></label></div></fieldset>
+        <fieldset class="q"><legend>How many hours a week could you put in?</legend><div class="pills"><label><input type="radio" name="hours" value="Under 3"><span>Under 3</span></label><label><input type="radio" name="hours" value="3 to 6"><span>3 to 6</span></label><label><input type="radio" name="hours" value="6 or more"><span>6 or more</span></label></div></fieldset>
+        <label for="w-blocker">What's stopping you from getting into sales right now?</label>
+        <input id="w-blocker" name="blocker" maxlength="300" placeholder="One line is fine">
         <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
         <button class="btn light big" type="submit">Join the waitlist</button>
         <p class="form-note">I'll only email you about Art of Sales. Unsubscribe anytime. <a href="/artofsales/privacy">Privacy</a></p>
@@ -519,6 +534,7 @@ footer .mark { color: var(--cream); }
   document.querySelectorAll('a[href="#join"]').forEach(function (a) {
     a.addEventListener('click', function () { track('aos_waitlist_click', { location: a.closest('header') ? 'nav' : a.closest('.hero') ? 'hero' : 'pricing' }); });
   });
+  function val(n) { var el = form.querySelector('input[name="' + n + '"]:checked'); return el ? el.value : ''; }
   var form = document.getElementById('waitlist'), msg = form.querySelector('.form-msg'), btn = form.querySelector('button');
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -526,16 +542,18 @@ footer .mark { color: var(--cream); }
     msg.className = 'form-msg';
     if (!name) { msg.textContent = 'Add your first name.'; msg.classList.add('err'); form.name.focus(); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = 'That email doesn\'t look right.'; msg.classList.add('err'); form.email.focus(); return; }
+    var sent = { wouldPay: val('wouldPay') };
     btn.disabled = true; btn.textContent = 'Joining…';
     fetch('/api/artofsales-waitlist', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name, email: email, website: form.website.value })
+      body: JSON.stringify({ name: name, email: email, website: form.website.value,
+        wouldPay: val('wouldPay'), income: val('income'), hours: val('hours'), blocker: form.blocker.value.trim() })
     }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (r) {
         if (!r.ok) throw new Error(r.d.error || 'Something went wrong. Try again.');
         form.reset(); btn.textContent = 'You\'re on the list';
         msg.textContent = 'Done. You\'ll hear from me when doors open.';
-        track('aos_waitlist_joined');
+        track('aos_waitlist_joined', { would_pay: sent.wouldPay || 'skipped' });
       })
       .catch(function (err) { btn.disabled = false; btn.textContent = 'Join the waitlist'; msg.textContent = err.message; msg.classList.add('err'); });
   });

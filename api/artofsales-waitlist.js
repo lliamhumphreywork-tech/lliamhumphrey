@@ -1,4 +1,4 @@
-// Art of Sales waitlist: adds the contact to Brevo list 23. No welcome email yet.
+// Art of Sales waitlist: adds the contact to Brevo list 23 with optional questionnaire answers. No welcome email yet.
 const rateMap = new Map();
 const RATE_LIMIT = 5;
 const RATE_WINDOW = 60_000;
@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
     return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
-  const { email, name, website } = req.body || {};
+  const { email, name, website, wouldPay, income, hours, blocker } = req.body || {};
 
   // Honeypot
   if (website) return res.status(200).json({ ok: true });
@@ -56,7 +56,19 @@ module.exports = async function handler(req, res) {
       listIds: [listId],
       updateEnabled: true,
     };
-    if (cleanName) contactPayload.attributes = { FIRSTNAME: cleanName };
+    // Optional questionnaire answers: only fixed options are stored; the free-text answer is trimmed.
+    const pick = (v, ok) => (ok.includes(v) ? v : '');
+    const attrs = {};
+    if (cleanName) attrs.FIRSTNAME = cleanName;
+    const pay = pick(wouldPay, ['Yes', 'Maybe', 'No']);
+    const inc = pick(income, ['Under R8K', 'R8K to R20K', 'Over R20K']);
+    const hrs = pick(hours, ['Under 3', '3 to 6', '6 or more']);
+    const blk = String(blocker || '').trim().slice(0, 300);
+    if (pay) attrs.AOS_WOULD_PAY_R499 = pay;
+    if (inc) attrs.AOS_INCOME = inc;
+    if (hrs) attrs.AOS_HOURS = hrs;
+    if (blk) attrs.AOS_BLOCKER = blk;
+    if (Object.keys(attrs).length) contactPayload.attributes = attrs;
 
     const contactRes = await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',

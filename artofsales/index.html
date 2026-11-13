@@ -143,6 +143,20 @@ section { padding: 72px 0; }
 .gcard::before { content: ""; position: absolute; inset: 0 0 auto; height: 50%; pointer-events: none; background: linear-gradient(180deg, rgba(255,245,230,.08), rgba(255,245,230,0)); }
 .gcard:hover { transform: translateY(-4px); border-color: rgba(255,240,220,.3); }
 .motion .gcard.rv.in:hover { transform: translateY(-4px); }
+/* Card motion: cursor spotlight, a light sweep that passes every few seconds, icons that pop in then float. */
+.gcard { --mx: 50%; --my: -40%; }
+.gcard > * { position: relative; z-index: 1; }
+.g-spot { position: absolute !important; inset: 0; z-index: 0 !important; pointer-events: none; opacity: 0; transition: opacity .4s; background: radial-gradient(260px circle at var(--mx) var(--my), rgba(198,127,82,.32), transparent 65%); }
+.gcard:hover .g-spot { opacity: 1; }
+.gcard::after { content: ""; position: absolute; inset: -20% -60%; pointer-events: none; background: linear-gradient(105deg, transparent 42%, rgba(255,245,230,.16) 50%, transparent 58%); transform: translateX(-100%); }
+.motion .gcard.in::after { animation: sweep 7s var(--ease) infinite; animation-delay: calc(var(--k) * .5s + .6s); }
+@keyframes sweep { 0% { transform: translateX(-100%); } 22%, 100% { transform: translateX(100%); } }
+.motion .gcard .g-icon { transform: scale(.6); opacity: 0; transition: transform .7s cubic-bezier(.3,1.6,.5,1), opacity .5s; transition-delay: calc(var(--k) * 90ms + .3s); }
+.motion .gcard.in .g-icon { transform: none; opacity: 1; animation: float 5s ease-in-out infinite; animation-delay: calc(var(--k) * .4s + 1.2s); }
+@keyframes float { 0%, 100% { translate: 0 0; box-shadow: 0 0 0 0 rgba(198,127,82,0); } 50% { translate: 0 -4px; box-shadow: 0 10px 24px -8px rgba(198,127,82,.55); } }
+.gcard:hover .g-icon { rotate: -6deg; transition: rotate .4s var(--ease); }
+.motion .get-glow { animation: drift 18s ease-in-out infinite alternate; }
+@keyframes drift { to { transform: translate3d(4%, -3%, 0) scale(1.08); } }
 .g-icon { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; color: var(--cream); background: rgba(255,245,230,.1); border: 1px solid rgba(255,240,220,.16); margin-bottom: 18px; }
 .gcard h3 { color: var(--white); font-size: 1.2rem; letter-spacing: -.02em; margin-bottom: 6px; }
 .gcard p { margin: 0; color: rgba(255,255,255,.66); }
@@ -492,12 +506,12 @@ footer .mark { color: var(--cream); }
       <h2>What you get</h2>
       <p class="intro">Everything I used to get here, in one place.</p>
       <div class="gcards">
-        <div class="gcard"><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg></span><h3>The course</h3><p>Everything that's worked for me on my journey, from first conversation to booked call.</p></div>
-        <div class="gcard"><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4M10 12h5M10 15.5h5"/></svg></span><h3>Call and DM scripts</h3><p>Word for word, so you know what to say from day one.</p></div>
-        <div class="gcard"><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4.5h3l1.2 3.5-2 1.3a10 10 0 0 0 6 6l1.3-2 3.5 1.2v3a1.5 1.5 0 0 1-1.6 1.5A15 15 0 0 1 5 6.1 1.5 1.5 0 0 1 6.5 4.5z"/></svg></span><h3>Live roleplays</h3><p>Practise real calls every week until they feel normal.</p></div>
-        <div class="gcard"><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h9"/><path d="M10 8l4 4-4 4"/><path d="M17 5v14"/></svg></span><h3>Outreach frameworks</h3><p>How to find setter roles and start conversations that get replies.</p></div>
-        <div class="gcard"><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a5 5 0 0 0-3 9v2.5h6V13a5 5 0 0 0-3-9z"/><path d="M10 19h4"/></svg></span><h3>Mindset</h3><p>Handling the no's, staying consistent, and showing up when it's slow. This part matters most.</p></div>
-        <div class="gcard"><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3"/><circle cx="16.5" cy="10" r="2.5"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M14 19a4.5 4.5 0 0 1 7-3.6"/></svg></span><h3>The community</h3><p>People your age making the same move, so you're not doing it alone.</p></div>
+        <div class="gcard" style="--k:0"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg></span><h3>The course</h3><p>Everything that's worked for me on my journey, from first conversation to booked call.</p></div>
+        <div class="gcard" style="--k:1"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4M10 12h5M10 15.5h5"/></svg></span><h3>Call and DM scripts</h3><p>Word for word, so you know what to say from day one.</p></div>
+        <div class="gcard" style="--k:2"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4.5h3l1.2 3.5-2 1.3a10 10 0 0 0 6 6l1.3-2 3.5 1.2v3a1.5 1.5 0 0 1-1.6 1.5A15 15 0 0 1 5 6.1 1.5 1.5 0 0 1 6.5 4.5z"/></svg></span><h3>Weekly group coaching calls</h3><p>Live with me every week: your questions, your blockers, and roleplays until calls feel normal.</p></div>
+        <div class="gcard" style="--k:3"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h9"/><path d="M10 8l4 4-4 4"/><path d="M17 5v14"/></svg></span><h3>Outreach frameworks</h3><p>How to find setter roles and start conversations that get replies.</p></div>
+        <div class="gcard" style="--k:4"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a5 5 0 0 0-3 9v2.5h6V13a5 5 0 0 0-3-9z"/><path d="M10 19h4"/></svg></span><h3>Mindset</h3><p>Handling the no's, staying consistent, and showing up when it's slow. This part matters most.</p></div>
+        <div class="gcard" style="--k:5"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3"/><circle cx="16.5" cy="10" r="2.5"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M14 19a4.5 4.5 0 0 1 7-3.6"/></svg></span><h3>The community</h3><p>People your age making the same move, so you're not doing it alone.</p></div>
       </div>
     </div>
   </section>
@@ -532,7 +546,7 @@ footer .mark { color: var(--cream); }
         <ul class="inc">
           <li>The course: everything that's worked for me</li>
           <li>Call and DM scripts</li>
-          <li>Weekly live roleplays</li>
+          <li>Weekly group coaching calls with roleplays</li>
           <li>Outreach frameworks</li>
           <li>Mindset training</li>
           <li>The community</li>
@@ -624,6 +638,15 @@ footer .mark { color: var(--cream); }
   var sec = 252;
   setInterval(function () { sec++; t.textContent = String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0'); }, 1000);
 })();
+
+// Glass cards: spotlight follows the cursor.
+document.querySelectorAll('.gcard').forEach(function (c) {
+  c.addEventListener('pointermove', function (e) {
+    var r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+});
 
 // Scroll reveals.
 (function () {

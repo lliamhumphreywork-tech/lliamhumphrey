@@ -194,19 +194,72 @@ footer .mark { color: var(--cream); }
 .foot-links a:hover { text-decoration: underline; }
 .placeholder { background: #f2b8a2; color: var(--black); padding: 0 6px; border-radius: 4px; }
 
+/* Hero art: rings, example DM thread */
+.hero-bg { position: relative; isolation: isolate; }
+.rings { position: absolute; z-index: -1; width: 760px; right: -380px; top: -200px; pointer-events: none; }
+.rings circle { stroke: var(--brown-2); stroke-opacity: .16; }
+.chat {
+  margin-top: 44px; background: rgba(255,255,255,.88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--line); border-radius: 24px; padding: 8px 8px 12px; max-width: 440px;
+  box-shadow: 0 40px 80px -40px rgba(58, 38, 24, .35);
+}
+.chat-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 12px 10px; border-bottom: 1px solid var(--line); }
+.chat-head strong { font-weight: 500; color: var(--black); }
+.tag { font-size: .74rem; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.msgs { display: grid; gap: 8px; padding: 14px 10px 6px; }
+.msg { margin: 0; max-width: 82%; padding: 10px 14px; border-radius: 18px; font-size: .92rem; line-height: 1.4; }
+.msg.them { background: var(--cream); color: var(--black); justify-self: start; border-bottom-left-radius: 6px; }
+.msg.you { background: var(--brown); color: var(--cream); justify-self: end; border-bottom-right-radius: 6px; }
+.booked {
+  margin: 10px 10px 0; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px;
+  background: #e8efe2; color: #2f5a2a; font-weight: 500; font-size: .92rem;
+}
+.booked .dot { width: 8px; height: 8px; border-radius: 50%; background: #4f7a4a; box-shadow: 0 0 0 0 rgba(79,122,74,.5); }
+.motion .msg { opacity: 0; transform: translateY(10px) scale(.96); animation: msg .55s var(--ease) both; animation-delay: calc(1s + var(--t) * .9s); }
+.motion .msg.you { transform-origin: bottom right; }
+.motion .msg.them { transform-origin: bottom left; }
+.motion .booked { opacity: 0; animation: msg .7s var(--ease) 5.8s both; }
+.motion .booked .dot { animation: ping 2s ease-out 6.4s 3; }
+@keyframes msg { to { opacity: 1; transform: none; } }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(79,122,74,.5); } 100% { box-shadow: 0 0 0 12px rgba(79,122,74,0); } }
+
+/* Path line and 60-day bar */
+.path { position: relative; }
+.path::before { content: ""; position: absolute; left: 40px; top: 38px; bottom: 38px; width: 1px; background: rgba(243,234,219,.35); transform-origin: top; }
+.path li::before { z-index: 1; }
+.motion .path::before { transform: scaleY(0); transition: transform 1.6s var(--ease) .2s; }
+.motion .path.in::before { transform: none; }
+.motion .path li::before { transform: scale(0); transition: transform .6s cubic-bezier(.3,1.6,.5,1); transition-delay: calc(var(--i, 0) * 180ms + .3s); }
+.motion .path li.in::before { transform: none; }
+.span60 { position: relative; height: 4px; border-radius: 4px; background: var(--cream-2); margin: 14px 0 34px; }
+.span60 i { position: absolute; inset: 0; border-radius: 4px; background: var(--brown); transform-origin: left; }
+.span60 span { position: absolute; top: 12px; font-size: .78rem; color: var(--muted); }
+.span60 span:last-child { right: 0; }
+.motion .span60 i { transform: scaleX(0); transition: transform 2s var(--ease) .2s; }
+.motion .span60.in i { transform: none; }
+.motion .checks li::before { transform: scale(0) rotate(-30deg); transition: transform .6s cubic-bezier(.3,1.6,.5,1); transition-delay: calc(var(--i, 0) * 90ms + .35s); }
+.motion .checks li.in::before { transform: none; }
+.motion .price-card .price { display: inline-block; }
+
 /* Reveal */
 .motion .rv { opacity: 0; transform: translateY(18px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: calc(var(--i, 0) * 70ms); }
 .motion .rv.in { opacity: 1; transform: none; }
-.motion .hero > * { animation: rise 1s var(--ease) both; }
-.motion .hero > :nth-child(2) { animation-delay: .1s; }
-.motion .hero > :nth-child(3) { animation-delay: .2s; }
-.motion .hero > :nth-child(4) { animation-delay: .3s; }
+.motion .hero-copy > * { animation: rise 1s var(--ease) both; }
+.motion .hero-copy > :nth-child(2) { animation-delay: .1s; }
+.motion .hero-copy > :nth-child(3) { animation-delay: .2s; }
+.motion .hero-copy > :nth-child(4) { animation-delay: .3s; }
+.motion .chat { animation: rise 1.2s var(--ease) .35s both; }
 @keyframes rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 
 @media (min-width: 900px) {
   section { padding: 120px 0; }
   .hero { padding: 72px 0 120px; }
   .hero .btn { width: auto; }
+  .hero { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 56px; align-items: center; }
+  .chat { margin-top: 0; justify-self: end; width: 100%; }
+  .rings { right: -200px; top: -120px; }
+  .path::before { left: 40px; right: 40px; top: 40px; bottom: auto; width: auto; height: 1px; transform-origin: left; }
+  .motion .path::before { transform: scaleX(0); }
   .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 72px; align-items: start; }
   .split .checks, .split .gets, .split .weeks, .split .faq { margin-top: 0; }
   .gets { grid-template-columns: 1fr 1fr; column-gap: 40px; }
@@ -232,11 +285,29 @@ footer .mark { color: var(--cream); }
 </header>
 
 <main>
+  <div class="hero-bg">
+  <svg class="rings" viewBox="0 0 760 760" fill="none" aria-hidden="true">
+    <circle cx="380" cy="380" r="110"/><circle cx="380" cy="380" r="190"/><circle cx="380" cy="380" r="270"/><circle cx="380" cy="380" r="350"/>
+  </svg>
   <div class="wrap hero">
-    <h1>Learn to sell online. <span>Get paid for it.</span></h1>
-    <p class="sub">For young South Africans with a regular job who want to move into remote sales.</p>
-    <a class="btn" href="#join">Join the waitlist</a>
-    <p class="proof-line">Run by <b>Lliam Humphrey, 20</b>. Since March I've set the calls behind $200K+ in cash collected, working remotely as an appointment setter.</p>
+    <div class="hero-copy">
+      <h1>Learn to sell online. <span>Get paid for it.</span></h1>
+      <p class="sub">For young South Africans with a regular job who want to move into remote sales.</p>
+      <a class="btn" href="#join">Join the waitlist</a>
+      <p class="proof-line">Run by <b>Lliam Humphrey, 20</b>. Since March I've set the calls behind $200K+ in cash collected, working remotely as an appointment setter.</p>
+    </div>
+    <div class="chat" role="img" aria-label="Example: a setter replies to a lead's DM, asks one question, and books a call for Thursday at 14:00.">
+      <div class="chat-head"><strong>DMs</strong><span class="tag">Example</span></div>
+      <div class="msgs">
+        <p class="msg them" style="--t:0">Saw your post about the programme. How does it work?</p>
+        <p class="msg you" style="--t:1">Happy to explain. Quick one first: what do you want to change in the next 3 months?</p>
+        <p class="msg them" style="--t:2">Honestly, get my first 5 clients</p>
+        <p class="msg you" style="--t:3">Makes sense. Easiest is a 20 minute call with the coach. Thursday 14:00 or Friday 10:00?</p>
+        <p class="msg them" style="--t:4">Thursday works</p>
+      </div>
+      <div class="booked"><span class="dot"></span>Call booked for Thursday, 14:00</div>
+    </div>
+  </div>
   </div>
 
   <section class="white">
@@ -277,7 +348,7 @@ footer .mark { color: var(--cream); }
     <div class="wrap">
       <h2>The path</h2>
       <p class="intro">Four steps. Most people start setting long before they're ready to close.</p>
-      <ol class="path">
+      <ol class="path scene">
         <li><h3>Learn the setter skill</h3><p>Work through the training and the scripts at your own pace.</p></li>
         <li><h3>Practise live</h3><p>Role-play calls and DMs in the weekly sessions until they feel normal.</p></li>
         <li><h3>Apply for setter roles</h3><p>Use what you've practised to land your first remote role.</p></li>
@@ -308,6 +379,7 @@ footer .mark { color: var(--cream); }
       </div>
       <div>
         <p style="color:var(--black);font-weight:500;margin:0 0 4px">Your first 60 days, if you show up:</p>
+        <div class="span60 scene" aria-hidden="true"><i></i><span>Day 1</span><span>Day 60</span></div>
         <div class="weeks">
           <div class="week"><b>Weeks 1 to 2</b><p>Learn what a setter does and get comfortable with the scripts.</p></div>
           <div class="week"><b>Weeks 3 to 4</b><p>Practise in the live sessions until a booking call doesn't scare you.</p></div>
@@ -393,6 +465,17 @@ footer .mark { color: var(--cream); }
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+  document.querySelectorAll('.scene').forEach(function (el) { io.observe(el); });
+  var rings = document.querySelector('.rings'), ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking || !rings) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      var y = Math.min(window.scrollY, 1200);
+      rings.style.transform = 'translate3d(0,' + (y * 0.18) + 'px,0) rotate(' + (y * 0.02) + 'deg)';
+      ticking = false;
+    });
+  }, { passive: true });
   els.forEach(function (el) {
     var sibs = el.parentNode.children, i = Array.prototype.indexOf.call(sibs, el);
     el.classList.add('rv'); el.style.setProperty('--i', Math.min(i, 5)); io.observe(el);

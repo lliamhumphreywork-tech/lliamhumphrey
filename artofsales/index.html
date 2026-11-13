@@ -73,8 +73,20 @@ p { margin: 0 0 1em; }
 .btn.light:hover { background: var(--white); }
 
 /* Top bar */
-.top { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; }
-.mark { font-family: "Pinyon Script", cursive; font-size: 2.3rem; line-height: 1; color: var(--black); text-decoration: none; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .top { background: rgba(255,255,255,.92); }
+  .call { background: linear-gradient(160deg, #5a3d28, #2b1c12); }
+}
+/* Floating glass pill, Apple Liquid Glass style: blur + saturation, bright top rim, soft inner shine. */
+.top {
+  position: sticky; top: 12px; z-index: 50; margin-top: 12px;
+  display: flex; justify-content: space-between; align-items: center; padding: 6px 6px 6px 18px; border-radius: 999px;
+  background: rgba(255, 252, 247, .66);
+  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, .7);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(58,38,24,.06), 0 10px 30px -12px rgba(58,38,24,.28);
+}
+.mark { font-family: "Pinyon Script", cursive; font-size: 2rem; line-height: 1; color: var(--black); text-decoration: none; }
 .top .btn { min-height: 42px; padding: 0 18px; font-size: .9rem; }
 
 /* Hero */
@@ -217,11 +229,24 @@ footer .mark { color: var(--cream); }
 
 /* Hero art: rings, example setting call (live call screen with captions) */
 .hero-bg { position: relative; isolation: isolate; }
+.glow {
+  position: absolute; z-index: -1; pointer-events: none; width: 520px; height: 520px; right: -160px; bottom: 40px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(198,127,82,.55), rgba(198,127,82,0) 60%), radial-gradient(circle at 70% 70%, rgba(58,38,24,.45), rgba(58,38,24,0) 62%);
+  filter: blur(10px);
+}
 .rings { position: absolute; z-index: -1; width: 760px; right: -380px; top: -200px; pointer-events: none; }
 .rings circle { stroke: var(--brown-2); stroke-opacity: .16; }
 .call {
-  margin-top: 44px; background: var(--brown); color: var(--cream); border-radius: 28px; padding: 22px 20px 20px; max-width: 440px;
-  box-shadow: 0 40px 80px -36px rgba(58, 38, 24, .55); position: relative; overflow: hidden;
+  margin-top: 44px; color: var(--cream); border-radius: 30px; padding: 22px 20px 20px; max-width: 440px; position: relative; overflow: hidden;
+  background: linear-gradient(160deg, rgba(90, 61, 40, .7), rgba(40, 26, 16, .84));
+  -webkit-backdrop-filter: blur(26px) saturate(170%); backdrop-filter: blur(26px) saturate(170%);
+  border: 1px solid rgba(255, 240, 220, .22);
+  box-shadow: inset 0 1px 0 rgba(255,245,230,.38), inset 0 0 0 1px rgba(255,255,255,.04), 0 40px 80px -36px rgba(58, 38, 24, .6);
+}
+/* Specular sheen across the top of the glass. */
+.call::before {
+  content: ""; position: absolute; inset: 0 0 auto; height: 55%; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,245,230,.16), rgba(255,245,230,0));
 }
 .call-top { display: flex; align-items: center; gap: 12px; }
 .avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--cream); color: var(--brown); font-weight: 500; font-size: 1.1rem; }
@@ -292,6 +317,8 @@ footer .mark { color: var(--cream); }
   .hero { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 56px; align-items: center; }
   .call { margin-top: 0; justify-self: end; width: 100%; }
   .rings { right: -200px; top: -120px; }
+  .glow { right: 4%; top: 120px; bottom: auto; width: 460px; height: 460px; }
+  .top { margin-top: 16px; }
   .path::before { left: 40px; right: 40px; top: 40px; bottom: auto; width: auto; height: 1px; transform-origin: left; }
   .motion .path::before { transform: scaleX(0); }
   .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 72px; align-items: start; }
@@ -326,6 +353,7 @@ footer .mark { color: var(--cream); }
 
 <main>
   <div class="hero-bg">
+  <div class="glow" aria-hidden="true"></div>
   <svg class="rings" viewBox="0 0 760 760" fill="none" aria-hidden="true">
     <circle cx="380" cy="380" r="110"/><circle cx="380" cy="380" r="190"/><circle cx="380" cy="380" r="270"/><circle cx="380" cy="380" r="350"/>
   </svg>

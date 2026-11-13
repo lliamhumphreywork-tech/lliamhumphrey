@@ -194,7 +194,7 @@ footer .mark { color: var(--cream); }
 .foot-links a:hover { text-decoration: underline; }
 .placeholder { background: #f2b8a2; color: var(--black); padding: 0 6px; border-radius: 4px; }
 
-/* Hero art: rings, example DM thread */
+/* Hero art: rings, example setting call */
 .hero-bg { position: relative; isolation: isolate; }
 .rings { position: absolute; z-index: -1; width: 760px; right: -380px; top: -200px; pointer-events: none; }
 .rings circle { stroke: var(--brown-2); stroke-opacity: .16; }
@@ -204,7 +204,13 @@ footer .mark { color: var(--cream); }
   box-shadow: 0 40px 80px -40px rgba(58, 38, 24, .35);
 }
 .chat-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 12px 10px; border-bottom: 1px solid var(--line); }
-.chat-head strong { font-weight: 500; color: var(--black); }
+.chat-head strong { font-weight: 500; color: var(--black); margin-right: auto; }
+.chat-head { gap: 10px; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: .76rem; color: var(--brown-2); }
+.live .dot { width: 7px; height: 7px; border-radius: 50%; background: #b5452b; animation: blink 1.4s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+.msg b { display: block; font-weight: 500; font-size: .72rem; opacity: .65; margin-bottom: 2px; }
+@media (prefers-reduced-motion: reduce) { .live .dot { animation: none; } }
 .tag { font-size: .74rem; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
 .msgs { display: grid; gap: 8px; padding: 14px 10px 6px; }
 .msg { margin: 0; max-width: 82%; padding: 10px 14px; border-radius: 18px; font-size: .92rem; line-height: 1.4; }
@@ -296,16 +302,16 @@ footer .mark { color: var(--cream); }
       <a class="btn" href="#join">Join the waitlist</a>
       <p class="proof-line">Run by <b>Lliam Humphrey, 20</b>. Since March I've set the calls behind $200K+ in cash collected, working remotely as an appointment setter.</p>
     </div>
-    <div class="chat" role="img" aria-label="Example: a setter replies to a lead's DM, asks one question, and books a call for Thursday at 14:00.">
-      <div class="chat-head"><strong>DMs</strong><span class="tag">Example</span></div>
+    <div class="chat" role="img" aria-label="Example: a setter on a call asks what the lead wants, finds out what's stuck, and books them with the closer for Thursday at 14:00.">
+      <div class="chat-head"><strong>Call with Sipho</strong><span class="live"><span class="dot"></span>On call</span><span class="tag">Example</span></div>
       <div class="msgs">
-        <p class="msg them" style="--t:0">Saw your post about the programme. How does it work?</p>
-        <p class="msg you" style="--t:1">Happy to explain. Quick one first: what do you want to change in the next 3 months?</p>
-        <p class="msg them" style="--t:2">Honestly, get my first 5 clients</p>
-        <p class="msg you" style="--t:3">Makes sense. Easiest is a 20 minute call with the coach. Thursday 14:00 or Friday 10:00?</p>
-        <p class="msg them" style="--t:4">Thursday works</p>
+        <p class="msg you" style="--t:0"><b>You</b>Thanks for booking in. Before I tell you anything, what made you reach out?</p>
+        <p class="msg them" style="--t:1"><b>Sipho</b>I want my first 5 clients, but I keep stalling.</p>
+        <p class="msg you" style="--t:2"><b>You</b>What's stalling it right now?</p>
+        <p class="msg them" style="--t:3"><b>Sipho</b>Honestly, no system. I just post and hope.</p>
+        <p class="msg you" style="--t:4"><b>You</b>Makes sense. The coach can map that out with you. Thursday 14:00 or Friday 10:00?</p>
       </div>
-      <div class="booked"><span class="dot"></span>Call booked for Thursday, 14:00</div>
+      <div class="booked"><span class="dot"></span>Booked with the closer: Thursday, 14:00</div>
     </div>
   </div>
   </div>
@@ -336,8 +342,8 @@ footer .mark { color: var(--cream); }
       </div>
       <div class="gets">
         <div class="get"><h3>Setter training</h3><p>Know exactly what a setter does all day, and how teams measure you.</p></div>
+        <div class="get"><h3>Call scripts</h3><p>Run a setting call from hello to a time in the closer's calendar.</p></div>
         <div class="get"><h3>DM scripts</h3><p>Start conversations with leads that actually get replies.</p></div>
-        <div class="get"><h3>Call scripts</h3><p>Run a booking call from hello to a time in the closer's calendar.</p></div>
         <div class="get"><h3>Weekly live sessions</h3><p>Ask questions, role-play calls and get unstuck with me every week.</p></div>
         <div class="get"><h3>Finding a role</h3><p>Where setter jobs get posted, what to send, and how to handle the interview.</p></div>
       </div>
@@ -350,7 +356,7 @@ footer .mark { color: var(--cream); }
       <p class="intro">Four steps. Most people start setting long before they're ready to close.</p>
       <ol class="path scene">
         <li><h3>Learn the setter skill</h3><p>Work through the training and the scripts at your own pace.</p></li>
-        <li><h3>Practise live</h3><p>Role-play calls and DMs in the weekly sessions until they feel normal.</p></li>
+        <li><h3>Practise live</h3><p>Role-play calls in the weekly sessions until they feel normal.</p></li>
         <li><h3>Apply for setter roles</h3><p>Use what you've practised to land your first remote role.</p></li>
         <li><h3>Move up to closing</h3><p>Once you're booking calls well, learn to close them.</p></li>
       </ol>
@@ -400,7 +406,7 @@ footer .mark { color: var(--cream); }
         <p class="price-note">Cancel anytime.</p>
         <ul class="inc">
           <li>Setter training</li>
-          <li>DM and call scripts</li>
+          <li>Call and DM scripts</li>
           <li>Weekly live sessions</li>
           <li>Help finding your first role</li>
         </ul>

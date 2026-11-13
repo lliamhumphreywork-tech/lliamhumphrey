@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
     return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
-  const { email, name, website, wouldPay, income, hours, blocker } = req.body || {};
+  const { email, name, website, maxPrice, income } = req.body || {};
 
   // Honeypot
   if (website) return res.status(200).json({ ok: true });
@@ -56,18 +56,14 @@ module.exports = async function handler(req, res) {
       listIds: [listId],
       updateEnabled: true,
     };
-    // Optional questionnaire answers: only fixed options are stored; the free-text answer is trimmed.
+    // Optional questionnaire answers: only the fixed options are stored.
     const pick = (v, ok) => (ok.includes(v) ? v : '');
     const attrs = {};
     if (cleanName) attrs.FIRSTNAME = cleanName;
-    const pay = pick(wouldPay, ['Yes', 'Maybe', 'No']);
-    const inc = pick(income, ['Under R8K', 'R8K to R20K', 'Over R20K']);
-    const hrs = pick(hours, ['Under 3', '3 to 6', '6 or more']);
-    const blk = String(blocker || '').trim().slice(0, 300);
-    if (pay) attrs.AOS_WOULD_PAY_R499 = pay;
+    const price = pick(maxPrice, ['Under R200', 'R200 to R500', 'R500 to R1,000', 'Over R1,000']);
+    const inc = pick(income, ['Not working', 'Under R8K', 'R8K to R20K', 'Over R20K']);
+    if (price) attrs.AOS_MAX_PRICE = price;
     if (inc) attrs.AOS_INCOME = inc;
-    if (hrs) attrs.AOS_HOURS = hrs;
-    if (blk) attrs.AOS_BLOCKER = blk;
     if (Object.keys(attrs).length) contactPayload.attributes = attrs;
 
     const contactRes = await fetch('https://api.brevo.com/v3/contacts', {

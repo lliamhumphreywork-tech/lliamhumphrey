@@ -118,8 +118,29 @@ section { padding: 72px 0; }
   content: ""; position: absolute; left: 18px; top: 50%; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%;
   background: var(--brown) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.5l3 3 6-6.5' fill='none' stroke='%23f3eadb' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 22px no-repeat;
 }
-.pains li { padding: 16px 16px 16px 50px; font-size: 1rem; line-height: 1.4; }
-.pains li::before { left: 16px; }
+/* Pain cards are buttons: tapping one marks it as "that's me". */
+.pains li { padding: 0; background: none; border: 0; }
+.pains li::before { display: none; }
+.pain {
+  width: 100%; height: 100%; text-align: left; cursor: pointer; position: relative;
+  background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 16px 16px 16px 50px;
+  font: 400 1rem/1.4 "Geist", sans-serif; color: var(--black);
+  transition: background .3s var(--ease), color .3s var(--ease), border-color .3s, transform .2s var(--ease);
+}
+.pain::before {
+  content: ""; position: absolute; left: 16px; top: 50%; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%;
+  border: 1.5px solid rgba(58,38,24,.35); transition: background .3s, border-color .3s, transform .35s cubic-bezier(.3,1.6,.5,1);
+}
+.pain:hover { border-color: rgba(58,38,24,.35); }
+.pain:active { transform: scale(.98); }
+.pain[aria-pressed="true"] { background: var(--brown); color: var(--cream); border-color: var(--brown); }
+.pain[aria-pressed="true"]::before {
+  border-color: var(--cream); transform: scale(1.08);
+  background: var(--cream) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.5l3 3 6-6.5' fill='none' stroke='%233a2618' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 20px no-repeat;
+}
+.pain-count { min-height: 1.6em; margin: 16px 0 0; font-weight: 500; color: var(--brown); display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.pc-join { color: var(--black); }
+.pc-join[hidden] { display: none; }
 .bridge { margin: 32px 0 0; font-size: 1.12rem; line-height: 1.55; color: var(--black); max-width: 34em; }
 .not-for { margin-top: 22px; color: var(--muted); font-size: .95rem; }
 
@@ -225,6 +246,20 @@ section { padding: 72px 0; }
 }
 .faq details[open] summary::after { transform: rotate(225deg); margin-top: -2px; }
 .faq details p { margin: 0 0 20px; color: var(--muted); max-width: 40em; }
+
+/* Sticky join bar on phones: glass, slides up once the hero has scrolled away. */
+.sticky-join {
+  position: fixed; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 40;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 8px 8px 18px; border-radius: 999px;
+  background: rgba(255, 252, 247, .7); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.7); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 14px 34px -12px rgba(0,0,0,.4);
+  transform: translateY(140%); opacity: 0; transition: transform .5s var(--ease), opacity .4s; pointer-events: none;
+}
+.sticky-join span { font-size: .86rem; color: var(--text); line-height: 1.3; }
+.sticky-join .btn { min-height: 46px; padding: 0 20px; font-size: .95rem; flex: none; }
+.sticky-join.on { transform: none; opacity: 1; pointer-events: auto; }
+@media (min-width: 900px) { .sticky-join { display: none; } }
+@media (max-width: 899px) { .top .btn { transition: opacity .3s; } .sticky-on .top .btn { opacity: 0; pointer-events: none; } }
 
 /* Final call to action */
 .join h2 { font-size: clamp(2.2rem, 9vw, 4.2rem); max-width: 14em; }
@@ -392,8 +427,8 @@ footer .mark { color: var(--cream); }
   .about img { aspect-ratio: 4 / 5; }
   .weeks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .pains { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 40px; }
-  .pains li { padding: 22px 22px 22px 22px; padding-top: 62px; font-size: 1.05rem; }
-  .pains li::before { top: 22px; left: 22px; margin-top: 0; }
+  .pain { padding: 62px 22px 22px; font-size: 1.05rem; }
+  .pain::before { top: 22px; left: 22px; margin-top: 0; }
   .bridge { font-size: 1.3rem; max-width: 40em; margin-top: 44px; }
   .why { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; margin-top: 40px; }
   .path-title { margin-top: 96px; }
@@ -468,15 +503,16 @@ footer .mark { color: var(--cream); }
   <section>
     <div class="wrap">
       <h2>Is this you?</h2>
-      <p class="intro">If you're where I was, keep reading.</p>
+      <p class="intro">Tap the ones that sound like you.</p>
       <ul class="checks pains">
-        <li>Your salary is gone a week before month-end</li>
-        <li>You spend hours a day getting to a job you don't even like</li>
-        <li>You earn somewhere between R8K and R20K, and the raise never seems to come</li>
-        <li>You help out at home, so you can't just quit and start over</li>
-        <li>You've tried side hustles, but nothing stuck</li>
-        <li>You see people your age working online and wonder how they got in</li>
+        <li><button type="button" class="pain" aria-pressed="false">Your salary is gone a week before month-end</button></li>
+        <li><button type="button" class="pain" aria-pressed="false">You spend hours a day getting to a job you don't even like</button></li>
+        <li><button type="button" class="pain" aria-pressed="false">You earn somewhere between R8K and R20K, and the raise never seems to come</button></li>
+        <li><button type="button" class="pain" aria-pressed="false">You help out at home, so you can't just quit and start over</button></li>
+        <li><button type="button" class="pain" aria-pressed="false">You've tried side hustles, but nothing stuck</button></li>
+        <li><button type="button" class="pain" aria-pressed="false">You see people your age working online and wonder how they got in</button></li>
       </ul>
+      <p class="pain-count" aria-live="polite"><span class="pc-text"></span> <a class="pc-join" href="#join" hidden>Join the waitlist</a></p>
       <p class="bridge">None of that means you're doing something wrong. It means you need a skill people will pay for that doesn't need a degree or years of experience, even if you've never sold anything. That's what setting is.</p>
       <p class="not-for">Not for you if you want to get rich quick, or if you won't put in the work.</p>
     </div>
@@ -578,6 +614,11 @@ footer .mark { color: var(--cream); }
   </section>
 </main>
 
+<div class="sticky-join" aria-hidden="true">
+  <span>Doors open soon. It's free to join.</span>
+  <a class="btn" href="#join" tabindex="-1">Join the waitlist</a>
+</div>
+
 <dialog class="modal" id="waitlist-modal" aria-labelledby="m-title">
   <button class="m-close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
   <div class="step" data-step="1">
@@ -648,10 +689,46 @@ document.querySelectorAll('.gcard').forEach(function (c) {
   });
 });
 
+// Pain cards: tap to mark, with a running count. From 3, nudge towards the waitlist.
+(function () {
+  var btns = document.querySelectorAll('.pain'), text = document.querySelector('.pc-text'), join = document.querySelector('.pc-join');
+  function update() {
+    var n = document.querySelectorAll('.pain[aria-pressed="true"]').length;
+    text.textContent = n === 0 ? '' : n >= 3 ? n + ' of ' + btns.length + '. You\'re who this is for.' : n + ' of ' + btns.length + '.';
+    join.hidden = n < 3;
+    return n;
+  }
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+      var n = update();
+      if (window.posthog && posthog.capture) posthog.capture('aos_pain_tapped', { count: n });
+    });
+  });
+})();
+
+// Sticky join bar (phones): shows after the hero, hides near the final call to action and while the popup is open.
+(function () {
+  var bar = document.querySelector('.sticky-join'), hero = document.querySelector('.hero'), end = document.getElementById('join');
+  if (!bar || !('IntersectionObserver' in window)) return;
+  var heroGone = false, endVisible = false;
+  function set() {
+    var on = heroGone && !endVisible && !document.querySelector('dialog[open]');
+    bar.classList.toggle('on', on);
+    document.documentElement.classList.toggle('sticky-on', on);
+    bar.setAttribute('aria-hidden', on ? 'false' : 'true');
+    bar.querySelector('a').tabIndex = on ? 0 : -1;
+  }
+  new IntersectionObserver(function (e) { heroGone = !e[0].isIntersecting; set(); }).observe(hero);
+  new IntersectionObserver(function (e) { endVisible = e[0].isIntersecting; set(); }, { rootMargin: '0px 0px -10% 0px' }).observe(end);
+  var dlg = document.getElementById('waitlist-modal');
+  new MutationObserver(set).observe(dlg, { attributes: true, attributeFilter: ['open'] });
+})();
+
 // Scroll reveals.
 (function () {
   if (!document.documentElement.classList.contains('motion')) return;
-  var els = document.querySelectorAll('section h2, section .intro, .checks li, .bridge, .gcard, .path li, .about img, .story-p, .quote, .why > div, .week, .price-card, .faq details');
+  var els = document.querySelectorAll('section h2, section .intro, .pains li, .bridge, .gcard, .path li, .about img, .story-p, .quote, .why > div, .week, .price-card, .faq details');
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
@@ -693,7 +770,7 @@ document.querySelectorAll('.gcard').forEach(function (c) {
   document.querySelectorAll('a[href="#join"]').forEach(function (a) {
     a.addEventListener('click', function (e) {
       e.preventDefault();
-      open(a.closest('header') ? 'nav' : a.closest('.hero') ? 'hero' : a.closest('#pricing') ? 'pricing' : 'final');
+      open(a.closest('header') ? 'nav' : a.closest('.hero') ? 'hero' : a.closest('#pricing') ? 'pricing' : a.closest('.sticky-join') ? 'sticky' : a.closest('.pain-count') ? 'pains' : 'final');
     });
   });
   modal.querySelector('.m-close').addEventListener('click', function () { modal.close(); });

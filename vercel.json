@@ -1,4 +1,16 @@
 {
   "version": 2,
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/omnipresence",
+      "destination": "/artofsales",
+      "permanent": false
+    },
+    {
+      "source": "/omnipresence/:path*",
+      "destination": "/artofsales",
+      "permanent": false
+    }
+  ]
 }

@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Art of Sales</title>
+<meta name="description" content="Learn to sell online and get paid for it. Training and community for young South Africans moving from a regular job into remote sales.">
+<link rel="canonical" href="https://lliamhumphrey.com/artofsales/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Art of Sales">
+<meta property="og:url" content="https://lliamhumphrey.com/artofsales/">
+<meta property="og:title" content="Learn to sell online. Get paid for it.">
+<meta property="og:description" content="Training and community for young South Africans moving from a regular job into remote sales.">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#f3eadb">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Pinyon+Script&display=swap" rel="stylesheet">
+<script>
+  // Turn on animations only when they can run and the visitor hasn't asked for reduced motion.
+  if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+</script>
+<script>
+  // Analytics: PostHog (EU), cookieless (memory persistence), no autocapture or recordings. Events are tagged site=artofsales.
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once unregister identify reset get_distinct_id set_config opt_in_capturing opt_out_capturing".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init('phc_vLNSCyr3FYD3AZPU4eVvzbecZS5Mhq9vP9QgdUyQWR43', {
+    api_host: 'https://eu.i.posthog.com', persistence: 'memory', autocapture: false,
+    capture_pageview: true, capture_pageleave: true, disable_session_recording: true, person_profiles: 'identified_only'
+  });
+  posthog.register({ site: 'artofsales' });
+</script>
+<style>
+/* Cream, dark brown, black and white. One sans (Geist); the script face is only for the "A." mark.
+   Phone first (390px), then two columns from 900px. */
+:root {
+  --cream: #f3eadb;
+  --cream-2: #eadfcb;
+  --brown: #3a2618;
+  --brown-2: #5a3d28;
+  --black: #000;
+  --white: #fff;
+  --text: #2c2119;
+  --muted: #76655a;
+  --line: rgba(58, 38, 24, .16);
+  --on-brown: #f3eadb;
+  --on-brown-muted: rgba(243, 234, 219, .68);
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--cream); color: var(--text);
+  font: 400 1.03rem/1.6 "Geist", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.page { overflow: hidden; overflow: clip; }
+a { color: inherit; }
+.wrap { width: min(100% - 32px, 1120px); margin-inline: auto; }
+h1, h2, h3 { color: var(--black); font-weight: 500; letter-spacing: -.035em; margin: 0; }
+h2 { font-size: clamp(1.9rem, 6.4vw, 2.9rem); line-height: 1.08; }
+p { margin: 0 0 1em; }
+:focus-visible { outline: 2px solid var(--brown-2); outline-offset: 3px; border-radius: 6px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 28px;
+  border-radius: 999px; background: var(--black); color: var(--white); text-decoration: none;
+  font: 500 1rem/1 "Geist", sans-serif; border: 0; cursor: pointer; transition: transform .3s var(--ease), background .3s;
+}
+.btn:hover { transform: translateY(-1px); background: var(--brown); }
+.btn.light { background: var(--cream); color: var(--black); }
+.btn.light:hover { background: var(--white); }
+
+/* Top bar */
+.top { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; }
+.mark { font-family: "Pinyon Script", cursive; font-size: 2.3rem; line-height: 1; color: var(--black); text-decoration: none; }
+.top .btn { min-height: 42px; padding: 0 18px; font-size: .9rem; }
+
+/* Hero */
+.hero { padding: 40px 0 72px; }
+.hero h1 { font-size: clamp(2.7rem, 12.5vw, 5.6rem); line-height: .98; letter-spacing: -.05em; }
+.hero h1 span { display: block; color: var(--brown-2); }
+.hero .sub { font-size: 1.12rem; margin: 22px 0 30px; max-width: 30em; }
+.hero .btn { width: 100%; }
+.proof-line { margin-top: 18px; font-size: .88rem; color: var(--muted); max-width: 34em; }
+.proof-line b { color: var(--text); font-weight: 500; }
+
+/* Sections */
+section { padding: 72px 0; }
+.white { background: var(--white); }
+.brown { background: var(--brown); color: var(--on-brown); }
+.brown h2, .brown h3 { color: var(--cream); }
+.black { background: var(--black); color: var(--white); }
+.black h2 { color: var(--white); }
+.intro { color: var(--muted); max-width: 34em; margin-top: 14px; }
+.brown .intro { color: var(--on-brown-muted); }
+
+/* Is this you */
+.checks { list-style: none; padding: 0; margin: 32px 0 0; display: grid; gap: 12px; }
+.checks li {
+  background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 18px 54px;
+  position: relative; font-size: 1.05rem; color: var(--black);
+}
+.checks li::before {
+  content: ""; position: absolute; left: 18px; top: 50%; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%;
+  background: var(--brown) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.5l3 3 6-6.5' fill='none' stroke='%23f3eadb' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 22px no-repeat;
+}
+.not-for { margin-top: 22px; color: var(--muted); font-size: .95rem; }
+
+/* What you get */
+.gets { display: grid; gap: 0; margin-top: 36px; border-top: 1px solid var(--line); }
+.get { padding: 22px 0; border-bottom: 1px solid var(--line); display: grid; gap: 4px; }
+.get h3 { font-size: 1.18rem; letter-spacing: -.02em; }
+.get p { margin: 0; color: var(--muted); }
+
+/* Path */
+.path { list-style: none; padding: 0; margin: 40px 0 0; counter-reset: p; display: grid; gap: 14px; }
+.path li {
+  counter-increment: p; position: relative; padding: 22px 22px 22px 76px; border-radius: 18px;
+  background: rgba(243, 234, 219, .06); border: 1px solid rgba(243, 234, 219, .14);
+}
+.path li::before {
+  content: counter(p); position: absolute; left: 22px; top: 20px; width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--cream); color: var(--brown); font-weight: 500;
+}
+.path h3 { font-size: 1.15rem; letter-spacing: -.02em; margin-bottom: 4px; }
+.path p { margin: 0; color: var(--on-brown-muted); }
+
+/* About */
+.about { display: grid; gap: 28px; }
+.about img { width: 100%; height: auto; max-width: 420px; aspect-ratio: 1 / 1; object-fit: cover; object-position: 50% 30%; border-radius: 22px; display: block; background: var(--cream-2); }
+.quote {
+  font-size: 1.28rem; line-height: 1.45; color: var(--black); letter-spacing: -.02em;
+  border-left: 2px solid var(--brown); padding-left: 18px; margin: 24px 0;
+}
+.cap { font-size: .88rem; color: var(--muted); margin-top: 10px; }
+
+/* Honest part */
+.weeks { display: grid; gap: 12px; margin-top: 32px; }
+.week { background: var(--white); border-radius: 16px; padding: 20px; border: 1px solid var(--line); }
+.week b { display: block; font-weight: 500; color: var(--brown-2); font-size: .88rem; margin-bottom: 4px; }
+.week p { margin: 0; color: var(--black); }
+
+/* Pricing */
+.price-card {
+  margin-top: 36px; background: var(--cream); color: var(--text); border-radius: 26px; padding: 30px 22px;
+  max-width: 520px;
+}
+.price { font-size: 3.4rem; font-weight: 500; letter-spacing: -.05em; color: var(--black); line-height: 1; }
+.price small { font-size: 1.05rem; letter-spacing: 0; color: var(--muted); font-weight: 400; }
+.price-note { color: var(--muted); margin: 10px 0 22px; }
+.inc { list-style: none; padding: 0; margin: 0 0 26px; display: grid; gap: 10px; }
+.inc li { padding-left: 28px; position: relative; color: var(--black); }
+.inc li::before { content: ""; position: absolute; left: 2px; top: .6em; width: 12px; height: 2px; background: var(--brown); }
+.price-card .btn { width: 100%; }
+
+/* FAQ */
+.faq { margin-top: 32px; border-top: 1px solid var(--line); }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary {
+  list-style: none; cursor: pointer; padding: 20px 40px 20px 0; position: relative;
+  font-weight: 500; color: var(--black); font-size: 1.08rem; letter-spacing: -.01em;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: ""; position: absolute; right: 6px; top: 50%; width: 12px; height: 12px; margin-top: -8px;
+  border-right: 1.6px solid var(--brown); border-bottom: 1.6px solid var(--brown); transform: rotate(45deg); transition: transform .3s var(--ease);
+}
+.faq details[open] summary::after { transform: rotate(225deg); margin-top: -2px; }
+.faq details p { margin: 0 0 20px; color: var(--muted); max-width: 40em; }
+
+/* Waitlist form */
+.join { text-align: left; }
+.join h2 { font-size: clamp(2.3rem, 10vw, 4.2rem); }
+.form { display: grid; gap: 12px; margin-top: 28px; max-width: 520px; }
+.form label { font-size: .88rem; color: rgba(255,255,255,.7); }
+.form input {
+  width: 100%; min-height: 54px; border-radius: 14px; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.06);
+  color: var(--white); font: 400 1rem "Geist", sans-serif; padding: 0 16px;
+}
+.form input::placeholder { color: rgba(255,255,255,.4); }
+.form input:focus { outline: 2px solid var(--cream); outline-offset: 1px; }
+.hp { position: absolute; left: -9999px; }
+.form-note { font-size: .84rem; color: rgba(255,255,255,.6); margin: 4px 0 0; }
+.form-note a { color: var(--cream); }
+.form-msg { min-height: 1.5em; font-size: .95rem; color: var(--cream); margin: 0; }
+.form-msg.err { color: #f2b8a2; }
+
+/* Footer */
+footer { background: var(--black); color: rgba(255,255,255,.6); padding: 40px 0 48px; border-top: 1px solid rgba(255,255,255,.12); font-size: .88rem; }
+footer .mark { color: var(--cream); }
+.foot-links { display: flex; flex-wrap: wrap; gap: 10px 20px; margin: 18px 0; }
+.foot-links a { color: rgba(255,255,255,.85); text-decoration: none; }
+.foot-links a:hover { text-decoration: underline; }
+.placeholder { background: #f2b8a2; color: var(--black); padding: 0 6px; border-radius: 4px; }
+
+/* Reveal */
+.motion .rv { opacity: 0; transform: translateY(18px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: calc(var(--i, 0) * 70ms); }
+.motion .rv.in { opacity: 1; transform: none; }
+.motion .hero > * { animation: rise 1s var(--ease) both; }
+.motion .hero > :nth-child(2) { animation-delay: .1s; }
+.motion .hero > :nth-child(3) { animation-delay: .2s; }
+.motion .hero > :nth-child(4) { animation-delay: .3s; }
+@keyframes rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+
+@media (min-width: 900px) {
+  section { padding: 120px 0; }
+  .hero { padding: 72px 0 120px; }
+  .hero .btn { width: auto; }
+  .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 72px; align-items: start; }
+  .split .checks, .split .gets, .split .weeks, .split .faq { margin-top: 0; }
+  .gets { grid-template-columns: 1fr 1fr; column-gap: 40px; }
+  .path { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .path li { padding: 76px 22px 24px; }
+  .path li::before { top: 22px; }
+  .about { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 72px; align-items: center; }
+  .about img { aspect-ratio: 4 / 5; }
+  .weeks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .price-wrap { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 72px; align-items: center; }
+  .price-card { margin-top: 0; padding: 40px; }
+  .join .wrap { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 72px; align-items: end; }
+  .form { margin-top: 0; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="wrap top">
+  <a class="mark" href="#top" id="top" aria-label="Art of Sales">A.</a>
+  <a class="btn" href="#join">Join the waitlist</a>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <h1>Learn to sell online. <span>Get paid for it.</span></h1>
+    <p class="sub">For young South Africans with a regular job who want to move into remote sales.</p>
+    <a class="btn" href="#join">Join the waitlist</a>
+    <p class="proof-line">Run by <b>Lliam Humphrey, 20</b>. Since March I've set the calls behind $200K+ in cash collected, working remotely as an appointment setter.</p>
+  </div>
+
+  <section class="white">
+    <div class="wrap split">
+      <div>
+        <h2>Is this you?</h2>
+        <p class="intro">If most of these sound like you, keep reading.</p>
+      </div>
+      <div>
+        <ul class="checks">
+          <li>You have a job, but you don't want it forever</li>
+          <li>You earn somewhere between R8K and R20K a month</li>
+          <li>You want work you can do from anywhere</li>
+          <li>You've never sold anything. That's fine.</li>
+        </ul>
+        <p class="not-for">Not for you if you want to get rich quick, or if you won't put in the work.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <h2>What you get</h2>
+        <p class="intro">Everything is built around one job: appointment setting. It's the easiest way into remote sales.</p>
+      </div>
+      <div class="gets">
+        <div class="get"><h3>Setter training</h3><p>Know exactly what a setter does all day, and how teams measure you.</p></div>
+        <div class="get"><h3>DM scripts</h3><p>Start conversations with leads that actually get replies.</p></div>
+        <div class="get"><h3>Call scripts</h3><p>Run a booking call from hello to a time in the closer's calendar.</p></div>
+        <div class="get"><h3>Weekly live sessions</h3><p>Ask questions, role-play calls and get unstuck with me every week.</p></div>
+        <div class="get"><h3>Finding a role</h3><p>Where setter jobs get posted, what to send, and how to handle the interview.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="brown">
+    <div class="wrap">
+      <h2>The path</h2>
+      <p class="intro">Four steps. Most people start setting long before they're ready to close.</p>
+      <ol class="path">
+        <li><h3>Learn the setter skill</h3><p>Work through the training and the scripts at your own pace.</p></li>
+        <li><h3>Practise live</h3><p>Role-play calls and DMs in the weekly sessions until they feel normal.</p></li>
+        <li><h3>Apply for setter roles</h3><p>Use what you've practised to land your first remote role.</p></li>
+        <li><h3>Move up to closing</h3><p>Once you're booking calls well, learn to close them.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="white">
+    <div class="wrap about">
+      <div>
+        <img src="/artofsales/lliam.jpg" alt="Lliam Humphrey" width="1600" height="1200" loading="lazy">
+        <p class="cap">Lliam Humphrey, 20, Johannesburg</p>
+      </div>
+      <div>
+        <h2>Who runs this</h2>
+        <p class="quote">"Since March I've set the calls behind $200K+ in cash collected, working remotely as an appointment setter. I booked the calls, I didn't close them. I made six figures in rand doing it."</p>
+        <p>I was working in a hotel during my gap year when I started posting online. One honest video hit 500K views, and the people who reached out after it got me my first sales role. Art of Sales is what I wish someone had shown me at the start, taught the way I'd explain it to a friend.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <h2>The honest part</h2>
+        <p class="intro">Most remote setter and closer roles start commission-only. That means you get paid when calls you book turn into sales. There are no guarantees here. What you get out depends on the work you put in.</p>
+      </div>
+      <div>
+        <p style="color:var(--black);font-weight:500;margin:0 0 4px">Your first 60 days, if you show up:</p>
+        <div class="weeks">
+          <div class="week"><b>Weeks 1 to 2</b><p>Learn what a setter does and get comfortable with the scripts.</p></div>
+          <div class="week"><b>Weeks 3 to 4</b><p>Practise in the live sessions until a booking call doesn't scare you.</p></div>
+          <div class="week"><b>Weeks 5 to 8</b><p>Apply for roles. Expect a lot of no's. Keep your job while you do this.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="brown" id="pricing">
+    <div class="wrap price-wrap">
+      <div>
+        <h2>One price. Cancel anytime.</h2>
+        <p class="intro">Doors aren't open yet. Join the waitlist and you'll hear first when they are.</p>
+      </div>
+      <div class="price-card">
+        <div class="price">R499 <small>a month</small></div>
+        <p class="price-note">Cancel anytime.</p>
+        <ul class="inc">
+          <li>Setter training</li>
+          <li>DM and call scripts</li>
+          <li>Weekly live sessions</li>
+          <li>Help finding your first role</li>
+        </ul>
+        <a class="btn" href="#join">Join the waitlist</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="white">
+    <div class="wrap split">
+      <div><h2>Questions</h2></div>
+      <div class="faq">
+        <details><summary>Do I need sales experience?</summary><p>No. The training starts from zero. If you can hold a normal conversation, you can learn this.</p></details>
+        <details><summary>How much time does it take each week?</summary><p>Plan for the weekly live session plus a few hours of practice. You can do it around your job.</p></details>
+        <details><summary>Is this a job?</summary><p>No. Art of Sales is training and a community. It doesn't employ you or pay you. It gets you ready to apply for remote sales roles.</p></details>
+        <details><summary>Can I cancel?</summary><p>Yes, anytime. You pay month to month.</p></details>
+        <details><summary>What if I don't get hired?</summary><p>There's no guarantee you will. Most first roles are commission-only, and it can take a while. The skills stay with you either way, and you can keep practising with us.</p></details>
+        <details><summary>Who runs this?</summary><p>Me, Lliam Humphrey. I'm 20, based in Johannesburg, and I work as a remote appointment setter.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="black join" id="join">
+    <div class="wrap">
+      <div>
+        <h2>Learn to sell online. Get paid for it.</h2>
+      </div>
+      <form class="form" id="waitlist" novalidate>
+        <label for="w-name">First name</label>
+        <input id="w-name" name="name" autocomplete="given-name" placeholder="Thabo" required>
+        <label for="w-email">Email</label>
+        <input id="w-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@email.com" required>
+        <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn light" type="submit">Join the waitlist</button>
+        <p class="form-note">I'll only email you about Art of Sales. Unsubscribe anytime. <a href="/artofsales/privacy">Privacy</a></p>
+        <p class="form-msg" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="mark">A.</span>
+    <div class="foot-links">
+      <a href="/artofsales/terms">Terms</a>
+      <a href="/artofsales/privacy">Privacy</a>
+      <a href="/artofsales/refunds">Refund policy</a>
+      <a href="https://instagram.com/artofsales.io" rel="noopener">Instagram @artofsales.io</a>
+      <span class="placeholder">hello@ (email to come)</span>
+    </div>
+    <p>Art of Sales is training and community. It is not a job offer or employment agency, and results aren't guaranteed. Run by Lliam Humphrey, Johannesburg.</p>
+  </div>
+</footer>
+</div>
+
+<script>
+// Scroll reveals.
+(function () {
+  if (!document.documentElement.classList.contains('motion')) return;
+  var els = document.querySelectorAll('section h2, section .intro, .checks li, .get, .path li, .about img, .quote, .week, .price-card, .faq details, .form');
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+  els.forEach(function (el) {
+    var sibs = el.parentNode.children, i = Array.prototype.indexOf.call(sibs, el);
+    el.classList.add('rv'); el.style.setProperty('--i', Math.min(i, 5)); io.observe(el);
+  });
+})();
+
+// Waitlist: posts to the Brevo route, tracks clicks and sign-ups.
+(function () {
+  function track(n, p) { if (window.posthog && posthog.capture) posthog.capture(n, p || {}); }
+  document.querySelectorAll('a[href="#join"]').forEach(function (a) {
+    a.addEventListener('click', function () { track('aos_waitlist_click', { location: a.closest('header') ? 'nav' : a.closest('.hero') ? 'hero' : 'pricing' }); });
+  });
+  var form = document.getElementById('waitlist'), msg = form.querySelector('.form-msg'), btn = form.querySelector('button');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = form.name.value.trim(), email = form.email.value.trim();
+    msg.className = 'form-msg';
+    if (!name) { msg.textContent = 'Add your first name.'; msg.classList.add('err'); form.name.focus(); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = 'That email doesn\'t look right.'; msg.classList.add('err'); form.email.focus(); return; }
+    btn.disabled = true; btn.textContent = 'Joining…';
+    fetch('/api/artofsales-waitlist', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, email: email, website: form.website.value })
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (r) {
+        if (!r.ok) throw new Error(r.d.error || 'Something went wrong. Try again.');
+        form.reset(); btn.textContent = 'You\'re on the list';
+        msg.textContent = 'Done. You\'ll hear from me when doors open.';
+        track('aos_waitlist_joined');
+      })
+      .catch(function (err) { btn.disabled = false; btn.textContent = 'Join the waitlist'; msg.textContent = err.message; msg.classList.add('err'); });
+  });
+})();
+</script>
+</body>
+</html>

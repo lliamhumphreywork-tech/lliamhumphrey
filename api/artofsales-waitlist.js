@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
     return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
-  const { email, name, website, maxPrice, income } = req.body || {};
+  const { email, name, website, goal, maxPrice, income } = req.body || {};
 
   // Honeypot
   if (website) return res.status(200).json({ ok: true });
@@ -60,6 +60,8 @@ module.exports = async function handler(req, res) {
     const pick = (v, ok) => (ok.includes(v) ? v : '');
     const attrs = {};
     if (cleanName) attrs.FIRSTNAME = cleanName;
+    const why = pick(goal, ['More money each month', 'Work from anywhere', 'Leave my job', 'A skill I can grow with']);
+    if (why) attrs.AOS_GOAL = why;
     const price = pick(maxPrice, ['Under R200', 'R200 to R500', 'R500 to R1,000', 'Over R1,000']);
     const inc = pick(income, ['Not working', 'Under R8K', 'R8K to R20K', 'Over R20K']);
     if (price) attrs.AOS_MAX_PRICE = price;

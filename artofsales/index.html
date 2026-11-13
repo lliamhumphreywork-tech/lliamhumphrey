@@ -473,7 +473,8 @@ footer .mark { color: var(--cream); }
         <input id="w-name" name="name" autocomplete="given-name" placeholder="Thabo" required>
         <label for="w-email">Email</label>
         <input id="w-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@email.com" required>
-        <p class="q-intro">Two quick questions, both optional. They help me get this right.</p>
+        <p class="q-intro">Three quick questions, all optional. They help me get this right.</p>
+        <fieldset class="q"><legend>What would getting into sales change for you first?</legend><div class="pills"><label><input type="radio" name="goal" value="More money each month"><span>More money each month</span></label><label><input type="radio" name="goal" value="Work from anywhere"><span>Work from anywhere</span></label><label><input type="radio" name="goal" value="Leave my job"><span>Leave my job</span></label><label><input type="radio" name="goal" value="A skill I can grow with"><span>A skill I can grow with</span></label></div></fieldset>
         <fieldset class="q"><legend>What's the most you'd pay a month for this?</legend><div class="pills"><label><input type="radio" name="maxPrice" value="Under R200"><span>Under R200</span></label><label><input type="radio" name="maxPrice" value="R200 to R500"><span>R200 to R500</span></label><label><input type="radio" name="maxPrice" value="R500 to R1,000"><span>R500 to R1,000</span></label><label><input type="radio" name="maxPrice" value="Over R1,000"><span>Over R1,000</span></label></div></fieldset>
         <fieldset class="q"><legend>What do you earn a month right now?</legend><div class="pills"><label><input type="radio" name="income" value="Not working"><span>Not working</span></label><label><input type="radio" name="income" value="Under R8K"><span>Under R8K</span></label><label><input type="radio" name="income" value="R8K to R20K"><span>R8K to R20K</span></label><label><input type="radio" name="income" value="Over R20K"><span>Over R20K</span></label></div></fieldset>
         <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -539,18 +540,18 @@ footer .mark { color: var(--cream); }
     msg.className = 'form-msg';
     if (!name) { msg.textContent = 'Add your first name.'; msg.classList.add('err'); form.name.focus(); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = 'That email doesn\'t look right.'; msg.classList.add('err'); form.email.focus(); return; }
-    var sent = { maxPrice: val('maxPrice'), income: val('income') };
+    var sent = { goal: val('goal'), maxPrice: val('maxPrice'), income: val('income') };
     btn.disabled = true; btn.textContent = 'Joining…';
     fetch('/api/artofsales-waitlist', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: name, email: email, website: form.website.value,
-        maxPrice: val('maxPrice'), income: val('income') })
+        goal: val('goal'), maxPrice: val('maxPrice'), income: val('income') })
     }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (r) {
         if (!r.ok) throw new Error(r.d.error || 'Something went wrong. Try again.');
         form.reset(); btn.textContent = 'You\'re on the list';
         msg.textContent = 'Done. You\'ll hear from me when doors open.';
-        track('aos_waitlist_joined', { max_price: sent.maxPrice || 'skipped', income: sent.income || 'skipped' });
+        track('aos_waitlist_joined', { goal: sent.goal || 'skipped', max_price: sent.maxPrice || 'skipped', income: sent.income || 'skipped' });
       })
       .catch(function (err) { btn.disabled = false; btn.textContent = 'Join the waitlist'; msg.textContent = err.message; msg.classList.add('err'); });
   });

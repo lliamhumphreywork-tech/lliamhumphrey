@@ -193,31 +193,57 @@ section { padding: 72px 0; }
 .faq details[open] summary::after { transform: rotate(225deg); margin-top: -2px; }
 .faq details p { margin: 0 0 20px; color: var(--muted); max-width: 40em; }
 
-/* Waitlist form */
-.join { text-align: left; }
-.join h2 { font-size: clamp(2.3rem, 10vw, 4.2rem); }
-.form { display: grid; gap: 12px; margin-top: 28px; max-width: 520px; }
-.form label { font-size: .88rem; color: rgba(255,255,255,.7); }
-.form input {
-  width: 100%; min-height: 54px; border-radius: 14px; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.06);
-  color: var(--white); font: 400 1rem "Geist", sans-serif; padding: 0 16px;
+/* Final call to action */
+.join h2 { font-size: clamp(2.2rem, 9vw, 4.2rem); max-width: 14em; }
+.join .btn { margin-top: 32px; width: 100%; }
+
+/* Waitlist popup: centred card on laptops, bottom sheet on phones. */
+.modal {
+  border: 0; padding: 28px 22px 22px; color: var(--text); background: var(--cream);
+  width: 100%; max-width: 100%; margin: auto 0 0; max-height: 92vh; overflow-y: auto; border-radius: 28px 28px 0 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 -20px 60px -20px rgba(0,0,0,.4);
 }
-.form input::placeholder { color: rgba(255,255,255,.4); }
-.form input:focus { outline: 2px solid var(--cream); outline-offset: 1px; }
+.modal::backdrop { background: rgba(20, 12, 6, .45); -webkit-backdrop-filter: blur(10px) saturate(140%); backdrop-filter: blur(10px) saturate(140%); }
+.modal[open] { animation: sheet .5s var(--ease) both; }
+.modal[open]::backdrop { animation: fade .4s ease both; }
+@keyframes sheet { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.modal h2 { font-size: 1.9rem; padding-right: 40px; }
+.m-sub { color: var(--muted); margin: 8px 0 0; }
+.m-sub a { color: var(--brown); }
+.m-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(58,38,24,.08); color: var(--black); display: grid; place-items: center; cursor: pointer; }
+.m-close:hover { background: rgba(58,38,24,.14); }
+.form { display: grid; gap: 10px; margin-top: 22px; }
+.form label { font-size: .88rem; color: var(--muted); }
+.form .opt { opacity: .7; }
+.form input:not([type="radio"]) {
+  width: 100%; min-height: 54px; border-radius: 14px; border: 1px solid var(--line); background: var(--white);
+  color: var(--black); font: 400 1rem "Geist", sans-serif; padding: 0 16px;
+}
+.form input::placeholder { color: rgba(58,38,24,.4); }
+.form input:not([type="radio"]):focus { outline: 2px solid var(--brown); outline-offset: 1px; }
+.form .btn { margin-top: 8px; width: 100%; }
 .hp { position: absolute; left: -9999px; }
-.q-intro { margin: 14px 0 0; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.14); font-size: .92rem; color: rgba(255,255,255,.75); }
-.q { border: 0; margin: 0; padding: 0; min-width: 0; }
-.q legend { font-size: .88rem; color: rgba(255,255,255,.7); padding: 0; margin-bottom: 8px; }
+.form-note { font-size: .82rem; color: var(--muted); margin: 0; }
+.form-note a { color: var(--brown); }
+.form-msg { min-height: 0; font-size: .95rem; color: var(--brown); margin: 0; }
+.form-msg:empty { display: none; }
+.form-msg.err { color: #a6382a; }
+.q { border: 0; margin: 6px 0 0; padding: 0; min-width: 0; }
+.q legend { font-size: .95rem; color: var(--black); font-weight: 500; padding: 0; margin-bottom: 10px; }
 .pills { display: flex; flex-wrap: wrap; gap: 8px; }
 .pills label { position: relative; }
 .pills input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-.pills span { display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); color: var(--white); font-size: .92rem; transition: background .2s, color .2s, border-color .2s; }
-.pills input:checked + span { background: var(--cream); color: var(--black); border-color: var(--cream); }
-.pills input:focus-visible + span { outline: 2px solid var(--cream); outline-offset: 2px; }
-.form-note { font-size: .84rem; color: rgba(255,255,255,.6); margin: 4px 0 0; }
-.form-note a { color: var(--cream); }
-.form-msg { min-height: 1.5em; font-size: .95rem; color: var(--cream); margin: 0; }
-.form-msg.err { color: #f2b8a2; }
+.pills span { display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--white); color: var(--black); font-size: .92rem; transition: background .2s, color .2s, border-color .2s; }
+.pills input:checked + span { background: var(--black); color: var(--white); border-color: var(--black); }
+.pills input:focus-visible + span { outline: 2px solid var(--brown); outline-offset: 2px; }
+.m-skip { background: none; border: 0; font: inherit; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 6px; justify-self: center; }
+.m-done { margin-top: 22px; width: 100%; }
+@media (min-width: 640px) {
+  .modal { width: min(100% - 32px, 500px); margin: auto; border-radius: 28px; padding: 36px 32px 28px; box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 40px 100px -30px rgba(0,0,0,.5); }
+  @keyframes sheet { from { transform: translateY(16px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+@media (prefers-reduced-motion: reduce) { .modal[open], .modal[open]::backdrop { animation: none; } }
 
 /* Footer */
 footer { background: var(--black); color: rgba(255,255,255,.6); padding: 40px 0 48px; border-top: 1px solid rgba(255,255,255,.12); font-size: .88rem; }
@@ -314,6 +340,7 @@ footer .mark { color: var(--cream); }
   section { padding: 120px 0; }
   .hero { padding: 72px 0 120px; }
   .hero .btn { width: auto; }
+  .join .btn { width: auto; }
   .hero { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 56px; align-items: center; }
   .call { margin-top: 0; justify-self: end; width: 100%; }
   .rings { right: -200px; top: -120px; }
@@ -338,8 +365,6 @@ footer .mark { color: var(--cream); }
   .path-title { margin-top: 96px; }
   .price-wrap { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 72px; align-items: center; }
   .price-card { margin-top: 0; padding: 40px; }
-  .join .wrap { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 72px; align-items: end; }
-  .form { margin-top: 0; }
 }
 </style>
 </head>
@@ -511,28 +536,48 @@ footer .mark { color: var(--cream); }
 
   <section class="black join" id="join">
     <div class="wrap">
-      <div>
-        <h2>Become a remote appointment setter without quitting your job.</h2>
-      </div>
-      <form class="form" id="waitlist" novalidate>
-        <label for="w-name">First name</label>
-        <input id="w-name" name="name" autocomplete="given-name" placeholder="Thabo" required>
-        <label for="w-email">Email</label>
-        <input id="w-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@email.com" required>
-        <label for="w-contact">WhatsApp number or Instagram handle (optional)</label>
-        <input id="w-contact" name="contact" maxlength="60" autocomplete="tel" placeholder="07X XXX XXXX or @yourhandle">
-        <p class="q-intro">Three quick questions, all optional. They help me get this right.</p>
-        <fieldset class="q"><legend>What would getting into sales change for you first?</legend><div class="pills"><label><input type="radio" name="goal" value="More money each month"><span>More money each month</span></label><label><input type="radio" name="goal" value="Work from anywhere"><span>Work from anywhere</span></label><label><input type="radio" name="goal" value="Leave my job"><span>Leave my job</span></label><label><input type="radio" name="goal" value="A skill I can grow with"><span>A skill I can grow with</span></label></div></fieldset>
-        <fieldset class="q"><legend>What's the most you'd pay a month for this?</legend><div class="pills"><label><input type="radio" name="maxPrice" value="Under R200"><span>Under R200</span></label><label><input type="radio" name="maxPrice" value="R200 to R500"><span>R200 to R500</span></label><label><input type="radio" name="maxPrice" value="R500 to R1,000"><span>R500 to R1,000</span></label><label><input type="radio" name="maxPrice" value="Over R1,000"><span>Over R1,000</span></label></div></fieldset>
-        <fieldset class="q"><legend>What do you earn a month right now?</legend><div class="pills"><label><input type="radio" name="income" value="Not working"><span>Not working</span></label><label><input type="radio" name="income" value="Under R8K"><span>Under R8K</span></label><label><input type="radio" name="income" value="R8K to R20K"><span>R8K to R20K</span></label><label><input type="radio" name="income" value="Over R20K"><span>Over R20K</span></label></div></fieldset>
-        <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-        <button class="btn light big" type="submit">Join the waitlist</button>
-        <p class="form-note">I'll only contact you about Art of Sales. Unsubscribe anytime. <a href="/artofsales/privacy">Privacy</a></p>
-        <p class="form-msg" role="status" aria-live="polite"></p>
-      </form>
+      <h2>Become a remote appointment setter without quitting your job.</h2>
+      <a class="btn light big" href="#join">Join the waitlist</a>
     </div>
   </section>
 </main>
+
+<dialog class="modal" id="waitlist-modal" aria-labelledby="m-title">
+  <button class="m-close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+  <div class="step" data-step="1">
+    <h2 id="m-title">Join the waitlist</h2>
+    <p class="m-sub">Free. You'll hear first when doors open.</p>
+    <form class="form" id="waitlist" novalidate>
+      <label for="w-name">First name</label>
+      <input id="w-name" name="name" autocomplete="given-name" placeholder="Thabo" required>
+      <label for="w-email">Email</label>
+      <input id="w-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@email.com" required>
+      <label for="w-contact">WhatsApp or Instagram <span class="opt">(optional)</span></label>
+      <input id="w-contact" name="contact" maxlength="60" autocomplete="tel" placeholder="07X XXX XXXX or @yourhandle">
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="btn big" type="submit">Join the waitlist</button>
+      <p class="form-msg" role="status" aria-live="polite"></p>
+      <p class="form-note">I'll only contact you about Art of Sales. Unsubscribe anytime. <a href="/artofsales/privacy">Privacy</a></p>
+    </form>
+  </div>
+  <div class="step" data-step="2" hidden>
+    <h2>You're on the list<span class="m-name"></span>.</h2>
+    <p class="m-sub">Three quick questions? They help me get this right.</p>
+    <form class="form" id="answers" novalidate>
+      <fieldset class="q"><legend>What would getting into sales change for you first?</legend><div class="pills"><label><input type="radio" name="goal" value="More money each month"><span>More money each month</span></label><label><input type="radio" name="goal" value="Work from anywhere"><span>Work from anywhere</span></label><label><input type="radio" name="goal" value="Leave my job"><span>Leave my job</span></label><label><input type="radio" name="goal" value="A skill I can grow with"><span>A skill I can grow with</span></label></div></fieldset>
+      <fieldset class="q"><legend>What's the most you'd pay a month for this?</legend><div class="pills"><label><input type="radio" name="maxPrice" value="Under R200"><span>Under R200</span></label><label><input type="radio" name="maxPrice" value="R200 to R500"><span>R200 to R500</span></label><label><input type="radio" name="maxPrice" value="R500 to R1,000"><span>R500 to R1,000</span></label><label><input type="radio" name="maxPrice" value="Over R1,000"><span>Over R1,000</span></label></div></fieldset>
+      <fieldset class="q"><legend>What do you earn a month right now?</legend><div class="pills"><label><input type="radio" name="income" value="Not working"><span>Not working</span></label><label><input type="radio" name="income" value="Under R8K"><span>Under R8K</span></label><label><input type="radio" name="income" value="R8K to R20K"><span>R8K to R20K</span></label><label><input type="radio" name="income" value="Over R20K"><span>Over R20K</span></label></div></fieldset>
+      <button class="btn big" type="submit">Send answers</button>
+      <button class="m-skip" type="button">Skip</button>
+      <p class="form-msg" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+  <div class="step" data-step="3" hidden>
+    <h2>Done. Talk soon.</h2>
+    <p class="m-sub">Keep an eye on your inbox. Follow <a href="https://instagram.com/artofsales.io" rel="noopener">@artofsales.io</a> while you wait.</p>
+    <button class="btn big m-done" type="button">Close</button>
+  </div>
+</dialog>
 
 <footer>
   <div class="wrap">
@@ -561,7 +606,7 @@ footer .mark { color: var(--cream); }
 // Scroll reveals.
 (function () {
   if (!document.documentElement.classList.contains('motion')) return;
-  var els = document.querySelectorAll('section h2, section .intro, .checks li, .bridge, .get, .path li, .about img, .story-p, .quote, .why > div, .week, .price-card, .faq details, .form');
+  var els = document.querySelectorAll('section h2, section .intro, .checks li, .bridge, .get, .path li, .about img, .story-p, .quote, .why > div, .week, .price-card, .faq details');
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
@@ -582,35 +627,72 @@ footer .mark { color: var(--cream); }
   });
 })();
 
-// Waitlist: posts to the Brevo route, tracks clicks and sign-ups.
+// Waitlist popup: every "Join the waitlist" link opens it. Step 1 saves name and email to Brevo straight away,
+// step 2 sends the optional answers to the same contact, step 3 says thanks.
 (function () {
   function track(n, p) { if (window.posthog && posthog.capture) posthog.capture(n, p || {}); }
+  var modal = document.getElementById('waitlist-modal');
+  var signup = document.getElementById('waitlist'), answers = document.getElementById('answers');
+  var saved = {};
+  function step(n) {
+    modal.querySelectorAll('.step').forEach(function (el) { el.hidden = el.getAttribute('data-step') !== String(n); });
+    var first = modal.querySelector('.step[data-step="' + n + '"] input, .step[data-step="' + n + '"] button');
+    if (first && n !== 1) first.focus();
+  }
+  function open(where) {
+    track('aos_waitlist_click', { location: where });
+    if (!modal.showModal) { location.hash = 'join'; return; }
+    modal.showModal();
+    setTimeout(function () { (saved.email ? modal.querySelector('.m-done') : signup.name).focus(); }, 50);
+  }
   document.querySelectorAll('a[href="#join"]').forEach(function (a) {
-    a.addEventListener('click', function () { track('aos_waitlist_click', { location: a.closest('header') ? 'nav' : a.closest('.hero') ? 'hero' : 'pricing' }); });
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      open(a.closest('header') ? 'nav' : a.closest('.hero') ? 'hero' : a.closest('#pricing') ? 'pricing' : 'final');
+    });
   });
-  function val(n) { var el = form.querySelector('input[name="' + n + '"]:checked'); return el ? el.value : ''; }
-  var form = document.getElementById('waitlist'), msg = form.querySelector('.form-msg'), btn = form.querySelector('button');
-  form.addEventListener('submit', function (e) {
+  modal.querySelector('.m-close').addEventListener('click', function () { modal.close(); });
+  modal.querySelector('.m-done').addEventListener('click', function () { modal.close(); });
+  modal.addEventListener('click', function (e) { if (e.target === modal) modal.close(); });
+
+  function post(body) {
+    return fetch('/api/artofsales-waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || 'Something went wrong. Try again.'); return d; }); });
+  }
+  function val(form, n) { var el = form.querySelector('input[name="' + n + '"]:checked'); return el ? el.value : ''; }
+
+  signup.addEventListener('submit', function (e) {
     e.preventDefault();
-    var name = form.name.value.trim(), email = form.email.value.trim();
-    msg.className = 'form-msg';
-    if (!name) { msg.textContent = 'Add your first name.'; msg.classList.add('err'); form.name.focus(); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = 'That email doesn\'t look right.'; msg.classList.add('err'); form.email.focus(); return; }
-    var sent = { goal: val('goal'), maxPrice: val('maxPrice'), income: val('income') };
+    var msg = signup.querySelector('.form-msg'), btn = signup.querySelector('button');
+    var name = signup.name.value.trim(), email = signup.email.value.trim();
+    msg.className = 'form-msg'; msg.textContent = '';
+    if (!name) { msg.textContent = 'Add your first name.'; msg.classList.add('err'); signup.name.focus(); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = 'That email doesn\'t look right.'; msg.classList.add('err'); signup.email.focus(); return; }
     btn.disabled = true; btn.textContent = 'Joining…';
-    fetch('/api/artofsales-waitlist', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name, email: email, website: form.website.value,
-        goal: val('goal'), maxPrice: val('maxPrice'), income: val('income'), contact: form.contact.value.trim() })
-    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
-      .then(function (r) {
-        if (!r.ok) throw new Error(r.d.error || 'Something went wrong. Try again.');
-        form.reset(); btn.textContent = 'You\'re on the list';
-        msg.textContent = 'Done. You\'ll hear from me when doors open.';
-        track('aos_waitlist_joined', { goal: sent.goal || 'skipped', max_price: sent.maxPrice || 'skipped', income: sent.income || 'skipped' });
+    saved = { name: name, email: email, contact: signup.contact.value.trim() };
+    post({ name: name, email: email, contact: saved.contact, website: signup.website.value })
+      .then(function () {
+        track('aos_waitlist_joined');
+        modal.querySelector('.m-name').textContent = ', ' + name;
+        step(2);
       })
-      .catch(function (err) { btn.disabled = false; btn.textContent = 'Join the waitlist'; msg.textContent = err.message; msg.classList.add('err'); });
+      .catch(function (err) { saved = {}; btn.disabled = false; btn.textContent = 'Join the waitlist'; msg.textContent = err.message; msg.classList.add('err'); });
   });
+
+  answers.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var a = { goal: val(answers, 'goal'), maxPrice: val(answers, 'maxPrice'), income: val(answers, 'income') };
+    if (!a.goal && !a.maxPrice && !a.income) { step(3); return; }
+    var btn = answers.querySelector('button[type="submit"]'), msg = answers.querySelector('.form-msg');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    post({ name: saved.name, email: saved.email, contact: saved.contact, goal: a.goal, maxPrice: a.maxPrice, income: a.income })
+      .then(function () {
+        track('aos_waitlist_answers', { goal: a.goal || 'skipped', max_price: a.maxPrice || 'skipped', income: a.income || 'skipped' });
+        step(3);
+      })
+      .catch(function (err) { btn.disabled = false; btn.textContent = 'Send answers'; msg.textContent = err.message; msg.classList.add('err'); });
+  });
+  modal.querySelector('.m-skip').addEventListener('click', function () { track('aos_waitlist_answers', { skipped: true }); step(3); });
 })();
 </script>
 </body>

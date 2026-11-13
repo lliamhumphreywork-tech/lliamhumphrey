@@ -69,6 +69,7 @@ p { margin: 0 0 1em; }
 }
 .btn:hover { transform: translateY(-1px); background: var(--brown); }
 .btn.light { background: var(--cream); color: var(--black); }
+.btn.big { min-height: 64px; padding: 0 40px; font-size: 1.12rem; }
 .btn.light:hover { background: var(--white); }
 
 /* Top bar */
@@ -105,6 +106,7 @@ section { padding: 72px 0; }
   content: ""; position: absolute; left: 18px; top: 50%; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%;
   background: var(--brown) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.5l3 3 6-6.5' fill='none' stroke='%23f3eadb' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 22px no-repeat;
 }
+.bridge { margin: 28px 0 0; font-size: 1.12rem; line-height: 1.55; color: var(--black); max-width: 34em; }
 .not-for { margin-top: 22px; color: var(--muted); font-size: .95rem; }
 
 /* What you get */
@@ -154,7 +156,7 @@ section { padding: 72px 0; }
   margin-top: 36px; background: var(--cream); color: var(--text); border-radius: 26px; padding: 30px 22px;
   max-width: 520px;
 }
-.price { font-size: clamp(2.4rem, 10vw, 3.4rem); font-weight: 500; letter-spacing: -.05em; color: var(--black); line-height: 1; }
+.price { font-size: clamp(1.6rem, 6vw, 2rem); font-weight: 500; letter-spacing: -.05em; color: var(--black); line-height: 1; }
 .price small { font-size: 1.05rem; letter-spacing: 0; color: var(--muted); font-weight: 400; }
 .price-note { color: var(--muted); margin: 10px 0 22px; }
 .inc { list-style: none; padding: 0; margin: 0 0 26px; display: grid; gap: 10px; }
@@ -309,7 +311,7 @@ footer .mark { color: var(--cream); }
     <div class="hero-copy">
       <h1>Learn to sell online. <span>Get paid for it.</span></h1>
       <p class="sub">For young South Africans with a regular job who want to move into remote sales.</p>
-      <a class="btn" href="#join">Join the waitlist</a>
+      <a class="btn big" href="#join">Join the waitlist</a>
       <p class="proof-line">Run by <b>Lliam Humphrey, 20</b>. Since March I've set the calls behind $200K+ in cash collected, working remotely as an appointment setter.</p>
     </div>
     <div class="chat" role="img" aria-label="Example: a setter on a call asks what the lead wants, finds out what's stuck, and books them with the closer for Thursday at 14:00.">
@@ -351,11 +353,15 @@ footer .mark { color: var(--cream); }
       </div>
       <div>
         <ul class="checks">
-          <li>You have a job, but you don't want it forever</li>
-          <li>You earn somewhere between R8K and R20K a month</li>
-          <li>You want work you can do from anywhere</li>
-          <li>You've never sold anything. That's fine.</li>
+          <li>Your salary is gone a week before month-end</li>
+          <li>You spend hours a day getting to a job you don't even like</li>
+          <li>You earn somewhere between R8K and R20K, and the raise never seems to come</li>
+          <li>You help out at home, so you can't just quit and start over</li>
+          <li>You've tried side hustles, but nothing stuck</li>
+          <li>You see people your age working online and wonder how they got in</li>
+          <li>You've never sold anything</li>
         </ul>
+        <p class="bridge">None of that means you're doing something wrong. It means you need a skill people will pay for that doesn't need a degree or years of experience. That's what setting is.</p>
         <p class="not-for">Not for you if you want to get rich quick, or if you won't put in the work.</p>
       </div>
     </div>
@@ -420,7 +426,7 @@ footer .mark { color: var(--cream); }
         <p class="intro">Doors aren't open yet. Join and you'll hear first when they are.</p>
       </div>
       <div class="price-card">
-        <div class="price">Under R1,000 <small>a month</small></div>
+        <div class="price">Under R1k/m</div>
         <p class="price-note">Cancel anytime. Exact price when doors open.</p>
         <ul class="inc">
           <li>Setter training</li>
@@ -428,7 +434,7 @@ footer .mark { color: var(--cream); }
           <li>Weekly live sessions</li>
           <li>Help finding your first role</li>
         </ul>
-        <a class="btn" href="#join">Join the waitlist</a>
+        <a class="btn big" href="#join">Join the waitlist</a>
       </div>
     </div>
   </section>
@@ -458,7 +464,7 @@ footer .mark { color: var(--cream); }
         <label for="w-email">Email</label>
         <input id="w-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@email.com" required>
         <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-        <button class="btn light" type="submit">Join the waitlist</button>
+        <button class="btn light big" type="submit">Join the waitlist</button>
         <p class="form-note">I'll only email you about Art of Sales. Unsubscribe anytime. <a href="/artofsales/privacy">Privacy</a></p>
         <p class="form-msg" role="status" aria-live="polite"></p>
       </form>
@@ -485,7 +491,7 @@ footer .mark { color: var(--cream); }
 // Scroll reveals.
 (function () {
   if (!document.documentElement.classList.contains('motion')) return;
-  var els = document.querySelectorAll('section h2, section .intro, .checks li, .get, .path li, .about img, .story-p, .quote, .why > div, .week, .price-card, .faq details, .form');
+  var els = document.querySelectorAll('section h2, section .intro, .checks li, .bridge, .get, .path li, .about img, .story-p, .quote, .why > div, .week, .price-card, .faq details, .form');
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });

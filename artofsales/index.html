@@ -106,7 +106,9 @@ section { padding: 72px 0; }
   content: ""; position: absolute; left: 18px; top: 50%; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%;
   background: var(--brown) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.5l3 3 6-6.5' fill='none' stroke='%23f3eadb' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 22px no-repeat;
 }
-.bridge { margin: 28px 0 0; font-size: 1.12rem; line-height: 1.55; color: var(--black); max-width: 34em; }
+.pains li { padding: 16px 16px 16px 50px; font-size: 1rem; line-height: 1.4; }
+.pains li::before { left: 16px; }
+.bridge { margin: 32px 0 0; font-size: 1.12rem; line-height: 1.55; color: var(--black); max-width: 34em; }
 .not-for { margin-top: 22px; color: var(--muted); font-size: .95rem; }
 
 /* What you get */
@@ -285,6 +287,10 @@ footer .mark { color: var(--cream); }
   .about { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 72px; align-items: center; }
   .about img { aspect-ratio: 4 / 5; }
   .weeks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pains { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 40px; }
+  .pains li { padding: 22px 22px 22px 22px; padding-top: 62px; font-size: 1.05rem; }
+  .pains li::before { top: 22px; left: 22px; margin-top: 0; }
+  .bridge { font-size: 1.3rem; max-width: 40em; margin-top: 44px; }
   .why { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; margin-top: 40px; }
   .path-title { margin-top: 96px; }
   .price-wrap { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 72px; align-items: center; }
@@ -346,24 +352,19 @@ footer .mark { color: var(--cream); }
   </section>
 
   <section>
-    <div class="wrap split">
-      <div>
-        <h2>Is this you?</h2>
-        <p class="intro">If you're where I was, keep reading.</p>
-      </div>
-      <div>
-        <ul class="checks">
-          <li>Your salary is gone a week before month-end</li>
-          <li>You spend hours a day getting to a job you don't even like</li>
-          <li>You earn somewhere between R8K and R20K, and the raise never seems to come</li>
-          <li>You help out at home, so you can't just quit and start over</li>
-          <li>You've tried side hustles, but nothing stuck</li>
-          <li>You see people your age working online and wonder how they got in</li>
-          <li>You've never sold anything</li>
-        </ul>
-        <p class="bridge">None of that means you're doing something wrong. It means you need a skill people will pay for that doesn't need a degree or years of experience. That's what setting is.</p>
-        <p class="not-for">Not for you if you want to get rich quick, or if you won't put in the work.</p>
-      </div>
+    <div class="wrap">
+      <h2>Is this you?</h2>
+      <p class="intro">If you're where I was, keep reading.</p>
+      <ul class="checks pains">
+        <li>Your salary is gone a week before month-end</li>
+        <li>You spend hours a day getting to a job you don't even like</li>
+        <li>You earn somewhere between R8K and R20K, and the raise never seems to come</li>
+        <li>You help out at home, so you can't just quit and start over</li>
+        <li>You've tried side hustles, but nothing stuck</li>
+        <li>You see people your age working online and wonder how they got in</li>
+      </ul>
+      <p class="bridge">None of that means you're doing something wrong. It means you need a skill people will pay for that doesn't need a degree or years of experience, even if you've never sold anything. That's what setting is.</p>
+      <p class="not-for">Not for you if you want to get rich quick, or if you won't put in the work.</p>
     </div>
   </section>
 

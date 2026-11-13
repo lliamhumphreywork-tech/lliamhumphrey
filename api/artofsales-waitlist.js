@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
     return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
-  const { email, name, website, goal, maxPrice, income } = req.body || {};
+  const { email, name, website, goal, maxPrice, income, contact } = req.body || {};
 
   // Honeypot
   if (website) return res.status(200).json({ ok: true });
@@ -66,6 +66,8 @@ module.exports = async function handler(req, res) {
     const inc = pick(income, ['Not working', 'Under R8K', 'R8K to R20K', 'Over R20K']);
     if (price) attrs.AOS_MAX_PRICE = price;
     if (inc) attrs.AOS_INCOME = inc;
+    const handle = String(contact || '').trim().slice(0, 60);
+    if (handle) attrs.AOS_CONTACT = handle;
     if (Object.keys(attrs).length) contactPayload.attributes = attrs;
 
     const contactRes = await fetch('https://api.brevo.com/v3/contacts', {

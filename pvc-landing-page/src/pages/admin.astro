@@ -302,6 +302,53 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     .revenue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     @media (max-width: 700px) { .revenue-grid { grid-template-columns: 1fr; } }
 
+    /* ── MOBILE ── */
+    @media (max-width: 600px) {
+      /* Auth box */
+      .auth-box { padding: 36px 24px; }
+      .auth-title { font-size: 22px; }
+
+      /* Header: shrink logo, let tabs scroll */
+      .app-logo { padding: 0 14px; font-size: 11px; gap: 8px; border-right: none; }
+      .app-logo span { display: none; }
+      .tab-btn { padding: 0 14px; font-size: 9px; letter-spacing: 1.5px; }
+      .header-end { padding: 0 12px; }
+      .signout-btn { font-size: 8px; }
+
+      /* Content padding */
+      .tab-panel { padding: 16px; }
+      .card { padding: 16px 18px; }
+      .review-card { padding: 16px 18px; }
+
+      /* Page headers */
+      .page-title { font-size: 20px; }
+      .stat-value, .stat-num { font-size: 26px; }
+
+      /* Bar chart: shrink the fixed label column */
+      .bar-row { grid-template-columns: 100px 1fr 36px; gap: 8px; }
+      .bar-label { font-size: 11px; }
+
+      /* Review action buttons: stack them */
+      .review-actions { flex-wrap: wrap; }
+      .review-btn { flex: 1; min-width: 120px; padding: 12px 16px; }
+
+      /* Toolbar: stack search full width */
+      .toolbar { gap: 8px; }
+      .search-input { max-width: 100%; }
+
+      /* Stat grid: single column on very small screens */
+      .stat-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+
+      /* Subtab row: allow wrapping */
+      .subtab-row { flex-wrap: wrap; }
+
+      /* Toast: full width at bottom */
+      #toast { left: 16px; right: 16px; bottom: 16px; max-width: none; }
+
+      /* Drawer: full width */
+      .drawer { width: 100%; max-width: 100%; }
+    }
+
     /* ── MEMBER CARDS ── */
     .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
     .member-card {

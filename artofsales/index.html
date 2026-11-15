@@ -492,20 +492,20 @@ footer .mark { color: var(--cream); }
     </div>
     <div class="phone">
     <span class="island" aria-hidden="true"></span>
-    <div class="call" role="img" aria-label="Example: a live setting call with Sipho. The setter asks what he wants, finds out what's stuck, and books him with the closer for Thursday at 14:00.">
+    <div class="call" role="img" aria-label="Example: a live setting call with Jake. The setter asks what he wants, finds out what's stuck, and books him with the closer for Thursday at 14:00.">
       <div class="sbar" aria-hidden="true"><span>9:41</span><span class="sb-icons"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="10" y="3" width="3" height="9" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg viewBox="0 0 27 12" width="25" height="11"><rect x=".5" y=".5" width="22" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2" fill="currentColor"/><path d="M24.5 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity=".45"/></svg></span></div>
       <span class="tag">Example</span>
       <div class="call-top">
-        <span class="avatar" aria-hidden="true">S</span>
-        <strong>Sipho</strong>
+        <span class="avatar" aria-hidden="true">J</span>
+        <strong>Jake</strong>
         <div class="call-status"><span class="rec"></span><span>Setting call</span><span class="timer">04:12</span></div>
       </div>
       <div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="captions">
         <p class="cap-line you" style="--t:0"><b>You:</b> Thanks for booking in. Before I tell you anything, what made you reach out?</p>
-        <p class="cap-line them" style="--t:1"><b>Sipho:</b> I want my first 5 clients, but I keep stalling.</p>
+        <p class="cap-line them" style="--t:1"><b>Jake:</b> I want my first 5 clients, but I keep stalling.</p>
         <p class="cap-line you" style="--t:2"><b>You:</b> What's stalling it right now?</p>
-        <p class="cap-line them" style="--t:3"><b>Sipho:</b> Honestly, no system. I just post and hope.</p>
+        <p class="cap-line them" style="--t:3"><b>Jake:</b> Honestly, no system. I just post and hope.</p>
         <p class="cap-line you" style="--t:4"><b>You:</b> Makes sense. The coach can map that out with you. Thursday 14:00 or Friday 10:00?</p>
       </div>
       <div class="booked"><span class="dot"></span>Booked with the closer: Thu, 14:00</div>
@@ -665,7 +665,7 @@ footer .mark { color: var(--cream); }
 </main>
 
 <div class="sticky-join" aria-hidden="true">
-  <span>Doors open soon. It's free to join.</span>
+  <span>Free to join the waitlist.</span>
   <a class="btn" href="#join" tabindex="-1">Join the waitlist</a>
 </div>
 
@@ -820,6 +820,12 @@ document.querySelectorAll('.gcard').forEach(function (c) {
   document.querySelectorAll('a[href="#join"]').forEach(function (a) {
     a.addEventListener('click', function (e) {
       e.preventDefault();
+      // The top bar button scrolls down to the final section; every other button opens the popup.
+      if (a.closest('header')) {
+        if (window.posthog && posthog.capture) posthog.capture('aos_waitlist_click', { location: 'nav' });
+        document.getElementById('join').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        return;
+      }
       open(a.closest('header') ? 'nav' : a.closest('.hero') ? 'hero' : a.closest('#pricing') ? 'pricing' : a.closest('.sticky-join') ? 'sticky' : a.closest('.pain-count') ? 'pains' : 'final');
     });
   });

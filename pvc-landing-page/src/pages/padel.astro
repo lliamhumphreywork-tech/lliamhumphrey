@@ -62,6 +62,11 @@ const NOISE = (id: string) => `
   <a href="#tickets" class="pd-sticky-cta scroll-to-tickets">Reserve Your Spot</a>
 </div>
 
+<!-- PREVIOUS EVENTS HEADER -->
+<div class="pd-events-header">
+  <span>Our Previous Events</span>
+</div>
+
 <!-- PHOTO STRIP — previous events -->
 <div class="pd-photo-strip">
   <div class="pd-photo-track">
@@ -188,9 +193,7 @@ const NOISE = (id: string) => `
       </video>
     </div>
     <div class="pd-video-slot">
-      <video autoplay muted loop playsinline>
-        <source src="/videos/dinner-table.mp4" type="video/mp4" />
-      </video>
+      <img src="/images/dinner-cam-connect.jpg" alt="Founders connecting" loading="lazy" />
     </div>
   </div>
   <div class="pd-video-grid pd-video-grid--3">
@@ -200,9 +203,7 @@ const NOISE = (id: string) => `
       </video>
     </div>
     <div class="pd-video-slot">
-      <video autoplay muted loop playsinline>
-        <source src="/videos/dinner-table.mp4" type="video/mp4" />
-      </video>
+      <img src="/images/dinner-cam-group.jpg" alt="PVC founders" loading="lazy" />
     </div>
     <div class="pd-video-slot">
       <video autoplay muted loop playsinline>
@@ -502,11 +503,11 @@ const NOISE = (id: string) => `
   .pd-hero-bg {
     position: absolute; inset: 0; width: 100%; height: 100%;
     object-fit: cover; object-position: center;
-    opacity: 0.35; z-index: 0;
+    opacity: 0.55; z-index: 0;
   }
   .pd-hero-overlay {
     position: absolute; inset: 0; z-index: 1;
-    background: linear-gradient(to bottom, rgba(8,8,8,0.55) 0%, rgba(8,8,8,0.3) 40%, rgba(8,8,8,0.75) 100%);
+    background: linear-gradient(to bottom, rgba(8,8,8,0.4) 0%, rgba(8,8,8,0.15) 40%, rgba(8,8,8,0.6) 100%);
   }
   .pd-hero-inner { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 0; }
 
@@ -517,11 +518,12 @@ const NOISE = (id: string) => `
 
   .pd-hero-word {
     font-family: var(--g); font-weight: 800;
-    font-size: clamp(96px, 16vw, 200px);
-    letter-spacing: -5px; line-height: 0.88;
+    font-size: clamp(72px, 11vw, 150px);
+    letter-spacing: -4px; line-height: 0.88;
     text-transform: uppercase; color: var(--white);
     margin-bottom: 32px;
   }
+  @media (max-width: 480px) { .pd-hero-word { letter-spacing: -2px; } }
 
   .pd-hero-sub {
     font-family: var(--s); font-size: 14px; letter-spacing: 3px;
@@ -569,6 +571,20 @@ const NOISE = (id: string) => `
     padding: 12px 20px; transition: background 0.2s;
   }
   .pd-sticky-cta:hover { background: var(--plum-mid); }
+
+  /* ── EVENTS HEADER ── */
+  .pd-events-header {
+    background: var(--pure-black); padding: 32px 48px 0;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .pd-events-header span {
+    font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--lavender-dim);
+  }
+  .pd-events-header::after {
+    content: ''; display: block; height: 1px; flex: 0 0 60px; background: var(--lavender-dim);
+  }
+  @media (max-width: 768px) { .pd-events-header { padding: 24px 24px 0; } }
 
   /* ── PHOTO STRIP ── */
   .pd-photo-strip {
@@ -745,7 +761,8 @@ const NOISE = (id: string) => `
   }
   .pd-video-grid--3 .pd-video-slot { aspect-ratio: 3/4; }
 
-  .pd-video-slot video {
+  .pd-video-slot video,
+  .pd-video-slot img {
     width: 100%; height: 100%; object-fit: cover; display: block;
   }
   .pd-video-label {

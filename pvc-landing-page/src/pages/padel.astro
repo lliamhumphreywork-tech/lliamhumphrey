@@ -30,26 +30,78 @@ const NOISE = (id: string) => `
 <body>
 
 <!-- NAV -->
-<nav id="nav" class="dinner-nav">
-  <a href="https://privatevictoriesclub.com" class="nav-logo">
-    <div class="nav-lock-1">Private Victories · Founders' Padel Social</div>
+<nav id="nav" class="pd-nav">
+  <a href="https://privatevictoriesclub.com" class="pd-nav-logo">
+    <span>Private Victories</span>
   </a>
-  <a href="#tickets" class="cta-btn scroll-to-tickets nav-apply">Get a Spot</a>
+  <a href="#tickets" class="pd-nav-cta scroll-to-tickets">Reserve Your Spot</a>
 </nav>
 
 <!-- HERO -->
 <section class="pd-hero">
-  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:2" set:html={NOISE('pd1')} />
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('pd1')} />
   <div class="pd-hero-inner">
-    <p class="pd-eyebrow reveal">Founders' Social · December 2026</p>
-    <h1 class="pd-title reveal d1">Founders'<br /><em class="pd-title-em">Padel</em><br />Social</h1>
-    <div class="pd-hero-lines reveal d2">
-      <p>Play padel with other founders.</p>
-      <p>Leave with people you want to know.</p>
+    <p class="pd-hero-label reveal">Cape Town · December 2026</p>
+    <h1 class="pd-hero-word reveal d1">Padel</h1>
+    <p class="pd-hero-sub reveal d2">A Private Victories Social</p>
+    <a href="#tickets" class="pd-hero-cta scroll-to-tickets reveal d3">Reserve My Spot</a>
+    <div class="pd-hero-meta reveal d4">
+      <span>Nov 27</span>
+      <span class="pd-hero-dot">·</span>
+      <span>In-Person</span>
+      <span class="pd-hero-dot">·</span>
+      <span>Limited to 40</span>
     </div>
-    <p class="pd-date reveal d3">Friday, 11 December</p>
-    <a href="#tickets" class="cta-btn scroll-to-tickets reveal d4">Get a Spot</a>
-    <p class="cta-note reveal d4">40 spots. First come, first served.</p>
+  </div>
+</section>
+
+<!-- STICKY BAR -->
+<div class="pd-sticky-bar" id="pd-sticky">
+  <span class="pd-sticky-label">Cape Town · 11 Dec</span>
+  <a href="#tickets" class="pd-sticky-cta scroll-to-tickets">Reserve Your Spot</a>
+</div>
+
+<!-- PHOTO STRIP — previous events -->
+<div class="pd-photo-strip">
+  <div class="pd-photo-track">
+    <div class="pd-photo-item">
+      <img src="/images/dinner-cam-group.jpg" alt="PVC founders" loading="lazy" />
+      <div class="pd-photo-overlay"></div>
+      <span class="pd-photo-caption">The Founding Dinner · Rosebank</span>
+    </div>
+    <div class="pd-photo-item">
+      <img src="/images/dinner-cam-speaking.jpg" alt="Founder speaking" loading="lazy" />
+      <div class="pd-photo-overlay"></div>
+    </div>
+    <div class="pd-photo-item pd-photo-item--tall">
+      <img src="/images/dinner-cam-laugh.jpg" alt="Founders laughing" loading="lazy" style="object-position: center 30%;" />
+      <div class="pd-photo-overlay"></div>
+    </div>
+    <div class="pd-photo-item">
+      <img src="/images/dinner-cam-connect.jpg" alt="Founders connecting" loading="lazy" />
+      <div class="pd-photo-overlay"></div>
+    </div>
+    <div class="pd-photo-item pd-photo-item--tall">
+      <img src="/images/ct-promenade.jpg" alt="Cape Town" loading="lazy" style="object-position: center 40%;" />
+      <div class="pd-photo-overlay"></div>
+      <span class="pd-photo-caption">Cape Town · 2026</span>
+    </div>
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<section class="pd-countdown-bar">
+  <div class="pd-countdown-inner">
+    <div class="pd-countdown-label">Founders' Padel Social · 11 Dec 2026</div>
+    <div class="pd-countdown-units" id="pd-cd">
+      <div class="pd-cd-unit"><span class="pd-cd-num" id="cd-days">--</span><span class="pd-cd-lbl">Days</span></div>
+      <div class="pd-cd-sep"></div>
+      <div class="pd-cd-unit"><span class="pd-cd-num" id="cd-hours">--</span><span class="pd-cd-lbl">Hours</span></div>
+      <div class="pd-cd-sep"></div>
+      <div class="pd-cd-unit"><span class="pd-cd-num" id="cd-mins">--</span><span class="pd-cd-lbl">Minutes</span></div>
+      <div class="pd-cd-sep"></div>
+      <div class="pd-cd-unit"><span class="pd-cd-num" id="cd-secs">--</span><span class="pd-cd-lbl">Seconds</span></div>
+    </div>
   </div>
 </section>
 
@@ -58,77 +110,107 @@ const NOISE = (id: string) => `
   <div class="pd-inner">
     <div class="pd-label reveal">The Premise</div>
     <p class="pd-premise-lead reveal d1">Not just a sports session.</p>
-    <p class="pd-premise-body reveal d2">90 minutes of padel across 6 courts, rotating games so you actually meet people, and a room limited to 40 founders. No pitching. No panels. Just play, and the conversations that happen when you're in motion.</p>
-    <div class="pd-proof reveal d3">
-      <div class="pd-proof-block">
-        <div class="pd-proof-stat">40</div>
-        <div class="pd-proof-label">spots only</div>
+    <p class="pd-premise-body reveal d2">90 minutes of padel across 6 courts, rotating games so you actually meet people, and a room limited to 40 founders. No pitching. No panels. Just play — and the conversations that happen when you're in motion.</p>
+    <div class="pd-stats reveal d3">
+      <div class="pd-stat">
+        <div class="pd-stat-num">40</div>
+        <div class="pd-stat-label">Spots only</div>
       </div>
-      <div class="pd-proof-divider"></div>
-      <div class="pd-proof-block">
-        <div class="pd-proof-stat">6</div>
-        <div class="pd-proof-label">courts</div>
+      <div class="pd-stat-div"></div>
+      <div class="pd-stat">
+        <div class="pd-stat-num">6</div>
+        <div class="pd-stat-label">Courts</div>
       </div>
-      <div class="pd-proof-divider"></div>
-      <div class="pd-proof-block">
-        <div class="pd-proof-stat">90</div>
-        <div class="pd-proof-label">minutes</div>
+      <div class="pd-stat-div"></div>
+      <div class="pd-stat">
+        <div class="pd-stat-num">90</div>
+        <div class="pd-stat-label">Minutes</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- STATEMENT BREAK -->
+<!-- FULL-BLEED PHOTO BREAK -->
+<div class="pd-full-break">
+  <img src="/images/IMG_4593 copy.jpeg" alt="PVC event atmosphere" loading="lazy" />
+  <div class="pd-full-break-overlay"></div>
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('pd2')} />
+  <div class="pd-full-break-caption">Cape Town · CT Mastermind</div>
+</div>
+
+<!-- STATEMENT -->
 <section class="pd-section pd-statement">
-  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:2" set:html={NOISE('pd2')} />
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('pd3')} />
   <div class="pd-inner pd-statement-inner">
     <h2 class="pd-statement-head reveal">The best business conversations happen when you're not sitting across a conference table.</h2>
     <p class="pd-statement-sub reveal d1">Get in motion. Meet the room. See who you want to know better.</p>
   </div>
 </section>
 
-<!-- THE FORMAT -->
+<!-- FORMAT -->
 <section class="pd-section pd-format">
   <div class="pd-inner">
     <div class="pd-label reveal">The Format</div>
     <ol class="pd-schedule">
-      <li class="pd-schedule-item reveal d1">
-        <div class="pd-schedule-tag">Arrive</div>
-        <div class="pd-schedule-desc">Check in, pick up your racket, meet your first group.</div>
+      <li class="pd-sched reveal d1">
+        <div class="pd-sched-num">01</div>
+        <div class="pd-sched-body">
+          <div class="pd-sched-tag">Arrive</div>
+          <div class="pd-sched-desc">Check in, pick up your racket, meet your first group.</div>
+        </div>
       </li>
-      <li class="pd-schedule-item reveal d2">
-        <div class="pd-schedule-tag">Play</div>
-        <div class="pd-schedule-desc">90 minutes across 6 courts. Rotating games, so you don't just play with the people you arrived with.</div>
+      <li class="pd-sched reveal d2">
+        <div class="pd-sched-num">02</div>
+        <div class="pd-sched-body">
+          <div class="pd-sched-tag">Play</div>
+          <div class="pd-sched-desc">90 minutes across 6 courts. Rotating games so you don't just play with the people you arrived with.</div>
+        </div>
       </li>
-      <li class="pd-schedule-item reveal d3">
-        <div class="pd-schedule-tag">Wind Down</div>
-        <div class="pd-schedule-desc">Food and drinks available at venue. The real conversations happen here.</div>
+      <li class="pd-sched reveal d3">
+        <div class="pd-sched-num">03</div>
+        <div class="pd-sched-body">
+          <div class="pd-sched-tag">Wind Down</div>
+          <div class="pd-sched-desc">Food and drinks at venue. The real conversations happen here.</div>
+        </div>
       </li>
     </ol>
     <p class="pd-format-note reveal d4">No padel experience needed. Beginner friendly. We'll mix levels so everyone gets a game.</p>
   </div>
 </section>
 
-<!-- THE DETAILS -->
-<section class="pd-section pd-details">
-  <div class="pd-inner">
-    <div class="pd-label reveal">The Details</div>
-    <div class="pd-details-grid reveal d1">
-      <span class="pd-detail-key">Date</span>
-      <span class="pd-detail-val">Friday 11 December</span>
-      <span class="pd-detail-key">Venue</span>
-      <span class="pd-detail-val pd-tbd">Discovery Padel Park · TBC</span>
-      <span class="pd-detail-key">Time</span>
-      <span class="pd-detail-val pd-tbd">TBC</span>
-      <span class="pd-detail-key">What's included</span>
-      <span class="pd-detail-val">Courts, rackets, balls</span>
-      <span class="pd-detail-key">Food &amp; drink</span>
-      <span class="pd-detail-val">Available at venue, paid on the day</span>
-      <span class="pd-detail-key">What to wear</span>
-      <span class="pd-detail-val">Sportswear &amp; flat-soled trainers</span>
-    </div>
+<!-- VIDEO STRIP -->
+<div class="pd-video-strip">
+  <div class="pd-video-block">
+    <video autoplay muted loop playsinline>
+      <source src="/videos/dinner-energy.mp4" type="video/mp4" />
+    </video>
   </div>
-</section>
+  <div class="pd-video-block">
+    <video autoplay muted loop playsinline>
+      <source src="/videos/ct-mastermind.mp4" type="video/mp4" />
+    </video>
+    <div class="pd-video-label">CT Mastermind · 2026</div>
+  </div>
+</div>
+
+<div class="pd-video-strip pd-video-strip--3">
+  <div class="pd-video-block">
+    <video autoplay muted loop playsinline>
+      <source src="/videos/dinner-conversation.mp4" type="video/mp4" />
+    </video>
+  </div>
+  <div class="pd-video-block">
+    <video autoplay muted loop playsinline>
+      <source src="/videos/dinner-table.mp4" type="video/mp4" />
+    </video>
+  </div>
+  <div class="pd-video-block">
+    <video autoplay muted loop playsinline>
+      <source src="/videos/pvc-clips.mp4" type="video/mp4" />
+    </video>
+    <div class="pd-video-label">The Founding Dinner · Rosebank</div>
+  </div>
+</div>
 
 <!-- WHO IT'S FOR -->
 <section class="pd-section pd-who">
@@ -143,46 +225,65 @@ const NOISE = (id: string) => `
   </div>
 </section>
 
+<!-- DETAILS -->
+<section class="pd-section pd-details">
+  <div class="pd-inner">
+    <div class="pd-label reveal">The Details</div>
+    <div class="pd-details-grid reveal d1">
+      <span class="pd-dk">Date</span>
+      <span class="pd-dv">Friday 11 December</span>
+      <span class="pd-dk">Venue</span>
+      <span class="pd-dv pd-tbd">Discovery Padel Park · TBC</span>
+      <span class="pd-dk">Time</span>
+      <span class="pd-dv pd-tbd">TBC</span>
+      <span class="pd-dk">What's included</span>
+      <span class="pd-dv">Courts, rackets, balls</span>
+      <span class="pd-dk">Food &amp; drink</span>
+      <span class="pd-dv">Available at venue, paid on the day</span>
+      <span class="pd-dk">Wear</span>
+      <span class="pd-dv">Sportswear &amp; flat-soled trainers</span>
+    </div>
+  </div>
+</section>
+
 <!-- TICKETS -->
 <section id="tickets" class="pd-tickets-section">
-  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:2" set:html={NOISE('pd3')} />
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('pd4')} />
   <div class="pd-tickets-inner">
-    <div class="pd-tickets-head">
-      <div class="pd-label reveal" style="max-width:900px;margin:0 auto 16px;">Get a Spot</div>
-      <p class="pd-tickets-note reveal d1">40 spots. First come, first served.</p>
-      <div class="pd-social-proof reveal d2">
-        <span class="pd-proof-dot"></span>
-        People are reserving spots right now.
-      </div>
-    </div>
 
-    <div class="pd-tiers reveal d2">
-      <!-- GENERAL -->
-      <div class="pd-tier">
+    <div id="pd-tier-view">
+      <div class="pd-tickets-head">
+        <div class="pd-label reveal" style="justify-content:center;">Reserve Your Spot</div>
+        <p class="pd-tickets-note reveal d1">40 spots. First come, first served.</p>
+        <div class="pd-social-proof reveal d2">
+          <span class="pd-proof-dot"></span>
+          People are reserving spots right now.
+        </div>
+      </div>
+
+      <div class="pd-tier reveal d2">
         <div class="pd-tier-left">
           <div class="pd-tier-badge">General Admission</div>
-          <div class="pd-tier-room">R400</div>
+          <div class="pd-tier-price">R400</div>
           <div class="pd-tier-hint">Open to all founders.</div>
           <div class="pd-tier-wm" aria-hidden="true">PVC</div>
         </div>
         <div class="pd-tier-right">
           <ul class="pd-tier-list">
-            <li><span class="pd-tier-check">·</span>90 min padel on 6 courts</li>
-            <li><span class="pd-tier-check">·</span>Rackets and balls provided</li>
-            <li><span class="pd-tier-check">·</span>Rotating games, so you meet more than your own court</li>
-            <li><span class="pd-tier-check">·</span>Room of 40 founders only</li>
+            <li><span>·</span>90 min padel on 6 courts</li>
+            <li><span>·</span>Rackets and balls provided</li>
+            <li><span>·</span>Rotating games, so you meet more than your own court</li>
+            <li><span>·</span>Room of 40 founders only</li>
           </ul>
-          <div class="pd-tier-cta-row">
-            <button class="cta-btn pd-pay-btn" data-tier="general" data-amount="40000">Reserve Your Spot</button>
-          </div>
+          <button class="cta-btn pd-pay-btn">Reserve Your Spot</button>
         </div>
       </div>
     </div>
 
     <!-- PAYMENT FORM -->
-    <div id="pd-payment-form" class="pd-payment-form" style="display:none;">
+    <div id="pd-form-view" style="display:none;" class="pd-form-wrap">
       <button class="pd-back-btn" id="pd-back">&larr; Back</button>
-      <div class="pd-form-eyebrow" id="pd-form-eyebrow">Reserving General Admission · R400</div>
+      <div class="pd-form-eyebrow">Founders' Padel Social · R400</div>
       <div class="pd-form-field">
         <label class="pd-form-label" for="pd-name">Full Name</label>
         <input type="text" id="pd-name" placeholder="Your name" autocomplete="name" />
@@ -191,18 +292,17 @@ const NOISE = (id: string) => `
         <label class="pd-form-label" for="pd-email">Email</label>
         <input type="email" id="pd-email" placeholder="you@example.com" autocomplete="email" />
       </div>
-      <button class="cta-btn pd-checkout-btn" id="pd-checkout" type="button">Pay Now</button>
+      <button class="cta-btn" id="pd-checkout" style="width:100%;margin-top:8px;">Pay Now · R400</button>
       <div class="pd-error" id="pd-error" style="display:none;"></div>
     </div>
 
     <!-- SUCCESS -->
-    <div id="pd-success" class="pd-success-state" style="display:none;">
+    <div id="pd-success" style="display:none;" class="pd-success">
       <div class="pd-success-mark">✓</div>
       <h2 class="pd-success-title">You're in.</h2>
       <p class="pd-success-body">Check your inbox — confirmation is on its way. See you on the courts.</p>
     </div>
 
-    <!-- FINE PRINT -->
     <div class="pd-fine-print reveal">
       <p><strong>Refund policy:</strong> Full refund if you cancel more than 7 days before the event. No refunds within 7 days, but your spot is transferable.</p>
       <p>Questions? DM <a href="https://instagram.com/lliam.humphrey" target="_blank" rel="noopener">@lliam.humphrey</a> on Instagram.</p>
@@ -212,11 +312,11 @@ const NOISE = (id: string) => `
 
 <!-- CLOSE -->
 <section class="pd-section pd-close">
-  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:2" set:html={NOISE('pd4')} />
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('pd5')} />
   <div class="pd-inner pd-close-inner">
     <p class="pd-close-quote reveal">The wins you have in public are proportionate to the victories you have in private.</p>
-    <a href="#tickets" class="cta-btn scroll-to-tickets reveal d1">Get a Spot</a>
-    <p class="cta-note reveal d2">40 spots only. First come, first served.</p>
+    <a href="#tickets" class="cta-btn scroll-to-tickets reveal d1">Reserve Your Spot</a>
+    <p class="cta-note reveal d2">40 spots only. Friday 11 December.</p>
   </div>
 </section>
 
@@ -231,7 +331,7 @@ const NOISE = (id: string) => `
 </footer>
 
 <script define:vars={{ PS_KEY }}>
-  // Scroll-to-tickets
+  // Smooth scroll
   document.querySelectorAll('.scroll-to-tickets').forEach((a) => {
     a.addEventListener('click', (e) => {
       e.preventDefault();
@@ -239,36 +339,61 @@ const NOISE = (id: string) => `
     });
   });
 
-  // Nav scroll
+  // Nav scroll state
   const nav = document.getElementById('nav');
   const onScroll = () => nav?.classList.toggle('scrolled', window.scrollY > 60);
   window.addEventListener('scroll', onScroll);
   onScroll();
 
-  // Reveal on scroll
+  // Sticky bar: show after hero
+  const sticky = document.getElementById('pd-sticky');
+  const hero = document.querySelector('.pd-hero');
+  const stickyObserver = new IntersectionObserver(([e]) => {
+    sticky?.classList.toggle('visible', !e.isIntersecting);
+  }, { threshold: 0 });
+  if (hero) stickyObserver.observe(hero);
+
+  // Scroll reveal
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
   document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
-
-  // Hero reveal
   setTimeout(() => {
     document.querySelectorAll('.pd-hero .reveal').forEach((el) => el.classList.add('visible'));
-  }, 120);
+  }, 100);
 
-  document.querySelectorAll('.pd-pay-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      document.getElementById('pd-payment-form').style.display = 'block';
-      document.querySelector('.pd-tiers').style.display = 'none';
-      document.querySelector('.pd-tickets-head').style.display = 'none';
-      document.getElementById('pd-payment-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+  // Countdown to 11 Dec 2026 10:00 SAST (UTC+2)
+  const eventDate = new Date('2026-12-11T08:00:00Z');
+  function tick() {
+    const diff = eventDate - Date.now();
+    const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
+    if (diff <= 0) {
+      ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.textContent = '00';
+      });
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const days = document.getElementById('cd-days'); if (days) days.textContent = pad(d);
+    const hours = document.getElementById('cd-hours'); if (hours) hours.textContent = pad(h);
+    const mins = document.getElementById('cd-mins'); if (mins) mins.textContent = pad(m);
+    const secs = document.getElementById('cd-secs'); if (secs) secs.textContent = pad(s);
+  }
+  tick(); setInterval(tick, 1000);
+
+  // Pay flow
+  document.querySelector('.pd-pay-btn')?.addEventListener('click', () => {
+    document.getElementById('pd-tier-view').style.display = 'none';
+    document.getElementById('pd-form-view').style.display = 'block';
+    document.getElementById('pd-form-view').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   document.getElementById('pd-back')?.addEventListener('click', () => {
-    document.getElementById('pd-payment-form').style.display = 'none';
-    document.querySelector('.pd-tiers').style.display = '';
-    document.querySelector('.pd-tickets-head').style.display = '';
+    document.getElementById('pd-form-view').style.display = 'none';
+    document.getElementById('pd-tier-view').style.display = '';
     document.getElementById('pd-error').style.display = 'none';
   });
 
@@ -276,45 +401,20 @@ const NOISE = (id: string) => `
     const name = document.getElementById('pd-name').value.trim();
     const email = document.getElementById('pd-email').value.trim();
     const errEl = document.getElementById('pd-error');
-
-    if (!name || !email) {
-      errEl.textContent = 'Please enter your name and email.';
-      errEl.style.display = 'block';
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errEl.textContent = 'Please enter a valid email address.';
-      errEl.style.display = 'block';
-      return;
-    }
+    if (!name || !email) { errEl.textContent = 'Please enter your name and email.'; errEl.style.display = 'block'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; return; }
     errEl.style.display = 'none';
-
-    if (!PS_KEY) {
-      errEl.textContent = 'Payment configuration error. Please contact us.';
-      errEl.style.display = 'block';
-      return;
-    }
-
+    if (!PS_KEY) { errEl.textContent = 'Payment configuration error. Please contact us.'; errEl.style.display = 'block'; return; }
     const handler = window.PaystackPop.setup({
-      key: PS_KEY,
-      email,
-      amount: 40000,
-      currency: 'ZAR',
-      metadata: {
-        custom_fields: [
-          { display_name: 'Name', variable_name: 'name', value: name },
-          { display_name: 'Ticket', variable_name: 'ticket', value: 'general' },
-          { display_name: 'Event', variable_name: 'event', value: 'padel-dec-2026' },
-        ],
-      },
+      key: PS_KEY, email, amount: 40000, currency: 'ZAR',
+      metadata: { custom_fields: [
+        { display_name: 'Name', variable_name: 'name', value: name },
+        { display_name: 'Event', variable_name: 'event', value: 'padel-dec-2026' },
+      ]},
       callback: (response) => {
-        document.getElementById('pd-payment-form').style.display = 'none';
+        document.getElementById('pd-form-view').style.display = 'none';
         document.getElementById('pd-success').style.display = 'block';
-        window.posthog?.capture?.('padel_ticket_purchased', {
-          tier: 'general',
-          amount: 40000,
-          reference: response.reference,
-        });
+        window.posthog?.capture?.('padel_ticket_purchased', { amount: 40000, reference: response.reference });
       },
       onClose: () => {},
     });
@@ -323,50 +423,166 @@ const NOISE = (id: string) => `
 </script>
 
 <style>
+  /* ── NAV ── */
+  .pd-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 48px;
+    transition: background 0.3s, padding 0.3s;
+  }
+  .pd-nav.scrolled { background: rgba(8,8,8,0.92); backdrop-filter: blur(12px); padding: 16px 48px; }
+  @media (max-width: 768px) { .pd-nav { padding: 20px 24px; } .pd-nav.scrolled { padding: 14px 24px; } }
+
+  .pd-nav-logo {
+    font-family: var(--g); font-size: 10px; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--lavender-dim); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .pd-nav-logo:hover { color: var(--lavender); }
+
+  .pd-nav-cta {
+    font-family: var(--g); font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--white); background: var(--plum); text-decoration: none;
+    padding: 12px 24px; transition: background 0.2s;
+  }
+  .pd-nav-cta:hover { background: var(--plum-mid); }
+
   /* ── HERO ── */
   .pd-hero {
-    min-height: 100svh;
-    background: var(--black);
-    display: flex;
-    align-items: flex-end;
-    position: relative;
-    overflow: hidden;
-    padding: 0 48px 96px;
+    min-height: 100svh; background: var(--black);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; position: relative; overflow: hidden;
+    padding: 120px 24px 180px;
   }
-  @media (max-width: 768px) { .pd-hero { padding: 0 24px 72px; } }
+  .pd-hero-inner { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 0; }
 
-  .pd-hero-inner { position: relative; z-index: 3; max-width: 1200px; width: 100%; }
-
-  .pd-eyebrow {
-    font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase;
-    color: var(--lavender-dim); margin-bottom: 32px;
-    display: flex; align-items: center; gap: 20px;
+  .pd-hero-label {
+    font-size: 10px; letter-spacing: 5px; text-transform: uppercase;
+    color: var(--lavender-dim); margin-bottom: 24px;
   }
-  .pd-eyebrow::after { content: ''; display: block; height: 1px; width: 60px; background: var(--lavender-dim); }
 
-  .pd-title {
-    font-family: var(--g); font-size: clamp(72px, 10vw, 140px);
-    font-weight: 700; letter-spacing: -4px; line-height: 0.9;
+  .pd-hero-word {
+    font-family: var(--g); font-weight: 800;
+    font-size: clamp(96px, 22vw, 280px);
+    letter-spacing: -6px; line-height: 0.88;
     text-transform: uppercase; color: var(--white);
-    margin-bottom: 48px;
-  }
-  .pd-title-em {
-    font-style: normal; color: var(--lavender);
-  }
-
-  .pd-hero-lines {
-    display: flex; flex-direction: column; gap: 4px;
     margin-bottom: 32px;
   }
-  .pd-hero-lines p {
-    font-family: var(--s); font-size: clamp(16px, 2vw, 20px);
-    color: var(--lavender-dim); font-weight: 300;
+
+  .pd-hero-sub {
+    font-family: var(--s); font-size: 14px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--lavender-dim); margin-bottom: 48px;
   }
 
-  .pd-date {
-    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
-    color: var(--lavender-dim); margin-bottom: 32px;
+  .pd-hero-cta {
+    display: inline-block; background: var(--plum); color: var(--white);
+    font-family: var(--g); font-size: 11px; letter-spacing: 3.5px; text-transform: uppercase;
+    text-decoration: none; padding: 20px 64px;
+    transition: background 0.2s, transform 0.15s; margin-bottom: 40px;
   }
+  .pd-hero-cta:hover { background: var(--plum-mid); transform: translateY(-1px); }
+
+  .pd-hero-meta {
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--s); font-size: 12px; color: var(--lavender-dim);
+    letter-spacing: 1px;
+  }
+  .pd-hero-dot { color: rgba(196,184,192,0.3); }
+
+  /* ── STICKY BAR ── */
+  .pd-sticky-bar {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 24px;
+    background: rgba(10,10,10,0.95); backdrop-filter: blur(16px);
+    border: 1px solid rgba(196,184,192,0.12);
+    padding: 14px 14px 14px 28px;
+    z-index: 90; white-space: nowrap;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    transform: translateX(-50%) translateY(8px);
+  }
+  .pd-sticky-bar.visible { opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0); }
+  @media (max-width: 480px) { .pd-sticky-bar { left: 16px; right: 16px; transform: none; bottom: 16px; justify-content: space-between; }
+    .pd-sticky-bar.visible { transform: none; }
+  }
+
+  .pd-sticky-label {
+    font-family: var(--s); font-size: 13px; color: var(--lavender-dim);
+  }
+  .pd-sticky-cta {
+    font-family: var(--g); font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--white); background: var(--plum); text-decoration: none;
+    padding: 12px 20px; transition: background 0.2s;
+  }
+  .pd-sticky-cta:hover { background: var(--plum-mid); }
+
+  /* ── PHOTO STRIP ── */
+  .pd-photo-strip {
+    overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    background: var(--pure-black);
+  }
+  .pd-photo-strip::-webkit-scrollbar { display: none; }
+
+  .pd-photo-track {
+    display: flex; gap: 2px; align-items: stretch;
+    min-width: max-content; height: 460px;
+  }
+  @media (max-width: 768px) { .pd-photo-track { height: 320px; } }
+
+  .pd-photo-item {
+    position: relative; overflow: hidden; flex-shrink: 0;
+    width: 340px; height: 100%;
+  }
+  .pd-photo-item--tall { width: 280px; }
+  @media (max-width: 768px) { .pd-photo-item { width: 240px; } .pd-photo-item--tall { width: 200px; } }
+
+  .pd-photo-item img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+  .pd-photo-item:hover img { transform: scale(1.03); }
+
+  .pd-photo-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(8,8,8,0.6) 0%, rgba(8,8,8,0.1) 50%, transparent 100%);
+  }
+
+  .pd-photo-caption {
+    position: absolute; bottom: 16px; left: 16px;
+    font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(196,184,192,0.6);
+  }
+
+  /* ── COUNTDOWN ── */
+  .pd-countdown-bar {
+    background: var(--pure-black);
+    border-top: 1px solid rgba(196,184,192,0.1);
+    border-bottom: 1px solid rgba(196,184,192,0.1);
+    padding: 56px 24px;
+  }
+  .pd-countdown-inner {
+    max-width: 900px; margin: 0 auto;
+    display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center;
+  }
+  .pd-countdown-label { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--lavender-dim); }
+
+  .pd-countdown-units { display: flex; align-items: flex-start; }
+  .pd-cd-unit {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 0 24px;
+    border-right: 1px solid rgba(196,184,192,0.1);
+  }
+  .pd-cd-unit:last-child { border-right: none; }
+  @media (max-width: 480px) { .pd-cd-unit { padding: 0 14px; } }
+
+  .pd-cd-num {
+    font-family: var(--g); font-size: clamp(48px, 10vw, 96px);
+    font-weight: 700; color: var(--white); line-height: 1; letter-spacing: -3px;
+  }
+  .pd-cd-lbl { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--lavender-dim); margin-top: 10px; }
+  .pd-cd-sep { display: none; }
 
   /* ── SECTIONS ── */
   .pd-section { position: relative; padding: 96px 48px; overflow: hidden; }
@@ -383,113 +599,110 @@ const NOISE = (id: string) => `
 
   /* ── PREMISE ── */
   .pd-premise { background: var(--charcoal); }
-
   .pd-premise-lead {
-    font-family: var(--g); font-size: clamp(28px, 4vw, 48px);
-    font-weight: 700; color: var(--white); margin-bottom: 24px;
-    letter-spacing: -1px;
+    font-family: var(--g); font-size: clamp(28px, 4vw, 52px);
+    font-weight: 700; color: var(--white); letter-spacing: -1.5px; margin-bottom: 20px;
   }
   .pd-premise-body {
     font-family: var(--s); font-size: 17px; color: var(--lavender-dim);
     line-height: 1.7; max-width: 640px; margin-bottom: 56px;
   }
-  .pd-proof {
-    display: flex; align-items: center; gap: 0; flex-wrap: wrap;
-    border-top: 1px solid rgba(196,184,192,0.12);
-    padding-top: 40px;
+
+  .pd-stats {
+    display: flex; align-items: center;
+    border-top: 1px solid rgba(196,184,192,0.1); padding-top: 40px;
+    flex-wrap: wrap; gap: 0;
   }
-  .pd-proof-block { padding: 0 48px 0 0; }
-  .pd-proof-block:first-child { padding-left: 0; }
-  .pd-proof-stat {
-    font-family: var(--g); font-size: clamp(48px, 7vw, 80px);
-    font-weight: 700; color: var(--white); line-height: 1;
-    letter-spacing: -2px;
+  .pd-stat { padding-right: 48px; }
+  .pd-stat-num {
+    font-family: var(--g); font-size: clamp(52px, 8vw, 88px);
+    font-weight: 700; color: var(--white); line-height: 1; letter-spacing: -3px;
   }
-  .pd-proof-label {
-    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--lavender-dim); margin-top: 8px;
+  .pd-stat-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--lavender-dim); margin-top: 8px; }
+  .pd-stat-div { width: 1px; height: 80px; background: rgba(196,184,192,0.1); margin-right: 48px; }
+  @media (max-width: 600px) { .pd-stats { gap: 32px; } .pd-stat { padding-right: 0; } .pd-stat-div { display: none; } }
+
+  /* ── FULL BREAK ── */
+  .pd-full-break {
+    height: 70vh; min-height: 400px; position: relative; overflow: hidden;
   }
-  .pd-proof-divider { width: 1px; height: 80px; background: rgba(196,184,192,0.12); margin: 0 48px 0 0; }
-  @media (max-width: 600px) {
-    .pd-proof { gap: 32px; }
-    .pd-proof-block { padding: 0; }
-    .pd-proof-divider { display: none; }
+  .pd-full-break img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+  .pd-full-break-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(8,8,8,0.3) 0%, rgba(8,8,8,0.15) 50%, rgba(8,8,8,0.5) 100%);
   }
+  .pd-full-break-caption {
+    position: absolute; bottom: 24px; right: 48px;
+    font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(196,184,192,0.5); z-index: 3;
+  }
+  @media (max-width: 768px) { .pd-full-break-caption { right: 24px; } }
 
   /* ── STATEMENT ── */
   .pd-statement { background: var(--plum-deep); }
   .pd-statement-inner { text-align: center; }
   .pd-statement-head {
-    font-family: var(--g); font-size: clamp(24px, 3.5vw, 44px);
+    font-family: var(--g); font-size: clamp(22px, 3.5vw, 44px);
     font-weight: 700; color: var(--white); letter-spacing: -1.5px;
     line-height: 1.1; margin-bottom: 24px; max-width: 760px; margin-left: auto; margin-right: auto;
   }
-  .pd-statement-sub {
-    font-family: var(--s); font-size: 16px; color: var(--lavender-dim); letter-spacing: 0.3px;
-  }
+  .pd-statement-sub { font-family: var(--s); font-size: 16px; color: var(--lavender-dim); }
 
   /* ── FORMAT ── */
   .pd-format { background: var(--black); }
-
-  .pd-schedule { list-style: none; display: flex; flex-direction: column; gap: 0; counter-reset: schedule; }
-  .pd-schedule-item {
-    display: grid; grid-template-columns: 160px 1fr;
+  .pd-schedule { list-style: none; }
+  .pd-sched {
+    display: grid; grid-template-columns: 64px 1fr;
     gap: 24px; padding: 28px 0;
-    border-bottom: 1px solid rgba(196,184,192,0.1);
+    border-bottom: 1px solid rgba(196,184,192,0.08);
     align-items: start;
   }
-  .pd-schedule-item:first-child { border-top: 1px solid rgba(196,184,192,0.1); }
-  @media (max-width: 600px) {
-    .pd-schedule-item { grid-template-columns: 1fr; gap: 8px; }
-  }
-  .pd-schedule-tag {
-    font-family: var(--g); font-size: 13px; font-weight: 600;
-    color: var(--lavender); letter-spacing: 1px;
-  }
-  .pd-schedule-desc { font-family: var(--s); font-size: 15px; color: var(--lavender-dim); line-height: 1.65; }
+  .pd-sched:first-child { border-top: 1px solid rgba(196,184,192,0.08); }
+  @media (max-width: 600px) { .pd-sched { grid-template-columns: 40px 1fr; gap: 16px; } }
 
+  .pd-sched-num { font-size: 10px; letter-spacing: 2px; color: rgba(196,184,192,0.25); padding-top: 3px; }
+  .pd-sched-tag { font-family: var(--g); font-size: 15px; font-weight: 600; color: var(--lavender); margin-bottom: 6px; }
+  .pd-sched-desc { font-family: var(--s); font-size: 15px; color: var(--lavender-dim); line-height: 1.65; }
   .pd-format-note {
     font-family: var(--s); font-size: 13px; color: var(--lavender-dim);
     margin-top: 32px; padding-top: 32px;
-    border-top: 1px solid rgba(196,184,192,0.1);
-    letter-spacing: 0.3px;
+    border-top: 1px solid rgba(196,184,192,0.08);
   }
 
-  /* ── DETAILS ── */
-  .pd-details { background: var(--charcoal); }
+  /* ── VIDEO STRIP ── */
+  .pd-video-strip {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+    background: var(--pure-black);
+  }
+  .pd-video-strip--3 { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 768px) {
+    .pd-video-strip { grid-template-columns: 1fr; }
+    .pd-video-strip--3 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) { .pd-video-strip--3 { grid-template-columns: 1fr; } }
 
-  .pd-details-grid {
-    display: grid; grid-template-columns: 220px 1fr;
-    gap: 0; border-top: 1px solid rgba(196,184,192,0.1);
+  .pd-video-block {
+    position: relative; overflow: hidden;
+    aspect-ratio: 4/3;
   }
-  .pd-detail-key {
-    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--lavender-dim); padding: 20px 0;
-    border-bottom: 1px solid rgba(196,184,192,0.08);
-    display: flex; align-items: center;
+  .pd-video-strip--3 .pd-video-block { aspect-ratio: 3/4; }
+
+  .pd-video-block video {
+    width: 100%; height: 100%; object-fit: cover; display: block;
   }
-  .pd-detail-val {
-    font-family: var(--s); font-size: 15px; color: var(--white);
-    padding: 20px 0; border-bottom: 1px solid rgba(196,184,192,0.08);
-    display: flex; align-items: center;
-  }
-  .pd-tbd { color: var(--lavender-dim); font-style: italic; }
-  @media (max-width: 600px) {
-    .pd-details-grid { grid-template-columns: 1fr; }
-    .pd-detail-key { border-bottom: none; padding-bottom: 4px; }
-    .pd-detail-val { padding-top: 0; border-bottom: 1px solid rgba(196,184,192,0.08); }
+  .pd-video-label {
+    position: absolute; bottom: 16px; left: 16px;
+    font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(196,184,192,0.5); z-index: 2;
   }
 
   /* ── WHO ── */
-  .pd-who { background: var(--black); }
-
+  .pd-who { background: var(--charcoal); }
   .pd-who-lead {
     font-family: var(--g); font-size: clamp(22px, 3vw, 36px);
-    font-weight: 700; color: var(--white); letter-spacing: -0.5px;
-    margin-bottom: 32px;
+    font-weight: 700; color: var(--white); letter-spacing: -0.5px; margin-bottom: 32px;
   }
-
-  .pd-who-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+  .pd-who-list { list-style: none; }
   .pd-who-list li {
     font-family: var(--s); font-size: 16px; color: var(--lavender-dim);
     padding: 20px 0 20px 56px; border-bottom: 1px solid rgba(196,184,192,0.08);
@@ -497,9 +710,32 @@ const NOISE = (id: string) => `
   }
   .pd-who-list li:first-child { border-top: 1px solid rgba(196,184,192,0.08); }
   .pd-who-list li::before {
-    content: attr(data-num);
-    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-    font-size: 10px; letter-spacing: 2px; color: rgba(196,184,192,0.3);
+    content: attr(data-num); position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    font-size: 10px; letter-spacing: 2px; color: rgba(196,184,192,0.25);
+  }
+
+  /* ── DETAILS ── */
+  .pd-details { background: var(--black); }
+  .pd-details-grid {
+    display: grid; grid-template-columns: 220px 1fr; gap: 0;
+    border-top: 1px solid rgba(196,184,192,0.1);
+  }
+  .pd-dk {
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--lavender-dim); padding: 20px 0;
+    border-bottom: 1px solid rgba(196,184,192,0.07);
+    display: flex; align-items: center;
+  }
+  .pd-dv {
+    font-family: var(--s); font-size: 15px; color: var(--white);
+    padding: 20px 0; border-bottom: 1px solid rgba(196,184,192,0.07);
+    display: flex; align-items: center;
+  }
+  .pd-tbd { color: var(--lavender-dim); font-style: italic; }
+  @media (max-width: 600px) {
+    .pd-details-grid { grid-template-columns: 1fr; }
+    .pd-dk { border-bottom: none; padding-bottom: 4px; }
+    .pd-dv { padding-top: 0; }
   }
 
   /* ── TICKETS ── */
@@ -508,119 +744,72 @@ const NOISE = (id: string) => `
     padding: 96px 48px; overflow: hidden;
   }
   @media (max-width: 768px) { .pd-tickets-section { padding: 72px 24px; } }
-
   .pd-tickets-inner { max-width: 900px; margin: 0 auto; }
 
   .pd-tickets-head { text-align: center; margin-bottom: 56px; }
   .pd-tickets-note { font-family: var(--s); font-size: 15px; color: var(--lavender-dim); margin-bottom: 20px; }
-
-  .pd-social-proof {
-    display: inline-flex; align-items: center; gap: 10px;
-    font-family: var(--s); font-size: 13px; color: var(--lavender-dim);
-  }
-  .pd-proof-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #4ade80; flex-shrink: 0;
-    animation: proof-pulse 2s ease-in-out infinite;
-  }
+  .pd-social-proof { display: inline-flex; align-items: center; gap: 10px; font-family: var(--s); font-size: 13px; color: var(--lavender-dim); }
+  .pd-proof-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; flex-shrink: 0; animation: proof-pulse 2s ease-in-out infinite; }
   @keyframes proof-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-  .pd-tiers { display: flex; flex-direction: column; gap: 0; margin-bottom: 48px; }
 
   .pd-tier {
     display: grid; grid-template-columns: 220px 1fr;
-    gap: 0;
     border: 1px solid rgba(196,184,192,0.12);
-    margin-bottom: -1px;
+    margin-bottom: 48px;
   }
   @media (max-width: 700px) { .pd-tier { grid-template-columns: 1fr; } }
 
   .pd-tier-left {
-    background: rgba(69,24,63,0.15); padding: 40px 32px;
+    background: rgba(69,24,63,0.2); padding: 40px 32px;
     display: flex; flex-direction: column; gap: 8px;
     border-right: 1px solid rgba(196,184,192,0.12);
     position: relative; overflow: hidden;
   }
-  .pd-tier-left-member { background: rgba(69,24,63,0.3); }
   @media (max-width: 700px) { .pd-tier-left { border-right: none; border-bottom: 1px solid rgba(196,184,192,0.12); } }
 
-  .pd-tier-badge {
-    font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase;
-    color: var(--lavender); font-weight: 500;
-  }
-  .pd-tier-badge-member { color: var(--white); }
-  .pd-tier-room { font-family: var(--g); font-size: 24px; font-weight: 700; color: var(--white); letter-spacing: -0.5px; }
-  .pd-tier-room-member { color: var(--lavender-light); }
+  .pd-tier-badge { font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase; color: var(--lavender); }
+  .pd-tier-price { font-family: var(--g); font-size: 48px; font-weight: 300; color: var(--white); letter-spacing: -2px; }
   .pd-tier-hint { font-family: var(--s); font-size: 12px; color: var(--lavender-dim); }
-  .pd-tier-hint-member { color: rgba(196,184,192,0.6); }
-
   .pd-tier-wm {
     position: absolute; bottom: -10px; right: -4px;
     font-family: var(--g); font-size: 72px; font-weight: 800;
-    color: rgba(196,184,192,0.04); letter-spacing: -2px;
-    pointer-events: none; user-select: none; line-height: 1;
+    color: rgba(196,184,192,0.05); pointer-events: none; user-select: none; line-height: 1;
   }
-  .pd-tier-wm-member { color: rgba(196,184,192,0.07); }
 
-  .pd-tier-right { padding: 40px 40px; }
-  .pd-tier-right-member { background: rgba(69,24,63,0.08); }
-
-  .pd-tier-price {
-    font-family: var(--g); font-size: 48px; font-weight: 300;
-    color: var(--white); letter-spacing: -2px; margin-bottom: 24px;
-  }
-  .pd-tier-price-member { color: var(--lavender-light); }
-
-  .pd-tier-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
-  .pd-tier-list li { font-family: var(--s); font-size: 14px; color: var(--lavender-dim); display: flex; gap: 12px; }
-  .pd-tier-list-member li { color: rgba(196,184,192,0.7); }
-  .pd-tier-check { color: var(--lavender); flex-shrink: 0; }
-
-  .pd-tier-cta-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .pd-tier-right { padding: 40px; }
+  .pd-tier-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+  .pd-tier-list li { font-family: var(--s); font-size: 15px; color: var(--lavender-dim); display: flex; gap: 12px; }
+  .pd-tier-list span { color: var(--lavender); flex-shrink: 0; }
 
   /* Payment form */
-  .pd-payment-form { padding: 48px 0; }
+  .pd-form-wrap { padding: 48px 0; }
   .pd-back-btn {
     background: none; border: none; color: var(--lavender-dim);
     font-family: var(--s); font-size: 13px; cursor: pointer;
-    padding: 0; margin-bottom: 32px; letter-spacing: 0.3px;
-    transition: color 0.2s;
+    padding: 0; margin-bottom: 32px; transition: color 0.2s;
   }
   .pd-back-btn:hover { color: var(--lavender); }
-  .pd-form-eyebrow {
-    font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase;
-    color: var(--lavender); margin-bottom: 32px;
-  }
+  .pd-form-eyebrow { font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase; color: var(--lavender); margin-bottom: 32px; }
   .pd-form-field { margin-bottom: 24px; }
-  .pd-form-label {
-    display: block; font-size: 10px; letter-spacing: 3px;
-    text-transform: uppercase; color: var(--lavender-dim); margin-bottom: 10px;
-  }
+  .pd-form-label { display: block; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--lavender-dim); margin-bottom: 10px; }
   .pd-form-field input {
     width: 100%; background: rgba(255,255,255,0.03);
     border: 1px solid rgba(196,184,192,0.15);
     color: var(--white); font-family: var(--s); font-size: 15px;
     padding: 14px 16px; outline: none;
-    transition: border-color 0.2s; -webkit-appearance: none; border-radius: 0;
+    transition: border-color 0.2s; border-radius: 0;
   }
   .pd-form-field input:focus { border-color: rgba(196,184,192,0.4); }
   .pd-form-field input::placeholder { color: var(--lavender-dim); }
+  .pd-error { margin-top: 16px; padding: 14px 16px; background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.3); color: #e09090; font-family: var(--s); font-size: 14px; }
 
-  .pd-checkout-btn { width: 100%; margin-top: 8px; }
-
-  .pd-error {
-    margin-top: 16px; padding: 14px 16px;
-    background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.3);
-    color: #e09090; font-family: var(--s); font-size: 14px;
-  }
-
-  /* ── SUCCESS ── */
-  .pd-success-state { text-align: center; padding: 80px 0; }
+  /* Success */
+  .pd-success { text-align: center; padding: 80px 0; }
   .pd-success-mark { font-family: var(--g); font-size: 72px; color: var(--lavender); line-height: 1; margin-bottom: 24px; }
   .pd-success-title { font-family: var(--g); font-size: 48px; font-weight: 700; color: var(--white); letter-spacing: -2px; margin-bottom: 16px; }
   .pd-success-body { font-family: var(--s); font-size: 16px; color: var(--lavender-dim); }
 
-  /* ── FINE PRINT ── */
+  /* Fine print */
   .pd-fine-print { margin-top: 48px; border-top: 1px solid rgba(196,184,192,0.1); padding-top: 32px; display: flex; flex-direction: column; gap: 12px; }
   .pd-fine-print p { font-family: var(--s); font-size: 13px; color: var(--lavender-dim); line-height: 1.65; }
   .pd-fine-print strong { color: rgba(196,184,192,0.6); font-weight: 500; }
@@ -639,11 +828,8 @@ const NOISE = (id: string) => `
   /* ── REVEAL ── */
   .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
   .reveal.visible { opacity: 1; transform: none; }
-  .d1 { transition-delay: 0.1s; }
-  .d2 { transition-delay: 0.2s; }
-  .d3 { transition-delay: 0.3s; }
-  .d4 { transition-delay: 0.4s; }
-  .d5 { transition-delay: 0.5s; }
+  .d1 { transition-delay: 0.1s; } .d2 { transition-delay: 0.2s; }
+  .d3 { transition-delay: 0.3s; } .d4 { transition-delay: 0.4s; }
 </style>
 
 </body>

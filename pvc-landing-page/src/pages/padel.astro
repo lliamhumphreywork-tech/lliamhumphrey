@@ -79,18 +79,13 @@ const NOISE = (id: string) => `
       <img src="/images/dinner-cam-speaking.jpg" alt="Founder speaking" loading="lazy" />
       <div class="pd-photo-overlay"></div>
     </div>
-    <div class="pd-photo-item pd-photo-item--tall">
+    <div class="pd-photo-item">
       <img src="/images/dinner-cam-laugh.jpg" alt="Founders laughing" loading="lazy" style="object-position: center 30%;" />
       <div class="pd-photo-overlay"></div>
     </div>
     <div class="pd-photo-item">
       <img src="/images/dinner-cam-connect.jpg" alt="Founders connecting" loading="lazy" />
       <div class="pd-photo-overlay"></div>
-    </div>
-    <div class="pd-photo-item pd-photo-item--tall">
-      <img src="/images/ct-promenade.jpg" alt="Cape Town" loading="lazy" style="object-position: center 40%;" />
-      <div class="pd-photo-overlay"></div>
-      <span class="pd-photo-caption">Cape Town · 2026</span>
     </div>
   </div>
 </div>
@@ -184,32 +179,25 @@ const NOISE = (id: string) => `
   </div>
 </section>
 
+<!-- PREVIOUS EVENTS VIDEO HEADER -->
+<div class="pd-events-header" style="background: var(--charcoal);">
+  <span>Our Previous Events</span>
+</div>
+
 <!-- VIDEO STRIP -->
 <div class="pd-video-section">
-  <div class="pd-video-grid pd-video-grid--2">
-    <div class="pd-video-slot">
+  <div class="pd-video-grid pd-video-grid--3h">
+    <div class="pd-video-slot pd-video-slot--wide">
       <video autoplay muted loop playsinline>
         <source src="/videos/dinner-energy.mp4" type="video/mp4" />
       </video>
     </div>
-    <div class="pd-video-slot">
-      <video autoplay muted loop playsinline>
-        <source src="/videos/ct-mastermind.mp4" type="video/mp4" />
-      </video>
-    </div>
-  </div>
-  <div class="pd-video-grid pd-video-grid--3">
-    <div class="pd-video-slot">
+    <div class="pd-video-slot pd-video-slot--wide">
       <video autoplay muted loop playsinline>
         <source src="/videos/dinner-conversation.mp4" type="video/mp4" />
       </video>
     </div>
-    <div class="pd-video-slot">
-      <video autoplay muted loop playsinline>
-        <source src="/videos/ct-mastermind.mp4" type="video/mp4" />
-      </video>
-    </div>
-    <div class="pd-video-slot">
+    <div class="pd-video-slot pd-video-slot--wide">
       <video autoplay muted loop playsinline>
         <source src="/videos/pvc-clips.mp4" type="video/mp4" />
       </video>
@@ -584,17 +572,17 @@ const NOISE = (id: string) => `
 
   /* ── EVENTS HEADER ── */
   .pd-events-header {
-    background: var(--pure-black); padding: 32px 48px 0;
+    background: var(--pure-black); padding: 48px 48px 24px;
     display: flex; align-items: center; gap: 20px;
   }
   .pd-events-header span {
-    font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase;
-    color: var(--lavender-dim);
+    font-size: 10px; letter-spacing: 5px; text-transform: uppercase;
+    color: var(--lavender-dim); white-space: nowrap;
   }
   .pd-events-header::after {
-    content: ''; display: block; height: 1px; flex: 0 0 60px; background: var(--lavender-dim);
+    content: ''; display: block; height: 1px; flex: 1; background: rgba(196,184,192,0.2);
   }
-  @media (max-width: 768px) { .pd-events-header { padding: 24px 24px 0; } }
+  @media (max-width: 768px) { .pd-events-header { padding: 36px 24px 20px; } }
 
   /* ── PHOTO STRIP ── */
   .pd-photo-strip {
@@ -706,7 +694,7 @@ const NOISE = (id: string) => `
   .pd-full-break {
     height: 70vh; min-height: 400px; position: relative; overflow: hidden;
   }
-  .pd-full-break img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+  .pd-full-break img { width: 100%; height: 100%; object-fit: cover; object-position: center 65%; }
   .pd-full-break-overlay {
     position: absolute; inset: 0;
     background: linear-gradient(to bottom, rgba(8,8,8,0.3) 0%, rgba(8,8,8,0.15) 50%, rgba(8,8,8,0.5) 100%);
@@ -750,26 +738,23 @@ const NOISE = (id: string) => `
   }
 
   /* ── VIDEO SECTION ── */
-  .pd-video-section { background: var(--charcoal); padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .pd-video-section { background: var(--charcoal); padding: 0 24px 24px; display: flex; flex-direction: column; gap: 16px; }
 
   .pd-video-grid {
     display: grid; gap: 16px;
   }
-  .pd-video-grid--2 { grid-template-columns: 1fr 1fr; }
-  .pd-video-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+  .pd-video-grid--3h { grid-template-columns: 1fr 1fr 1fr; }
 
   @media (max-width: 768px) {
-    .pd-video-grid--2 { grid-template-columns: 1fr; }
-    .pd-video-grid--3 { grid-template-columns: 1fr 1fr; }
-    .pd-video-section { padding: 16px; gap: 12px; }
+    .pd-video-grid--3h { grid-template-columns: 1fr; }
+    .pd-video-section { padding: 0 16px 16px; gap: 12px; }
   }
-  @media (max-width: 480px) { .pd-video-grid--3 { grid-template-columns: 1fr; } }
 
   .pd-video-slot {
     position: relative; overflow: hidden; aspect-ratio: 4/3;
     background: var(--black);
   }
-  .pd-video-grid--3 .pd-video-slot { aspect-ratio: 3/4; }
+  .pd-video-slot--wide { aspect-ratio: 16/9; }
 
   .pd-video-slot video,
   .pd-video-slot img {

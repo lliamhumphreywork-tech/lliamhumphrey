@@ -1,6 +1,8 @@
 // Art of Sales waitlist: creates or updates a MailerLite subscriber and adds them to the AoS Waitlist group.
 // The MailerLite automation on that group sends the welcome email. The API key is read from the
 // MAILERLITE_API_KEY environment variable and never leaves the server.
+const { isIP } = require('net');
+
 const ML_URL = 'https://connect.mailerlite.com/api/subscribers';
 const GROUP_ID = '204422368730285945'; // AoS Waitlist. Keep as a string: it's too long for a JS number.
 
@@ -81,6 +83,10 @@ module.exports = async function handler(req, res) {
   if (whatsapp) fields.whatsapp = whatsapp;
   if (instagram) fields.instagram = instagram;
 
+  // Opt-in record: when (UTC, "YYYY-MM-DD HH:MM:SS") and from which IP, only if it's a valid IPv4/IPv6. Never logged.
+  const subscriber = { email, fields, groups: [GROUP_ID], opted_in_at: new Date().toISOString().slice(0, 19).replace('T', ' ') };
+  if (isIP(ip)) subscriber.optin_ip = ip;
+
   try {
     const mlRes = await fetch(ML_URL, {
       method: 'POST',
@@ -89,7 +95,7 @@ module.exports = async function handler(req, res) {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      body: JSON.stringify({ email, fields, groups: [GROUP_ID] }),
+      body: JSON.stringify(subscriber),
     });
     // 201 = new subscriber, 200 = existing subscriber updated. Both are fine.
     if (mlRes.status === 200 || mlRes.status === 201) return res.status(200).json({ ok: true });

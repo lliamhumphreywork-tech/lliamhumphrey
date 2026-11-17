@@ -399,6 +399,57 @@ const NOISE = (id: string) => `
     document.getElementById('pd-error').style.display = 'none';
   });
 
+  // ── ANALYTICS ──
+
+  // CTA clicks
+  document.querySelectorAll('.scroll-to-tickets, .pd-nav-cta, .pd-sticky-cta').forEach((el) => {
+    el.addEventListener('click', () => {
+      window.posthog?.capture?.('padel_cta_clicked', {
+        label: el.textContent?.trim(),
+        location: el.closest('.pd-hero') ? 'hero'
+          : el.closest('.pd-sticky-bar') ? 'sticky_bar'
+          : el.closest('.pd-nav') ? 'nav'
+          : el.closest('.pd-close') ? 'close_section'
+          : 'other',
+      });
+    });
+  });
+
+  // Tickets section reached
+  const ticketsSection = document.getElementById('tickets');
+  if (ticketsSection) {
+    const ticketObs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        window.posthog?.capture?.('padel_tickets_section_reached');
+        ticketObs.disconnect();
+      }
+    }, { threshold: 0.2 });
+    ticketObs.observe(ticketsSection);
+  }
+
+  // Form started (first focus on any input)
+  let formStarted = false;
+  ['pd-name', 'pd-email'].forEach((id) => {
+    document.getElementById(id)?.addEventListener('focus', () => {
+      if (!formStarted) {
+        formStarted = true;
+        window.posthog?.capture?.('padel_form_started');
+      }
+    }, { once: true });
+  });
+
+  // Scroll depth (25 / 50 / 75 / 100)
+  const depthHits = new Set();
+  window.addEventListener('scroll', () => {
+    const pct = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+    [25, 50, 75, 100].forEach((mark) => {
+      if (pct >= mark && !depthHits.has(mark)) {
+        depthHits.add(mark);
+        window.posthog?.capture?.('padel_scroll_depth', { depth: mark });
+      }
+    });
+  }, { passive: true });
+
   document.getElementById('pd-checkout')?.addEventListener('click', () => {
     const name = document.getElementById('pd-name').value.trim();
     const email = document.getElementById('pd-email').value.trim();

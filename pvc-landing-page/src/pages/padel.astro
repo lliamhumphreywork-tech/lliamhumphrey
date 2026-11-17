@@ -43,7 +43,7 @@ const NOISE = (id: string) => `
   <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('pd1')} />
   <div class="pd-hero-inner">
     <p class="pd-hero-label reveal">Johannesburg · December 2026</p>
-    <h1 class="pd-hero-word reveal d1">Johannesburg<br/>Padel</h1>
+    <h1 class="pd-hero-word reveal d1">Padel</h1>
     <p class="pd-hero-sub reveal d2">A Private Victories Social</p>
     <a href="#tickets" class="pd-hero-cta scroll-to-tickets reveal d3">Reserve My Spot</a>
     <div class="pd-hero-meta reveal d4">
@@ -133,7 +133,7 @@ const NOISE = (id: string) => `
 
 <!-- FULL-BLEED PHOTO BREAK -->
 <div class="pd-full-break">
-  <img src="/images/dinner-venue-final.jpg" alt="PVC event venue" loading="lazy" />
+  <img src="/images/close-atmosphere.jpg" alt="PVC event atmosphere" loading="lazy" />
   <div class="pd-full-break-overlay"></div>
   <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('pd2')} />
   <div class="pd-full-break-caption">PVC · Founding Events</div>
@@ -188,10 +188,9 @@ const NOISE = (id: string) => `
       </video>
     </div>
     <div class="pd-video-slot">
-      <video autoplay muted loop playsinline style="object-position: center 75%;">
-        <source src="/videos/ct-mastermind.mp4" type="video/mp4" />
+      <video autoplay muted loop playsinline>
+        <source src="/videos/dinner-table.mp4" type="video/mp4" />
       </video>
-      <div class="pd-video-label">CT Mastermind · 2026</div>
     </div>
   </div>
   <div class="pd-video-grid pd-video-grid--3">
@@ -450,18 +449,21 @@ const NOISE = (id: string) => `
     });
   }, { passive: true });
 
-  document.getElementById('pd-checkout')?.addEventListener('click', () => {
+  document.getElementById('pd-checkout')?.addEventListener('click', function() {
     const name = document.getElementById('pd-name').value.trim();
     const email = document.getElementById('pd-email').value.trim();
     const errEl = document.getElementById('pd-error');
     if (!name || !email) { errEl.textContent = 'Please enter your name and email.'; errEl.style.display = 'block'; return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; return; }
     errEl.style.display = 'none';
+    this.textContent = 'Taking you to checkout...';
+    this.style.opacity = '0.7';
+    this.disabled = true;
     window.posthog?.capture?.('padel_checkout_started', { event: 'padel-dec-2026' });
     const url = new URL('https://paystack.com/buy/private-victories-jhb-padel-social-ga-himeyd');
     url.searchParams.set('name', name);
     url.searchParams.set('email', email);
-    window.location.href = url.toString();
+    setTimeout(() => { window.location.href = url.toString(); }, 0);
   });
 </script>
 
@@ -515,8 +517,8 @@ const NOISE = (id: string) => `
 
   .pd-hero-word {
     font-family: var(--g); font-weight: 800;
-    font-size: clamp(44px, 8.5vw, 112px);
-    letter-spacing: -2px; line-height: 0.95;
+    font-size: clamp(96px, 16vw, 200px);
+    letter-spacing: -5px; line-height: 0.88;
     text-transform: uppercase; color: var(--white);
     margin-bottom: 32px;
   }

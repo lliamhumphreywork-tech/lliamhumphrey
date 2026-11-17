@@ -84,12 +84,20 @@ interface MemberProfile {
   id: string;
   name: string;
   email: string;
+  // onboarding form blocks
   what_you_bring: string;
   support_areas: string;
   pvc_goals: string;
   wants_from_room: string;
   introductions: string;
+  // Notion MI DB properties (live intel)
   goal_90_days: string;
+  current_bottleneck: string;
+  connection_made: string;
+  action_taken: string;
+  tier: string;
+  revenue_stage: string;
+  business: string;
 }
 
 export const GET: APIRoute = async ({ request }) => {
@@ -106,21 +114,35 @@ export const GET: APIRoute = async ({ request }) => {
         const name = getTitle(page);
         const email = getEmail(page);
         if (!name) return null;
+        const props = page.properties;
+        const goal90      = (props['Goal (3 months)']?.rich_text ?? []).map((t: any) => t.plain_text).join('');
+        const bottleneck  = (props['Current Bottleneck']?.rich_text ?? []).map((t: any) => t.plain_text).join('');
+        const connMade    = (props['Connection Made']?.rich_text ?? []).map((t: any) => t.plain_text).join('');
+        const actionTaken = (props['Action Taken']?.rich_text ?? []).map((t: any) => t.plain_text).join('');
+        const tier        = props['Tier']?.select?.name ?? '';
+        const revStage    = props['Revenue Stage']?.select?.name ?? '';
+        const business    = (props['Business']?.rich_text ?? []).map((t: any) => t.plain_text).join('');
         try {
           const blocks = await getPageBlocks(page.id);
           return {
             id: page.id,
             name,
             email,
-            what_you_bring: getRichText(blocks, 'What they bring'),
-            support_areas:  getRichText(blocks, 'Support areas'),
-            pvc_goals:      getRichText(blocks, 'Looking for in PVC'),
+            what_you_bring:  getRichText(blocks, 'What they bring'),
+            support_areas:   getRichText(blocks, 'Support areas'),
+            pvc_goals:       getRichText(blocks, 'Looking for in PVC'),
             wants_from_room: getRichText(blocks, 'What they want from the room'),
-            introductions:  getRichText(blocks, 'Intro target'),
-            goal_90_days:   (page.properties['Goal (3 months)']?.rich_text ?? []).map((t: any) => t.plain_text).join(''),
+            introductions:   getRichText(blocks, 'Intro target'),
+            goal_90_days:    goal90,
+            current_bottleneck: bottleneck,
+            connection_made:    connMade,
+            action_taken:       actionTaken,
+            tier,
+            revenue_stage:  revStage,
+            business,
           } as MemberProfile;
         } catch {
-          return { id: page.id, name, email, what_you_bring: '', support_areas: '', pvc_goals: '', wants_from_room: '', introductions: '', goal_90_days: '' } as MemberProfile;
+          return { id: page.id, name, email, what_you_bring: '', support_areas: '', pvc_goals: '', wants_from_room: '', introductions: '', goal_90_days: goal90, current_bottleneck: bottleneck, connection_made: connMade, action_taken: actionTaken, tier, revenue_stage: revStage, business } as MemberProfile;
         }
       })
     ).then(ps => ps.filter(Boolean) as MemberProfile[]);
@@ -158,19 +180,43 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     // 5. LLM matching — only if we have profiles and Anthropic key
-    let pairs: { a: string; b: string; reason: string; draft: string }[] = [];
+    let pairs: { a: string; b: string; need_offer: string; why_now: string; risk: string; confidence: string; ask_a: string; ask_b: string }[] = [];
 
     console.log('[member-intros] profiles with data:', profiles.filter(p => p.what_you_bring || p.support_areas).length, '/', profiles.length, 'total. API key set:', !!ANTHROPIC_API_KEY);
     if (ANTHROPIC_API_KEY && profiles.length >= 2) {
-      const profileSummaries = profiles.map(p =>
-        `${p.name}:\n  Brings: ${p.what_you_bring || 'not specified'}\n  Needs support with: ${p.support_areas || 'not specified'}\n  Goals: ${p.pvc_goals || 'not specified'}\n  Wants from the room: ${p.wants_from_room || 'not specified'}\n  Intro request: ${p.introductions || 'not specified'}`
-      ).join('\n\n');
+      const profileSummaries = profiles.map(p => {
+        const lines = [`${p.name} (${p.business || 'business not listed'}):`];
+        if (p.what_you_bring)      lines.push(`  FORM — Brings: ${p.what_you_bring}`);
+        if (p.support_areas)       lines.push(`  FORM — Needs support with: ${p.support_areas}`);
+        if (p.pvc_goals)           lines.push(`  FORM — Goals in PVC: ${p.pvc_goals}`);
+        if (p.wants_from_room)     lines.push(`  FORM — Wants from the room: ${p.wants_from_room}`);
+        if (p.introductions)       lines.push(`  FORM — Intro request: ${p.introductions}`);
+        if (p.goal_90_days)        lines.push(`  NOTION — Goal (3 months): ${p.goal_90_days}`);
+        if (p.current_bottleneck)  lines.push(`  NOTION — Current bottleneck: ${p.current_bottleneck}`);
+        if (p.connection_made)     lines.push(`  NOTION — Connection made: ${p.connection_made}`);
+        if (p.action_taken)        lines.push(`  NOTION — Action taken: ${p.action_taken}`);
+        return lines.join('\n');
+      }).join('\n\n');
 
       const alreadySentSection = sentPairs.length
-        ? `\nPairs already introduced (do NOT suggest these again):\n${sentPairs.map(p => `- ${p}`).join('\n')}\n`
+        ? `\nPairs already formally introduced (do NOT suggest these again):\n${sentPairs.map(p => `- ${p}`).join('\n')}\n`
         : '';
 
-      const prompt = `You are matching members of a private business owners community for introductions. Based on their onboarding profiles, suggest up to 5 member pairs who would genuinely benefit from being introduced.
+      const prompt = `You are generating member introduction suggestions for Private Victories Club, a private community of business owners.
+
+You have TWO sources of data for each member:
+1. FORM data: what they wrote in their onboarding form (what they bring, what they need, goals)
+2. NOTION data: live intel from the Member Intelligence database (current bottleneck, 90-day goal, connections already made, actions already taken)
+
+RULES (follow strictly):
+1. Every suggestion must quote one specific NEED from one member and one specific OFFER from the other. If you can't quote both from the data above, do not suggest the pair.
+2. Skip any pair where one member's "Connection made" or "Action taken" already mentions the other person's name.
+3. Cap at 1 intro suggestion per member (max 2 for Sean, max 1 for Daniel Bouwer). If a member appears in several possible pairs, pick only their strongest match.
+4. Never invent or exaggerate. Only use what is written in FORM or NOTION data. Mark anything unclear as "unverified".
+5. Watch for name confusion — if two people could be mixed up (e.g. similar names), flag it.
+6. Flag possible conflicts: competitors in the same niche, or someone in transition/low capacity.
+7. Never include revenue figures, revenue ranges, or tier information in any message.
+8. Do not write a "send" message. Write a PRIVATE ASK for each member (2-3 sentences, one specific reason, an easy out like "no pressure, just say if not").
 ${alreadySentSection}
 Member profiles:
 ${profileSummaries}
@@ -178,8 +224,12 @@ ${profileSummaries}
 Return a JSON array of up to 5 objects with these exact keys:
 - "a": name of first member
 - "b": name of second member
-- "reason": 1-2 sentence explanation of why this pairing makes sense
-- "draft": a WhatsApp intro message draft (3-4 sentences, warm and direct, as if from the community manager)
+- "need_offer": one sentence — "[A] needs X / [B] offers Y" quoting from their data
+- "why_now": one sentence on timing or relevance
+- "risk": any conflict, name confusion, or capacity flag (empty string if none)
+- "confidence": "high", "medium", or "low"
+- "ask_a": private WhatsApp ask to send member A first (2-3 sentences, specific reason, easy out)
+- "ask_b": private WhatsApp ask to send member B first (2-3 sentences, specific reason, easy out)
 
 Return ONLY valid JSON, no markdown fences.`;
 

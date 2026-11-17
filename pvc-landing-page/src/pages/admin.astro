@@ -1325,17 +1325,25 @@ function loadIntros() {
     var crossCheck = data.crossCheck || [];
 
     window._introPairs = pairs;
+    var confidenceColor = { high: 'var(--green)', medium: 'var(--amber)', low: 'var(--silver-dim)' };
     var pairsHTML = pairs.length ? pairs.map(function(p, idx) {
+      var conf = p.confidence || 'medium';
+      var confCol = confidenceColor[conf] || confidenceColor.medium;
       return '<div class="card intro-pair-card" id="intro-pair-' + idx + '" style="margin-bottom:16px">' +
-        '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">' +
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
           '<span style="font-weight:700;font-size:14px;color:var(--text-primary)">' + esc(p.a) + '</span>' +
           '<span style="color:var(--text-muted)">↔</span>' +
           '<span style="font-weight:700;font-size:14px;color:var(--text-primary)">' + esc(p.b) + '</span>' +
+          '<span style="margin-left:auto;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:' + confCol + '">' + esc(conf) + '</span>' +
         '</div>' +
-        '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">' + esc(p.reason) + '</div>' +
-        '<div style="background:var(--surface-l);border-radius:8px;padding:12px;font-size:13px;white-space:pre-wrap;color:var(--text-primary);margin-bottom:12px">' + esc(p.draft) + '</div>' +
-        '<div style="display:flex;gap:8px">' +
-          '<a href="https://wa.me/?text=' + encodeURIComponent(p.draft) + '" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#25D366;color:#fff;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">Send on WhatsApp</a>' +
+        (p.need_offer ? '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px"><strong>Why:</strong> ' + esc(p.need_offer) + '</div>' : '') +
+        (p.why_now ? '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px"><strong>Timing:</strong> ' + esc(p.why_now) + '</div>' : '') +
+        (p.risk ? '<div style="font-size:12px;color:var(--amber);margin-bottom:8px;padding:6px 10px;background:rgba(212,160,23,0.08);border-radius:4px"><strong>Flag:</strong> ' + esc(p.risk) + '</div>' : '') +
+        (p.ask_a ? '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px">Ask ' + esc(p.a) + ' first</div><div style="background:var(--surface-l);border-radius:8px;padding:12px;font-size:13px;white-space:pre-wrap;color:var(--text-primary)">' + esc(p.ask_a) + '</div></div>' : '') +
+        (p.ask_b ? '<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px">Ask ' + esc(p.b) + ' first</div><div style="background:var(--surface-l);border-radius:8px;padding:12px;font-size:13px;white-space:pre-wrap;color:var(--text-primary)">' + esc(p.ask_b) + '</div></div>' : '') +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+          (p.ask_a ? '<a href="https://wa.me/?text=' + encodeURIComponent(p.ask_a) + '" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#25D366;color:#fff;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">Ask ' + esc(p.a) + ' on WA</a>' : '') +
+          (p.ask_b ? '<a href="https://wa.me/?text=' + encodeURIComponent(p.ask_b) + '" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#25D366;color:#fff;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">Ask ' + esc(p.b) + ' on WA</a>' : '') +
           '<button onclick="markIntroSent(' + idx + ', this)" style="padding:7px 14px;background:var(--surface-l);border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer">Mark as sent</button>' +
         '</div>' +
       '</div>';
@@ -1353,7 +1361,7 @@ function loadIntros() {
       '</div>' : '';
 
     panel.innerHTML =
-      '<div class="page-sub" style="margin-bottom:16px">AI-suggested member introductions based on onboarding form data</div>' +
+      '<div class="page-sub" style="margin-bottom:16px">AI-suggested introductions using onboarding form data + Notion Member Intelligence (bottleneck, goal, connections made)</div>' +
       pairsHTML + crossHTML;
   }).catch(function(e) {
     if (panel) panel.innerHTML = '<div class="empty-state"><p>' + esc(e.message) + '</p></div>';

@@ -4,3 +4,5 @@
 node_modules/
 .vercel/
 Creative Direction Assets/
+.env
+.env*.local

@@ -294,12 +294,12 @@ section { padding: 72px 0; }
 .form { display: grid; gap: 10px; margin-top: 22px; }
 .form label { font-size: .88rem; color: var(--muted); }
 .form .opt { opacity: .7; }
-.form input:not([type="radio"]) {
+.form input:not([type="radio"]):not([type="checkbox"]) {
   width: 100%; min-height: 54px; border-radius: 14px; border: 1px solid var(--line); background: var(--white);
   color: var(--black); font: 400 1rem "Geist", sans-serif; padding: 0 16px;
 }
 .form input::placeholder { color: rgba(58,38,24,.4); }
-.form input:not([type="radio"]):focus { outline: 2px solid var(--brown); outline-offset: 1px; }
+.form input:not([type="radio"]):not([type="checkbox"]):focus { outline: 2px solid var(--brown); outline-offset: 1px; }
 .form .btn { margin-top: 8px; width: 100%; }
 .hp { position: absolute; left: -9999px; }
 .form-note { font-size: .82rem; color: var(--muted); margin: 0; }
@@ -315,7 +315,9 @@ section { padding: 72px 0; }
 .pills span { display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--white); color: var(--black); font-size: .92rem; transition: background .2s, color .2s, border-color .2s; }
 .pills input:checked + span { background: var(--black); color: var(--white); border-color: var(--black); }
 .pills input:focus-visible + span { outline: 2px solid var(--brown); outline-offset: 2px; }
-.m-skip { background: none; border: 0; font: inherit; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 6px; justify-self: center; }
+.consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 6px; font-size: .85rem; line-height: 1.45; color: var(--muted); cursor: pointer; }
+.consent input { width: 18px; height: 18px; margin: 1px 0 0; flex: none; accent-color: var(--brown); }
+.consent a { color: var(--brown); }
 .m-done { margin-top: 22px; width: 100%; }
 @media (min-width: 640px) {
   .modal { width: min(100% - 32px, 500px); margin: auto; border-radius: 28px; padding: 36px 32px 28px; box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 40px 100px -30px rgba(0,0,0,.5); }
@@ -678,32 +680,25 @@ footer .mark { color: var(--cream); }
     <p class="m-sub">Free. You'll hear first when doors open.</p>
     <form class="form" id="waitlist" novalidate>
       <label for="w-name">First name</label>
-      <input id="w-name" name="name" autocomplete="given-name" placeholder="Thabo" required>
+      <input id="w-name" name="name" autocomplete="given-name" maxlength="50" placeholder="Thabo" required>
       <label for="w-email">Email</label>
-      <input id="w-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@email.com" required>
-      <label for="w-contact">WhatsApp or Instagram <span class="opt">(optional)</span></label>
-      <input id="w-contact" name="contact" maxlength="60" autocomplete="tel" placeholder="07X XXX XXXX or @yourhandle">
+      <input id="w-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" placeholder="you@email.com" required>
+      <label for="w-whatsapp">WhatsApp <span class="opt">(optional)</span></label>
+      <input id="w-whatsapp" name="whatsapp" type="tel" autocomplete="tel" inputmode="tel" maxlength="25" placeholder="WhatsApp number, e.g. +27 82 123 4567">
+      <label for="w-instagram">Instagram <span class="opt">(optional)</span></label>
+      <input id="w-instagram" name="instagram" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="31" placeholder="@yourhandle">
+      <fieldset class="q"><legend>What would feel like a fair monthly price for a community like this?</legend><div class="pills"><label><input type="radio" name="would_pay" value="Under R300"><span>Under R300</span></label><label><input type="radio" name="would_pay" value="R300 to R500"><span>R300 to R500</span></label><label><input type="radio" name="would_pay" value="R500 to R800"><span>R500 to R800</span></label><label><input type="radio" name="would_pay" value="Not sure yet"><span>Not sure yet</span></label></div></fieldset>
+      <fieldset class="q"><legend>What best describes you right now?</legend><div class="pills"><label><input type="radio" name="current_situation" value="Employed full-time"><span>Employed full-time</span></label><label><input type="radio" name="current_situation" value="Employed part-time or freelancing"><span>Employed part-time or freelancing</span></label><label><input type="radio" name="current_situation" value="Studying"><span>Studying</span></label><label><input type="radio" name="current_situation" value="Between jobs"><span>Between jobs</span></label></div></fieldset>
       <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <label class="consent"><input type="checkbox" name="consent" required><span>I agree to receive emails and WhatsApp messages from Lliam about Art of Sales. You can unsubscribe anytime. <a href="/artofsales/privacy">Privacy</a></span></label>
       <button class="btn big" type="submit">Join the waitlist</button>
       <p class="form-msg" role="status" aria-live="polite"></p>
-      <p class="form-note">I'll only contact you about Art of Sales. Unsubscribe anytime. <a href="/artofsales/privacy">Privacy</a></p>
+      <p class="form-note">I'll only use these to message you about the waitlist.</p>
     </form>
   </div>
   <div class="step" data-step="2" hidden>
-    <h2>You're on the list<span class="m-name"></span>.</h2>
-    <p class="m-sub">Three quick questions? They help me get this right.</p>
-    <form class="form" id="answers" novalidate>
-      <fieldset class="q"><legend>What would getting into sales change for you first?</legend><div class="pills"><label><input type="radio" name="goal" value="More money each month"><span>More money each month</span></label><label><input type="radio" name="goal" value="Work from anywhere"><span>Work from anywhere</span></label><label><input type="radio" name="goal" value="Leave my job"><span>Leave my job</span></label><label><input type="radio" name="goal" value="A skill I can grow with"><span>A skill I can grow with</span></label></div></fieldset>
-      <fieldset class="q"><legend>What's the most you'd pay a month for this?</legend><div class="pills"><label><input type="radio" name="maxPrice" value="Under R200"><span>Under R200</span></label><label><input type="radio" name="maxPrice" value="R200 to R500"><span>R200 to R500</span></label><label><input type="radio" name="maxPrice" value="R500 to R1,000"><span>R500 to R1,000</span></label><label><input type="radio" name="maxPrice" value="Over R1,000"><span>Over R1,000</span></label></div></fieldset>
-      <fieldset class="q"><legend>What do you earn a month right now?</legend><div class="pills"><label><input type="radio" name="income" value="Not working"><span>Not working</span></label><label><input type="radio" name="income" value="Under R8K"><span>Under R8K</span></label><label><input type="radio" name="income" value="R8K to R20K"><span>R8K to R20K</span></label><label><input type="radio" name="income" value="Over R20K"><span>Over R20K</span></label></div></fieldset>
-      <button class="btn big" type="submit">Send answers</button>
-      <button class="m-skip" type="button">Skip</button>
-      <p class="form-msg" role="status" aria-live="polite"></p>
-    </form>
-  </div>
-  <div class="step" data-step="3" hidden>
-    <h2>Done. Talk soon.</h2>
-    <p class="m-sub">Keep an eye on your inbox. Follow <a href="https://instagram.com/artofsales.io" rel="noopener">@artofsales.io</a> while you wait.</p>
+    <h2>You're on the list.</h2>
+    <p class="m-sub">Check your inbox for a message from Lliam (check spam or promotions if it's not there).</p>
     <button class="btn big m-done" type="button">Close</button>
   </div>
 </dialog>
@@ -801,78 +796,71 @@ document.querySelectorAll('.gcard').forEach(function (c) {
   });
 })();
 
-// Waitlist popup: every "Join the waitlist" link opens it. Step 1 saves name and email to Brevo straight away,
-// step 2 sends the optional answers to the same contact, step 3 says thanks.
+// Waitlist popup: every "Join the waitlist" button opens it (the top bar one scrolls to the final section first).
+// The form posts to /api/artofsales-waitlist, which adds the person to MailerLite; on success the form is swapped for a thank-you.
 (function () {
   function track(n, p) { if (window.posthog && posthog.capture) posthog.capture(n, p || {}); }
   var modal = document.getElementById('waitlist-modal');
-  var signup = document.getElementById('waitlist'), answers = document.getElementById('answers');
-  var saved = {};
+  var signup = document.getElementById('waitlist');
+  var joined = false;
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   function step(n) {
     modal.querySelectorAll('.step').forEach(function (el) { el.hidden = el.getAttribute('data-step') !== String(n); });
-    var first = modal.querySelector('.step[data-step="' + n + '"] input, .step[data-step="' + n + '"] button');
-    if (first && n !== 1) first.focus();
   }
   function open(where) {
     track('aos_waitlist_click', { location: where });
     if (!modal.showModal) { location.hash = 'join'; return; }
     modal.showModal();
-    setTimeout(function () { (saved.email ? modal.querySelector('.m-done') : signup.name).focus(); }, 50);
+    setTimeout(function () { (joined ? modal.querySelector('.m-done') : signup.name).focus(); }, 50);
   }
   document.querySelectorAll('a[href="#join"]').forEach(function (a) {
     a.addEventListener('click', function (e) {
       e.preventDefault();
       // The top bar button scrolls down to the final section; every other button opens the popup.
       if (a.closest('header')) {
-        if (window.posthog && posthog.capture) posthog.capture('aos_waitlist_click', { location: 'nav' });
+        track('aos_waitlist_click', { location: 'nav' });
         document.getElementById('join').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
         return;
       }
-      open(a.closest('header') ? 'nav' : a.closest('.hero') ? 'hero' : a.closest('#pricing') ? 'pricing' : a.closest('.sticky-join') ? 'sticky' : a.closest('.pain-count') ? 'pains' : 'final');
+      open(a.closest('.hero') ? 'hero' : a.closest('#pricing') ? 'pricing' : a.closest('.sticky-join') ? 'sticky' : a.closest('.pain-count') ? 'pains' : 'final');
     });
   });
   modal.querySelector('.m-close').addEventListener('click', function () { modal.close(); });
   modal.querySelector('.m-done').addEventListener('click', function () { modal.close(); });
   modal.addEventListener('click', function (e) { if (e.target === modal) modal.close(); });
 
-  function post(body) {
-    return fetch('/api/artofsales-waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || 'Something went wrong. Try again.'); return d; }); });
-  }
-  function val(form, n) { var el = form.querySelector('input[name="' + n + '"]:checked'); return el ? el.value : ''; }
+  function val(n) { var el = signup.querySelector('input[name="' + n + '"]:checked'); return el ? el.value : ''; }
 
   signup.addEventListener('submit', function (e) {
     e.preventDefault();
-    var msg = signup.querySelector('.form-msg'), btn = signup.querySelector('button');
+    var msg = signup.querySelector('.form-msg'), btn = signup.querySelector('button[type="submit"]');
     var name = signup.name.value.trim(), email = signup.email.value.trim();
+    function err(text, field) { msg.textContent = text; msg.classList.add('err'); if (field) field.focus(); }
     msg.className = 'form-msg'; msg.textContent = '';
-    if (!name) { msg.textContent = 'Add your first name.'; msg.classList.add('err'); signup.name.focus(); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = 'That email doesn\'t look right.'; msg.classList.add('err'); signup.email.focus(); return; }
+    if (!name) return err('Add your first name.', signup.name);
+    if (!EMAIL_RE.test(email)) return err('That email doesn\'t look right.', signup.email);
+    var whatsapp = signup.whatsapp.value.replace(/[\s()-]/g, ''), instagram = signup.instagram.value.trim().replace(/^@+/, '');
+    if (whatsapp && !/^\+?\d{9,15}$/.test(whatsapp)) return err('Check your WhatsApp number, e.g. +27 82 123 4567.', signup.whatsapp);
+    if (instagram && !/^[A-Za-z0-9._]{1,30}$/.test(instagram)) return err('Check your Instagram handle, e.g. @yourhandle.', signup.instagram);
+    if (!val('would_pay')) return err('Pick a monthly price option.', signup.querySelector('input[name="would_pay"]'));
+    if (!val('current_situation')) return err('Pick what best describes you right now.', signup.querySelector('input[name="current_situation"]'));
+    if (!signup.consent.checked) return err('Tick the box to agree to emails.', signup.consent);
+    var body = { name: name, email: email, whatsapp: whatsapp, instagram: instagram, would_pay: val('would_pay'), current_situation: val('current_situation'), consent: true, website: signup.website.value };
     btn.disabled = true; btn.textContent = 'Joining…';
-    saved = { name: name, email: email, contact: signup.contact.value.trim() };
-    post({ name: name, email: email, contact: saved.contact, website: signup.website.value })
-      .then(function () {
-        track('aos_waitlist_joined');
-        modal.querySelector('.m-name').textContent = ', ' + name;
+    fetch('/api/artofsales-waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (d) {
+        if (!d.ok) throw new Error(d.error || 'Something went wrong. Try again.');
+        joined = true;
+        track('aos_waitlist_joined', { would_pay: body.would_pay, current_situation: body.current_situation, gave_whatsapp: !!whatsapp, gave_instagram: !!instagram });
         step(2);
+        modal.querySelector('.m-done').focus();
       })
-      .catch(function (err) { saved = {}; btn.disabled = false; btn.textContent = 'Join the waitlist'; msg.textContent = err.message; msg.classList.add('err'); });
+      .catch(function (e2) {
+        btn.disabled = false; btn.textContent = 'Join the waitlist';
+        err(e2 && e2.message && e2.message !== 'Failed to fetch' ? e2.message : 'Couldn\'t connect. Check your signal and try again.');
+      });
   });
-
-  answers.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var a = { goal: val(answers, 'goal'), maxPrice: val(answers, 'maxPrice'), income: val(answers, 'income') };
-    if (!a.goal && !a.maxPrice && !a.income) { step(3); return; }
-    var btn = answers.querySelector('button[type="submit"]'), msg = answers.querySelector('.form-msg');
-    btn.disabled = true; btn.textContent = 'Sending…';
-    post({ name: saved.name, email: saved.email, contact: saved.contact, goal: a.goal, maxPrice: a.maxPrice, income: a.income })
-      .then(function () {
-        track('aos_waitlist_answers', { goal: a.goal || 'skipped', max_price: a.maxPrice || 'skipped', income: a.income || 'skipped' });
-        step(3);
-      })
-      .catch(function (err) { btn.disabled = false; btn.textContent = 'Send answers'; msg.textContent = err.message; msg.classList.add('err'); });
-  });
-  modal.querySelector('.m-skip').addEventListener('click', function () { track('aos_waitlist_answers', { skipped: true }); step(3); });
 })();
 </script>
 </body>

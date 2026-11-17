@@ -233,8 +233,7 @@ section { padding: 72px 0; }
   margin-top: 36px; background: var(--cream); color: var(--text); border-radius: 26px; padding: 30px 22px;
   max-width: 520px;
 }
-.price { font-size: clamp(1.6rem, 6vw, 2rem); font-weight: 500; letter-spacing: -.05em; color: var(--black); line-height: 1; }
-.price small { font-size: 1.05rem; letter-spacing: 0; color: var(--muted); font-weight: 400; }
+.price-pilot { font-size: clamp(1.2rem, 4.6vw, 1.45rem); font-weight: 500; letter-spacing: -.03em; color: var(--black); line-height: 1.25; margin: 0; }
 .price-note { color: var(--muted); margin: 10px 0 22px; }
 .inc { list-style: none; padding: 0; margin: 0 0 26px; display: grid; gap: 10px; }
 .inc li { padding-left: 28px; position: relative; color: var(--black); }
@@ -331,7 +330,6 @@ footer .mark { color: var(--cream); }
 .foot-links { display: flex; flex-wrap: wrap; gap: 10px 20px; margin: 18px 0; }
 .foot-links a { color: rgba(255,255,255,.85); text-decoration: none; }
 .foot-links a:hover { text-decoration: underline; }
-.placeholder { background: #f2b8a2; color: var(--black); padding: 0 6px; border-radius: 4px; }
 
 /* Hero art: rings, example setting call (live call screen with captions) */
 .hero-bg { position: relative; isolation: isolate; }
@@ -412,7 +410,6 @@ footer .mark { color: var(--cream); }
 .motion .span60.in i { transform: none; }
 .motion .checks li::before { transform: scale(0) rotate(-30deg); transition: transform .6s cubic-bezier(.3,1.6,.5,1); transition-delay: calc(var(--i, 0) * 90ms + .35s); }
 .motion .checks li.in::before { transform: none; }
-.motion .price-card .price { display: inline-block; }
 
 /* Reveal */
 .motion .rv { opacity: 0; transform: translateY(18px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: calc(var(--i, 0) * 70ms); }
@@ -472,6 +469,7 @@ footer .mark { color: var(--cream); }
   .controls { padding-top: 12px; }
   .cap-line { font-size: .82rem; }
 </style>
+<script src="/artofsales/contact.js" defer></script>
 </head>
 <body>
 <div class="page">
@@ -631,8 +629,8 @@ footer .mark { color: var(--cream); }
         <p class="intro">Doors aren't open yet. Join and you'll hear first when they are.</p>
       </div>
       <div class="price-card">
-        <div class="price">Under R1k/m</div>
-        <p class="price-note">Cancel anytime. Exact price when doors open.</p>
+        <p class="price-pilot">Pilot pricing is announced to the waitlist first.</p>
+        <p class="price-note">Cancel anytime.</p>
         <ul class="inc">
           <li>The course: everything that's worked for me</li>
           <li>Call and DM scripts</li>
@@ -698,7 +696,7 @@ footer .mark { color: var(--cream); }
   </div>
   <div class="step" data-step="2" hidden>
     <h2>You're on the list.</h2>
-    <p class="m-sub">Check your inbox. If you don’t see it in a minute, check Spam or Promotions, mark it ‘Not spam’, and add <b>lliam@lliamhumphrey.com</b> to your contacts.</p>
+    <p class="m-sub">Check your inbox. If you don’t see it in a minute, check Spam or Promotions, mark it ‘Not spam’, and add <b><a data-contact-email></a></b> to your contacts.</p>
     <button class="btn big m-done" type="button">Close</button>
   </div>
 </dialog>
@@ -710,8 +708,8 @@ footer .mark { color: var(--cream); }
       <a href="/artofsales/terms">Terms</a>
       <a href="/artofsales/privacy">Privacy</a>
       <a href="/artofsales/refunds">Refund policy</a>
-      <a href="https://instagram.com/artofsales.io" rel="noopener">Instagram @artofsales.io</a>
-      <span class="placeholder">hello@ (email to come)</span>
+      <a href="https://instagram.com/lliamsells" rel="noopener">Instagram @lliamsells</a>
+      <a data-contact-email></a>
     </div>
     <p>Art of Sales is training and community. It is not a job offer or employment agency, and results aren't guaranteed. Run by Lliam Humphrey, Johannesburg.</p>
   </div>

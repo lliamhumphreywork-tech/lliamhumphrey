@@ -16,7 +16,7 @@ const NOISE = (id: string) => `
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Founders' Padel Social · Private Victories Club</title>
-  <meta name="description" content="Play padel with other founders. Leave with people you want to know. Friday 11 December · Discovery Padel Park · Cape Town." />
+  <meta name="description" content="Play padel with other founders. Leave with people you want to know. Friday 11 December · Discovery Padel Park · Johannesburg." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -39,10 +39,12 @@ const NOISE = (id: string) => `
 
 <!-- HERO -->
 <section class="pd-hero">
+  <img class="pd-hero-bg" src="/images/padel-hero.jpg" alt="" aria-hidden="true" />
+  <div class="pd-hero-overlay"></div>
   <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('pd1')} />
   <div class="pd-hero-inner">
-    <p class="pd-hero-label reveal">Cape Town · December 2026</p>
-    <h1 class="pd-hero-word reveal d1">Padel</h1>
+    <p class="pd-hero-label reveal">Johannesburg · December 2026</p>
+    <h1 class="pd-hero-word reveal d1">Johannesburg<br/>Padel</h1>
     <p class="pd-hero-sub reveal d2">A Private Victories Social</p>
     <a href="#tickets" class="pd-hero-cta scroll-to-tickets reveal d3">Reserve My Spot</a>
     <div class="pd-hero-meta reveal d4">
@@ -57,7 +59,7 @@ const NOISE = (id: string) => `
 
 <!-- STICKY BAR -->
 <div class="pd-sticky-bar" id="pd-sticky">
-  <span class="pd-sticky-label">Cape Town · 11 Dec</span>
+  <span class="pd-sticky-label">Johannesburg · 11 Dec</span>
   <a href="#tickets" class="pd-sticky-cta scroll-to-tickets">Reserve Your Spot</a>
 </div>
 
@@ -110,7 +112,7 @@ const NOISE = (id: string) => `
   <div class="pd-inner">
     <div class="pd-label reveal">The Premise</div>
     <p class="pd-premise-lead reveal d1">Not just a sports session.</p>
-    <p class="pd-premise-body reveal d2">90 minutes of padel across 6 courts, rotating games so you actually meet people, and a room limited to 40 founders. No pitching. No panels. Just play — and the conversations that happen when you're in motion.</p>
+    <p class="pd-premise-body reveal d2">90 minutes of padel across 6 courts, rotating games so you actually meet people, and a room limited to 40 founders. For those who'd rather watch than play, you can just chill. No pitching. No panels. Just play. The conversations happen naturally when you're in motion.</p>
     <div class="pd-stats reveal d3">
       <div class="pd-stat">
         <div class="pd-stat-num">40</div>
@@ -132,10 +134,10 @@ const NOISE = (id: string) => `
 
 <!-- FULL-BLEED PHOTO BREAK -->
 <div class="pd-full-break">
-  <img src="/images/IMG_4593 copy.jpeg" alt="PVC event atmosphere" loading="lazy" />
+  <img src="/images/dinner-venue-final.jpg" alt="PVC event venue" loading="lazy" />
   <div class="pd-full-break-overlay"></div>
   <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" set:html={NOISE('pd2')} />
-  <div class="pd-full-break-caption">Cape Town · CT Mastermind</div>
+  <div class="pd-full-break-caption">PVC · Founding Events</div>
 </div>
 
 <!-- STATEMENT -->
@@ -179,36 +181,37 @@ const NOISE = (id: string) => `
 </section>
 
 <!-- VIDEO STRIP -->
-<div class="pd-video-strip">
-  <div class="pd-video-block">
-    <video autoplay muted loop playsinline>
-      <source src="/videos/dinner-energy.mp4" type="video/mp4" />
-    </video>
+<div class="pd-video-section">
+  <div class="pd-video-grid pd-video-grid--2">
+    <div class="pd-video-slot">
+      <video autoplay muted loop playsinline>
+        <source src="/videos/dinner-energy.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <div class="pd-video-slot">
+      <video autoplay muted loop playsinline style="object-position: center 75%;">
+        <source src="/videos/ct-mastermind.mp4" type="video/mp4" />
+      </video>
+      <div class="pd-video-label">CT Mastermind · 2026</div>
+    </div>
   </div>
-  <div class="pd-video-block">
-    <video autoplay muted loop playsinline>
-      <source src="/videos/ct-mastermind.mp4" type="video/mp4" />
-    </video>
-    <div class="pd-video-label">CT Mastermind · 2026</div>
-  </div>
-</div>
-
-<div class="pd-video-strip pd-video-strip--3">
-  <div class="pd-video-block">
-    <video autoplay muted loop playsinline>
-      <source src="/videos/dinner-conversation.mp4" type="video/mp4" />
-    </video>
-  </div>
-  <div class="pd-video-block">
-    <video autoplay muted loop playsinline>
-      <source src="/videos/dinner-table.mp4" type="video/mp4" />
-    </video>
-  </div>
-  <div class="pd-video-block">
-    <video autoplay muted loop playsinline>
-      <source src="/videos/pvc-clips.mp4" type="video/mp4" />
-    </video>
-    <div class="pd-video-label">The Founding Dinner · Rosebank</div>
+  <div class="pd-video-grid pd-video-grid--3">
+    <div class="pd-video-slot">
+      <video autoplay muted loop playsinline>
+        <source src="/videos/dinner-conversation.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <div class="pd-video-slot">
+      <video autoplay muted loop playsinline>
+        <source src="/videos/dinner-table.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <div class="pd-video-slot">
+      <video autoplay muted loop playsinline>
+        <source src="/videos/pvc-clips.mp4" type="video/mp4" />
+      </video>
+      <div class="pd-video-label">The Founding Dinner · Rosebank</div>
+    </div>
   </div>
 </div>
 
@@ -233,9 +236,9 @@ const NOISE = (id: string) => `
       <span class="pd-dk">Date</span>
       <span class="pd-dv">Friday 11 December</span>
       <span class="pd-dk">Venue</span>
-      <span class="pd-dv pd-tbd">Discovery Padel Park · TBC</span>
+      <span class="pd-dv">Discovery Padel Park · Johannesburg</span>
       <span class="pd-dk">Time</span>
-      <span class="pd-dv pd-tbd">TBC</span>
+      <span class="pd-dv">5pm</span>
       <span class="pd-dk">What's included</span>
       <span class="pd-dv">Courts, rackets, balls</span>
       <span class="pd-dk">Food &amp; drink</span>
@@ -264,7 +267,6 @@ const NOISE = (id: string) => `
       <div class="pd-tier reveal d2">
         <div class="pd-tier-left">
           <div class="pd-tier-badge">General Admission</div>
-          <div class="pd-tier-price">R400</div>
           <div class="pd-tier-hint">Open to all founders.</div>
           <div class="pd-tier-wm" aria-hidden="true">PVC</div>
         </div>
@@ -283,7 +285,7 @@ const NOISE = (id: string) => `
     <!-- PAYMENT FORM -->
     <div id="pd-form-view" style="display:none;" class="pd-form-wrap">
       <button class="pd-back-btn" id="pd-back">&larr; Back</button>
-      <div class="pd-form-eyebrow">Founders' Padel Social · R400</div>
+      <div class="pd-form-eyebrow">Founders Padel Social · Johannesburg</div>
       <div class="pd-form-field">
         <label class="pd-form-label" for="pd-name">Full Name</label>
         <input type="text" id="pd-name" placeholder="Your name" autocomplete="name" />
@@ -292,7 +294,8 @@ const NOISE = (id: string) => `
         <label class="pd-form-label" for="pd-email">Email</label>
         <input type="email" id="pd-email" placeholder="you@example.com" autocomplete="email" />
       </div>
-      <button class="cta-btn" id="pd-checkout" style="width:100%;margin-top:8px;">Pay Now · R400</button>
+      <button class="cta-btn" id="pd-checkout" style="width:100%;margin-top:8px;">Proceed to Checkout</button>
+      <p class="pd-secure-note">Secure checkout on Paystack</p>
       <div class="pd-error" id="pd-error" style="display:none;"></div>
     </div>
 
@@ -300,12 +303,12 @@ const NOISE = (id: string) => `
     <div id="pd-success" style="display:none;" class="pd-success">
       <div class="pd-success-mark">✓</div>
       <h2 class="pd-success-title">You're in.</h2>
-      <p class="pd-success-body">Check your inbox — confirmation is on its way. See you on the courts.</p>
+      <p class="pd-success-body">Check your inbox. Confirmation is on its way. See you on the courts.</p>
     </div>
 
     <div class="pd-fine-print reveal">
       <p><strong>Refund policy:</strong> Full refund if you cancel more than 7 days before the event. No refunds within 7 days, but your spot is transferable.</p>
-      <p>Questions? DM <a href="https://instagram.com/lliam.humphrey" target="_blank" rel="noopener">@lliam.humphrey</a> on Instagram.</p>
+      <p>Questions? DM <a href="https://instagram.com/privatevictories.club" target="_blank" rel="noopener">@privatevictories.club</a> on Instagram.</p>
     </div>
   </div>
 </section>
@@ -453,6 +456,15 @@ const NOISE = (id: string) => `
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; position: relative; overflow: hidden;
     padding: 120px 24px 180px;
+  }
+  .pd-hero-bg {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
+    opacity: 0.35; z-index: 0;
+  }
+  .pd-hero-overlay {
+    position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(to bottom, rgba(8,8,8,0.55) 0%, rgba(8,8,8,0.3) 40%, rgba(8,8,8,0.75) 100%);
   }
   .pd-hero-inner { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 0; }
 
@@ -669,29 +681,33 @@ const NOISE = (id: string) => `
     border-top: 1px solid rgba(196,184,192,0.08);
   }
 
-  /* ── VIDEO STRIP ── */
-  .pd-video-strip {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
-    background: var(--pure-black);
+  /* ── VIDEO SECTION ── */
+  .pd-video-section { background: var(--charcoal); padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
+  .pd-video-grid {
+    display: grid; gap: 16px;
   }
-  .pd-video-strip--3 { grid-template-columns: 1fr 1fr 1fr; }
+  .pd-video-grid--2 { grid-template-columns: 1fr 1fr; }
+  .pd-video-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+
   @media (max-width: 768px) {
-    .pd-video-strip { grid-template-columns: 1fr; }
-    .pd-video-strip--3 { grid-template-columns: 1fr 1fr; }
+    .pd-video-grid--2 { grid-template-columns: 1fr; }
+    .pd-video-grid--3 { grid-template-columns: 1fr 1fr; }
+    .pd-video-section { padding: 16px; gap: 12px; }
   }
-  @media (max-width: 480px) { .pd-video-strip--3 { grid-template-columns: 1fr; } }
+  @media (max-width: 480px) { .pd-video-grid--3 { grid-template-columns: 1fr; } }
 
-  .pd-video-block {
-    position: relative; overflow: hidden;
-    aspect-ratio: 4/3;
+  .pd-video-slot {
+    position: relative; overflow: hidden; aspect-ratio: 4/3;
+    background: var(--black);
   }
-  .pd-video-strip--3 .pd-video-block { aspect-ratio: 3/4; }
+  .pd-video-grid--3 .pd-video-slot { aspect-ratio: 3/4; }
 
-  .pd-video-block video {
+  .pd-video-slot video {
     width: 100%; height: 100%; object-fit: cover; display: block;
   }
   .pd-video-label {
-    position: absolute; bottom: 16px; left: 16px;
+    position: absolute; bottom: 14px; left: 14px;
     font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
     color: rgba(196,184,192,0.5); z-index: 2;
   }
@@ -768,8 +784,7 @@ const NOISE = (id: string) => `
   @media (max-width: 700px) { .pd-tier-left { border-right: none; border-bottom: 1px solid rgba(196,184,192,0.12); } }
 
   .pd-tier-badge { font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase; color: var(--lavender); }
-  .pd-tier-price { font-family: var(--g); font-size: 48px; font-weight: 300; color: var(--white); letter-spacing: -2px; }
-  .pd-tier-hint { font-family: var(--s); font-size: 12px; color: var(--lavender-dim); }
+  .pd-tier-hint { font-family: var(--s); font-size: 12px; color: var(--lavender-dim); margin-top: 6px; }
   .pd-tier-wm {
     position: absolute; bottom: -10px; right: -4px;
     font-family: var(--g); font-size: 72px; font-weight: 800;
@@ -808,6 +823,13 @@ const NOISE = (id: string) => `
   .pd-success-mark { font-family: var(--g); font-size: 72px; color: var(--lavender); line-height: 1; margin-bottom: 24px; }
   .pd-success-title { font-family: var(--g); font-size: 48px; font-weight: 700; color: var(--white); letter-spacing: -2px; margin-bottom: 16px; }
   .pd-success-body { font-family: var(--s); font-size: 16px; color: var(--lavender-dim); }
+
+  /* Secure note */
+  .pd-secure-note {
+    text-align: center; margin-top: 14px;
+    font-family: var(--s); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(196,184,192,0.35);
+  }
 
   /* Fine print */
   .pd-fine-print { margin-top: 48px; border-top: 1px solid rgba(196,184,192,0.1); padding-top: 32px; display: flex; flex-direction: column; gap: 12px; }

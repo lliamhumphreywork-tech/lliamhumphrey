@@ -1,0 +1,313 @@
+---
+export const prerender = false;
+const PS_KEY = import.meta.env.PUBLIC_PAYSTACK_KEY ?? '';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Founders' Padel Social · Private Victories Club</title>
+  <meta name="description" content="Play padel with other founders. Leave with people you want to know. Friday 11 December · Discovery Padel Park." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script is:inline src="https://js.paystack.co/v1/inline.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black:       #08111f;
+      --navy:        #0a1628;
+      --navy-mid:    #0d1e36;
+      --cream:       #ece6da;
+      --white:       #ffffff;
+      --silver:      #a8b8c8;
+      --silver-dim:  #4a5666;
+      --silver-light:#dde4ec;
+      --muted:       rgba(236,230,218,0.5);
+      --border:      rgba(168,184,200,0.2);
+    }
+    html, body { min-height: 100vh; }
+    body { background: var(--navy); color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.6; }
+
+    .top-bar { height: 2px; background: var(--silver); }
+
+    nav { max-width: 680px; margin: 0 auto; padding: 32px 24px 0; }
+    .nav-brand { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); text-decoration: none; transition: color 0.2s; }
+    .nav-brand:hover { color: var(--silver); }
+
+    .wrap { max-width: 680px; margin: 0 auto; padding: 72px 24px 120px; }
+
+    /* ── HERO ── */
+    .eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--silver); margin-bottom: 20px; }
+    h1 { font-family: 'Syne', sans-serif; font-size: clamp(44px, 10vw, 80px); font-weight: 300; line-height: 1.0; color: var(--white); margin-bottom: 32px; }
+    .hero-sub { font-size: 17px; color: var(--muted); line-height: 1.65; max-width: 480px; margin-bottom: 56px; }
+
+    /* ── DIVIDER ── */
+    .divider { height: 1px; background: var(--border); margin: 48px 0; }
+
+    /* ── SECTION LABEL ── */
+    .section-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 20px; }
+
+    /* ── WHAT YOU GET ── */
+    .gets { display: flex; flex-direction: column; gap: 12px; margin-bottom: 0; }
+    .gets li { display: flex; align-items: flex-start; gap: 14px; font-size: 15px; color: rgba(236,230,218,0.75); list-style: none; }
+    .gets li::before { content: '·'; color: var(--silver); flex-shrink: 0; }
+
+    /* ── DETAILS GRID ── */
+    .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .detail-row { display: contents; }
+    .detail-key { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--silver-dim); padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .detail-val { font-size: 15px; color: var(--cream); padding: 14px 0; border-bottom: 1px solid var(--border); text-align: right; }
+    .detail-val.tbd { color: var(--silver-dim); font-style: italic; }
+
+    /* ── WHO ── */
+    .who-body { font-size: 15px; color: rgba(236,230,218,0.75); line-height: 1.7; }
+
+    /* ── TICKETS ── */
+    .ticket-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .ticket-option {
+      display: flex; align-items: center; gap: 20px;
+      border: 1px solid var(--border);
+      padding: 20px 24px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      background: rgba(255,255,255,0.02);
+    }
+    .ticket-option:hover { border-color: rgba(168,184,200,0.45); }
+    .ticket-option.selected { border-color: var(--silver); background: rgba(168,184,200,0.05); }
+    .ticket-radio { width: 16px; height: 16px; border: 1px solid var(--silver-dim); border-radius: 50%; flex-shrink: 0; position: relative; transition: border-color 0.2s; }
+    .ticket-option.selected .ticket-radio { border-color: var(--silver); }
+    .ticket-option.selected .ticket-radio::after { content: ''; position: absolute; inset: 3px; background: var(--silver); border-radius: 50%; }
+    .ticket-info { flex: 1; }
+    .ticket-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
+    .ticket-note { font-size: 12px; color: var(--silver-dim); letter-spacing: 0.5px; }
+    .ticket-price { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 300; color: var(--white); }
+
+    /* ── FORM ── */
+    .form-field { margin-bottom: 24px; }
+    .form-label { display: block; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 10px; }
+    input[type="text"], input[type="email"] {
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 15px;
+      padding: 14px 16px; outline: none; transition: border-color 0.2s;
+      -webkit-appearance: none; border-radius: 0;
+    }
+    input:focus { border-color: var(--silver); }
+    input::placeholder { color: var(--silver-dim); }
+
+    .pay-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; background: var(--silver); color: var(--black);
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      padding: 18px 40px; border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.15s; margin-top: 8px;
+    }
+    .pay-btn:hover:not(:disabled) { background: var(--silver-light); transform: translateY(-1px); }
+    .pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .error-msg { display: none; margin-top: 16px; padding: 14px 16px; background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.3); color: #e09090; font-size: 14px; }
+
+    /* ── FINE PRINT ── */
+    .fine-print { margin-top: 48px; display: flex; flex-direction: column; gap: 16px; }
+    .fine-print p { font-size: 13px; color: var(--silver-dim); line-height: 1.65; }
+    .fine-print strong { color: rgba(236,230,218,0.6); font-weight: 500; }
+
+    /* ── NOT A MEMBER ── */
+    .not-member { margin-top: 48px; padding: 28px; border: 1px solid var(--border); }
+    .not-member-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 10px; }
+    .not-member p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+    .not-member a { color: var(--silver); text-decoration: none; border-bottom: 1px solid rgba(168,184,200,0.3); }
+    .not-member a:hover { border-bottom-color: var(--silver); }
+
+    /* ── SUCCESS ── */
+    .success-state { display: none; text-align: center; padding: 64px 0; }
+    .success-icon { font-family: 'Syne', sans-serif; font-size: 60px; font-weight: 300; color: var(--silver); margin-bottom: 24px; }
+    .success-state h2 { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 300; color: var(--white); margin-bottom: 12px; }
+    .success-state p { color: var(--muted); font-size: 15px; }
+
+    footer { max-width: 680px; margin: 0 auto; padding: 32px 24px; border-top: 1px solid rgba(168,184,200,0.1); font-size: 11px; color: var(--silver-dim); letter-spacing: 1px; }
+    footer a { color: var(--silver-dim); text-decoration: none; }
+    footer a:hover { color: var(--silver); }
+
+    @media (max-width: 480px) {
+      .details-grid { grid-template-columns: 1fr; }
+      .detail-val { text-align: left; border-bottom: none; padding-top: 0; color: var(--muted); font-size: 14px; }
+      .detail-key { border-bottom: none; padding-bottom: 2px; }
+      .detail-row-wrap { border-bottom: 1px solid var(--border); padding: 12px 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="top-bar"></div>
+<nav><a href="/" class="nav-brand">Private Victories Club</a></nav>
+
+<div class="wrap">
+  <div id="main-section">
+    <div class="eyebrow">Founders' Social · December 2026</div>
+    <h1>Padel<br />Social</h1>
+    <p class="hero-sub">Play padel with other founders. Leave with people you want to know.</p>
+
+    <div class="divider"></div>
+
+    <div class="section-label">What you get</div>
+    <ul class="gets">
+      <li>90 minutes of padel on 6 courts</li>
+      <li>Rackets and balls provided</li>
+      <li>Rotating games, so you meet more than your own court</li>
+      <li>A room of founders, 40 spots only</li>
+    </ul>
+
+    <div class="divider"></div>
+
+    <div class="section-label">The details</div>
+    <div class="details-grid">
+      <span class="detail-key">Date</span>
+      <span class="detail-val">Friday 11 December</span>
+      <span class="detail-key">Time</span>
+      <span class="detail-val tbd">TBC</span>
+      <span class="detail-key">Venue</span>
+      <span class="detail-val tbd">Discovery Padel Park · TBC</span>
+      <span class="detail-key">Food &amp; drink</span>
+      <span class="detail-val">Available at venue, paid on the day</span>
+      <span class="detail-key">Wear</span>
+      <span class="detail-val">Sportswear &amp; flat-soled trainers</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-label">Who it's for</div>
+    <p class="who-body">Founders and business owners building something real. Beginner friendly — no padel experience needed. We'll mix levels so everyone gets a game.</p>
+
+    <div class="divider"></div>
+
+    <div class="section-label">Reserve your spot</div>
+
+    <div class="ticket-options" id="ticket-options">
+      <label class="ticket-option selected" id="opt-general">
+        <div class="ticket-radio"></div>
+        <div class="ticket-info">
+          <div class="ticket-name">General Admission</div>
+          <div class="ticket-note">Open to all founders</div>
+        </div>
+        <div class="ticket-price">R400</div>
+        <input type="radio" name="ticket" value="general" checked style="display:none" />
+      </label>
+      <label class="ticket-option" id="opt-member">
+        <div class="ticket-radio"></div>
+        <div class="ticket-info">
+          <div class="ticket-name">PVC Member</div>
+          <div class="ticket-note">Members only</div>
+        </div>
+        <div class="ticket-price">R350</div>
+        <input type="radio" name="ticket" value="member" style="display:none" />
+      </label>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="name">Full Name</label>
+      <input type="text" id="name" placeholder="Your name" autocomplete="name" />
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="email">Email Address</label>
+      <input type="email" id="email" placeholder="your@email.com" autocomplete="email" />
+    </div>
+
+    <button class="pay-btn" id="pay-btn">Reserve My Spot · R400</button>
+    <div class="error-msg" id="error-msg"></div>
+
+    <div class="fine-print">
+      <p><strong>Refunds:</strong> If you can't make it, we'll refund your ticket up to 48 hours before the event (by Wednesday 9 December). After that, tickets are non-refundable.</p>
+      <p><strong>Rain plan:</strong> To be confirmed with Discovery Padel Park.</p>
+      <p><strong>Questions:</strong> Reply to your confirmation email or message us on Instagram <a href="https://instagram.com/privatevictories.club" target="_blank" style="color:var(--silver);text-decoration:none;border-bottom:1px solid rgba(168,184,200,0.3)">@privatevictories.club</a></p>
+    </div>
+
+    <div class="not-member">
+      <div class="not-member-label">Not a member yet?</div>
+      <p>This social is open to guests. If you'd like to join the network, you can apply at <a href="https://privatevictoriesclub.com">privatevictoriesclub.com</a>.</p>
+    </div>
+  </div>
+
+  <div class="success-state" id="success-state">
+    <div class="success-icon">✓</div>
+    <h2>You're In.</h2>
+    <p>Spot reserved. Check your inbox for confirmation.</p>
+  </div>
+</div>
+
+<footer>
+  <a href="/legal">Terms &amp; Conditions</a> · <a href="/legal#privacy">Privacy Policy</a> · <a href="/legal#refunds">Refund Policy</a>
+</footer>
+
+<script is:inline define:vars={{ PS_KEY }}>
+  if (window.location.search.includes('success=1')) {
+    document.getElementById('main-section').style.display = 'none';
+    document.getElementById('success-state').style.display = 'block';
+  }
+
+  var prices = { general: 40000, member: 35000 };
+  var labels = { general: 'R400', member: 'R350' };
+  var selected = 'general';
+
+  document.querySelectorAll('.ticket-option').forEach(function(opt) {
+    opt.addEventListener('click', function() {
+      document.querySelectorAll('.ticket-option').forEach(function(o) { o.classList.remove('selected'); });
+      opt.classList.add('selected');
+      var radio = opt.querySelector('input[type="radio"]');
+      if (radio) { radio.checked = true; selected = radio.value; }
+      document.getElementById('pay-btn').textContent = 'Reserve My Spot · ' + labels[selected];
+    });
+  });
+
+  document.getElementById('pay-btn').addEventListener('click', function () {
+    var name  = document.getElementById('name').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var errEl = document.getElementById('error-msg');
+    errEl.style.display = 'none';
+
+    if (!name)  { showError('Please enter your full name.'); return; }
+    if (!email || !email.includes('@')) { showError('Please enter a valid email address.'); return; }
+    if (!PS_KEY) { showError('Payment not configured. Please contact us on Instagram.'); return; }
+
+    var amount = prices[selected] || prices.general;
+    var label  = labels[selected] || labels.general;
+
+    document.getElementById('pay-btn').disabled = true;
+    document.getElementById('pay-btn').textContent = 'Opening checkout…';
+
+    var handler = PaystackPop.setup({
+      key: PS_KEY,
+      email: email,
+      amount: amount,
+      currency: 'ZAR',
+      metadata: {
+        custom_fields: [
+          { display_name: 'Name', variable_name: 'name', value: name },
+          { display_name: 'Ticket', variable_name: 'ticket_type', value: selected === 'member' ? 'PVC Member' : 'General Admission' },
+          { display_name: 'Event', variable_name: 'event', value: "Founders' Padel Social — 11 Dec" },
+        ],
+      },
+      onClose: function () {
+        document.getElementById('pay-btn').disabled = false;
+        document.getElementById('pay-btn').textContent = 'Reserve My Spot · ' + label;
+      },
+      callback: function () {
+        document.getElementById('main-section').style.display = 'none';
+        document.getElementById('success-state').style.display = 'block';
+        window.scrollTo(0, 0);
+      },
+    });
+    handler.openIframe();
+  });
+
+  function showError(msg) {
+    var el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+</script>
+</body>
+</html>

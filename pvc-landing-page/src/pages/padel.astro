@@ -199,11 +199,13 @@ const NOISE = (id: string) => `
           <source src="/videos/dinner-conversation.mp4" type="video/mp4" />
         </video>
       </div>
-      <div class="pd-video-slot pd-video-slot--wide">
-        <img src="/images/ct-mastermind-1.jpg" alt="Cape Town Mastermind" loading="lazy" />
-      </div>
-      <div class="pd-video-slot pd-video-slot--wide">
-        <img src="/images/ct-mastermind-2.jpg" alt="Cape Town Mastermind" loading="lazy" />
+      <div class="pd-photo-pair">
+        <div class="pd-video-slot pd-video-slot--portrait">
+          <img src="/images/ct-mastermind-1.jpg" alt="Cape Town Mastermind" loading="lazy" />
+        </div>
+        <div class="pd-video-slot pd-video-slot--portrait">
+          <img src="/images/ct-mastermind-2.jpg" alt="Cape Town Mastermind" loading="lazy" />
+        </div>
       </div>
     </div>
   </div>
@@ -761,6 +763,8 @@ const NOISE = (id: string) => `
     background: var(--black);
   }
   .pd-video-slot--wide { aspect-ratio: 4/1; }
+  .pd-video-slot--portrait { aspect-ratio: 3/4; }
+  .pd-photo-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
   .pd-video-slot video,
   .pd-video-slot img {

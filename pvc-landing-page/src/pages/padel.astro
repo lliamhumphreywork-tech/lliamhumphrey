@@ -473,6 +473,8 @@ const NOISE = (id: string) => `
 </script>
 
 <style>
+  html, body { overflow-x: hidden; }
+
   /* ── NAV ── */
   .pd-nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
@@ -482,6 +484,10 @@ const NOISE = (id: string) => `
   }
   .pd-nav.scrolled { background: rgba(8,8,8,0.92); backdrop-filter: blur(12px); padding: 16px 48px; }
   @media (max-width: 768px) { .pd-nav { padding: 20px 24px; } .pd-nav.scrolled { padding: 14px 24px; } }
+  @media (max-width: 480px) {
+    .pd-nav-cta { font-size: 9px; letter-spacing: 2px; padding: 10px 14px; }
+    .pd-nav-logo { font-size: 9px; letter-spacing: 3px; }
+  }
 
   .pd-nav-logo {
     font-family: var(--g); font-size: 10px; letter-spacing: 4px;
@@ -527,7 +533,7 @@ const NOISE = (id: string) => `
     text-transform: uppercase; color: var(--white);
     margin-bottom: 32px;
   }
-  @media (max-width: 480px) { .pd-hero-word { letter-spacing: -2px; } }
+  @media (max-width: 480px) { .pd-hero-word { font-size: 15vw; letter-spacing: -1px; } }
 
   .pd-hero-sub {
     font-family: var(--s); font-size: 14px; letter-spacing: 3px;

@@ -186,22 +186,24 @@ const NOISE = (id: string) => `
 
 <!-- VIDEO STRIP -->
 <div class="pd-video-section">
-  <div class="pd-video-grid pd-video-grid--3h">
-    <div class="pd-video-slot pd-video-slot--wide">
-      <video autoplay muted loop playsinline>
-        <source src="/videos/dinner-energy.mp4" type="video/mp4" />
-      </video>
-    </div>
-    <div class="pd-video-slot pd-video-slot--wide">
-      <video autoplay muted loop playsinline>
-        <source src="/videos/dinner-conversation.mp4" type="video/mp4" />
-      </video>
-    </div>
-    <div class="pd-video-slot pd-video-slot--wide">
-      <video autoplay muted loop playsinline>
-        <source src="/videos/pvc-clips.mp4" type="video/mp4" />
-      </video>
-      <div class="pd-video-label">The Founding Dinner · Rosebank</div>
+  <div class="pd-video-event-block">
+    <div class="pd-video-event-label">The Founding Dinner · Rosebank</div>
+    <div class="pd-video-grid pd-video-grid--stack">
+      <div class="pd-video-slot pd-video-slot--wide">
+        <video autoplay muted loop playsinline>
+          <source src="/videos/dinner-energy.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div class="pd-video-slot pd-video-slot--wide">
+        <video autoplay muted loop playsinline>
+          <source src="/videos/dinner-conversation.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div class="pd-video-slot pd-video-slot--wide">
+        <video autoplay muted loop playsinline>
+          <source src="/videos/pvc-clips.mp4" type="video/mp4" />
+        </video>
+      </div>
     </div>
   </div>
 </div>
@@ -738,16 +740,19 @@ const NOISE = (id: string) => `
   }
 
   /* ── VIDEO SECTION ── */
-  .pd-video-section { background: var(--charcoal); padding: 0 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .pd-video-section { background: var(--charcoal); padding: 0 24px 32px; display: flex; flex-direction: column; gap: 32px; }
 
-  .pd-video-grid {
-    display: grid; gap: 16px;
+  .pd-video-event-block { display: flex; flex-direction: column; gap: 12px; }
+  .pd-video-event-label {
+    font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--lavender-dim);
   }
-  .pd-video-grid--3h { grid-template-columns: 1fr 1fr 1fr; }
+
+  .pd-video-grid { display: grid; gap: 12px; }
+  .pd-video-grid--stack { grid-template-columns: 1fr; }
 
   @media (max-width: 768px) {
-    .pd-video-grid--3h { grid-template-columns: 1fr; }
-    .pd-video-section { padding: 0 16px 16px; gap: 12px; }
+    .pd-video-section { padding: 0 16px 24px; gap: 24px; }
   }
 
   .pd-video-slot {

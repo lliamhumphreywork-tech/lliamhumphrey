@@ -1,6 +1,13 @@
 ---
 export const prerender = false;
+import '../styles/global.css';
 const PS_KEY = import.meta.env.PUBLIC_PAYSTACK_KEY ?? '';
+const PH_KEY = import.meta.env.PUBLIC_POSTHOG_KEY ?? '';
+
+const NOISE = (id: string) => `
+  <filter id="${id}"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  <rect width="100%" height="100%" filter="url(#${id})"/>
+`;
 ---
 
 <!DOCTYPE html>
@@ -9,305 +16,669 @@ const PS_KEY = import.meta.env.PUBLIC_PAYSTACK_KEY ?? '';
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Founders' Padel Social · Private Victories Club</title>
-  <meta name="description" content="Play padel with other founders. Leave with people you want to know. Friday 11 December · Discovery Padel Park." />
+  <meta name="description" content="Play padel with other founders. Leave with people you want to know. Friday 11 December · Discovery Padel Park · Cape Town." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet" />
   <script is:inline src="https://js.paystack.co/v1/inline.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --black:       #08111f;
-      --navy:        #0a1628;
-      --navy-mid:    #0d1e36;
-      --cream:       #ece6da;
-      --white:       #ffffff;
-      --silver:      #a8b8c8;
-      --silver-dim:  #4a5666;
-      --silver-light:#dde4ec;
-      --muted:       rgba(236,230,218,0.5);
-      --border:      rgba(168,184,200,0.2);
-    }
-    html, body { min-height: 100vh; }
-    body { background: var(--navy); color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.6; }
-
-    .top-bar { height: 2px; background: var(--silver); }
-
-    nav { max-width: 680px; margin: 0 auto; padding: 32px 24px 0; }
-    .nav-brand { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); text-decoration: none; transition: color 0.2s; }
-    .nav-brand:hover { color: var(--silver); }
-
-    .wrap { max-width: 680px; margin: 0 auto; padding: 72px 24px 120px; }
-
-    /* ── HERO ── */
-    .eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--silver); margin-bottom: 20px; }
-    h1 { font-family: 'Syne', sans-serif; font-size: clamp(44px, 10vw, 80px); font-weight: 300; line-height: 1.0; color: var(--white); margin-bottom: 32px; }
-    .hero-sub { font-size: 17px; color: var(--muted); line-height: 1.65; max-width: 480px; margin-bottom: 56px; }
-
-    /* ── DIVIDER ── */
-    .divider { height: 1px; background: var(--border); margin: 48px 0; }
-
-    /* ── SECTION LABEL ── */
-    .section-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 20px; }
-
-    /* ── WHAT YOU GET ── */
-    .gets { display: flex; flex-direction: column; gap: 12px; margin-bottom: 0; }
-    .gets li { display: flex; align-items: flex-start; gap: 14px; font-size: 15px; color: rgba(236,230,218,0.75); list-style: none; }
-    .gets li::before { content: '·'; color: var(--silver); flex-shrink: 0; }
-
-    /* ── DETAILS GRID ── */
-    .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-    .detail-row { display: contents; }
-    .detail-key { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--silver-dim); padding: 14px 0; border-bottom: 1px solid var(--border); }
-    .detail-val { font-size: 15px; color: var(--cream); padding: 14px 0; border-bottom: 1px solid var(--border); text-align: right; }
-    .detail-val.tbd { color: var(--silver-dim); font-style: italic; }
-
-    /* ── WHO ── */
-    .who-body { font-size: 15px; color: rgba(236,230,218,0.75); line-height: 1.7; }
-
-    /* ── TICKETS ── */
-    .ticket-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
-    .ticket-option {
-      display: flex; align-items: center; gap: 20px;
-      border: 1px solid var(--border);
-      padding: 20px 24px;
-      cursor: pointer;
-      transition: border-color 0.2s;
-      background: rgba(255,255,255,0.02);
-    }
-    .ticket-option:hover { border-color: rgba(168,184,200,0.45); }
-    .ticket-option.selected { border-color: var(--silver); background: rgba(168,184,200,0.05); }
-    .ticket-radio { width: 16px; height: 16px; border: 1px solid var(--silver-dim); border-radius: 50%; flex-shrink: 0; position: relative; transition: border-color 0.2s; }
-    .ticket-option.selected .ticket-radio { border-color: var(--silver); }
-    .ticket-option.selected .ticket-radio::after { content: ''; position: absolute; inset: 3px; background: var(--silver); border-radius: 50%; }
-    .ticket-info { flex: 1; }
-    .ticket-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
-    .ticket-note { font-size: 12px; color: var(--silver-dim); letter-spacing: 0.5px; }
-    .ticket-price { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 300; color: var(--white); }
-
-    /* ── FORM ── */
-    .form-field { margin-bottom: 24px; }
-    .form-label { display: block; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 10px; }
-    input[type="text"], input[type="email"] {
-      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-      color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 15px;
-      padding: 14px 16px; outline: none; transition: border-color 0.2s;
-      -webkit-appearance: none; border-radius: 0;
-    }
-    input:focus { border-color: var(--silver); }
-    input::placeholder { color: var(--silver-dim); }
-
-    .pay-btn {
-      display: flex; align-items: center; justify-content: center;
-      width: 100%; background: var(--silver); color: var(--black);
-      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
-      letter-spacing: 2.5px; text-transform: uppercase;
-      padding: 18px 40px; border: none; cursor: pointer;
-      transition: background 0.2s, transform 0.15s; margin-top: 8px;
-    }
-    .pay-btn:hover:not(:disabled) { background: var(--silver-light); transform: translateY(-1px); }
-    .pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .error-msg { display: none; margin-top: 16px; padding: 14px 16px; background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.3); color: #e09090; font-size: 14px; }
-
-    /* ── FINE PRINT ── */
-    .fine-print { margin-top: 48px; display: flex; flex-direction: column; gap: 16px; }
-    .fine-print p { font-size: 13px; color: var(--silver-dim); line-height: 1.65; }
-    .fine-print strong { color: rgba(236,230,218,0.6); font-weight: 500; }
-
-    /* ── NOT A MEMBER ── */
-    .not-member { margin-top: 48px; padding: 28px; border: 1px solid var(--border); }
-    .not-member-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--silver-dim); margin-bottom: 10px; }
-    .not-member p { font-size: 14px; color: var(--muted); line-height: 1.65; }
-    .not-member a { color: var(--silver); text-decoration: none; border-bottom: 1px solid rgba(168,184,200,0.3); }
-    .not-member a:hover { border-bottom-color: var(--silver); }
-
-    /* ── SUCCESS ── */
-    .success-state { display: none; text-align: center; padding: 64px 0; }
-    .success-icon { font-family: 'Syne', sans-serif; font-size: 60px; font-weight: 300; color: var(--silver); margin-bottom: 24px; }
-    .success-state h2 { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 300; color: var(--white); margin-bottom: 12px; }
-    .success-state p { color: var(--muted); font-size: 15px; }
-
-    footer { max-width: 680px; margin: 0 auto; padding: 32px 24px; border-top: 1px solid rgba(168,184,200,0.1); font-size: 11px; color: var(--silver-dim); letter-spacing: 1px; }
-    footer a { color: var(--silver-dim); text-decoration: none; }
-    footer a:hover { color: var(--silver); }
-
-    @media (max-width: 480px) {
-      .details-grid { grid-template-columns: 1fr; }
-      .detail-val { text-align: left; border-bottom: none; padding-top: 0; color: var(--muted); font-size: 14px; }
-      .detail-key { border-bottom: none; padding-bottom: 2px; }
-      .detail-row-wrap { border-bottom: 1px solid var(--border); padding: 12px 0; }
-    }
-  </style>
+  {PH_KEY && <script define:vars={{ PH_KEY }}>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));
+    posthog.init(PH_KEY, {api_host: 'https://eu.posthog.com', capture_pageview: true});
+  </script>}
 </head>
 <body>
-<div class="top-bar"></div>
-<nav><a href="/" class="nav-brand">Private Victories Club</a></nav>
 
-<div class="wrap">
-  <div id="main-section">
-    <div class="eyebrow">Founders' Social · December 2026</div>
-    <h1>Padel<br />Social</h1>
-    <p class="hero-sub">Play padel with other founders. Leave with people you want to know.</p>
+<!-- NAV -->
+<nav id="nav" class="dinner-nav">
+  <a href="https://privatevictoriesclub.com" class="nav-logo">
+    <div class="nav-lock-1">Private Victories · Founders' Padel Social</div>
+  </a>
+  <a href="#tickets" class="cta-btn scroll-to-tickets nav-apply">Get a Spot</a>
+</nav>
 
-    <div class="divider"></div>
+<!-- HERO -->
+<section class="pd-hero">
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:2" set:html={NOISE('pd1')} />
+  <div class="pd-hero-inner">
+    <p class="pd-eyebrow reveal">Founders' Social · December 2026</p>
+    <h1 class="pd-title reveal d1">Founders'<br /><em class="pd-title-em">Padel</em><br />Social</h1>
+    <div class="pd-hero-lines reveal d2">
+      <p>Play padel with other founders.</p>
+      <p>Leave with people you want to know.</p>
+    </div>
+    <p class="pd-date reveal d3">Friday, 11 December</p>
+    <a href="#tickets" class="cta-btn scroll-to-tickets reveal d4">Get a Spot</a>
+    <p class="cta-note reveal d4">40 spots. First come, first served.</p>
+  </div>
+</section>
 
-    <div class="section-label">What you get</div>
-    <ul class="gets">
-      <li>90 minutes of padel on 6 courts</li>
-      <li>Rackets and balls provided</li>
-      <li>Rotating games, so you meet more than your own court</li>
-      <li>A room of founders, 40 spots only</li>
+<!-- PREMISE -->
+<section class="pd-section pd-premise">
+  <div class="pd-inner">
+    <div class="pd-label reveal">The Premise</div>
+    <p class="pd-premise-lead reveal d1">Not just a sports session.</p>
+    <p class="pd-premise-body reveal d2">90 minutes of padel across 6 courts, rotating games so you actually meet people, and a room limited to 40 founders. No pitching. No panels. Just play, and the conversations that happen when you're in motion.</p>
+    <div class="pd-proof reveal d3">
+      <div class="pd-proof-block">
+        <div class="pd-proof-stat">40</div>
+        <div class="pd-proof-label">spots only</div>
+      </div>
+      <div class="pd-proof-divider"></div>
+      <div class="pd-proof-block">
+        <div class="pd-proof-stat">6</div>
+        <div class="pd-proof-label">courts</div>
+      </div>
+      <div class="pd-proof-divider"></div>
+      <div class="pd-proof-block">
+        <div class="pd-proof-stat">90</div>
+        <div class="pd-proof-label">minutes</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATEMENT BREAK -->
+<section class="pd-section pd-statement">
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:2" set:html={NOISE('pd2')} />
+  <div class="pd-inner pd-statement-inner">
+    <h2 class="pd-statement-head reveal">The best business conversations happen when you're not sitting across a conference table.</h2>
+    <p class="pd-statement-sub reveal d1">Get in motion. Meet the room. See who you want to know better.</p>
+  </div>
+</section>
+
+<!-- THE FORMAT -->
+<section class="pd-section pd-format">
+  <div class="pd-inner">
+    <div class="pd-label reveal">The Format</div>
+    <ol class="pd-schedule">
+      <li class="pd-schedule-item reveal d1">
+        <div class="pd-schedule-tag">Arrive</div>
+        <div class="pd-schedule-desc">Check in, pick up your racket, meet your first group.</div>
+      </li>
+      <li class="pd-schedule-item reveal d2">
+        <div class="pd-schedule-tag">Play</div>
+        <div class="pd-schedule-desc">90 minutes across 6 courts. Rotating games, so you don't just play with the people you arrived with.</div>
+      </li>
+      <li class="pd-schedule-item reveal d3">
+        <div class="pd-schedule-tag">Wind Down</div>
+        <div class="pd-schedule-desc">Food and drinks available at venue. The real conversations happen here.</div>
+      </li>
+    </ol>
+    <p class="pd-format-note reveal d4">No padel experience needed. Beginner friendly. We'll mix levels so everyone gets a game.</p>
+  </div>
+</section>
+
+<!-- THE DETAILS -->
+<section class="pd-section pd-details">
+  <div class="pd-inner">
+    <div class="pd-label reveal">The Details</div>
+    <div class="pd-details-grid reveal d1">
+      <span class="pd-detail-key">Date</span>
+      <span class="pd-detail-val">Friday 11 December</span>
+      <span class="pd-detail-key">Venue</span>
+      <span class="pd-detail-val pd-tbd">Discovery Padel Park · TBC</span>
+      <span class="pd-detail-key">Time</span>
+      <span class="pd-detail-val pd-tbd">TBC</span>
+      <span class="pd-detail-key">What's included</span>
+      <span class="pd-detail-val">Courts, rackets, balls</span>
+      <span class="pd-detail-key">Food &amp; drink</span>
+      <span class="pd-detail-val">Available at venue, paid on the day</span>
+      <span class="pd-detail-key">What to wear</span>
+      <span class="pd-detail-val">Sportswear &amp; flat-soled trainers</span>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IT'S FOR -->
+<section class="pd-section pd-who">
+  <div class="pd-inner">
+    <div class="pd-label reveal">Who This Is For</div>
+    <p class="pd-who-lead reveal d1">Founders and business owners building something real.</p>
+    <ul class="pd-who-list">
+      <li class="reveal d2" data-num="01">You want to meet other founders outside of a formal setting.</li>
+      <li class="reveal d3" data-num="02">You believe the right room changes what's possible.</li>
+      <li class="reveal d4" data-num="03">You'd rather play than sit through another panel.</li>
     </ul>
+  </div>
+</section>
 
-    <div class="divider"></div>
-
-    <div class="section-label">The details</div>
-    <div class="details-grid">
-      <span class="detail-key">Date</span>
-      <span class="detail-val">Friday 11 December</span>
-      <span class="detail-key">Time</span>
-      <span class="detail-val tbd">TBC</span>
-      <span class="detail-key">Venue</span>
-      <span class="detail-val tbd">Discovery Padel Park · TBC</span>
-      <span class="detail-key">Food &amp; drink</span>
-      <span class="detail-val">Available at venue, paid on the day</span>
-      <span class="detail-key">Wear</span>
-      <span class="detail-val">Sportswear &amp; flat-soled trainers</span>
+<!-- TICKETS -->
+<section id="tickets" class="pd-tickets-section">
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:2" set:html={NOISE('pd3')} />
+  <div class="pd-tickets-inner">
+    <div class="pd-tickets-head">
+      <div class="pd-label reveal" style="max-width:900px;margin:0 auto 16px;">Get a Spot</div>
+      <p class="pd-tickets-note reveal d1">40 spots. First come, first served.</p>
+      <div class="pd-social-proof reveal d2">
+        <span class="pd-proof-dot"></span>
+        People are reserving spots right now.
+      </div>
     </div>
 
-    <div class="divider"></div>
-
-    <div class="section-label">Who it's for</div>
-    <p class="who-body">Founders and business owners building something real. Beginner friendly — no padel experience needed. We'll mix levels so everyone gets a game.</p>
-
-    <div class="divider"></div>
-
-    <div class="section-label">Reserve your spot</div>
-
-    <div class="ticket-options" id="ticket-options">
-      <label class="ticket-option selected" id="opt-general">
-        <div class="ticket-radio"></div>
-        <div class="ticket-info">
-          <div class="ticket-name">General Admission</div>
-          <div class="ticket-note">Open to all founders</div>
+    <div class="pd-tiers reveal d2">
+      <!-- GENERAL -->
+      <div class="pd-tier">
+        <div class="pd-tier-left">
+          <div class="pd-tier-badge">General Admission</div>
+          <div class="pd-tier-room">TICKET 01.</div>
+          <div class="pd-tier-hint">Open to all founders.</div>
+          <div class="pd-tier-wm" aria-hidden="true">PVC</div>
         </div>
-        <div class="ticket-price">R400</div>
-        <input type="radio" name="ticket" value="general" checked style="display:none" />
-      </label>
-      <label class="ticket-option" id="opt-member">
-        <div class="ticket-radio"></div>
-        <div class="ticket-info">
-          <div class="ticket-name">PVC Member</div>
-          <div class="ticket-note">Members only</div>
+        <div class="pd-tier-right">
+          <div class="pd-tier-price">R400</div>
+          <ul class="pd-tier-list">
+            <li><span class="pd-tier-check">·</span>90 min padel on 6 courts</li>
+            <li><span class="pd-tier-check">·</span>Rackets and balls provided</li>
+            <li><span class="pd-tier-check">·</span>Rotating games format</li>
+            <li><span class="pd-tier-check">·</span>Room of 40 founders only</li>
+          </ul>
+          <div class="pd-tier-cta-row">
+            <button class="cta-btn pd-pay-btn" data-tier="general" data-amount="40000">Reserve Your Spot</button>
+          </div>
         </div>
-        <div class="ticket-price">R350</div>
-        <input type="radio" name="ticket" value="member" style="display:none" />
-      </label>
+      </div>
+
+      <!-- MEMBER -->
+      <div class="pd-tier pd-tier-member">
+        <div class="pd-tier-left pd-tier-left-member">
+          <div class="pd-tier-badge pd-tier-badge-member">PVC Member</div>
+          <div class="pd-tier-room pd-tier-room-member">TICKET 02.</div>
+          <div class="pd-tier-hint pd-tier-hint-member">Member rate.</div>
+          <div class="pd-tier-wm pd-tier-wm-member" aria-hidden="true">PVC</div>
+        </div>
+        <div class="pd-tier-right pd-tier-right-member">
+          <div class="pd-tier-price pd-tier-price-member">R350</div>
+          <ul class="pd-tier-list pd-tier-list-member">
+            <li><span class="pd-tier-check">·</span>Everything in General Admission</li>
+            <li><span class="pd-tier-check">·</span>Discounted member rate</li>
+          </ul>
+          <div class="pd-tier-cta-row pd-tier-cta-row-member">
+            <button class="cta-btn pd-pay-btn" data-tier="member" data-amount="35000">Reserve Your Spot</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="form-field">
-      <label class="form-label" for="name">Full Name</label>
-      <input type="text" id="name" placeholder="Your name" autocomplete="name" />
-    </div>
-    <div class="form-field">
-      <label class="form-label" for="email">Email Address</label>
-      <input type="email" id="email" placeholder="your@email.com" autocomplete="email" />
-    </div>
-
-    <button class="pay-btn" id="pay-btn">Reserve My Spot · R400</button>
-    <div class="error-msg" id="error-msg"></div>
-
-    <div class="fine-print">
-      <p><strong>Refunds:</strong> If you can't make it, we'll refund your ticket up to 48 hours before the event (by Wednesday 9 December). After that, tickets are non-refundable.</p>
-      <p><strong>Rain plan:</strong> To be confirmed with Discovery Padel Park.</p>
-      <p><strong>Questions:</strong> Reply to your confirmation email or message us on Instagram <a href="https://instagram.com/privatevictories.club" target="_blank" style="color:var(--silver);text-decoration:none;border-bottom:1px solid rgba(168,184,200,0.3)">@privatevictories.club</a></p>
+    <!-- PAYMENT FORM -->
+    <div id="pd-payment-form" class="pd-payment-form" style="display:none;">
+      <button class="pd-back-btn" id="pd-back">&larr; Back</button>
+      <div class="pd-form-eyebrow" id="pd-form-eyebrow">Reserving General Admission · R400</div>
+      <div class="pd-form-field">
+        <label class="pd-form-label" for="pd-name">Full Name</label>
+        <input type="text" id="pd-name" placeholder="Your name" autocomplete="name" />
+      </div>
+      <div class="pd-form-field">
+        <label class="pd-form-label" for="pd-email">Email</label>
+        <input type="email" id="pd-email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <button class="cta-btn pd-checkout-btn" id="pd-checkout" type="button">Pay Now</button>
+      <div class="pd-error" id="pd-error" style="display:none;"></div>
     </div>
 
-    <div class="not-member">
-      <div class="not-member-label">Not a member yet?</div>
-      <p>This social is open to guests. If you'd like to join the network, you can apply at <a href="https://privatevictoriesclub.com">privatevictoriesclub.com</a>.</p>
+    <!-- SUCCESS -->
+    <div id="pd-success" class="pd-success-state" style="display:none;">
+      <div class="pd-success-mark">✓</div>
+      <h2 class="pd-success-title">You're in.</h2>
+      <p class="pd-success-body">Check your inbox — confirmation is on its way. See you on the courts.</p>
+    </div>
+
+    <!-- FINE PRINT -->
+    <div class="pd-fine-print reveal">
+      <p><strong>Refund policy:</strong> Full refund if you cancel more than 7 days before the event. No refunds within 7 days, but your spot is transferable.</p>
+      <p>Questions? DM <a href="https://instagram.com/lliam.humphrey" target="_blank" rel="noopener">@lliam.humphrey</a> on Instagram.</p>
     </div>
   </div>
+</section>
 
-  <div class="success-state" id="success-state">
-    <div class="success-icon">✓</div>
-    <h2>You're In.</h2>
-    <p>Spot reserved. Check your inbox for confirmation.</p>
+<!-- CLOSE -->
+<section class="pd-section pd-close">
+  <svg class="noise-layer" xmlns="http://www.w3.org/2000/svg" style="z-index:2" set:html={NOISE('pd4')} />
+  <div class="pd-inner pd-close-inner">
+    <p class="pd-close-quote reveal">The wins you have in public are proportionate to the victories you have in private.</p>
+    <a href="#tickets" class="cta-btn scroll-to-tickets reveal d1">Get a Spot</a>
+    <p class="cta-note reveal d2">40 spots only. First come, first served.</p>
   </div>
-</div>
+</section>
 
-<footer>
-  <a href="/legal">Terms &amp; Conditions</a> · <a href="/legal#privacy">Privacy Policy</a> · <a href="/legal#refunds">Refund Policy</a>
+<!-- FOOTER -->
+<footer class="d-footer">
+  <div class="footer-lock">
+    <div class="footer-mark">PVC</div>
+    <div class="footer-name">Private Victories Club</div>
+  </div>
+  <div class="footer-handle"><a href="https://instagram.com/privatevictories.club" target="_blank" rel="noopener">@privatevictories.club</a> · Built in Africa</div>
+  <div class="footer-copy">© MMXXVI · Build in private. Win in public.</div>
 </footer>
 
-<script is:inline define:vars={{ PS_KEY }}>
-  if (window.location.search.includes('success=1')) {
-    document.getElementById('main-section').style.display = 'none';
-    document.getElementById('success-state').style.display = 'block';
-  }
-
-  var prices = { general: 40000, member: 35000 };
-  var labels = { general: 'R400', member: 'R350' };
-  var selected = 'general';
-
-  document.querySelectorAll('.ticket-option').forEach(function(opt) {
-    opt.addEventListener('click', function() {
-      document.querySelectorAll('.ticket-option').forEach(function(o) { o.classList.remove('selected'); });
-      opt.classList.add('selected');
-      var radio = opt.querySelector('input[type="radio"]');
-      if (radio) { radio.checked = true; selected = radio.value; }
-      document.getElementById('pay-btn').textContent = 'Reserve My Spot · ' + labels[selected];
+<script define:vars={{ PS_KEY }}>
+  // Scroll-to-tickets
+  document.querySelectorAll('.scroll-to-tickets').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('tickets')?.scrollIntoView({ behavior: 'smooth' });
     });
   });
 
-  document.getElementById('pay-btn').addEventListener('click', function () {
-    var name  = document.getElementById('name').value.trim();
-    var email = document.getElementById('email').value.trim();
-    var errEl = document.getElementById('error-msg');
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav?.classList.toggle('scrolled', window.scrollY > 60);
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+  // Hero reveal
+  setTimeout(() => {
+    document.querySelectorAll('.pd-hero .reveal').forEach((el) => el.classList.add('visible'));
+  }, 120);
+
+  // Ticket selection
+  let selectedTier = 'general';
+  let selectedAmount = 40000;
+
+  document.querySelectorAll('.pd-pay-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tier = btn.dataset.tier;
+      const amount = parseInt(btn.dataset.amount, 10);
+      selectedTier = tier;
+      selectedAmount = amount;
+
+      const label = tier === 'member' ? 'PVC Member · R350' : 'General Admission · R400';
+      const eyebrow = document.getElementById('pd-form-eyebrow');
+      if (eyebrow) eyebrow.textContent = 'Reserving ' + label;
+
+      document.getElementById('pd-payment-form').style.display = 'block';
+      document.querySelector('.pd-tiers').style.display = 'none';
+      document.querySelector('.pd-tickets-head').style.display = 'none';
+      document.getElementById('pd-payment-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  document.getElementById('pd-back')?.addEventListener('click', () => {
+    document.getElementById('pd-payment-form').style.display = 'none';
+    document.querySelector('.pd-tiers').style.display = '';
+    document.querySelector('.pd-tickets-head').style.display = '';
+    document.getElementById('pd-error').style.display = 'none';
+  });
+
+  document.getElementById('pd-checkout')?.addEventListener('click', () => {
+    const name = document.getElementById('pd-name').value.trim();
+    const email = document.getElementById('pd-email').value.trim();
+    const errEl = document.getElementById('pd-error');
+
+    if (!name || !email) {
+      errEl.textContent = 'Please enter your name and email.';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errEl.textContent = 'Please enter a valid email address.';
+      errEl.style.display = 'block';
+      return;
+    }
     errEl.style.display = 'none';
 
-    if (!name)  { showError('Please enter your full name.'); return; }
-    if (!email || !email.includes('@')) { showError('Please enter a valid email address.'); return; }
-    if (!PS_KEY) { showError('Payment not configured. Please contact us on Instagram.'); return; }
+    if (!PS_KEY) {
+      errEl.textContent = 'Payment configuration error. Please contact us.';
+      errEl.style.display = 'block';
+      return;
+    }
 
-    var amount = prices[selected] || prices.general;
-    var label  = labels[selected] || labels.general;
-
-    document.getElementById('pay-btn').disabled = true;
-    document.getElementById('pay-btn').textContent = 'Opening checkout…';
-
-    var handler = PaystackPop.setup({
+    const handler = window.PaystackPop.setup({
       key: PS_KEY,
-      email: email,
-      amount: amount,
+      email,
+      amount: selectedAmount,
       currency: 'ZAR',
       metadata: {
         custom_fields: [
           { display_name: 'Name', variable_name: 'name', value: name },
-          { display_name: 'Ticket', variable_name: 'ticket_type', value: selected === 'member' ? 'PVC Member' : 'General Admission' },
-          { display_name: 'Event', variable_name: 'event', value: "Founders' Padel Social — 11 Dec" },
+          { display_name: 'Ticket', variable_name: 'ticket', value: selectedTier },
+          { display_name: 'Event', variable_name: 'event', value: 'padel-dec-2026' },
         ],
       },
-      onClose: function () {
-        document.getElementById('pay-btn').disabled = false;
-        document.getElementById('pay-btn').textContent = 'Reserve My Spot · ' + label;
+      callback: (response) => {
+        document.getElementById('pd-payment-form').style.display = 'none';
+        document.getElementById('pd-success').style.display = 'block';
+        window.posthog?.capture?.('padel_ticket_purchased', {
+          tier: selectedTier,
+          amount: selectedAmount,
+          reference: response.reference,
+        });
       },
-      callback: function () {
-        document.getElementById('main-section').style.display = 'none';
-        document.getElementById('success-state').style.display = 'block';
-        window.scrollTo(0, 0);
-      },
+      onClose: () => {},
     });
     handler.openIframe();
   });
-
-  function showError(msg) {
-    var el = document.getElementById('error-msg');
-    el.textContent = msg;
-    el.style.display = 'block';
-  }
 </script>
+
+<style>
+  /* ── HERO ── */
+  .pd-hero {
+    min-height: 100svh;
+    background: var(--black);
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+    overflow: hidden;
+    padding: 0 48px 96px;
+  }
+  @media (max-width: 768px) { .pd-hero { padding: 0 24px 72px; } }
+
+  .pd-hero-inner { position: relative; z-index: 3; max-width: 1200px; width: 100%; }
+
+  .pd-eyebrow {
+    font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--lavender-dim); margin-bottom: 32px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .pd-eyebrow::after { content: ''; display: block; height: 1px; width: 60px; background: var(--lavender-dim); }
+
+  .pd-title {
+    font-family: var(--g); font-size: clamp(72px, 10vw, 140px);
+    font-weight: 700; letter-spacing: -4px; line-height: 0.9;
+    text-transform: uppercase; color: var(--white);
+    margin-bottom: 48px;
+  }
+  .pd-title-em {
+    font-style: normal; color: var(--lavender);
+  }
+
+  .pd-hero-lines {
+    display: flex; flex-direction: column; gap: 4px;
+    margin-bottom: 32px;
+  }
+  .pd-hero-lines p {
+    font-family: var(--s); font-size: clamp(16px, 2vw, 20px);
+    color: var(--lavender-dim); font-weight: 300;
+  }
+
+  .pd-date {
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--lavender-dim); margin-bottom: 32px;
+  }
+
+  /* ── SECTIONS ── */
+  .pd-section { position: relative; padding: 96px 48px; overflow: hidden; }
+  @media (max-width: 768px) { .pd-section { padding: 72px 24px; } }
+
+  .pd-inner { max-width: 900px; margin: 0 auto; }
+
+  .pd-label {
+    font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--lavender-dim); margin-bottom: 32px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .pd-label::after { content: ''; display: block; height: 1px; flex: 0 0 60px; background: var(--lavender-dim); }
+
+  /* ── PREMISE ── */
+  .pd-premise { background: var(--charcoal); }
+
+  .pd-premise-lead {
+    font-family: var(--g); font-size: clamp(28px, 4vw, 48px);
+    font-weight: 700; color: var(--white); margin-bottom: 24px;
+    letter-spacing: -1px;
+  }
+  .pd-premise-body {
+    font-family: var(--s); font-size: 17px; color: var(--lavender-dim);
+    line-height: 1.7; max-width: 640px; margin-bottom: 56px;
+  }
+  .pd-proof {
+    display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+    border-top: 1px solid rgba(196,184,192,0.12);
+    padding-top: 40px;
+  }
+  .pd-proof-block { padding: 0 48px 0 0; }
+  .pd-proof-block:first-child { padding-left: 0; }
+  .pd-proof-stat {
+    font-family: var(--g); font-size: clamp(48px, 7vw, 80px);
+    font-weight: 700; color: var(--white); line-height: 1;
+    letter-spacing: -2px;
+  }
+  .pd-proof-label {
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--lavender-dim); margin-top: 8px;
+  }
+  .pd-proof-divider { width: 1px; height: 80px; background: rgba(196,184,192,0.12); margin: 0 48px 0 0; }
+  @media (max-width: 600px) {
+    .pd-proof { gap: 32px; }
+    .pd-proof-block { padding: 0; }
+    .pd-proof-divider { display: none; }
+  }
+
+  /* ── STATEMENT ── */
+  .pd-statement { background: var(--plum-deep); }
+  .pd-statement-inner { text-align: center; }
+  .pd-statement-head {
+    font-family: var(--g); font-size: clamp(24px, 3.5vw, 44px);
+    font-weight: 700; color: var(--white); letter-spacing: -1.5px;
+    line-height: 1.1; margin-bottom: 24px; max-width: 760px; margin-left: auto; margin-right: auto;
+  }
+  .pd-statement-sub {
+    font-family: var(--s); font-size: 16px; color: var(--lavender-dim); letter-spacing: 0.3px;
+  }
+
+  /* ── FORMAT ── */
+  .pd-format { background: var(--black); }
+
+  .pd-schedule { list-style: none; display: flex; flex-direction: column; gap: 0; counter-reset: schedule; }
+  .pd-schedule-item {
+    display: grid; grid-template-columns: 160px 1fr;
+    gap: 24px; padding: 28px 0;
+    border-bottom: 1px solid rgba(196,184,192,0.1);
+    align-items: start;
+  }
+  .pd-schedule-item:first-child { border-top: 1px solid rgba(196,184,192,0.1); }
+  @media (max-width: 600px) {
+    .pd-schedule-item { grid-template-columns: 1fr; gap: 8px; }
+  }
+  .pd-schedule-tag {
+    font-family: var(--g); font-size: 13px; font-weight: 600;
+    color: var(--lavender); letter-spacing: 1px;
+  }
+  .pd-schedule-desc { font-family: var(--s); font-size: 15px; color: var(--lavender-dim); line-height: 1.65; }
+
+  .pd-format-note {
+    font-family: var(--s); font-size: 13px; color: var(--lavender-dim);
+    margin-top: 32px; padding-top: 32px;
+    border-top: 1px solid rgba(196,184,192,0.1);
+    letter-spacing: 0.3px;
+  }
+
+  /* ── DETAILS ── */
+  .pd-details { background: var(--charcoal); }
+
+  .pd-details-grid {
+    display: grid; grid-template-columns: 220px 1fr;
+    gap: 0; border-top: 1px solid rgba(196,184,192,0.1);
+  }
+  .pd-detail-key {
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--lavender-dim); padding: 20px 0;
+    border-bottom: 1px solid rgba(196,184,192,0.08);
+    display: flex; align-items: center;
+  }
+  .pd-detail-val {
+    font-family: var(--s); font-size: 15px; color: var(--white);
+    padding: 20px 0; border-bottom: 1px solid rgba(196,184,192,0.08);
+    display: flex; align-items: center;
+  }
+  .pd-tbd { color: var(--lavender-dim); font-style: italic; }
+  @media (max-width: 600px) {
+    .pd-details-grid { grid-template-columns: 1fr; }
+    .pd-detail-key { border-bottom: none; padding-bottom: 4px; }
+    .pd-detail-val { padding-top: 0; border-bottom: 1px solid rgba(196,184,192,0.08); }
+  }
+
+  /* ── WHO ── */
+  .pd-who { background: var(--black); }
+
+  .pd-who-lead {
+    font-family: var(--g); font-size: clamp(22px, 3vw, 36px);
+    font-weight: 700; color: var(--white); letter-spacing: -0.5px;
+    margin-bottom: 32px;
+  }
+
+  .pd-who-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+  .pd-who-list li {
+    font-family: var(--s); font-size: 16px; color: var(--lavender-dim);
+    padding: 20px 0 20px 56px; border-bottom: 1px solid rgba(196,184,192,0.08);
+    position: relative; line-height: 1.6;
+  }
+  .pd-who-list li:first-child { border-top: 1px solid rgba(196,184,192,0.08); }
+  .pd-who-list li::before {
+    content: attr(data-num);
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    font-size: 10px; letter-spacing: 2px; color: rgba(196,184,192,0.3);
+  }
+
+  /* ── TICKETS ── */
+  .pd-tickets-section {
+    background: var(--charcoal); position: relative;
+    padding: 96px 48px; overflow: hidden;
+  }
+  @media (max-width: 768px) { .pd-tickets-section { padding: 72px 24px; } }
+
+  .pd-tickets-inner { max-width: 900px; margin: 0 auto; }
+
+  .pd-tickets-head { text-align: center; margin-bottom: 56px; }
+  .pd-tickets-note { font-family: var(--s); font-size: 15px; color: var(--lavender-dim); margin-bottom: 20px; }
+
+  .pd-social-proof {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--s); font-size: 13px; color: var(--lavender-dim);
+  }
+  .pd-proof-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #4ade80; flex-shrink: 0;
+    animation: proof-pulse 2s ease-in-out infinite;
+  }
+  @keyframes proof-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .pd-tiers { display: flex; flex-direction: column; gap: 0; margin-bottom: 48px; }
+
+  .pd-tier {
+    display: grid; grid-template-columns: 220px 1fr;
+    gap: 0;
+    border: 1px solid rgba(196,184,192,0.12);
+    margin-bottom: -1px;
+  }
+  @media (max-width: 700px) { .pd-tier { grid-template-columns: 1fr; } }
+
+  .pd-tier-left {
+    background: rgba(69,24,63,0.15); padding: 40px 32px;
+    display: flex; flex-direction: column; gap: 8px;
+    border-right: 1px solid rgba(196,184,192,0.12);
+    position: relative; overflow: hidden;
+  }
+  .pd-tier-left-member { background: rgba(69,24,63,0.3); }
+  @media (max-width: 700px) { .pd-tier-left { border-right: none; border-bottom: 1px solid rgba(196,184,192,0.12); } }
+
+  .pd-tier-badge {
+    font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--lavender); font-weight: 500;
+  }
+  .pd-tier-badge-member { color: var(--white); }
+  .pd-tier-room { font-family: var(--g); font-size: 24px; font-weight: 700; color: var(--white); letter-spacing: -0.5px; }
+  .pd-tier-room-member { color: var(--lavender-light); }
+  .pd-tier-hint { font-family: var(--s); font-size: 12px; color: var(--lavender-dim); }
+  .pd-tier-hint-member { color: rgba(196,184,192,0.6); }
+
+  .pd-tier-wm {
+    position: absolute; bottom: -10px; right: -4px;
+    font-family: var(--g); font-size: 72px; font-weight: 800;
+    color: rgba(196,184,192,0.04); letter-spacing: -2px;
+    pointer-events: none; user-select: none; line-height: 1;
+  }
+  .pd-tier-wm-member { color: rgba(196,184,192,0.07); }
+
+  .pd-tier-right { padding: 40px 40px; }
+  .pd-tier-right-member { background: rgba(69,24,63,0.08); }
+
+  .pd-tier-price {
+    font-family: var(--g); font-size: 48px; font-weight: 300;
+    color: var(--white); letter-spacing: -2px; margin-bottom: 24px;
+  }
+  .pd-tier-price-member { color: var(--lavender-light); }
+
+  .pd-tier-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+  .pd-tier-list li { font-family: var(--s); font-size: 14px; color: var(--lavender-dim); display: flex; gap: 12px; }
+  .pd-tier-list-member li { color: rgba(196,184,192,0.7); }
+  .pd-tier-check { color: var(--lavender); flex-shrink: 0; }
+
+  .pd-tier-cta-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+
+  /* Payment form */
+  .pd-payment-form { padding: 48px 0; }
+  .pd-back-btn {
+    background: none; border: none; color: var(--lavender-dim);
+    font-family: var(--s); font-size: 13px; cursor: pointer;
+    padding: 0; margin-bottom: 32px; letter-spacing: 0.3px;
+    transition: color 0.2s;
+  }
+  .pd-back-btn:hover { color: var(--lavender); }
+  .pd-form-eyebrow {
+    font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--lavender); margin-bottom: 32px;
+  }
+  .pd-form-field { margin-bottom: 24px; }
+  .pd-form-label {
+    display: block; font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--lavender-dim); margin-bottom: 10px;
+  }
+  .pd-form-field input {
+    width: 100%; background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(196,184,192,0.15);
+    color: var(--white); font-family: var(--s); font-size: 15px;
+    padding: 14px 16px; outline: none;
+    transition: border-color 0.2s; -webkit-appearance: none; border-radius: 0;
+  }
+  .pd-form-field input:focus { border-color: rgba(196,184,192,0.4); }
+  .pd-form-field input::placeholder { color: var(--lavender-dim); }
+
+  .pd-checkout-btn { width: 100%; margin-top: 8px; }
+
+  .pd-error {
+    margin-top: 16px; padding: 14px 16px;
+    background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.3);
+    color: #e09090; font-family: var(--s); font-size: 14px;
+  }
+
+  /* ── SUCCESS ── */
+  .pd-success-state { text-align: center; padding: 80px 0; }
+  .pd-success-mark { font-family: var(--g); font-size: 72px; color: var(--lavender); line-height: 1; margin-bottom: 24px; }
+  .pd-success-title { font-family: var(--g); font-size: 48px; font-weight: 700; color: var(--white); letter-spacing: -2px; margin-bottom: 16px; }
+  .pd-success-body { font-family: var(--s); font-size: 16px; color: var(--lavender-dim); }
+
+  /* ── FINE PRINT ── */
+  .pd-fine-print { margin-top: 48px; border-top: 1px solid rgba(196,184,192,0.1); padding-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+  .pd-fine-print p { font-family: var(--s); font-size: 13px; color: var(--lavender-dim); line-height: 1.65; }
+  .pd-fine-print strong { color: rgba(196,184,192,0.6); font-weight: 500; }
+  .pd-fine-print a { color: var(--lavender-dim); border-bottom: 1px solid rgba(196,184,192,0.2); text-decoration: none; }
+  .pd-fine-print a:hover { color: var(--lavender); }
+
+  /* ── CLOSE ── */
+  .pd-close { background: var(--plum-deep); }
+  .pd-close-inner { text-align: center; }
+  .pd-close-quote {
+    font-family: var(--g); font-size: clamp(20px, 3vw, 36px);
+    font-weight: 700; color: var(--white); letter-spacing: -1px;
+    max-width: 640px; margin: 0 auto 40px; line-height: 1.2;
+  }
+
+  /* ── REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+  .d1 { transition-delay: 0.1s; }
+  .d2 { transition-delay: 0.2s; }
+  .d3 { transition-delay: 0.3s; }
+  .d4 { transition-delay: 0.4s; }
+  .d5 { transition-delay: 0.5s; }
+</style>
+
 </body>
 </html>

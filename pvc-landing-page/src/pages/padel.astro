@@ -21,8 +21,7 @@ const NOISE = (id: string) => `
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet" />
-  <script is:inline src="https://js.paystack.co/v1/inline.js"></script>
-  {PH_KEY && <script define:vars={{ PH_KEY }}>
+{PH_KEY && <script define:vars={{ PH_KEY }}>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));
     posthog.init(PH_KEY, {api_host: 'https://eu.posthog.com', capture_pageview: true});
   </script>}
@@ -407,21 +406,11 @@ const NOISE = (id: string) => `
     if (!name || !email) { errEl.textContent = 'Please enter your name and email.'; errEl.style.display = 'block'; return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; return; }
     errEl.style.display = 'none';
-    if (!PS_KEY) { errEl.textContent = 'Payment configuration error. Please contact us.'; errEl.style.display = 'block'; return; }
-    const handler = window.PaystackPop.setup({
-      key: PS_KEY, email, amount: 40000, currency: 'ZAR',
-      metadata: { custom_fields: [
-        { display_name: 'Name', variable_name: 'name', value: name },
-        { display_name: 'Event', variable_name: 'event', value: 'padel-dec-2026' },
-      ]},
-      callback: (response) => {
-        document.getElementById('pd-form-view').style.display = 'none';
-        document.getElementById('pd-success').style.display = 'block';
-        window.posthog?.capture?.('padel_ticket_purchased', { amount: 40000, reference: response.reference });
-      },
-      onClose: () => {},
-    });
-    handler.openIframe();
+    window.posthog?.capture?.('padel_checkout_started', { event: 'padel-dec-2026' });
+    const url = new URL('https://paystack.com/buy/private-victories-jhb-padel-social-ga-himeyd');
+    url.searchParams.set('name', name);
+    url.searchParams.set('email', email);
+    window.location.href = url.toString();
   });
 </script>
 

@@ -161,40 +161,19 @@ const NOISE = (id: string) => `
       <div class="pd-tier">
         <div class="pd-tier-left">
           <div class="pd-tier-badge">General Admission</div>
-          <div class="pd-tier-room">TICKET 01.</div>
+          <div class="pd-tier-room">R400</div>
           <div class="pd-tier-hint">Open to all founders.</div>
           <div class="pd-tier-wm" aria-hidden="true">PVC</div>
         </div>
         <div class="pd-tier-right">
-          <div class="pd-tier-price">R400</div>
           <ul class="pd-tier-list">
             <li><span class="pd-tier-check">·</span>90 min padel on 6 courts</li>
             <li><span class="pd-tier-check">·</span>Rackets and balls provided</li>
-            <li><span class="pd-tier-check">·</span>Rotating games format</li>
+            <li><span class="pd-tier-check">·</span>Rotating games, so you meet more than your own court</li>
             <li><span class="pd-tier-check">·</span>Room of 40 founders only</li>
           </ul>
           <div class="pd-tier-cta-row">
             <button class="cta-btn pd-pay-btn" data-tier="general" data-amount="40000">Reserve Your Spot</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- MEMBER -->
-      <div class="pd-tier pd-tier-member">
-        <div class="pd-tier-left pd-tier-left-member">
-          <div class="pd-tier-badge pd-tier-badge-member">PVC Member</div>
-          <div class="pd-tier-room pd-tier-room-member">TICKET 02.</div>
-          <div class="pd-tier-hint pd-tier-hint-member">Member rate.</div>
-          <div class="pd-tier-wm pd-tier-wm-member" aria-hidden="true">PVC</div>
-        </div>
-        <div class="pd-tier-right pd-tier-right-member">
-          <div class="pd-tier-price pd-tier-price-member">R350</div>
-          <ul class="pd-tier-list pd-tier-list-member">
-            <li><span class="pd-tier-check">·</span>Everything in General Admission</li>
-            <li><span class="pd-tier-check">·</span>Discounted member rate</li>
-          </ul>
-          <div class="pd-tier-cta-row pd-tier-cta-row-member">
-            <button class="cta-btn pd-pay-btn" data-tier="member" data-amount="35000">Reserve Your Spot</button>
           </div>
         </div>
       </div>
@@ -277,21 +256,8 @@ const NOISE = (id: string) => `
     document.querySelectorAll('.pd-hero .reveal').forEach((el) => el.classList.add('visible'));
   }, 120);
 
-  // Ticket selection
-  let selectedTier = 'general';
-  let selectedAmount = 40000;
-
   document.querySelectorAll('.pd-pay-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const tier = btn.dataset.tier;
-      const amount = parseInt(btn.dataset.amount, 10);
-      selectedTier = tier;
-      selectedAmount = amount;
-
-      const label = tier === 'member' ? 'PVC Member · R350' : 'General Admission · R400';
-      const eyebrow = document.getElementById('pd-form-eyebrow');
-      if (eyebrow) eyebrow.textContent = 'Reserving ' + label;
-
       document.getElementById('pd-payment-form').style.display = 'block';
       document.querySelector('.pd-tiers').style.display = 'none';
       document.querySelector('.pd-tickets-head').style.display = 'none';
@@ -332,12 +298,12 @@ const NOISE = (id: string) => `
     const handler = window.PaystackPop.setup({
       key: PS_KEY,
       email,
-      amount: selectedAmount,
+      amount: 40000,
       currency: 'ZAR',
       metadata: {
         custom_fields: [
           { display_name: 'Name', variable_name: 'name', value: name },
-          { display_name: 'Ticket', variable_name: 'ticket', value: selectedTier },
+          { display_name: 'Ticket', variable_name: 'ticket', value: 'general' },
           { display_name: 'Event', variable_name: 'event', value: 'padel-dec-2026' },
         ],
       },
@@ -345,8 +311,8 @@ const NOISE = (id: string) => `
         document.getElementById('pd-payment-form').style.display = 'none';
         document.getElementById('pd-success').style.display = 'block';
         window.posthog?.capture?.('padel_ticket_purchased', {
-          tier: selectedTier,
-          amount: selectedAmount,
+          tier: 'general',
+          amount: 40000,
           reference: response.reference,
         });
       },

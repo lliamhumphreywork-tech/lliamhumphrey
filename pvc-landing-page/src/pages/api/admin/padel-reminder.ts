@@ -8,8 +8,7 @@ import { PADEL, dateSAST } from '../../../lib/padel-config';
 const CRON_SECRET = import.meta.env.CRON_SECRET ?? '';
 const SITE_URL    = 'https://privatevictoriesclub.com';
 
-// Reminder email template IDs (create these in Brevo)
-const TEMPLATE_REMINDER = 33;
+const TEMPLATE_REMINDER = PADEL.BREVO_TEMPLATE_PADEL_REMINDER;
 
 export const GET: APIRoute = async ({ request, url }) => {
   const auth = request.headers.get('Authorization') ?? '';

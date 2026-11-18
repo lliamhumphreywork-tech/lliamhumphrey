@@ -235,8 +235,10 @@ const NOISE = (id: string) => `
       <span class="pd-dv">Friday 11 December</span>
       <span class="pd-dk">Venue</span>
       <span class="pd-dv">Discovery Padel Park · Johannesburg</span>
-      <span class="pd-dk">Time</span>
-      <span class="pd-dv">5pm</span>
+      <span class="pd-dk">Courts</span>
+      <span class="pd-dv">5pm – 6:30pm</span>
+      <span class="pd-dk">Lounge</span>
+      <span class="pd-dv">Until 9:30pm</span>
       <span class="pd-dk">What's included</span>
       <span class="pd-dv">Courts, rackets, balls</span>
       <span class="pd-dk">Food &amp; drink</span>
@@ -274,6 +276,7 @@ const NOISE = (id: string) => `
       <div class="pd-tier reveal d2">
         <div class="pd-tier-left">
           <div class="pd-tier-badge" id="pd-tier-badge">General Admission</div>
+          <div class="pd-early-badge" id="pd-early-badge" style="display:none;">Early Access</div>
           <div class="pd-tier-price" id="pd-tier-price">R400</div>
           <div class="pd-tier-hint" id="pd-tier-hint">Open to all.</div>
           <div class="pd-tier-wm" aria-hidden="true">PVC</div>
@@ -439,9 +442,11 @@ const NOISE = (id: string) => `
 
   function updateTicketDisplay() {
     const badge = document.getElementById('pd-tier-badge');
+    const earlyBadge = document.getElementById('pd-early-badge');
     const price = document.getElementById('pd-tier-price');
     const hint  = document.getElementById('pd-tier-hint');
     const isEarly = capsData.tier === 'early';
+    if (earlyBadge) earlyBadge.style.display = isEarly ? '' : 'none';
     if (selectedTicketType === 'member') {
       if (badge) badge.textContent = 'PVC Member';
       if (price) price.textContent = `R${capsData.memberPrice ?? (isEarly ? 200 : 250)}`;
@@ -1038,6 +1043,7 @@ const NOISE = (id: string) => `
   @media (max-width: 700px) { .pd-tier-left { border-right: none; border-bottom: 1px solid rgba(196,184,192,0.12); } }
 
   .pd-tier-badge { font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase; color: var(--lavender); }
+  .pd-early-badge { display: inline-block; margin-top: 6px; padding: 3px 8px; background: var(--lavender); color: #0d0d0d; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; border-radius: 2px; }
   .pd-tier-hint { font-family: var(--s); font-size: 12px; color: var(--lavender-dim); margin-top: 6px; }
   .pd-tier-wm {
     position: absolute; bottom: -10px; right: -4px;

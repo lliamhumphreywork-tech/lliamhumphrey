@@ -257,7 +257,7 @@ const NOISE = (id: string) => `
     <div id="pd-tier-view">
       <div class="pd-tickets-head">
         <div class="pd-label reveal" style="justify-content:center;">Reserve Your Spot</div>
-        <p class="pd-tickets-note reveal d1">40 spots. First come, first served.</p>
+        <p class="pd-tickets-note reveal d1">First come, first served.</p>
         <div class="pd-caps-display reveal d2" id="pd-caps-display" aria-live="polite">
           <span id="pd-caps-text">Loading availability...</span>
         </div>
@@ -497,8 +497,7 @@ const NOISE = (id: string) => `
       document.getElementById('pd-tier-view')?.style && (document.getElementById('pd-tier-view').style.display = 'none');
       document.getElementById('pd-waitlist-view')?.style && (document.getElementById('pd-waitlist-view').style.display = 'block');
     } else {
-      const remaining = capsData.totalCap - capsData.total;
-      el.textContent = `${remaining} of ${capsData.totalCap} spots remaining`;
+      el.textContent = `${capsData.totalCap} spots.`;
     }
 
     // Show tier info
@@ -507,7 +506,7 @@ const NOISE = (id: string) => `
     if (tierInfo && tierInfoText && !capsData.totalFull) {
       if (capsData.tier === 'early' && capsData.nextGaPrice) {
         const spotsLeft = capsData.earlyRemaining;
-        tierInfoText.textContent = `Early access R${capsData.gaPrice}. Goes to R${capsData.nextGaPrice} after the first ${capsData.earlyCap} tickets or ${capsData.earlyCutoff}.`;
+        tierInfoText.textContent = `Early access pricing. Goes up once early access is over.`;
         tierInfo.style.display = '';
       } else {
         tierInfoText.textContent = `Standard pricing — R${capsData.gaPrice}.`;

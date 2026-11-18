@@ -1066,14 +1066,14 @@ const NOISE = (id: string) => `
   .pd-form-eyebrow { font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase; color: var(--lavender); margin-bottom: 32px; }
   .pd-form-field { margin-bottom: 24px; }
   .pd-form-label { display: block; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--lavender-dim); margin-bottom: 10px; }
-  .pd-form-field input {
+  .pd-form-field input:not([type="radio"]) {
     width: 100%; background: rgba(255,255,255,0.03);
     border: 1px solid rgba(196,184,192,0.15);
     color: var(--white); font-family: var(--s); font-size: 15px;
     padding: 14px 16px; outline: none;
     transition: border-color 0.2s; border-radius: 0;
   }
-  .pd-form-field input:focus { border-color: rgba(196,184,192,0.4); }
+  .pd-form-field input:not([type="radio"]):focus { border-color: rgba(196,184,192,0.4); }
   .pd-form-field input::placeholder { color: var(--lavender-dim); }
   .pd-error { margin-top: 16px; padding: 14px 16px; background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.3); color: #e09090; font-family: var(--s); font-size: 14px; }
 

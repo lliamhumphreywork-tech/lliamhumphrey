@@ -46,8 +46,8 @@ export const PADEL = {
   // Brevo
   BREVO_LIST_PADEL:            24,  // attendees list
   BREVO_LIST_WAITLIST:         25,  // waitlist list
-  BREVO_TEMPLATE_PADEL_CONFIRM: 32,
-  BREVO_TEMPLATE_PADEL_REMINDER: 33,
+  BREVO_TEMPLATE_PADEL_CONFIRM: 63,
+  BREVO_TEMPLATE_PADEL_REMINDER: 64,
 
   // Notion DBs
   NOTION_PADEL_DB_ID:          '41cb402f-dc12-81cb-a053-000b76179d44',

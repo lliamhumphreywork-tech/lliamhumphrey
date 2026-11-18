@@ -5,10 +5,20 @@ import { notionQuery } from '../../../lib/notion';
 import { PADEL, resolveTier, getPrice } from '../../../lib/padel-config';
 
 export const GET: APIRoute = async () => {
+  // Block sales if any venue detail is still placeholder
+  const missingDetail =
+    !PADEL.ADDRESS || PADEL.ADDRESS.includes('TBC') ||
+    !PADEL.RAIN_PLAN || PADEL.RAIN_PLAN.includes('TBC') ||
+    !PADEL.LOUNGE_END || PADEL.LOUNGE_END.includes('TBC');
+  if (missingDetail) {
+    return new Response(JSON.stringify({ blocked: true, reason: 'Event details not yet confirmed' }), { status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+  }
+
   try {
     const rows = await notionQuery(PADEL.NOTION_PADEL_DB_ID);
-    const total   = rows.length;
-    const players = rows.filter((r: any) => r.properties['Playing']?.select?.name === 'Yes').length;
+    const activeRows = rows.filter((r: any) => !r.properties['Refunded']?.checkbox);
+    const total   = activeRows.length;
+    const players = activeRows.filter((r: any) => r.properties['Playing']?.select?.name === 'Yes').length;
 
     const tier          = resolveTier(total);
     const earlyRemaining = Math.max(0, PADEL.EARLY_CAP - total);
@@ -22,6 +32,7 @@ export const GET: APIRoute = async () => {
       playerCap:   PADEL.PLAYER_CAP,
       totalFull:   total  >= PADEL.TICKET_CAP,
       playerFull:  players >= PADEL.PLAYER_CAP,
+      blocked:     false,
       // Tier info
       tier,
       earlyRemaining,

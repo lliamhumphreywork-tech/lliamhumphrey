@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import { notionQuery, notionPatch, notionCreate, titleProp, textProp, emailProp, numProp, selectProp, dateProp, checkProp } from '../../lib/notion';
 import { sendTemplate, enrollContact } from '../../lib/brevo';
 import { postWebhook } from '../../lib/slack';
-import { PADEL } from '../../lib/padel-config';
+import { PADEL, buildPadelIcs } from '../../lib/padel-config';
 
 const NOTION_FINANCE_DB_ID  = import.meta.env.NOTION_FINANCE_DB_ID;
 const NOTION_CRM_DB_ID      = '872bd20eee31468f91bed1cd472e157a';
@@ -228,6 +228,7 @@ async function handlePadelPurchase(opts: {
     'Form Token':   textProp(formToken),
     'Form Completed': checkProp(false),
     'Consent':      checkProp(false),
+    'Refunded':     checkProp(false),
   });
 
   // ── Brevo enrol into padel list ──
@@ -238,16 +239,26 @@ async function handlePadelPurchase(opts: {
     PADEL_TIER: tierLabel,
   }, [PADEL.BREVO_LIST_PADEL]);
 
-  // ── Padel confirmation email ──
-  await sendTemplate(PADEL.BREVO_TEMPLATE_PADEL_CONFIRM, { email, name: firstName }, {
-    firstName,
-    playing:      playing === 'Yes' ? 'Yes, you\'re playing' : 'No, social only',
-    ticketType:   `${ticketType === 'member' ? 'PVC Member' : 'General Admission'} · ${tierLabel} · R${amountRands}`,
-    formLink,
-    refundPolicy: PADEL.REFUND_POLICY,
-    eventDate:    'Friday, 11 December 2026',
-    venue:        PADEL.VENUE,
-  });
+  // ── Padel confirmation email (with .ics attachment) ──
+  const icsBase64 = buildPadelIcs();
+  await sendTemplate(
+    PADEL.BREVO_TEMPLATE_PADEL_CONFIRM,
+    { email, name: firstName },
+    {
+      firstName,
+      playing:      playing === 'Yes' ? 'Yes, you\'re playing' : 'No, social only',
+      ticketType:   `${ticketType === 'member' ? 'PVC Member' : 'General Admission'} · ${tierLabel} · R${amountRands}`,
+      formLink,
+      refundPolicy: PADEL.REFUND_POLICY,
+      refundPolicyUrl: `${SITE_URL}/padel#refund-policy`,
+      eventDate:    'Friday, 11 December 2026',
+      venue:        PADEL.VENUE,
+      address:      PADEL.ADDRESS,
+      loungeEnd:     PADEL.LOUNGE_END,
+      rainPlan:     PADEL.RAIN_PLAN,
+    },
+    [{ content: icsBase64, name: 'padel-social.ics' }],
+  );
 
   // ── PostHog: padel_ticket_purchased ──
   if (POSTHOG_API_KEY) {
@@ -303,15 +314,19 @@ export const POST: APIRoute = async ({ request }) => {
   const name        = data.metadata?.name ?? data.metadata?.custom_fields?.find((f: any) => f.variable_name === 'name')?.value ?? `${data.customer?.first_name ?? ''} ${data.customer?.last_name ?? ''}`.trim();
   const firstName   = name.split(' ')[0] ?? '';
   const itemName    = data.metadata?.item_name ?? data.metadata?.custom_fields?.find((f: any) => f.variable_name === 'item_name')?.value ?? data.plan?.name ?? 'PVC Payment';
-  const playing     = data.metadata?.playing ?? 'No';
-  const ticketType  = data.metadata?.ticket_type ?? 'ga';
+  // Product-link payments (member Paystack page) won't carry metadata fields —
+  // detect by product/plan name and fill in the right defaults.
+  const isMemberProduct = itemName.toLowerCase().includes('member');
+  const playing     = data.metadata?.playing    ?? (isMemberProduct ? 'Yes' : 'No');
+  const ticketType  = data.metadata?.ticket_type ?? (isMemberProduct ? 'member' : 'ga');
   const tier        = (data.metadata?.tier === 'standard') ? 'standard' : 'early';
 
   const lower = itemName.toLowerCase();
   const paymentType: 'Membership' | 'Event' | 'Other' =
     lower.includes('membership') ? 'Membership' :
-    lower.includes('event') || lower.includes('dinner') || lower.includes('ticket') || lower.includes('admission') ||
-    lower.includes('mastermind') || lower.includes('cape town') || lower.includes('summit') || lower.includes('workshop') ? 'Event' :
+    lower.includes('padel') || lower.includes('event') || lower.includes('dinner') || lower.includes('ticket') ||
+    lower.includes('admission') || lower.includes('mastermind') || lower.includes('cape town') ||
+    lower.includes('summit') || lower.includes('workshop') ? 'Event' :
     'Other';
 
   console.log(`[paystack-webhook] charge.success - ${name} R${amountRands} | ${paymentType}`);

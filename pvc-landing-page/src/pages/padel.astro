@@ -328,8 +328,22 @@ const NOISE = (id: string) => `
       </div>
 
       <button class="cta-btn" id="pd-checkout" style="width:100%;margin-top:8px;">Proceed to Checkout</button>
-      <p class="pd-secure-note">Secure checkout via Paystack</p>
+      <p class="pd-secure-note">Secure checkout via Paystack &nbsp;·&nbsp; <a href="#refund-policy" class="pd-refund-link">Refund policy</a></p>
       <div class="pd-error" id="pd-error" style="display:none;"></div>
+    </div>
+
+    <!-- SOLD OUT — WAITLIST -->
+    <div id="pd-waitlist-view" style="display:none;" class="pd-waitlist-wrap">
+      <div class="pd-success-mark">✗</div>
+      <h2 class="pd-success-title">Sold Out</h2>
+      <p class="pd-success-body">All 40 spots are taken. Leave your email and we'll let you know if a spot opens up.</p>
+      <div class="pd-form-field" style="margin-top:20px;">
+        <input type="text" id="pd-wl-name" placeholder="Your name" autocomplete="name" style="width:100%;margin-bottom:10px;" />
+        <input type="email" id="pd-wl-email" placeholder="Your email" autocomplete="email" style="width:100%;" />
+      </div>
+      <button class="cta-btn" id="pd-wl-submit" style="width:100%;margin-top:12px;">Join Waitlist</button>
+      <div class="pd-error" id="pd-wl-error" style="display:none;margin-top:8px;"></div>
+      <p id="pd-wl-success" style="display:none;color:#2d9b6f;margin-top:12px;text-align:center;">You're on the list. We'll be in touch.</p>
     </div>
 
     <!-- SUCCESS -->
@@ -339,8 +353,8 @@ const NOISE = (id: string) => `
       <p class="pd-success-body">Check your inbox. Confirmation is on its way. See you on the courts.</p>
     </div>
 
-    <div class="pd-fine-print reveal">
-      <p><strong>Refund policy:</strong> Full refund up to 7 days before the event. After that, tickets are non-refundable but you can transfer your spot. If we cancel or postpone, you get a full refund.</p>
+    <div class="pd-fine-print reveal" id="refund-policy">
+      <p><strong>Refund policy:</strong> Full refund up to 7 days before the event (by 4 December at 17:00). After that, tickets are non-refundable but you can transfer your spot. If we cancel or postpone, you get a full refund.</p>
       <p>Questions? DM <a href="https://instagram.com/privatevictories.club" target="_blank" rel="noopener">@privatevictories.club</a> on Instagram.</p>
     </div>
   </div>
@@ -474,8 +488,9 @@ const NOISE = (id: string) => `
     if (!el) return;
     if (capsData.totalFull) {
       el.textContent = 'Sold out — no spots remaining.';
-      document.getElementById('pd-pay-btn')?.setAttribute('disabled', 'true');
-      document.getElementById('pd-pay-btn') && (document.getElementById('pd-pay-btn').textContent = 'Sold Out');
+      // Show waitlist instead of ticket form
+      document.getElementById('pd-tier-view')?.style && (document.getElementById('pd-tier-view').style.display = 'none');
+      document.getElementById('pd-waitlist-view')?.style && (document.getElementById('pd-waitlist-view').style.display = 'block');
     } else {
       const remaining = capsData.totalCap - capsData.total;
       el.textContent = `${remaining} of ${capsData.totalCap} spots remaining`;
@@ -609,6 +624,33 @@ const NOISE = (id: string) => `
       this.textContent = 'Proceed to Checkout';
       this.style.opacity = '';
       this.disabled = false;
+    }
+  });
+
+  // Waitlist form
+  document.getElementById('pd-wl-submit')?.addEventListener('click', async function() {
+    const nameVal  = (document.getElementById('pd-wl-name') as HTMLInputElement)?.value.trim() ?? '';
+    const emailVal = (document.getElementById('pd-wl-email') as HTMLInputElement)?.value.trim() ?? '';
+    const errEl    = document.getElementById('pd-wl-error');
+    const sucEl    = document.getElementById('pd-wl-success');
+    if (!emailVal || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+      if (errEl) { errEl.textContent = 'Please enter a valid email.'; errEl.style.display = 'block'; }
+      return;
+    }
+    if (errEl) errEl.style.display = 'none';
+    this.disabled = true;
+    this.textContent = 'Joining...';
+    try {
+      await fetch('/api/padel/waitlist', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailVal, name: nameVal }),
+      });
+      if (sucEl) sucEl.style.display = 'block';
+      this.style.display = 'none';
+    } catch {
+      if (errEl) { errEl.textContent = 'Network error. Please try again.'; errEl.style.display = 'block'; }
+      this.disabled = false;
+      this.textContent = 'Join Waitlist';
     }
   });
 </script>

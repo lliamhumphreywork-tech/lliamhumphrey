@@ -3,7 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { notionQuery, notionPatch, checkProp } from '../../../lib/notion';
 import { sendTemplate } from '../../../lib/brevo';
-import { PADEL } from '../../../lib/padel-config';
+import { PADEL, dateSAST } from '../../../lib/padel-config';
 
 const CRON_SECRET = import.meta.env.CRON_SECRET ?? '';
 const SITE_URL    = 'https://privatevictoriesclub.com';
@@ -17,11 +17,11 @@ export const GET: APIRoute = async ({ request, url }) => {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  // Determine which reminder to send based on today's date (SAST)
-  const now    = new Date();
-  const dateStr = now.toISOString().split('T')[0]; // e.g. "2026-12-02"
-  const is2Dec = dateStr === '2026-12-02';
-  const is7Dec = dateStr === '2026-12-07';
+  // Determine which reminder to send based on today's date in SAST
+  const now     = new Date();
+  const dateStr = dateSAST(now); // e.g. "2026-12-02" in Africa/Johannesburg
+  const is2Dec  = dateStr === '2026-12-02';
+  const is7Dec  = dateStr === '2026-12-07';
 
   if (!is2Dec && !is7Dec) {
     // Allow manual override via ?force=1 for testing
@@ -60,6 +60,11 @@ export const GET: APIRoute = async ({ request, url }) => {
         formLink,
         daysLeft,
         formCloseDate: '8 December at 23:59',
+        address:      PADEL.ADDRESS,
+        loungeEnd:     PADEL.LOUNGE_END,
+        rainPlan:     PADEL.RAIN_PLAN,
+        eventDate:    'Friday, 11 December 2026',
+        venue:        PADEL.VENUE,
       });
       await notionPatch(row.id, { [reminderField]: checkProp(true) });
       sent++;

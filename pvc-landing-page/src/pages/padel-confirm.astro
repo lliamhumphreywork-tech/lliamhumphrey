@@ -65,6 +65,7 @@ const WHO_OPTIONS = [
   'Product / Design lead',
   'Lawyer or accountant',
   'Media or PR',
+  'Creatives',
 ];
 ---
 
@@ -98,6 +99,23 @@ const WHO_OPTIONS = [
             {existing.playing === 'Yes' ? 'Playing padel' : 'Social only'} &middot; {existing.ticketType === 'Member' ? 'PVC Member' : 'General Admission'}
           </p>
           <p class="pc-ticket-refund">{PADEL.REFUND_POLICY}</p>
+          <details class="pc-transfer-section">
+            <summary>Transfer your spot to someone else</summary>
+            <div class="pc-transfer-body">
+              <p>If you can no longer attend, you can transfer your spot to another person before 8 December. Enter their details below — they'll receive a confirmation email and their own profile link.</p>
+              <form id="transfer-form" novalidate>
+                <input type="hidden" name="token" value={token} />
+                <input type="hidden" name="ref"   value={ref} />
+                <label class="pc-label">Their full name <span class="req">*</span></label>
+                <input class="pc-input" type="text"  name="newName"  required placeholder="Jane Smith" />
+                <label class="pc-label">Their email <span class="req">*</span></label>
+                <input class="pc-input" type="email" name="newEmail" required placeholder="jane@example.com" />
+                <div id="transfer-error"   class="pc-form-error" hidden></div>
+                <div id="transfer-success" class="pc-saved-banner" hidden>Spot transferred. A confirmation has been sent to them. This link is now invalid.</div>
+                <button type="submit" class="pc-btn" id="transfer-btn" style="background:#555;">Transfer my spot</button>
+              </form>
+            </div>
+          </details>
         </div>
 
         {formClosed ? (
@@ -199,6 +217,14 @@ const WHO_OPTIONS = [
   .pc-btn:hover { opacity: .8; }
   .pc-btn:disabled { opacity: .5; cursor: not-allowed; }
   .pc-form-error { background: #fff3f3; border: 1px solid #f5c5c5; border-radius: 8px; padding: 12px 16px; font-size: 0.9rem; color: #c0392b; }
+  .pc-transfer-section { margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; }
+  .pc-transfer-section summary { font-size: 0.85rem; color: #aaa; cursor: pointer; user-select: none; }
+  .pc-transfer-section summary:hover { color: #ccc; }
+  .pc-transfer-body { padding-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .pc-transfer-body p { font-size: 0.85rem; color: #aaa; margin: 0 0 8px; line-height: 1.5; }
+  .pc-transfer-body .pc-input { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff; }
+  .pc-transfer-body .pc-input::placeholder { color: #666; }
+  .pc-transfer-body .pc-label { color: #ccc; }
 </style>
 
 <script>
@@ -271,6 +297,52 @@ const WHO_OPTIONS = [
         errorBox.hidden = false;
         btn.disabled = false;
         btn.textContent = 'Save my profile';
+      }
+    });
+  }
+
+  // Transfer form
+  const transferForm = document.getElementById('transfer-form') as HTMLFormElement | null;
+  if (transferForm) {
+    const transferBtn     = document.getElementById('transfer-btn') as HTMLButtonElement;
+    const transferError   = document.getElementById('transfer-error') as HTMLElement;
+    const transferSuccess = document.getElementById('transfer-success') as HTMLElement;
+
+    transferForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      transferError.hidden = true;
+      transferBtn.disabled = true;
+      transferBtn.textContent = 'Transferring...';
+
+      const fd = new FormData(transferForm);
+      const payload = {
+        token:    fd.get('token'),
+        ref:      fd.get('ref'),
+        newName:  (fd.get('newName') as string)?.trim(),
+        newEmail: (fd.get('newEmail') as string)?.trim().toLowerCase(),
+      };
+
+      try {
+        const res  = await fetch('/api/padel/transfer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          transferSuccess.hidden = false;
+          transferForm.hidden    = true;
+        } else {
+          transferError.textContent = data.error ?? 'Transfer failed. Please try again.';
+          transferError.hidden      = false;
+          transferBtn.disabled      = false;
+          transferBtn.textContent   = 'Transfer my spot';
+        }
+      } catch {
+        transferError.textContent = 'Network error. Please check your connection and try again.';
+        transferError.hidden      = false;
+        transferBtn.disabled      = false;
+        transferBtn.textContent   = 'Transfer my spot';
       }
     });
   }

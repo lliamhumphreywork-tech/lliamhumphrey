@@ -8,6 +8,15 @@ const PAYSTACK_SECRET = import.meta.env.PAYSTACK_SECRET_KEY ?? '';
 const ALLOWED_ORIGIN  = 'https://privatevictoriesclub.com';
 
 export const POST: APIRoute = async ({ request }) => {
+  // Block checkout if any venue detail is still placeholder
+  const missingDetail =
+    !PADEL.ADDRESS || PADEL.ADDRESS.includes('TBC') ||
+    !PADEL.RAIN_PLAN || PADEL.RAIN_PLAN.includes('TBC') ||
+    !PADEL.LOUNGE_END || PADEL.LOUNGE_END.includes('TBC');
+  if (missingDetail) {
+    return err(503, 'Event details not yet confirmed. Sales temporarily paused.');
+  }
+
   let body: any;
   try { body = await request.json(); } catch { return err(400, 'Invalid JSON'); }
 
@@ -22,8 +31,10 @@ export const POST: APIRoute = async ({ request }) => {
   let rows: any[] = [];
   try { rows = await notionQuery(PADEL.NOTION_PADEL_DB_ID); } catch { /* non-fatal */ }
 
-  const totalSold   = rows.length;
-  const playersSold = rows.filter((r: any) => r.properties['Playing']?.select?.name === 'Yes').length;
+  // Exclude refunded rows from cap count
+  const activeRows  = rows.filter((r: any) => !r.properties['Refunded']?.checkbox);
+  const totalSold   = activeRows.length;
+  const playersSold = activeRows.filter((r: any) => r.properties['Playing']?.select?.name === 'Yes').length;
 
   if (totalSold >= PADEL.TICKET_CAP) return err(409, 'Sold out — no spots left.');
   if (playing === 'Yes' && playersSold >= PADEL.PLAYER_CAP) {

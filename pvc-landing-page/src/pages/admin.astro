@@ -1490,9 +1490,29 @@ function renderPadel(data) {
     ? 'Break-even reached!'
     : (breakEven - s.total) + ' more to cover ' + breakEvenCost;
 
-  // Fetch tier info from caps endpoint
-  var tierBadge = '<span style="color:#888;font-size:12px;">Loading tier...</span>';
+  // Courts needed = ceil(players / 8)
+  var courtsNeeded = Math.ceil((s.players || 0) / 8) || 1;
+  function fmtR(n) { return 'R' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function courtLine(n) {
+    var courts = n * 1.5 * 434.78;
+    var balls  = n * 147.83;
+    var rackets = n * 4 * 1.5 * 43.48;
+    var admin  = 250;
+    var sub    = courts + balls + rackets + admin;
+    var total  = sub * 1.15;
+    return '<tr><td>' + n + ' courts</td><td>' + fmtR(courts) + '</td><td>' + fmtR(balls) + '</td><td>' + fmtR(rackets) + '</td><td>' + fmtR(sub) + '</td><td style="font-weight:700;">' + fmtR(total) + '</td></tr>';
+  }
+  var invoiceHTML =
+    '<div class="card" style="margin-bottom:16px;">' +
+      '<div class="card-title">Venue Invoice Estimate</div>' +
+      '<p style="font-size:12px;color:#888;margin:0 0 12px;">Players: ' + s.players + ' → courts needed: <strong>' + courtsNeeded + '</strong> (ceil(players/8))</p>' +
+      '<div class="table-wrap"><table>' +
+        '<thead><tr><th>Courts</th><th>Court hire</th><th>Balls</th><th>Rackets</th><th>Subtotal</th><th>Total (inc VAT)</th></tr></thead>' +
+        '<tbody>' + [4,5,6].map(courtLine).join('') + '</tbody>' +
+      '</table></div>' +
+    '</div>';
 
+  var tierBadge = '<span style="color:#888;font-size:12px;">Loading tier...</span>';
   var statsHTML =
     '<div class="stat-grid">' +
       statCard('Sold', s.total + ' / ' + s.totalCap, (s.totalCap - s.total) + ' spots left') +
@@ -1500,6 +1520,7 @@ function renderPadel(data) {
       statCard('Revenue', revenueStr, beNote) +
       statCard('Profiles', s.formCompleted + ' / ' + s.total, s.formPct + '% complete') +
     '</div>' +
+    invoiceHTML +
     '<div id="padel-tier-banner" style="margin:0 0 20px;padding:12px 16px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:8px;font-size:13px;color:#555;">' +
       tierBadge +
     '</div>';
@@ -1523,6 +1544,7 @@ function renderPadel(data) {
   }).catch(function() { /* non-fatal */ });
 
   var rows = (data.attendees || []).map(function(a) {
+    if (a.refunded) return ''; // skip refunded in main table
     var playBadge = a.playing === 'Yes'
       ? '<span style="background:#2d9b6f;color:#fff;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700;">Playing</span>'
       : '<span style="background:#eee;color:#555;border-radius:4px;padding:2px 7px;font-size:11px;">Social</span>';
@@ -1535,54 +1557,178 @@ function renderPadel(data) {
     var tierBadge2 = a.tier
       ? (a.tier === 'Early' ? '<span style="font-size:11px;color:#8b5cf6;">Early</span>' : '<span style="font-size:11px;color:#555;">Std</span>')
       : '';
+    var refundBtn   = '<button onclick="padelRefund(\'' + esc(a.id) + '\',\'' + esc(a.name) + '\',\'' + esc(a.amount+'') + '\')" class="btn-sm" style="font-size:10px;padding:3px 8px;background:#fff3f3;color:#c0392b;border:1px solid #f5c5c5;">Refund</button>';
+    var transferBtn2 = '<button onclick="padelAdminTransfer(\'' + esc(a.id) + '\',\'' + esc(a.email) + '\',\'' + esc(a.paymentId || '') + '\')" class="btn-sm" style="font-size:10px;padding:3px 8px;margin-top:4px;">Transfer</button>';
     return '<tr>' +
       '<td class="td-name">' + esc(a.name) + '</td>' +
       '<td class="td-muted">' + esc(a.email) + '</td>' +
       '<td>' + playBadge + '</td>' +
       '<td>' + ticket + '</td>' +
       '<td>' + tierBadge2 + '</td>' +
-      '<td style="font-weight:600;">' + (a.amount ? 'R' + (a.amount/100).toFixed(0) : '') + '</td>' +
+      '<td style="font-weight:600;">' + (a.amount ? 'R' + (a.amount).toFixed ? 'R' + a.amount.toFixed(0) : 'R' + a.amount : '') + '</td>' +
       '<td>' + formBadge + '</td>' +
       '<td class="td-muted" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(a.business) + '</td>' +
       '<td class="td-muted">' + esc(a.purchasedAt ? a.purchasedAt.split('T')[0] : '') + '</td>' +
+      '<td style="white-space:nowrap;">' + refundBtn + '<br>' + transferBtn2 + '</td>' +
     '</tr>';
   }).join('');
+
+  var activeCount = (data.attendees || []).filter(function(a) { return !a.refunded; }).length;
 
   el.innerHTML =
     '<div class="page-title">Padel Social</div>' +
     '<div class="page-sub">Founders\' Padel Social — 11 December 2026</div>' +
     statsHTML +
     '<div class="card">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">' +
-        '<div class="card-title" style="margin:0;">Attendees (' + (data.attendees || []).length + ')</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;">' +
+        '<div class="card-title" style="margin:0;flex:1;">Attendees (' + activeCount + ')</div>' +
         '<button onclick="exportPadelCSV()" class="btn-sm">Export CSV (consented)</button>' +
+        '<button onclick="exportPadelNametags()" class="btn-sm">Name Tags (CSV)</button>' +
+        '<button onclick="printPadelNametags()" class="btn-sm">Name Tags (Print)</button>' +
+        '<button onclick="padelCancelAll()" class="btn-sm" style="background:#fff3f3;color:#c0392b;border:1px solid #f5c5c5;">Cancel Event</button>' +
       '</div>' +
       '<div class="table-wrap"><table>' +
         '<thead><tr>' +
-          '<th>Name</th><th>Email</th><th>Playing</th><th>Ticket</th><th>Tier</th><th>Amount</th><th>Profile</th><th>Business</th><th>Date</th>' +
+          '<th>Name</th><th>Email</th><th>Playing</th><th>Ticket</th><th>Tier</th><th>Amount</th><th>Profile</th><th>Business</th><th>Date</th><th></th>' +
         '</tr></thead>' +
-        '<tbody>' + (rows || '<tr><td colspan="9" class="td-muted">No attendees yet</td></tr>') + '</tbody>' +
+        '<tbody>' + (rows || '<tr><td colspan="10" class="td-muted">No attendees yet</td></tr>') + '</tbody>' +
       '</table></div>' +
+    '</div>' +
+    '<div class="card" id="padel-waitlist-card">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">' +
+        '<div class="card-title" style="margin:0;flex:1;">Waitlist</div>' +
+        '<button onclick="exportPadelWaitlist()" class="btn-sm">Export CSV</button>' +
+      '</div>' +
+      '<div id="padel-waitlist-body"><span style="color:#888;font-size:13px;">Loading...</span></div>' +
     '</div>';
+
+  // Load waitlist async
+  api('/api/admin/padel-waitlist').then(function(wl) {
+    var el2 = document.getElementById('padel-waitlist-body');
+    if (!el2) return;
+    if (!wl.waitlist || !wl.waitlist.length) { el2.innerHTML = '<p style="color:#888;font-size:13px;margin:0;">No waitlist entries yet.</p>'; return; }
+    el2.innerHTML = '<p style="font-size:13px;color:#555;margin:0 0 10px;">' + wl.total + ' on waitlist</p>' +
+      '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Added</th></tr></thead><tbody>' +
+      wl.waitlist.map(function(w) {
+        return '<tr><td>' + esc(w.name) + '</td><td class="td-muted">' + esc(w.email) + '</td><td class="td-muted">' + esc(w.addedAt) + '</td></tr>';
+      }).join('') +
+      '</tbody></table></div>';
+  }).catch(function() {
+    var el2 = document.getElementById('padel-waitlist-body');
+    if (el2) el2.innerHTML = '<p style="color:#888;font-size:13px;margin:0;">Could not load waitlist (NOTION_PADEL_WAITLIST_DB_ID may not be set).</p>';
+  });
+}
+
+function padelRefund(pageId, name, amount) {
+  if (!confirm('Refund ' + name + ' (R' + amount + ')?\n\nThis will issue a Paystack refund. Continue?')) return;
+  fetch('/api/admin/padel-refund', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+    body: JSON.stringify({ pageId: pageId }),
+  }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, d: d }; }); })
+  .then(function(res) {
+    if (res.ok) {
+      toast('Refunded ' + name + ' — R' + amount);
+      loadPadel();
+    } else if (res.d.cutoffPassed) {
+      if (confirm('Refund window has closed (past 4 Dec). Issue refund anyway as admin override?')) {
+        fetch('/api/admin/padel-refund', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+          body: JSON.stringify({ pageId: pageId, force: true }),
+        }).then(function(r2) { return r2.json(); }).then(function(d2) {
+          if (d2.ok) { toast('Force-refunded ' + name); loadPadel(); }
+          else toast('Force refund failed: ' + (d2.error || 'unknown'), true);
+        });
+      }
+    } else {
+      toast('Refund failed: ' + (res.d.error || 'unknown'), true);
+    }
+  }).catch(function(e) { toast('Refund error: ' + e.message, true); });
+}
+
+function padelAdminTransfer(pageId, currentEmail, paymentId) {
+  var newName  = prompt('New attendee full name:');
+  if (!newName) return;
+  var newEmail = prompt('New attendee email:');
+  if (!newEmail) return;
+  if (!confirm('Transfer ticket to ' + newName + ' (' + newEmail + ')?\n\nThis will update Notion and re-send the confirmation email to them.')) return;
+  fetch('/api/admin/padel-transfer', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+    body: JSON.stringify({ pageId: pageId, newName: newName.trim(), newEmail: newEmail.trim().toLowerCase() }),
+  }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, d: d }; }); })
+  .then(function(res) {
+    if (res.ok) { toast('Transferred to ' + newName); loadPadel(); }
+    else toast('Transfer failed: ' + (res.d.error || 'unknown'), true);
+  }).catch(function(e) { toast('Transfer error: ' + e.message, true); });
+}
+
+function padelCancelAll() {
+  var phrase = prompt('Type "CANCEL EVENT" to cancel and refund all tickets:');
+  if (phrase !== 'CANCEL EVENT') { if (phrase !== null) toast('Phrase did not match. Cancelled.', true); return; }
+  fetch('/api/admin/padel-cancel-all', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+    body: JSON.stringify({ confirm: 'CANCEL EVENT' }),
+  }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, d: d }; }); })
+  .then(function(res) {
+    if (res.ok) {
+      toast('Event cancelled. ' + res.d.refunded + '/' + res.d.total + ' refunded.');
+      loadPadel();
+    } else {
+      toast('Cancel failed: ' + (res.d.error || 'unknown'), true);
+    }
+  }).catch(function(e) { toast('Cancel error: ' + e.message, true); });
 }
 
 function exportPadelCSV() {
-  var a = document.createElement('a');
-  a.href = '/api/admin/padel-attendees?format=csv';
-  a.style.display = 'none';
-  // We need to trigger a fetch with auth header, then blob-download
   fetch('/api/admin/padel-attendees?format=csv', { headers: { 'x-admin-key': ADMIN_KEY } })
     .then(function(r) { return r.blob(); })
     .then(function(blob) {
       var url = URL.createObjectURL(blob);
-      a.href = url;
-      a.download = 'padel-attendees.csv';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'padel-attendees.csv';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
     })
     .catch(function(e) { toast('CSV export failed: ' + e.message, true); });
+}
+
+function exportPadelNametags() {
+  fetch('/api/admin/padel-nametags?format=csv', { headers: { 'x-admin-key': ADMIN_KEY } })
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'padel-nametags.csv';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    })
+    .catch(function(e) { toast('Name tag export failed: ' + e.message, true); });
+}
+
+function printPadelNametags() {
+  fetch('/api/admin/padel-nametags?format=print', { headers: { 'x-admin-key': ADMIN_KEY } })
+    .then(function(r) { return r.text(); })
+    .then(function(html) {
+      var w = window.open('', '_blank');
+      if (w) { w.document.write(html); w.document.close(); w.print(); }
+    })
+    .catch(function(e) { toast('Print failed: ' + e.message, true); });
+}
+
+function exportPadelWaitlist() {
+  fetch('/api/admin/padel-waitlist?format=csv', { headers: { 'x-admin-key': ADMIN_KEY } })
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'padel-waitlist.csv';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    })
+    .catch(function(e) { toast('Waitlist export failed: ' + e.message, true); });
 }
 
 // ── Inline edit helpers ──

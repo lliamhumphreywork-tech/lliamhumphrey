@@ -37,6 +37,9 @@ export const GET: APIRoute = async ({ request, url }) => {
       workingOn:   (p['Working On']?.rich_text ?? []).map((t: any) => t.plain_text).join(''),
       whoToMeet:   (p['Who to Meet']?.multi_select ?? []).map((t: any) => t.name),
       offer:       (p['Offer']?.rich_text ?? []).map((t: any) => t.plain_text).join(''),
+      paymentId:   (p['Payment ID']?.rich_text ?? []).map((t: any) => t.plain_text).join(''),
+      refunded:    p['Refunded']?.checkbox ?? false,
+      transferLog: (p['Transfer Log']?.rich_text ?? []).map((t: any) => t.plain_text).join(''),
     };
   });
 
@@ -59,11 +62,12 @@ export const GET: APIRoute = async ({ request, url }) => {
     });
   }
 
-  const total    = attendees.length;
-  const players  = attendees.filter(a => a.playing === 'Yes').length;
+  const active   = attendees.filter(a => !a.refunded);
+  const total    = active.length;
+  const players  = active.filter(a => a.playing === 'Yes').length;
   const social   = total - players;
-  const revenue  = attendees.reduce((s, a) => s + (a.amount ?? 0), 0);
-  const formDone = attendees.filter(a => a.formCompleted).length;
+  const revenue  = active.reduce((s, a) => s + (a.amount ?? 0), 0);
+  const formDone = active.filter(a => a.formCompleted).length;
 
   return new Response(JSON.stringify({
     stats: {

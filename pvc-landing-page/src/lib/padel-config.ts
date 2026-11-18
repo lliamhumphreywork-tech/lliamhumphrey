@@ -21,7 +21,8 @@ export const PADEL = {
   // ── Event details ──
   EVENT_DATE_UTC:      '2026-12-11T15:00:00Z', // 17:00 SAST
   EVENT_START_SAST:    '17:00',
-  EVENT_END_SAST:      '21:30',          // published end time
+  COURTS_END_SAST:     '18:30',          // padel play window: 17:00 – 18:30
+  EVENT_END_SAST:      '21:30',          // published end time (lounge)
   VENUE_CLOSES:        '22:00',
   LOUNGE_END:          '21:30',          // used in email template as LOUNGE_END var
   VENUE:               'Discovery Padel Park, Johannesburg',

@@ -375,12 +375,14 @@ const NOISE = (id: string) => `
 
 <!-- FOOTER -->
 <footer class="d-footer">
-  <div class="footer-lock">
-    <div class="footer-mark">PVC</div>
-    <div class="footer-name">Private Victories Club</div>
+  <div class="footer-bottom">
+    <div class="footer-lock">
+      <div class="footer-mark" style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--lavender-dim);width:auto;height:auto;">PVC</div>
+      <div class="footer-name">Private Victories Club</div>
+    </div>
+    <div class="footer-handle"><a href="https://instagram.com/privatevictories.club" target="_blank" rel="noopener">@privatevictories.club</a> · Built in Africa</div>
+    <div class="footer-copy">© MMXXVI · Build in private. Win in public.</div>
   </div>
-  <div class="footer-handle"><a href="https://instagram.com/privatevictories.club" target="_blank" rel="noopener">@privatevictories.club</a> · Built in Africa</div>
-  <div class="footer-copy">© MMXXVI · Build in private. Win in public.</div>
 </footer>
 
 <script define:vars={{ PS_KEY }}>
@@ -1110,7 +1112,11 @@ const NOISE = (id: string) => `
     border: 1px solid rgba(196,184,192,0.12); padding: 16px;
     cursor: pointer; transition: border-color .2s;
   }
-  .pd-playing-label:has(input:checked) { border-color: rgba(196,184,192,0.5); }
+  .pd-playing-label:has(input:checked) {
+    border-color: var(--lavender);
+    background: rgba(196,184,192,0.08);
+  }
+  .pd-playing-label:has(input:checked) .pd-playing-opt-title { color: var(--lavender); }
   .pd-playing-label--disabled { opacity: .45; cursor: not-allowed; }
   .pd-playing-label input[type="radio"] { margin-top: 3px; flex-shrink: 0; accent-color: var(--lavender); }
   .pd-playing-opt-inner { display: flex; flex-direction: column; gap: 3px; }

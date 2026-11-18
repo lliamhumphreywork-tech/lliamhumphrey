@@ -1484,15 +1484,43 @@ function renderPadel(data) {
   var s  = data.stats;
 
   var revenueStr = 'R' + (s.revenue || 0).toLocaleString('en-ZA');
-  var beClass    = s.total >= s.breakEven ? 'stat-card--green' : '';
+  var breakEven  = 23;
+  var breakEvenCost = 'R7,607.50';
+  var beNote     = s.total >= breakEven
+    ? 'Break-even reached!'
+    : (breakEven - s.total) + ' more to cover ' + breakEvenCost;
+
+  // Fetch tier info from caps endpoint
+  var tierBadge = '<span style="color:#888;font-size:12px;">Loading tier...</span>';
 
   var statsHTML =
     '<div class="stat-grid">' +
       statCard('Sold', s.total + ' / ' + s.totalCap, (s.totalCap - s.total) + ' spots left') +
       statCard('Playing', s.players + ' / ' + s.playerCap, s.social + ' social only') +
-      statCard('Revenue', revenueStr, 'Break-even at ' + s.breakEven) +
+      statCard('Revenue', revenueStr, beNote) +
       statCard('Profiles', s.formCompleted + ' / ' + s.total, s.formPct + '% complete') +
+    '</div>' +
+    '<div id="padel-tier-banner" style="margin:0 0 20px;padding:12px 16px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:8px;font-size:13px;color:#555;">' +
+      tierBadge +
     '</div>';
+
+  // Load tier info async
+  api('/api/padel/caps').then(function(caps) {
+    var banner = document.getElementById('padel-tier-banner');
+    if (!banner) return;
+    var tierLabel = caps.tier === 'early' ? 'Early Access' : 'Standard';
+    var tierColor = caps.tier === 'early' ? '#8b5cf6' : '#2d9b6f';
+    var html = '<strong style="color:' + tierColor + ';">' + tierLabel + ' tier active</strong>';
+    if (caps.tier === 'early') {
+      html += ' &nbsp;·&nbsp; ' + caps.earlyRemaining + ' of ' + caps.earlyCap + ' early tickets remaining';
+      html += ' &nbsp;·&nbsp; Cutoff: ' + caps.earlyCutoff;
+      html += ' &nbsp;·&nbsp; GA: R' + caps.gaPrice;
+    } else {
+      html += ' &nbsp;·&nbsp; GA: R' + caps.gaPrice;
+    }
+    html += ' &nbsp;·&nbsp; <span style="color:#888;">Break-even: ' + breakEven + ' guests / ' + breakEvenCost + '</span>';
+    banner.innerHTML = html;
+  }).catch(function() { /* non-fatal */ });
 
   var rows = (data.attendees || []).map(function(a) {
     var playBadge = a.playing === 'Yes'
@@ -1504,14 +1532,18 @@ function renderPadel(data) {
     var ticket = a.ticketType === 'Member'
       ? '<span style="font-size:11px;color:#8b5cf6;font-weight:600;">Member</span>'
       : '<span style="font-size:11px;color:#555;">GA</span>';
+    var tierBadge2 = a.tier
+      ? (a.tier === 'Early' ? '<span style="font-size:11px;color:#8b5cf6;">Early</span>' : '<span style="font-size:11px;color:#555;">Std</span>')
+      : '';
     return '<tr>' +
       '<td class="td-name">' + esc(a.name) + '</td>' +
       '<td class="td-muted">' + esc(a.email) + '</td>' +
       '<td>' + playBadge + '</td>' +
       '<td>' + ticket + '</td>' +
+      '<td>' + tierBadge2 + '</td>' +
       '<td style="font-weight:600;">' + (a.amount ? 'R' + (a.amount/100).toFixed(0) : '') + '</td>' +
       '<td>' + formBadge + '</td>' +
-      '<td class="td-muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(a.business) + '</td>' +
+      '<td class="td-muted" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(a.business) + '</td>' +
       '<td class="td-muted">' + esc(a.purchasedAt ? a.purchasedAt.split('T')[0] : '') + '</td>' +
     '</tr>';
   }).join('');
@@ -1527,9 +1559,9 @@ function renderPadel(data) {
       '</div>' +
       '<div class="table-wrap"><table>' +
         '<thead><tr>' +
-          '<th>Name</th><th>Email</th><th>Playing</th><th>Ticket</th><th>Amount</th><th>Profile</th><th>Business</th><th>Date</th>' +
+          '<th>Name</th><th>Email</th><th>Playing</th><th>Ticket</th><th>Tier</th><th>Amount</th><th>Profile</th><th>Business</th><th>Date</th>' +
         '</tr></thead>' +
-        '<tbody>' + (rows || '<tr><td colspan="8" class="td-muted">No attendees yet</td></tr>') + '</tbody>' +
+        '<tbody>' + (rows || '<tr><td colspan="9" class="td-muted">No attendees yet</td></tr>') + '</tbody>' +
       '</table></div>' +
     '</div>';
 }

@@ -18,7 +18,7 @@ const NOISE = (id: string) => `
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Founders' Padel Social · Private Victories Club</title>
-  <meta name="description" content="Play padel with other founders. Leave with people you want to know. Friday 11 December · Discovery Padel Park · Johannesburg." />
+  <meta name="description" content="Play padel with other founders, creatives and builders. Leave with people you want to know. Friday 11 December · Discovery Padel Park · Johannesburg." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -53,7 +53,7 @@ const NOISE = (id: string) => `
       <span class="pd-hero-dot">·</span>
       <span>In-Person</span>
       <span class="pd-hero-dot">·</span>
-      <span>Limited to 40</span>
+      <span>Limited to 40 people</span>
     </div>
   </div>
 </section>
@@ -113,7 +113,7 @@ const NOISE = (id: string) => `
   <div class="pd-inner">
     <div class="pd-label reveal">The Premise</div>
     <p class="pd-premise-lead reveal d1">Not just a sports session.</p>
-    <p class="pd-premise-body reveal d2">90 minutes of padel across 6 courts, rotating games so you actually meet people, and a room limited to 40 founders. For those who'd rather watch than play, you can just chill. No pitching. No panels. Just play. The conversations happen naturally when you're in motion.</p>
+    <p class="pd-premise-body reveal d2">90 minutes of padel across the courts, rotating games so you actually meet people, and a room limited to 40 founders, creatives and builders. Playing or not, you're in the room: intros set up before you arrive, name tags, and the lounge after. No pitching. No panels. Just play. The conversations happen naturally when you're in motion.</p>
     <div class="pd-stats reveal d3">
       <div class="pd-stat">
         <div class="pd-stat-num">40</div>
@@ -166,7 +166,7 @@ const NOISE = (id: string) => `
         <div class="pd-sched-num">02</div>
         <div class="pd-sched-body">
           <div class="pd-sched-tag">Play</div>
-          <div class="pd-sched-desc">90 minutes across 6 courts. Rotating games so you don't just play with the people you arrived with.</div>
+          <div class="pd-sched-desc">90 minutes across the courts. Rotating games so you don't just play with the people you arrived with. Rackets and balls included.</div>
         </div>
       </li>
       <li class="pd-sched reveal d3">
@@ -217,9 +217,9 @@ const NOISE = (id: string) => `
 <section class="pd-section pd-who">
   <div class="pd-inner">
     <div class="pd-label reveal">Who This Is For</div>
-    <p class="pd-who-lead reveal d1">Founders and business owners building something real.</p>
+    <p class="pd-who-lead reveal d1">Founders, creatives and builders working on something real.</p>
     <ul class="pd-who-list">
-      <li class="reveal d2" data-num="01">You want to meet other founders outside of a formal setting.</li>
+      <li class="reveal d2" data-num="01">You want to meet other founders, creatives and builders outside of a formal setting.</li>
       <li class="reveal d3" data-num="02">You believe the right room changes what's possible.</li>
       <li class="reveal d4" data-num="03">You'd rather play than sit through another panel.</li>
     </ul>
@@ -259,12 +259,15 @@ const NOISE = (id: string) => `
         <div class="pd-caps-display reveal d2" id="pd-caps-display" aria-live="polite">
           <span id="pd-caps-text">Loading availability...</span>
         </div>
+        <div class="pd-tier-info reveal d3" id="pd-tier-info" style="display:none;">
+          <span id="pd-tier-info-text"></span>
+        </div>
       </div>
 
       {isMemberUrl && (
         <div class="pd-ticket-toggle reveal d1" id="pd-ticket-toggle">
-          <button class="pd-tt-btn pd-tt-btn--active" data-type="ga">General Admission — R400</button>
-          <button class="pd-tt-btn" data-type="member">PVC Member — R350</button>
+          <button class="pd-tt-btn pd-tt-btn--active" data-type="ga" id="pd-tt-ga">General Admission</button>
+          <button class="pd-tt-btn" data-type="member" id="pd-tt-member">PVC Member</button>
         </div>
       )}
 
@@ -272,15 +275,15 @@ const NOISE = (id: string) => `
         <div class="pd-tier-left">
           <div class="pd-tier-badge" id="pd-tier-badge">General Admission</div>
           <div class="pd-tier-price" id="pd-tier-price">R400</div>
-          <div class="pd-tier-hint" id="pd-tier-hint">Open to all founders.</div>
+          <div class="pd-tier-hint" id="pd-tier-hint">Open to all.</div>
           <div class="pd-tier-wm" aria-hidden="true">PVC</div>
         </div>
         <div class="pd-tier-right">
           <ul class="pd-tier-list">
-            <li><span>·</span>90 min padel on 6 courts</li>
-            <li><span>·</span>Rackets and balls provided</li>
+            <li><span>·</span>90 min padel across the courts</li>
+            <li><span>·</span>Rackets and balls included for players</li>
             <li><span>·</span>Rotating games, so you meet more than your own court</li>
-            <li><span>·</span>Room of 40 founders only</li>
+            <li><span>·</span>Room of 40 founders, creatives and builders</li>
           </ul>
           <button class="cta-btn pd-pay-btn" id="pd-pay-btn">Reserve Your Spot</button>
         </div>
@@ -337,7 +340,7 @@ const NOISE = (id: string) => `
     </div>
 
     <div class="pd-fine-print reveal">
-      <p><strong>Refund policy:</strong> Full refund if you cancel more than 48 hours before the event (before 17:00 on 9 Dec). Your spot is transferable to another founder at any time. Full refund if PVC cancels.</p>
+      <p><strong>Refund policy:</strong> Full refund up to 7 days before the event. After that, tickets are non-refundable but you can transfer your spot. If we cancel or postpone, you get a full refund.</p>
       <p>Questions? DM <a href="https://instagram.com/privatevictories.club" target="_blank" rel="noopener">@privatevictories.club</a> on Instagram.</p>
     </div>
   </div>
@@ -420,6 +423,27 @@ const NOISE = (id: string) => `
   // ── Ticket type state ──
   let selectedTicketType = 'ga';
 
+  function updateTicketDisplay() {
+    const badge = document.getElementById('pd-tier-badge');
+    const price = document.getElementById('pd-tier-price');
+    const hint  = document.getElementById('pd-tier-hint');
+    const isEarly = capsData.tier === 'early';
+    if (selectedTicketType === 'member') {
+      if (badge) badge.textContent = 'PVC Member';
+      if (price) price.textContent = `R${capsData.memberPrice ?? (isEarly ? 200 : 250)}`;
+      if (hint)  hint.textContent  = 'PVC Members only.';
+    } else {
+      if (badge) badge.textContent = 'General Admission';
+      if (price) price.textContent = `R${capsData.gaPrice ?? (isEarly ? 400 : 500)}`;
+      if (hint)  hint.textContent  = 'Open to all.';
+    }
+    // Update toggle button labels with current prices
+    const gaBtn = document.getElementById('pd-tt-ga');
+    const memberBtn = document.getElementById('pd-tt-member');
+    if (gaBtn) gaBtn.textContent = `General Admission — R${capsData.gaPrice ?? (isEarly ? 400 : 500)}`;
+    if (memberBtn) memberBtn.textContent = `PVC Member — R${capsData.memberPrice ?? (isEarly ? 200 : 250)}`;
+  }
+
   const toggle = document.getElementById('pd-ticket-toggle');
   if (toggle) {
     toggle.querySelectorAll('.pd-tt-btn').forEach((btn) => {
@@ -427,18 +451,15 @@ const NOISE = (id: string) => `
         toggle.querySelectorAll('.pd-tt-btn').forEach(b => b.classList.remove('pd-tt-btn--active'));
         btn.classList.add('pd-tt-btn--active');
         selectedTicketType = btn.dataset.type;
-        const badge = document.getElementById('pd-tier-badge');
-        const price = document.getElementById('pd-tier-price');
-        const hint  = document.getElementById('pd-tier-hint');
-        if (badge) badge.textContent = selectedTicketType === 'member' ? 'PVC Member' : 'General Admission';
-        if (price) price.textContent = selectedTicketType === 'member' ? 'R350' : 'R400';
-        if (hint)  hint.textContent  = selectedTicketType === 'member' ? 'PVC Members only.' : 'Open to all founders.';
+        updateTicketDisplay();
       });
     });
   }
 
   // ── Load real cap data ──
-  let capsData = { total: 0, players: 0, totalCap: 40, playerCap: 28, totalFull: false, playerFull: false };
+  let capsData = { total: 0, players: 0, totalCap: 40, playerCap: 28, totalFull: false, playerFull: false,
+    tier: 'early', earlyRemaining: 15, earlyCap: 15, earlyCutoff: '27 Nov',
+    gaPrice: 400, memberPrice: 200, nextGaPrice: 500 };
 
   async function loadCaps() {
     try {
@@ -459,6 +480,24 @@ const NOISE = (id: string) => `
       const remaining = capsData.totalCap - capsData.total;
       el.textContent = `${remaining} of ${capsData.totalCap} spots remaining`;
     }
+
+    // Show tier info
+    const tierInfo = document.getElementById('pd-tier-info');
+    const tierInfoText = document.getElementById('pd-tier-info-text');
+    if (tierInfo && tierInfoText && !capsData.totalFull) {
+      if (capsData.tier === 'early' && capsData.nextGaPrice) {
+        const spotsLeft = capsData.earlyRemaining;
+        tierInfoText.textContent = `Early access R${capsData.gaPrice}. Goes to R${capsData.nextGaPrice} after the first ${capsData.earlyCap} tickets or ${capsData.earlyCutoff}.`;
+        tierInfo.style.display = '';
+      } else {
+        tierInfoText.textContent = `Standard pricing — R${capsData.gaPrice}.`;
+        tierInfo.style.display = '';
+      }
+    }
+
+    // Update ticket price display
+    updateTicketDisplay();
+
     // Player cap note in form
     const note = document.getElementById('pd-player-cap-note');
     if (note && capsData.playerFull) {

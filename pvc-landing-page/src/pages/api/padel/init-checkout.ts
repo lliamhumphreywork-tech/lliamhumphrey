@@ -2,7 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { notionQuery } from '../../../lib/notion';
-import { PADEL } from '../../../lib/padel-config';
+import { PADEL, resolveTier, getPrice, getItemName } from '../../../lib/padel-config';
 
 const PAYSTACK_SECRET = import.meta.env.PAYSTACK_SECRET_KEY ?? '';
 const ALLOWED_ORIGIN  = 'https://privatevictoriesclub.com';
@@ -18,20 +18,23 @@ export const POST: APIRoute = async ({ request }) => {
   if (!['ga', 'member'].includes(ticketType))     return err(400, 'Invalid ticket type');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err(400, 'Invalid email');
 
-  // ── Cap check (soft — webhook enforces hard stop) ──
+  // ── Cap check + tier resolution (soft — webhook enforces hard stop) ──
   let rows: any[] = [];
   try { rows = await notionQuery(PADEL.NOTION_PADEL_DB_ID); } catch { /* non-fatal */ }
 
   const totalSold   = rows.length;
-  const playersSold = rows.filter(r => r.properties['Playing']?.select?.name === 'Yes').length;
+  const playersSold = rows.filter((r: any) => r.properties['Playing']?.select?.name === 'Yes').length;
 
-  if (totalSold >= PADEL.TICKET_CAP)             return err(409, 'Sold out — no spots left.');
+  if (totalSold >= PADEL.TICKET_CAP) return err(409, 'Sold out — no spots left.');
   if (playing === 'Yes' && playersSold >= PADEL.PLAYER_CAP) {
     return err(409, 'Player spots are full. You can still join as social-only.');
   }
 
-  const amount   = ticketType === 'member' ? PADEL.PRICE_MEMBER : PADEL.PRICE_GA;
-  const itemName = ticketType === 'member' ? PADEL.ITEM_NAME_MEMBER : PADEL.ITEM_NAME_GA;
+  const tier     = resolveTier(totalSold);
+  const amount   = getPrice(tier, ticketType as 'ga' | 'member');
+  const itemName = getItemName(tier, ticketType as 'ga' | 'member');
+  const tierLabel = tier === 'early' ? 'Early Access' : 'Standard';
+  const amountLabel = `R${(amount / 100).toFixed(0)}`;
 
   const callbackUrl = `${ALLOWED_ORIGIN}/padel-confirm`;
 
@@ -51,12 +54,12 @@ export const POST: APIRoute = async ({ request }) => {
         email,
         playing,
         ticket_type: ticketType,
-        item_name:   itemName,
-        // custom_fields shown on Paystack receipt
+        tier,
+        item_name: itemName,
         custom_fields: [
           { display_name: 'Name',        variable_name: 'name',        value: name },
           { display_name: 'Playing?',    variable_name: 'playing',     value: playing === 'Yes' ? 'Yes, playing' : 'No, social only' },
-          { display_name: 'Ticket Type', variable_name: 'ticket_type', value: ticketType === 'member' ? 'PVC Member (R350)' : 'General Admission (R400)' },
+          { display_name: 'Ticket',      variable_name: 'ticket_type', value: `${ticketType === 'member' ? 'PVC Member' : 'General Admission'} · ${tierLabel} · ${amountLabel}` },
         ],
       },
     }),

@@ -28,6 +28,7 @@ export const GET: APIRoute = async ({ request, url }) => {
       playing:     p['Playing']?.select?.name ?? '',
       amount:      p['Amount']?.number ?? 0,
       purchasedAt: p['Purchased At']?.date?.start ?? '',
+      tier:        p['Tier']?.select?.name ?? '',
       formCompleted: p['Form Completed']?.checkbox ?? false,
       consent:     p['Consent']?.checkbox ?? false,
       business:    (p['Business']?.rich_text ?? []).map((t: any) => t.plain_text).join(''),

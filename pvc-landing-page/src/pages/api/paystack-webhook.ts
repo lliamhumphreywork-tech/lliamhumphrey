@@ -180,8 +180,10 @@ async function handlePadelPurchase(opts: {
   itemName: string;
   playing: string;
   ticketType: string;
+  tier: string;
 }): Promise<void> {
-  const { paymentId, email, name, firstName, amountRands, itemName, playing, ticketType } = opts;
+  const { paymentId, email, name, firstName, amountRands, itemName, playing, ticketType, tier } = opts;
+  const tierLabel = tier === 'standard' ? 'Standard' : 'Early';
 
   // ── Webhook-side hard cap enforcement ──
   let rows: any[] = [];
@@ -219,6 +221,7 @@ async function handlePadelPurchase(opts: {
     'Email':        emailProp(email),
     'Ticket Type':  selectProp(ticketType === 'member' ? 'Member' : 'GA'),
     'Playing':      selectProp(playing === 'Yes' ? 'Yes' : 'No'),
+    'Tier':         selectProp(tierLabel),
     'Payment ID':   textProp(paymentId),
     'Amount':       numProp(parseFloat(amountRands)),
     'Purchased At': dateProp(purchasedAt.split('T')[0]),
@@ -232,13 +235,14 @@ async function handlePadelPurchase(opts: {
     FIRSTNAME: firstName,
     PADEL_PLAYING: playing === 'Yes' ? 'Yes' : 'No',
     PADEL_TICKET_TYPE: ticketType === 'member' ? 'Member' : 'GA',
+    PADEL_TIER: tierLabel,
   }, [PADEL.BREVO_LIST_PADEL]);
 
   // ── Padel confirmation email ──
   await sendTemplate(PADEL.BREVO_TEMPLATE_PADEL_CONFIRM, { email, name: firstName }, {
     firstName,
     playing:      playing === 'Yes' ? 'Yes, you\'re playing' : 'No, social only',
-    ticketType:   ticketType === 'member' ? 'PVC Member (R350)' : 'General Admission (R400)',
+    ticketType:   `${ticketType === 'member' ? 'PVC Member' : 'General Admission'} · ${tierLabel} · R${amountRands}`,
     formLink,
     refundPolicy: PADEL.REFUND_POLICY,
     eventDate:    'Friday, 11 December 2026',
@@ -257,6 +261,7 @@ async function handlePadelPurchase(opts: {
           properties: {
             email, name, playing,
             ticket_type: ticketType,
+            tier,
             amount_rands: parseFloat(amountRands),
             payment_id: paymentId,
           },
@@ -268,9 +273,9 @@ async function handlePadelPurchase(opts: {
   // ── Slack purchase notification ──
   const totalAfter   = totalSold + 1;
   const playersAfter = playing === 'Yes' ? playersSold + 1 : playersSold;
-  const revenue      = (totalAfter * (ticketType === 'member' ? PADEL.PRICE_MEMBER : PADEL.PRICE_GA) / 100).toFixed(0);
+  const runningRevenue = rows.reduce((s: number, r: any) => s + (r.properties['Amount']?.number ?? 0), 0) + parseFloat(amountRands);
   await postWebhook(import.meta.env.SLACK_FINANCE_URL ?? '',
-    `🎾 *Padel ticket sold!* R${amountRands}\n*${name}* (${email})\n*${playing === 'Yes' ? 'Playing' : 'Social only'}* | ${ticketType === 'member' ? 'Member' : 'GA'}\n*Sold:* ${totalAfter}/${PADEL.TICKET_CAP} total | ${playersAfter}/${PADEL.PLAYER_CAP} players\n*Ref:* ${paymentId}`
+    `🎾 *Padel ticket sold!* R${amountRands}\n*${name}* (${email})\n*${playing === 'Yes' ? 'Playing' : 'Social only'}* | ${ticketType === 'member' ? 'Member' : 'GA'} · ${tierLabel}\n*Sold:* ${totalAfter}/${PADEL.TICKET_CAP} | ${playersAfter}/${PADEL.PLAYER_CAP} players\n*Revenue:* R${runningRevenue.toFixed(0)} | Break-even: ${PADEL.BREAK_EVEN} guests\n*Ref:* ${paymentId}`
   );
 }
 
@@ -300,6 +305,7 @@ export const POST: APIRoute = async ({ request }) => {
   const itemName    = data.metadata?.item_name ?? data.metadata?.custom_fields?.find((f: any) => f.variable_name === 'item_name')?.value ?? data.plan?.name ?? 'PVC Payment';
   const playing     = data.metadata?.playing ?? 'No';
   const ticketType  = data.metadata?.ticket_type ?? 'ga';
+  const tier        = (data.metadata?.tier === 'standard') ? 'standard' : 'early';
 
   const lower = itemName.toLowerCase();
   const paymentType: 'Membership' | 'Event' | 'Other' =
@@ -336,7 +342,7 @@ export const POST: APIRoute = async ({ request }) => {
     const isPadel = isPadelTicket(itemName);
     if (isPadel) {
       try {
-        await handlePadelPurchase({ paymentId, email, name, firstName, amountRands, itemName, playing, ticketType });
+        await handlePadelPurchase({ paymentId, email, name, firstName, amountRands, itemName, playing, ticketType, tier });
       } catch (e: any) {
         failures.push('padel-purchase-flow');
         console.error(`[paystack-webhook] [${ref}] Padel flow failed:`, e.message);

@@ -118,6 +118,47 @@ const WHO_OPTIONS = [
           </details>
         </div>
 
+        <div class="pvc-card-section">
+          <h2>Your attendee card</h2>
+          <p class="pvc-card-desc" id="card-desc">{existing.business ? 'Your card is ready — download and share when you arrive.' : 'Your card is ready now. Complete your profile below to add your business.'}</p>
+          <div class="pvc-card-wrap">
+            <div
+              class="pvc-card"
+              id="pvc-card"
+              data-name={existing.name}
+              data-business={existing.business}
+              data-playing={existing.playing === 'Yes' ? 'Playing' : 'Social'}
+            >
+              <div class="pvc-c-top">
+                <span class="pvc-wordmark">PVC</span>
+                <span class="pvc-ticket-type">Founders' Padel Social<br />Early Access</span>
+              </div>
+              <div class="pvc-c-body">
+                <div class="pvc-name" id="card-name">{existing.name}</div>
+                <div class="pvc-role" id="card-role" hidden={!existing.business}>{existing.business}</div>
+                <div class="pvc-badge">
+                  <span class="pvc-badge-dot"></span>
+                  <span class="pvc-badge-label">{existing.playing === 'Yes' ? 'Playing' : 'Social'}</span>
+                </div>
+              </div>
+              <div class="pvc-c-footer">
+                <div class="pvc-event">
+                  <div class="pvc-event-name">Founders' Padel Social</div>
+                  <div class="pvc-event-detail">11 Dec 2026 · Discovery Padel Park, Sandton</div>
+                </div>
+                <div class="pvc-ref">PVC-2026</div>
+              </div>
+            </div>
+          </div>
+          <button class="pvc-dl-btn" id="dl-btn" type="button">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <path d="M5 1v5.5M2.5 4.5 5 7l2.5-2.5M1 9h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Download Card
+          </button>
+          <div id="card-dl-status"></div>
+        </div>
+
         {formClosed ? (
           <div class="pc-card">
             <h2>Introductions closed</h2>
@@ -225,6 +266,57 @@ const WHO_OPTIONS = [
   .pc-transfer-body .pc-input { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff; }
   .pc-transfer-body .pc-input::placeholder { color: #666; }
   .pc-transfer-body .pc-label { color: #ccc; }
+
+  /* ── Attendee card ── */
+  .pvc-card-section { margin-bottom: 36px; }
+  .pvc-card-section > h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 4px; color: #fff; font-family: 'Syne', sans-serif; }
+  .pvc-card-desc { font-size: 0.85rem; color: #777; margin: 0 0 18px; line-height: 1.5; }
+  .pvc-card-wrap { max-width: 480px; }
+  .pvc-card {
+    width: 100%; aspect-ratio: 1.58/1;
+    background: linear-gradient(132deg, #3D1A28 0%, #1E0A1E 46%, #040208 100%);
+    border-radius: 14px; position: relative; overflow: hidden;
+    padding: clamp(18px,4%,28px) clamp(20px,5.5%,32px);
+    display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: 0 20px 56px rgba(0,0,0,0.65), 0 0 0 1px rgba(196,184,192,0.1), inset 0 1px 0 rgba(196,184,192,0.07);
+    margin-bottom: 16px;
+  }
+  .pvc-card::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(196,184,192,0.028) 1px, transparent 1px), linear-gradient(90deg, rgba(196,184,192,0.028) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .pvc-card::after {
+    content: ''; position: absolute; top: -55%; right: -18%; width: 68%; aspect-ratio: 1;
+    background: radial-gradient(circle, rgba(196,184,192,0.075) 0%, transparent 65%);
+  }
+  .pvc-card > * { position: relative; z-index: 1; }
+  .pvc-c-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .pvc-wordmark { font-family: 'Syne', sans-serif; font-size: 10.5px; font-weight: 700; letter-spacing: 0.26em; color: #C4B8C0; opacity: 0.55; }
+  .pvc-ticket-type { font-family: 'DM Sans', sans-serif; font-size: 8px; font-weight: 500; letter-spacing: 0.11em; text-transform: uppercase; color: #C4B8C0; opacity: 0.28; text-align: right; line-height: 1.75; }
+  .pvc-c-body { display: flex; flex-direction: column; gap: 5px; }
+  .pvc-name { font-family: 'Syne', sans-serif; font-size: clamp(19px, 5.5vw, 29px); font-weight: 700; color: #fff; letter-spacing: 0.01em; line-height: 1.05; }
+  .pvc-role { font-family: 'DM Sans', sans-serif; font-size: clamp(9px, 2vw, 11px); font-weight: 400; color: rgba(255,255,255,0.38); letter-spacing: 0.02em; line-height: 1.4; margin-bottom: 3px; }
+  .pvc-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 7px; border: 1px solid rgba(196,184,192,0.26); border-radius: 100px; width: fit-content; }
+  .pvc-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: #C4B8C0; opacity: 0.72; flex-shrink: 0; }
+  .pvc-badge-label { font-family: 'DM Sans', sans-serif; font-size: 8px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #C4B8C0; }
+  .pvc-c-footer { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; }
+  .pvc-event { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .pvc-event-name { font-family: 'Syne', sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 0.19em; text-transform: uppercase; color: #C4B8C0; opacity: 0.58; white-space: nowrap; }
+  .pvc-event-detail { font-family: 'DM Sans', sans-serif; font-size: 8.5px; color: rgba(255,255,255,0.28); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pvc-ref { font-family: 'DM Sans', sans-serif; font-size: 7px; letter-spacing: 0.1em; color: rgba(196,184,192,0.17); flex-shrink: 0; }
+  .pvc-dl-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px; background: transparent;
+    border: 1px solid rgba(196,184,192,0.17); color: #C4B8C0;
+    font-family: 'Syne', sans-serif; font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.17em; text-transform: uppercase;
+    cursor: pointer; transition: border-color .2s, background .2s, opacity .2s;
+  }
+  .pvc-dl-btn:hover:not(:disabled) { border-color: rgba(196,184,192,0.38); background: rgba(196,184,192,0.04); }
+  .pvc-dl-btn:disabled { opacity: 0.32; cursor: not-allowed; }
+  #card-dl-status { font-family: 'DM Sans', sans-serif; font-size: 10px; color: #C4B8C0; min-height: 14px; margin-top: 8px; display: none; }
+  #card-dl-status.show { display: block; }
 </style>
 
 <script>
@@ -286,6 +378,23 @@ const WHO_OPTIONS = [
             b.textContent = 'Your profile is saved. You can update it any time before 8 December.';
             form.before(b);
           }
+          // Sync attendee card with new profile data
+          const cardEl = document.getElementById('pvc-card') as HTMLElement | null;
+          const cardNameEl = document.getElementById('card-name') as HTMLElement | null;
+          const cardRoleEl = document.getElementById('card-role') as HTMLElement | null;
+          const cardDescEl = document.getElementById('card-desc') as HTMLElement | null;
+          if (cardEl && payload.name) {
+            cardEl.dataset.name = payload.name as string;
+            if (cardNameEl) cardNameEl.textContent = payload.name as string;
+          }
+          if (cardEl && payload.business) {
+            cardEl.dataset.business = payload.business as string;
+            if (cardRoleEl) {
+              cardRoleEl.textContent = payload.business as string;
+              cardRoleEl.hidden = false;
+            }
+          }
+          if (cardDescEl) cardDescEl.textContent = 'Your card is ready — download and share when you arrive.';
           setTimeout(() => {
             btn.disabled = false;
             btn.textContent = 'Save my profile';
@@ -300,6 +409,141 @@ const WHO_OPTIONS = [
       }
     });
   }
+
+  // ── Attendee card download ──
+  function dlSetStatus(msg: string) {
+    const el = document.getElementById('card-dl-status') as HTMLElement | null;
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3200);
+  }
+
+  async function renderCardCanvas(W: number): Promise<HTMLCanvasElement> {
+    const H = Math.round(W / 1.58);
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d')!;
+    await document.fonts.ready;
+
+    const cardEl = document.getElementById('pvc-card') as HTMLElement;
+    const name     = cardEl?.dataset.name     ?? '';
+    const business = cardEl?.dataset.business ?? '';
+    const playing  = cardEl?.dataset.playing  ?? 'Social';
+
+    ctx.beginPath();
+    ctx.roundRect(0, 0, W, H, 18);
+    ctx.clip();
+
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, '#3D1A28'); bg.addColorStop(0.46, '#1E0A1E'); bg.addColorStop(1, '#040208');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = 'rgba(196,184,192,0.03)'; ctx.lineWidth = 1;
+    const gs = Math.round(W / 18);
+    for (let x = gs; x < W; x += gs) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+    for (let y = gs; y < H; y += gs) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+    const rg = ctx.createRadialGradient(W * 0.87, H * -0.35, 0, W * 0.87, H * -0.35, W * 0.72);
+    rg.addColorStop(0, 'rgba(196,184,192,0.1)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = 'rgba(196,184,192,0.1)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(0.75, 0.75, W - 1.5, H - 1.5, 17.5); ctx.stroke();
+
+    const pad = Math.round(W * 0.072);
+    const fs  = W / 760;
+
+    // Top
+    ctx.textAlign = 'left';
+    ctx.font = `700 ${Math.round(20 * fs)}px 'Syne', sans-serif`;
+    (ctx as any).letterSpacing = `${Math.round(5 * fs)}px`;
+    ctx.fillStyle = 'rgba(196,184,192,0.5)';
+    ctx.fillText('PVC', pad, pad + Math.round(17 * fs));
+
+    ctx.font = `500 ${Math.round(14 * fs)}px 'DM Sans', sans-serif`;
+    (ctx as any).letterSpacing = `${Math.round(1.5 * fs)}px`;
+    ctx.fillStyle = 'rgba(196,184,192,0.26)';
+    ctx.textAlign = 'right';
+    ctx.fillText("FOUNDERS' PADEL SOCIAL", W - pad, pad + Math.round(14 * fs));
+    ctx.fillText('EARLY ACCESS', W - pad, pad + Math.round(31 * fs));
+
+    // Name
+    ctx.textAlign = 'left';
+    (ctx as any).letterSpacing = `${Math.round(0.5 * fs)}px`;
+    const nameY = business ? H / 2 - Math.round(2 * fs) : H / 2 + Math.round(10 * fs);
+    ctx.font = `700 ${Math.round(56 * fs)}px 'Syne', sans-serif`;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(name, pad, nameY);
+
+    // Role line (business)
+    let badgeBaseY = nameY + Math.round(26 * fs);
+    if (business) {
+      ctx.font = `400 ${Math.round(16 * fs)}px 'DM Sans', sans-serif`;
+      (ctx as any).letterSpacing = `${Math.round(0.4 * fs)}px`;
+      ctx.fillStyle = 'rgba(255,255,255,0.36)';
+      ctx.fillText(business, pad, nameY + Math.round(30 * fs));
+      badgeBaseY = nameY + Math.round(52 * fs);
+    }
+
+    // Badge
+    ctx.font = `600 ${Math.round(14 * fs)}px 'DM Sans', sans-serif`;
+    (ctx as any).letterSpacing = `${Math.round(2 * fs)}px`;
+    const bTW  = ctx.measureText(playing.toUpperCase()).width;
+    const bPH  = Math.round(16 * fs), dotR = Math.round(4.5 * fs), dotGap = Math.round(9 * fs);
+    const bH2  = Math.round(28 * fs), bW = bPH + dotR * 2 + dotGap + bTW + bPH;
+    ctx.strokeStyle = 'rgba(196,184,192,0.28)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(pad, badgeBaseY, bW, bH2, bH2 / 2); ctx.stroke();
+    ctx.fillStyle = 'rgba(196,184,192,0.72)';
+    ctx.beginPath(); ctx.arc(pad + bPH + dotR, badgeBaseY + bH2 / 2, dotR, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#C4B8C0'; ctx.textAlign = 'left';
+    ctx.fillText(playing.toUpperCase(), pad + bPH + dotR * 2 + dotGap, badgeBaseY + bH2 / 2 + Math.round(5 * fs));
+
+    // Footer
+    ctx.font = `700 ${Math.round(15 * fs)}px 'Syne', sans-serif`;
+    (ctx as any).letterSpacing = `${Math.round(3 * fs)}px`;
+    ctx.fillStyle = 'rgba(196,184,192,0.55)';
+    ctx.fillText("FOUNDERS' PADEL SOCIAL", pad, H - Math.round(40 * fs));
+
+    ctx.font = `400 ${Math.round(14 * fs)}px 'DM Sans', sans-serif`;
+    (ctx as any).letterSpacing = `${Math.round(0.4 * fs)}px`;
+    ctx.fillStyle = 'rgba(255,255,255,0.28)';
+    ctx.fillText('11 Dec 2026 · Discovery Padel Park, Sandton', pad, H - Math.round(22 * fs));
+
+    ctx.font = `500 ${Math.round(12 * fs)}px 'DM Sans', sans-serif`;
+    (ctx as any).letterSpacing = `${Math.round(1.5 * fs)}px`;
+    ctx.fillStyle = 'rgba(196,184,192,0.17)';
+    ctx.textAlign = 'right';
+    ctx.fillText('PVC-2026', W - pad, H - Math.round(22 * fs));
+
+    return canvas;
+  }
+
+  async function downloadCard() {
+    const btn = document.getElementById('dl-btn') as HTMLButtonElement | null;
+    if (btn) btn.disabled = true;
+    dlSetStatus('Rendering…');
+
+    try {
+      const canvas = await renderCardCanvas(760);
+      canvas.toBlob((blob) => {
+        if (!blob) { dlSetStatus('Render failed — try again'); if (btn) btn.disabled = false; return; }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'pvc-padel-card.png';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        dlSetStatus('Card downloaded');
+        if (btn) btn.disabled = false;
+      }, 'image/png');
+    } catch (e) {
+      console.error('[pvc-card]', e);
+      dlSetStatus('Could not render — try again');
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  document.getElementById('dl-btn')?.addEventListener('click', downloadCard);
 
   // Transfer form
   const transferForm = document.getElementById('transfer-form') as HTMLFormElement | null;

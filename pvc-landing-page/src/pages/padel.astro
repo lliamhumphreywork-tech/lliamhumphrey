@@ -3,6 +3,8 @@ export const prerender = false;
 import '../styles/global.css';
 const PS_KEY = import.meta.env.PUBLIC_PAYSTACK_KEY ?? '';
 const PH_KEY = import.meta.env.PUBLIC_POSTHOG_KEY ?? '';
+// Member ticket URL param — not linked from this page, shared privately only
+const isMemberUrl = Astro.url.searchParams.get('member') === '1';
 
 const NOISE = (id: string) => `
   <filter id="${id}"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
@@ -254,16 +256,23 @@ const NOISE = (id: string) => `
       <div class="pd-tickets-head">
         <div class="pd-label reveal" style="justify-content:center;">Reserve Your Spot</div>
         <p class="pd-tickets-note reveal d1">40 spots. First come, first served.</p>
-        <div class="pd-social-proof reveal d2">
-          <span class="pd-proof-dot"></span>
-          People are reserving spots right now.
+        <div class="pd-caps-display reveal d2" id="pd-caps-display" aria-live="polite">
+          <span id="pd-caps-text">Loading availability...</span>
         </div>
       </div>
 
+      {isMemberUrl && (
+        <div class="pd-ticket-toggle reveal d1" id="pd-ticket-toggle">
+          <button class="pd-tt-btn pd-tt-btn--active" data-type="ga">General Admission — R400</button>
+          <button class="pd-tt-btn" data-type="member">PVC Member — R350</button>
+        </div>
+      )}
+
       <div class="pd-tier reveal d2">
         <div class="pd-tier-left">
-          <div class="pd-tier-badge">General Admission</div>
-          <div class="pd-tier-hint">Open to all founders.</div>
+          <div class="pd-tier-badge" id="pd-tier-badge">General Admission</div>
+          <div class="pd-tier-price" id="pd-tier-price">R400</div>
+          <div class="pd-tier-hint" id="pd-tier-hint">Open to all founders.</div>
           <div class="pd-tier-wm" aria-hidden="true">PVC</div>
         </div>
         <div class="pd-tier-right">
@@ -273,7 +282,7 @@ const NOISE = (id: string) => `
             <li><span>·</span>Rotating games, so you meet more than your own court</li>
             <li><span>·</span>Room of 40 founders only</li>
           </ul>
-          <button class="cta-btn pd-pay-btn">Reserve Your Spot</button>
+          <button class="cta-btn pd-pay-btn" id="pd-pay-btn">Reserve Your Spot</button>
         </div>
       </div>
     </div>
@@ -290,8 +299,33 @@ const NOISE = (id: string) => `
         <label class="pd-form-label" for="pd-email">Email</label>
         <input type="email" id="pd-email" placeholder="you@example.com" autocomplete="email" />
       </div>
+
+      <!-- Playing question -->
+      <div class="pd-form-field">
+        <label class="pd-form-label">Will you be playing padel?</label>
+        <div class="pd-playing-opts">
+          <label class="pd-playing-label" id="pd-play-yes-label">
+            <input type="radio" name="playing" id="pd-play-yes" value="Yes" checked />
+            <span class="pd-playing-opt-inner">
+              <span class="pd-playing-opt-title">Yes, I'll play</span>
+              <span class="pd-playing-opt-sub">Join a rotating court. No experience needed.</span>
+            </span>
+          </label>
+          <label class="pd-playing-label" id="pd-play-no-label">
+            <input type="radio" name="playing" id="pd-play-no" value="No" />
+            <span class="pd-playing-opt-inner">
+              <span class="pd-playing-opt-title">No, I'll socialise</span>
+              <span class="pd-playing-opt-sub">Watch the games, meet people, stay for the lounge.</span>
+            </span>
+          </label>
+        </div>
+        <p class="pd-player-cap-note" id="pd-player-cap-note" style="display:none;">
+          Player spots are full. You can still join as social-only.
+        </p>
+      </div>
+
       <button class="cta-btn" id="pd-checkout" style="width:100%;margin-top:8px;">Proceed to Checkout</button>
-      <p class="pd-secure-note">Secure checkout on Paystack</p>
+      <p class="pd-secure-note">Secure checkout via Paystack</p>
       <div class="pd-error" id="pd-error" style="display:none;"></div>
     </div>
 
@@ -303,7 +337,7 @@ const NOISE = (id: string) => `
     </div>
 
     <div class="pd-fine-print reveal">
-      <p><strong>Refund policy:</strong> Full refund if you cancel more than 7 days before the event. No refunds within 7 days, but your spot is transferable.</p>
+      <p><strong>Refund policy:</strong> Full refund if you cancel more than 48 hours before the event (before 17:00 on 9 Dec). Your spot is transferable to another founder at any time. Full refund if PVC cancels.</p>
       <p>Questions? DM <a href="https://instagram.com/privatevictories.club" target="_blank" rel="noopener">@privatevictories.club</a> on Instagram.</p>
     </div>
   </div>
@@ -361,8 +395,8 @@ const NOISE = (id: string) => `
     document.querySelectorAll('.pd-hero .reveal').forEach((el) => el.classList.add('visible'));
   }, 100);
 
-  // Countdown to 11 Dec 2026 10:00 SAST (UTC+2)
-  const eventDate = new Date('2026-12-11T08:00:00Z');
+  // Countdown to 11 Dec 2026 17:00 SAST (UTC+2 = 15:00 UTC)
+  const eventDate = new Date('2026-12-11T15:00:00Z');
   function tick() {
     const diff = eventDate - Date.now();
     const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
@@ -383,11 +417,67 @@ const NOISE = (id: string) => `
   }
   tick(); setInterval(tick, 1000);
 
+  // ── Ticket type state ──
+  let selectedTicketType = 'ga';
+
+  const toggle = document.getElementById('pd-ticket-toggle');
+  if (toggle) {
+    toggle.querySelectorAll('.pd-tt-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        toggle.querySelectorAll('.pd-tt-btn').forEach(b => b.classList.remove('pd-tt-btn--active'));
+        btn.classList.add('pd-tt-btn--active');
+        selectedTicketType = btn.dataset.type;
+        const badge = document.getElementById('pd-tier-badge');
+        const price = document.getElementById('pd-tier-price');
+        const hint  = document.getElementById('pd-tier-hint');
+        if (badge) badge.textContent = selectedTicketType === 'member' ? 'PVC Member' : 'General Admission';
+        if (price) price.textContent = selectedTicketType === 'member' ? 'R350' : 'R400';
+        if (hint)  hint.textContent  = selectedTicketType === 'member' ? 'PVC Members only.' : 'Open to all founders.';
+      });
+    });
+  }
+
+  // ── Load real cap data ──
+  let capsData = { total: 0, players: 0, totalCap: 40, playerCap: 28, totalFull: false, playerFull: false };
+
+  async function loadCaps() {
+    try {
+      const res = await fetch('/api/padel/caps', { cache: 'no-store' });
+      if (res.ok) capsData = await res.json();
+    } catch { /* fail open */ }
+    renderCaps();
+  }
+
+  function renderCaps() {
+    const el = document.getElementById('pd-caps-text');
+    if (!el) return;
+    if (capsData.totalFull) {
+      el.textContent = 'Sold out — no spots remaining.';
+      document.getElementById('pd-pay-btn')?.setAttribute('disabled', 'true');
+      document.getElementById('pd-pay-btn') && (document.getElementById('pd-pay-btn').textContent = 'Sold Out');
+    } else {
+      const remaining = capsData.totalCap - capsData.total;
+      el.textContent = `${remaining} of ${capsData.totalCap} spots remaining`;
+    }
+    // Player cap note in form
+    const note = document.getElementById('pd-player-cap-note');
+    if (note && capsData.playerFull) {
+      note.style.display = 'block';
+      const yesLabel = document.getElementById('pd-play-yes-label');
+      const yesInput = document.getElementById('pd-play-yes');
+      if (yesLabel) yesLabel.classList.add('pd-playing-label--disabled');
+      if (yesInput) { yesInput.disabled = true; document.getElementById('pd-play-no').checked = true; }
+    }
+  }
+
+  loadCaps();
+
   // Pay flow
-  document.querySelector('.pd-pay-btn')?.addEventListener('click', () => {
+  document.getElementById('pd-pay-btn')?.addEventListener('click', () => {
     document.getElementById('pd-tier-view').style.display = 'none';
     document.getElementById('pd-form-view').style.display = 'block';
     document.getElementById('pd-form-view').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.posthog?.capture?.('padel_checkout_started', { ticket_type: selectedTicketType });
   });
 
   document.getElementById('pd-back')?.addEventListener('click', () => {
@@ -398,7 +488,6 @@ const NOISE = (id: string) => `
 
   // ── ANALYTICS ──
 
-  // CTA clicks
   document.querySelectorAll('.scroll-to-tickets, .pd-nav-cta, .pd-sticky-cta').forEach((el) => {
     el.addEventListener('click', () => {
       window.posthog?.capture?.('padel_cta_clicked', {
@@ -412,7 +501,6 @@ const NOISE = (id: string) => `
     });
   });
 
-  // Tickets section reached
   const ticketsSection = document.getElementById('tickets');
   if (ticketsSection) {
     const ticketObs = new IntersectionObserver(([e]) => {
@@ -424,7 +512,6 @@ const NOISE = (id: string) => `
     ticketObs.observe(ticketsSection);
   }
 
-  // Form started (first focus on any input)
   let formStarted = false;
   ['pd-name', 'pd-email'].forEach((id) => {
     document.getElementById(id)?.addEventListener('focus', () => {
@@ -435,7 +522,6 @@ const NOISE = (id: string) => `
     }, { once: true });
   });
 
-  // Scroll depth (25 / 50 / 75 / 100)
   const depthHits = new Set();
   window.addEventListener('scroll', () => {
     const pct = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
@@ -447,21 +533,44 @@ const NOISE = (id: string) => `
     });
   }, { passive: true });
 
-  document.getElementById('pd-checkout')?.addEventListener('click', function() {
-    const name = document.getElementById('pd-name').value.trim();
-    const email = document.getElementById('pd-email').value.trim();
-    const errEl = document.getElementById('pd-error');
-    if (!name || !email) { errEl.textContent = 'Please enter your name and email.'; errEl.style.display = 'block'; return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; return; }
+  // ── Checkout via Paystack Initialize Transaction API ──
+  document.getElementById('pd-checkout')?.addEventListener('click', async function() {
+    const nameVal  = document.getElementById('pd-name').value.trim();
+    const emailVal = document.getElementById('pd-email').value.trim();
+    const playing  = document.querySelector('input[name="playing"]:checked')?.value ?? 'No';
+    const errEl    = document.getElementById('pd-error');
+
+    if (!nameVal || !emailVal) { errEl.textContent = 'Please enter your name and email.'; errEl.style.display = 'block'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) { errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; return; }
     errEl.style.display = 'none';
+
     this.textContent = 'Taking you to checkout...';
     this.style.opacity = '0.7';
     this.disabled = true;
-    window.posthog?.capture?.('padel_checkout_started', { event: 'padel-dec-2026' });
-    const url = new URL('https://paystack.com/buy/private-victories-jhb-padel-social-ga-himeyd');
-    url.searchParams.set('name', name);
-    url.searchParams.set('email', email);
-    setTimeout(() => { window.location.href = url.toString(); }, 0);
+
+    try {
+      const res = await fetch('/api/padel/init-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: nameVal, email: emailVal, playing, ticketType: selectedTicketType }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errEl.textContent = data.error ?? 'Something went wrong. Please try again.';
+        errEl.style.display = 'block';
+        this.textContent = 'Proceed to Checkout';
+        this.style.opacity = '';
+        this.disabled = false;
+        return;
+      }
+      window.location.href = data.url;
+    } catch (e) {
+      errEl.textContent = 'Network error. Please try again.';
+      errEl.style.display = 'block';
+      this.textContent = 'Proceed to Checkout';
+      this.style.opacity = '';
+      this.disabled = false;
+    }
   });
 </script>
 
@@ -894,6 +1003,33 @@ const NOISE = (id: string) => `
     font-family: var(--s); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
     color: rgba(196,184,192,0.35);
   }
+
+  /* Caps display */
+  .pd-caps-display { font-family: var(--s); font-size: 13px; color: var(--lavender-dim); }
+
+  /* Ticket toggle (member URL only) */
+  .pd-ticket-toggle { display: flex; gap: 0; margin-bottom: 24px; border: 1px solid rgba(196,184,192,0.15); overflow: hidden; }
+  .pd-tt-btn { flex: 1; background: none; border: none; color: var(--lavender-dim); font-family: var(--s); font-size: 13px; padding: 14px 20px; cursor: pointer; transition: background .2s, color .2s; }
+  .pd-tt-btn--active { background: rgba(196,184,192,0.1); color: var(--white); }
+  .pd-tt-btn:not(:last-child) { border-right: 1px solid rgba(196,184,192,0.15); }
+
+  /* Tier price */
+  .pd-tier-price { font-family: var(--g); font-size: 32px; font-weight: 700; color: var(--white); letter-spacing: -1px; margin: 8px 0 4px; }
+
+  /* Playing options */
+  .pd-playing-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 2px; }
+  .pd-playing-label {
+    display: flex; align-items: flex-start; gap: 12px;
+    border: 1px solid rgba(196,184,192,0.12); padding: 16px;
+    cursor: pointer; transition: border-color .2s;
+  }
+  .pd-playing-label:has(input:checked) { border-color: rgba(196,184,192,0.5); }
+  .pd-playing-label--disabled { opacity: .45; cursor: not-allowed; }
+  .pd-playing-label input[type="radio"] { margin-top: 3px; flex-shrink: 0; accent-color: var(--lavender); }
+  .pd-playing-opt-inner { display: flex; flex-direction: column; gap: 3px; }
+  .pd-playing-opt-title { font-family: var(--s); font-size: 15px; color: var(--white); font-weight: 500; }
+  .pd-playing-opt-sub { font-family: var(--s); font-size: 13px; color: var(--lavender-dim); line-height: 1.4; }
+  .pd-player-cap-note { font-family: var(--s); font-size: 13px; color: #e09090; margin-top: 8px; }
 
   /* Fine print */
   .pd-fine-print { margin-top: 48px; border-top: 1px solid rgba(196,184,192,0.1); padding-top: 32px; display: flex; flex-direction: column; gap: 12px; }

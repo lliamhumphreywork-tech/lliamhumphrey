@@ -644,6 +644,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
       <button class="tab-btn" data-tab="analytics">Analytics</button>
       <button class="tab-btn" data-tab="agent">Susan</button>
       <button class="tab-btn" data-tab="revenue">Revenue</button>
+      <button class="tab-btn" data-tab="padel">Padel Social</button>
     </nav>
     <div class="header-end">
       <button class="signout-btn" id="signout-btn">Sign Out</button>
@@ -657,6 +658,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     <div id="tab-analytics" class="tab-panel"><div class="spinner"></div></div>
     <div id="tab-agent"     class="tab-panel"><div class="spinner"></div></div>
     <div id="tab-revenue"   class="tab-panel"><div class="spinner"></div></div>
+    <div id="tab-padel"     class="tab-panel"><div class="spinner"></div></div>
   </main>
 </div>
 
@@ -721,6 +723,7 @@ function loadTab(id) {
     case 'analytics': loadAnalytics(); break;
     case 'agent':     loadAgent();     break;
     case 'revenue':   loadRevenue();   break;
+    case 'padel':     loadPadel();     break;
   }
 }
 
@@ -1464,6 +1467,90 @@ function renderRevenue(data) {
       '<div class="card-title">Recent Transactions</div>' +
       '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Item</th><th>Amount</th><th>Date</th></tr></thead><tbody>' + (recentHTML || '<tr><td colspan="4" class="td-muted">No data</td></tr>') + '</tbody></table></div>' +
     '</div>';
+}
+
+// ── Padel Social ──
+function loadPadel() {
+  var el = document.getElementById('tab-padel');
+  api('/api/admin/padel-attendees').then(function(data) {
+    renderPadel(data);
+  }).catch(function(e) {
+    el.innerHTML = '<div class="empty-state"><p>' + esc(e.message) + '</p></div>';
+  });
+}
+
+function renderPadel(data) {
+  var el = document.getElementById('tab-padel');
+  var s  = data.stats;
+
+  var revenueStr = 'R' + (s.revenue || 0).toLocaleString('en-ZA');
+  var beClass    = s.total >= s.breakEven ? 'stat-card--green' : '';
+
+  var statsHTML =
+    '<div class="stat-grid">' +
+      statCard('Sold', s.total + ' / ' + s.totalCap, (s.totalCap - s.total) + ' spots left') +
+      statCard('Playing', s.players + ' / ' + s.playerCap, s.social + ' social only') +
+      statCard('Revenue', revenueStr, 'Break-even at ' + s.breakEven) +
+      statCard('Profiles', s.formCompleted + ' / ' + s.total, s.formPct + '% complete') +
+    '</div>';
+
+  var rows = (data.attendees || []).map(function(a) {
+    var playBadge = a.playing === 'Yes'
+      ? '<span style="background:#2d9b6f;color:#fff;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700;">Playing</span>'
+      : '<span style="background:#eee;color:#555;border-radius:4px;padding:2px 7px;font-size:11px;">Social</span>';
+    var formBadge = a.formCompleted
+      ? '<span style="color:#2d9b6f;font-weight:600;">Done</span>'
+      : '<span style="color:#c0392b;">Pending</span>';
+    var ticket = a.ticketType === 'Member'
+      ? '<span style="font-size:11px;color:#8b5cf6;font-weight:600;">Member</span>'
+      : '<span style="font-size:11px;color:#555;">GA</span>';
+    return '<tr>' +
+      '<td class="td-name">' + esc(a.name) + '</td>' +
+      '<td class="td-muted">' + esc(a.email) + '</td>' +
+      '<td>' + playBadge + '</td>' +
+      '<td>' + ticket + '</td>' +
+      '<td style="font-weight:600;">' + (a.amount ? 'R' + (a.amount/100).toFixed(0) : '') + '</td>' +
+      '<td>' + formBadge + '</td>' +
+      '<td class="td-muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(a.business) + '</td>' +
+      '<td class="td-muted">' + esc(a.purchasedAt ? a.purchasedAt.split('T')[0] : '') + '</td>' +
+    '</tr>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="page-title">Padel Social</div>' +
+    '<div class="page-sub">Founders\' Padel Social — 11 December 2026</div>' +
+    statsHTML +
+    '<div class="card">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">' +
+        '<div class="card-title" style="margin:0;">Attendees (' + (data.attendees || []).length + ')</div>' +
+        '<button onclick="exportPadelCSV()" class="btn-sm">Export CSV (consented)</button>' +
+      '</div>' +
+      '<div class="table-wrap"><table>' +
+        '<thead><tr>' +
+          '<th>Name</th><th>Email</th><th>Playing</th><th>Ticket</th><th>Amount</th><th>Profile</th><th>Business</th><th>Date</th>' +
+        '</tr></thead>' +
+        '<tbody>' + (rows || '<tr><td colspan="8" class="td-muted">No attendees yet</td></tr>') + '</tbody>' +
+      '</table></div>' +
+    '</div>';
+}
+
+function exportPadelCSV() {
+  var a = document.createElement('a');
+  a.href = '/api/admin/padel-attendees?format=csv';
+  a.style.display = 'none';
+  // We need to trigger a fetch with auth header, then blob-download
+  fetch('/api/admin/padel-attendees?format=csv', { headers: { 'x-admin-key': ADMIN_KEY } })
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      a.href = url;
+      a.download = 'padel-attendees.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    })
+    .catch(function(e) { toast('CSV export failed: ' + e.message, true); });
 }
 
 // ── Inline edit helpers ──

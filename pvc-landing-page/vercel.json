@@ -8,6 +8,9 @@
     { "path": "/api/admin/analytics-daily-sync",      "schedule": "0 7 * * *"   },
     { "path": "/api/admin/portal-invite-check",       "schedule": "0 8 * * *"   },
     { "path": "/api/admin/member-intel-sweep",        "schedule": "0 9 * * *"   },
-    { "path": "/api/admin/whatsapp-export-reminder",  "schedule": "0 7 * * 1"   }
+    { "path": "/api/admin/whatsapp-export-reminder",  "schedule": "0 7 * * 1"   },
+    { "path": "/api/admin/padel-daily",               "schedule": "0 6 * * *"   },
+    { "path": "/api/admin/padel-reminder",            "schedule": "0 6 2 12 *"  },
+    { "path": "/api/admin/padel-reminder",            "schedule": "0 6 7 12 *"  }
   ]
 }

@@ -1,0 +1,277 @@
+---
+export const prerender = false;
+import { PADEL } from '../lib/padel-config';
+import { notionQuery } from '../lib/notion';
+import crypto from 'crypto';
+
+const MAGIC_LINK_SECRET = import.meta.env.MAGIC_LINK_SECRET ?? '';
+
+const token = Astro.url.searchParams.get('token') ?? '';
+const ref   = Astro.url.searchParams.get('ref') ?? '';
+
+// Verify HMAC token against each ticket row (we don't know the email upfront)
+// Find the matching ticket first, then verify
+let ticket: any = null;
+let tokenValid  = false;
+let formClosed  = false;
+
+try {
+  if (token && ref) {
+    const rows = await notionQuery(PADEL.NOTION_PADEL_DB_ID, {
+      property: 'Payment ID', rich_text: { equals: ref },
+    });
+    if (rows.length > 0) {
+      const row   = rows[0];
+      const email = row.properties['Email']?.email ?? '';
+      const expected = MAGIC_LINK_SECRET
+        ? crypto.createHmac('sha256', MAGIC_LINK_SECRET).update(`${ref}:${email}`).digest('hex')
+        : '';
+      tokenValid = expected !== '' && expected === token;
+      if (tokenValid) ticket = row;
+    }
+  }
+} catch (e: any) {
+  console.error('[padel-confirm] Notion lookup failed:', e.message);
+}
+
+const now = new Date();
+formClosed = now > new Date(PADEL.FORM_CLOSE_UTC);
+
+// Extract existing answers if form already filled
+const p = ticket?.properties ?? {};
+const existing = {
+  business:    (p['Business']?.rich_text ?? []).map((t: any) => t.plain_text).join(''),
+  description: (p['Business Description']?.rich_text ?? []).map((t: any) => t.plain_text).join(''),
+  stage:       p['Stage']?.select?.name ?? '',
+  workingOn:   (p['Working On']?.rich_text ?? []).map((t: any) => t.plain_text).join(''),
+  whoToMeet:   (p['Who to Meet']?.multi_select ?? []).map((t: any) => t.name),
+  offer:       (p['Offer']?.rich_text ?? []).map((t: any) => t.plain_text).join(''),
+  name:        (p['Name']?.title ?? []).map((t: any) => t.plain_text).join(''),
+  email:       p['Email']?.email ?? '',
+  playing:     p['Playing']?.select?.name ?? '',
+  ticketType:  p['Ticket Type']?.select?.name ?? '',
+  completed:   p['Form Completed']?.checkbox ?? false,
+  consent:     p['Consent']?.checkbox ?? false,
+};
+
+const WHO_OPTIONS = [
+  'Investor or VC',
+  'Founder / CEO',
+  'Scale-up operator',
+  'Sales or BD lead',
+  'Technical co-founder',
+  'Marketing lead',
+  'Finance or CFO',
+  'Product / Design lead',
+  'Lawyer or accountant',
+  'Media or PR',
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>You're in — Padel Social | PVC</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body style="background:#0d0d0d;color:#fff;margin:0;font-family:'DM Sans',sans-serif;">
+  <main class="pc-wrap">
+
+    {!tokenValid ? (
+      <div class="pc-card pc-card--error">
+        <h1>Invalid or expired link</h1>
+        <p>This confirmation link isn't valid. If you purchased a ticket, check your email for the correct link, or contact us at <a href="mailto:hello@privatevictoriesclub.com">hello@privatevictoriesclub.com</a>.</p>
+      </div>
+    ) : (
+      <>
+        <div class="pc-ticket">
+          <span class="pc-badge">Ticket confirmed</span>
+          <h1>You're in, {existing.name.split(' ')[0]}.</h1>
+          <p class="pc-ticket-detail">
+            <strong>Founders' Padel Social</strong> &mdash; Friday, 11 December 2026<br />
+            {existing.playing === 'Yes' ? 'Playing padel' : 'Social only'} &middot; {existing.ticketType === 'Member' ? 'PVC Member' : 'General Admission'}
+          </p>
+          <p class="pc-ticket-refund">{PADEL.REFUND_POLICY}</p>
+        </div>
+
+        {formClosed ? (
+          <div class="pc-card">
+            <h2>Introductions closed</h2>
+            <p>The attendee profile form closed on 8 December. We'll still use the information you submitted (if any) for introductions on the night.</p>
+          </div>
+        ) : (
+          <div class="pc-form-wrap">
+            <h2>Tell us who you are</h2>
+            <p class="pc-form-desc">We use this to make introductions at the event. This stays between PVC members — we won't share your revenue numbers or contact details publicly. You can edit this until <strong>8 December at 23:59</strong>.</p>
+
+            {existing.completed && (
+              <div class="pc-saved-banner">Your profile is saved. You can update it any time before 8 December.</div>
+            )}
+
+            <form id="padel-profile-form" class="pc-form" novalidate>
+              <input type="hidden" name="token" value={token} />
+              <input type="hidden" name="ref"   value={ref} />
+
+              <label class="pc-label">Your full name <span class="req">*</span></label>
+              <input class="pc-input" type="text" name="name" required value={existing.name} />
+
+              <label class="pc-label">Your business name <span class="req">*</span></label>
+              <input class="pc-input" type="text" name="business" required value={existing.business} />
+
+              <label class="pc-label">What does your business do? (one sentence) <span class="req">*</span></label>
+              <input class="pc-input" type="text" name="description" required maxlength="160" value={existing.description} />
+
+              <label class="pc-label">Stage <span class="req">*</span></label>
+              <select class="pc-input" name="stage" required>
+                <option value="">Select...</option>
+                {['Pre-revenue', 'Early revenue', 'Scaling'].map(s => (
+                  <option value={s} selected={existing.stage === s}>{s}</option>
+                ))}
+              </select>
+
+              <label class="pc-label">What are you working on or stuck on right now?</label>
+              <textarea class="pc-input" name="workingOn" rows="3">{existing.workingOn}</textarea>
+
+              <label class="pc-label">Who would be most valuable to meet? (choose up to 2)</label>
+              <div class="pc-checkboxes" id="who-to-meet-group">
+                {WHO_OPTIONS.map(opt => (
+                  <label class="pc-checkbox-label">
+                    <input type="checkbox" name="whoToMeet" value={opt}
+                      checked={existing.whoToMeet.includes(opt)} />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+
+              <label class="pc-label">What can you offer others in the room?</label>
+              <textarea class="pc-input" name="offer" rows="2">{existing.offer}</textarea>
+
+              <label class="pc-label pc-popia-label">
+                <input type="checkbox" name="consent" id="popia-consent"
+                  required checked={existing.consent} />
+                <span>I agree that PVC may share my name, business name, and what I can offer with other confirmed attendees for the purpose of making introductions at this event. I understand revenue figures are never shared. I can request deletion by emailing hello@privatevictoriesclub.com. <span class="req">*</span></span>
+              </label>
+
+              <div id="form-error" class="pc-form-error" hidden></div>
+
+              <button type="submit" class="pc-btn" id="submit-btn">Save my profile</button>
+            </form>
+          </div>
+        )}
+      </>
+    )}
+
+  </main>
+</body>
+</html>
+
+<style>
+  .pc-wrap { max-width: 640px; margin: 0 auto; padding: 48px 24px 80px; font-family: 'DM Sans', sans-serif; }
+  .pc-ticket { background: #111; color: #fff; border-radius: 12px; padding: 32px; margin-bottom: 32px; }
+  .pc-badge { display: inline-block; background: #2d9b6f; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-radius: 100px; padding: 4px 12px; margin-bottom: 16px; }
+  .pc-ticket h1 { font-size: 2rem; font-weight: 700; margin: 0 0 12px; }
+  .pc-ticket-detail { font-size: 1rem; color: #ccc; margin: 0 0 16px; line-height: 1.6; }
+  .pc-ticket-refund { font-size: 0.8rem; color: #888; margin: 0; }
+  .pc-card { background: #f7f7f5; border-radius: 12px; padding: 32px; margin-bottom: 32px; }
+  .pc-card--error { background: #fff3f3; border: 1px solid #f5c5c5; }
+  .pc-card h1, .pc-card h2 { margin: 0 0 12px; }
+  .pc-form-wrap h2 { font-size: 1.5rem; font-weight: 700; margin: 0 0 8px; }
+  .pc-form-desc { color: #555; margin: 0 0 24px; line-height: 1.6; }
+  .pc-saved-banner { background: #e8f7ee; color: #1b6b42; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 0.9rem; font-weight: 500; }
+  .pc-form { display: flex; flex-direction: column; gap: 16px; }
+  .pc-label { font-weight: 600; font-size: 0.9rem; display: flex; flex-direction: column; gap: 6px; }
+  .pc-popia-label { flex-direction: row; align-items: flex-start; gap: 10px; font-weight: 400; line-height: 1.5; }
+  .pc-popia-label input { margin-top: 3px; flex-shrink: 0; }
+  .pc-input { border: 1px solid #ddd; border-radius: 8px; padding: 10px 14px; font-size: 0.95rem; font-family: inherit; width: 100%; box-sizing: border-box; }
+  .pc-input:focus { outline: 2px solid #111; outline-offset: 2px; }
+  select.pc-input { background: #fff; cursor: pointer; }
+  textarea.pc-input { resize: vertical; }
+  .pc-checkboxes { display: flex; flex-direction: column; gap: 8px; }
+  .pc-checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: 400; font-size: 0.9rem; cursor: pointer; }
+  .req { color: #c0392b; }
+  .pc-btn { background: #111; color: #fff; border: none; border-radius: 8px; padding: 14px 28px; font-size: 1rem; font-weight: 600; cursor: pointer; align-self: flex-start; transition: opacity .15s; }
+  .pc-btn:hover { opacity: .8; }
+  .pc-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .pc-form-error { background: #fff3f3; border: 1px solid #f5c5c5; border-radius: 8px; padding: 12px 16px; font-size: 0.9rem; color: #c0392b; }
+</style>
+
+<script>
+  const form = document.getElementById('padel-profile-form') as HTMLFormElement | null;
+  if (form) {
+    const btn       = document.getElementById('submit-btn') as HTMLButtonElement;
+    const errorBox  = document.getElementById('form-error') as HTMLElement;
+    const whoGroup  = document.getElementById('who-to-meet-group');
+
+    // Cap "who to meet" at 2 selections
+    whoGroup?.addEventListener('change', () => {
+      const checked = whoGroup.querySelectorAll('input[type="checkbox"]:checked');
+      whoGroup.querySelectorAll('input[type="checkbox"]').forEach((cb: any) => {
+        cb.disabled = checked.length >= 2 && !cb.checked;
+      });
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorBox.hidden = true;
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const fd = new FormData(form);
+      const payload: Record<string, any> = {
+        token:       fd.get('token'),
+        ref:         fd.get('ref'),
+        name:        fd.get('name'),
+        business:    fd.get('business'),
+        description: fd.get('description'),
+        stage:       fd.get('stage'),
+        workingOn:   fd.get('workingOn'),
+        whoToMeet:   fd.getAll('whoToMeet'),
+        offer:       fd.get('offer'),
+        consent:     fd.get('consent') === 'on',
+      };
+
+      try {
+        const res = await fetch('/api/padel/profile-form', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          errorBox.textContent = data.error ?? 'Something went wrong. Please try again.';
+          errorBox.hidden = false;
+          btn.disabled = false;
+          btn.textContent = 'Save my profile';
+        } else {
+          btn.textContent = 'Saved!';
+          btn.style.background = '#2d9b6f';
+          // Show saved banner
+          const banner = document.querySelector('.pc-saved-banner') as HTMLElement;
+          if (banner) { banner.hidden = false; }
+          else {
+            const b = document.createElement('div');
+            b.className = 'pc-saved-banner';
+            b.textContent = 'Your profile is saved. You can update it any time before 8 December.';
+            form.before(b);
+          }
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = 'Save my profile';
+            btn.style.background = '';
+          }, 3000);
+        }
+      } catch {
+        errorBox.textContent = 'Network error. Please check your connection and try again.';
+        errorBox.hidden = false;
+        btn.disabled = false;
+        btn.textContent = 'Save my profile';
+      }
+    });
+  }
+</script>

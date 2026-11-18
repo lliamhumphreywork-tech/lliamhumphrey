@@ -633,8 +633,8 @@ const NOISE = (id: string) => `
 
   // Waitlist form
   document.getElementById('pd-wl-submit')?.addEventListener('click', async function() {
-    const nameVal  = (document.getElementById('pd-wl-name') as HTMLInputElement)?.value.trim() ?? '';
-    const emailVal = (document.getElementById('pd-wl-email') as HTMLInputElement)?.value.trim() ?? '';
+    const nameVal  = /** @type {HTMLInputElement|null} */ (document.getElementById('pd-wl-name'))?.value.trim() ?? '';
+    const emailVal = /** @type {HTMLInputElement|null} */ (document.getElementById('pd-wl-email'))?.value.trim() ?? '';
     const errEl    = document.getElementById('pd-wl-error');
     const sucEl    = document.getElementById('pd-wl-success');
     if (!emailVal || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {

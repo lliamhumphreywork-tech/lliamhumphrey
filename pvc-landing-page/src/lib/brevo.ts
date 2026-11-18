@@ -12,11 +12,18 @@ export async function sendTemplate(
   templateId: number,
   to: { email: string; name?: string },
   params?: Record<string, string>,
+  attachments?: { content: string; name: string }[],
 ): Promise<void> {
   if (!BREVO_API_KEY || !to.email) return;
+  const body: Record<string, any> = {
+    templateId,
+    to: [{ email: to.email, name: to.name ?? '' }],
+    params,
+  };
+  if (attachments?.length) body.attachment = attachments;
   const res = await fetch(`${BREVO_BASE}/smtp/email`, {
     method: 'POST', headers: headers(),
-    body: JSON.stringify({ templateId, to: [{ email: to.email, name: to.name ?? '' }], params }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`Brevo template ${templateId} error ${res.status}: ${await res.text()}`);
 }

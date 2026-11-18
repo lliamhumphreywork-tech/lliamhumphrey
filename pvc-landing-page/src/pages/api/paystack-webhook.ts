@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import { notionQuery, notionPatch, notionCreate, titleProp, textProp, emailProp, numProp, selectProp, dateProp, checkProp } from '../../lib/notion';
 import { sendTemplate, enrollContact } from '../../lib/brevo';
 import { postWebhook } from '../../lib/slack';
+import { PADEL, buildPadelIcs } from '../../lib/padel-config';
 
 const NOTION_FINANCE_DB_ID  = import.meta.env.NOTION_FINANCE_DB_ID;
 const NOTION_CRM_DB_ID      = '872bd20eee31468f91bed1cd472e157a';
@@ -21,8 +22,10 @@ const TEMPLATE_MEMBERSHIP_ONBOARDING = 28;
 const TEMPLATE_EVENT_CONFIRMATION    = 29;
 const BREVO_LIST_4MONTH              = 14;
 
-const POSTHOG_HOST    = 'https://eu.posthog.com';
-const POSTHOG_API_KEY = import.meta.env.POSTHOG_API_KEY ?? '';
+const POSTHOG_HOST      = 'https://eu.posthog.com';
+const POSTHOG_API_KEY   = import.meta.env.POSTHOG_API_KEY ?? '';
+const MAGIC_LINK_SECRET = import.meta.env.MAGIC_LINK_SECRET ?? '';
+const SITE_URL          = 'https://privatevictoriesclub.com';
 
 async function capturePayment(email: string, name: string, amountRands: string, paymentType: string, itemName: string, paymentId: string) {
   if (!POSTHOG_API_KEY) return;
@@ -158,6 +161,135 @@ async function tag4MonthRenewal(email: string, name: string) {
   }, [BREVO_LIST_4MONTH]);
 }
 
+function generateFormToken(paymentId: string, email: string): string {
+  if (!MAGIC_LINK_SECRET) return '';
+  return crypto.createHmac('sha256', MAGIC_LINK_SECRET).update(`${paymentId}:${email}`).digest('hex');
+}
+
+function isPadelTicket(itemName: string): boolean {
+  const lower = itemName.toLowerCase();
+  return lower.includes('padel social');
+}
+
+async function handlePadelPurchase(opts: {
+  paymentId: string;
+  email: string;
+  name: string;
+  firstName: string;
+  amountRands: string;
+  itemName: string;
+  playing: string;
+  ticketType: string;
+  tier: string;
+}): Promise<void> {
+  const { paymentId, email, name, firstName, amountRands, itemName, playing, ticketType, tier } = opts;
+  const tierLabel = tier === 'standard' ? 'Standard' : 'Early';
+
+  // ── Webhook-side hard cap enforcement ──
+  let rows: any[] = [];
+  try { rows = await notionQuery(PADEL.NOTION_PADEL_DB_ID); } catch { /* non-fatal */ }
+  const totalSold   = rows.length;
+  const playersSold = rows.filter((r: any) => r.properties['Playing']?.select?.name === 'Yes').length;
+
+  // If the event is now oversold, trigger a Paystack refund
+  const oversoldTotal  = totalSold  >= PADEL.TICKET_CAP;
+  const oversoldPlayer = playing === 'Yes' && playersSold >= PADEL.PLAYER_CAP;
+  if (oversoldTotal || oversoldPlayer) {
+    const reason = oversoldTotal ? 'Event sold out' : 'Player spots full';
+    console.warn(`[paystack-webhook] Padel oversell detected (${reason}) — refunding ${paymentId}`);
+    try {
+      await fetch(`https://api.paystack.co/refund`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${import.meta.env.PAYSTACK_SECRET_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transaction: paymentId }),
+      });
+    } catch (e: any) {
+      console.error('[paystack-webhook] Padel refund failed:', e.message);
+    }
+    await postWebhook(import.meta.env.SLACK_FINANCE_URL ?? '', `⚠️ *Padel oversell refunded*\n*${name}* (${email}) | ${reason}\n*Ref:* ${paymentId}`);
+    return;
+  }
+
+  // ── Generate form token ──
+  const formToken = generateFormToken(paymentId, email);
+  const formLink  = `${SITE_URL}/padel-confirm?token=${formToken}&ref=${paymentId}`;
+
+  // ── Create Notion padel ticket row ──
+  const purchasedAt = new Date().toISOString();
+  await notionCreate(PADEL.NOTION_PADEL_DB_ID, {
+    'Name':         titleProp(name),
+    'Email':        emailProp(email),
+    'Ticket Type':  selectProp(ticketType === 'member' ? 'Member' : 'GA'),
+    'Playing':      selectProp(playing === 'Yes' ? 'Yes' : 'No'),
+    'Tier':         selectProp(tierLabel),
+    'Payment ID':   textProp(paymentId),
+    'Amount':       numProp(parseFloat(amountRands)),
+    'Purchased At': dateProp(purchasedAt.split('T')[0]),
+    'Form Token':   textProp(formToken),
+    'Form Completed': checkProp(false),
+    'Consent':      checkProp(false),
+    'Refunded':     checkProp(false),
+  });
+
+  // ── Brevo enrol into padel list ──
+  await enrollContact(email, {
+    FIRSTNAME: firstName,
+    PADEL_PLAYING: playing === 'Yes' ? 'Yes' : 'No',
+    PADEL_TICKET_TYPE: ticketType === 'member' ? 'Member' : 'GA',
+    PADEL_TIER: tierLabel,
+  }, [PADEL.BREVO_LIST_PADEL]);
+
+  // ── Padel confirmation email (with .ics attachment) ──
+  const icsBase64 = buildPadelIcs();
+  await sendTemplate(
+    PADEL.BREVO_TEMPLATE_PADEL_CONFIRM,
+    { email, name: firstName },
+    {
+      firstName,
+      playing:      playing === 'Yes' ? 'Yes, you\'re playing' : 'No, social only',
+      ticketType:   `${ticketType === 'member' ? 'PVC Member' : 'General Admission'} · ${tierLabel} · R${amountRands}`,
+      formLink,
+      refundPolicy: PADEL.REFUND_POLICY,
+      refundPolicyUrl: `${SITE_URL}/padel#refund-policy`,
+      eventDate:    'Friday, 11 December 2026',
+      venue:        PADEL.VENUE,
+      address:      PADEL.ADDRESS,
+      loungeEnd:     PADEL.LOUNGE_END,
+      rainPlan:     PADEL.RAIN_PLAN,
+    },
+    [{ content: icsBase64, name: 'padel-social.ics' }],
+  );
+
+  // ── PostHog: padel_ticket_purchased ──
+  if (POSTHOG_API_KEY) {
+    try {
+      await fetch(`${POSTHOG_HOST}/capture/`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: POSTHOG_API_KEY,
+          event: 'padel_ticket_purchased',
+          distinct_id: email,
+          properties: {
+            email, name, playing,
+            ticket_type: ticketType,
+            tier,
+            amount_rands: parseFloat(amountRands),
+            payment_id: paymentId,
+          },
+        }),
+      });
+    } catch { /* non-fatal */ }
+  }
+
+  // ── Slack purchase notification ──
+  const totalAfter   = totalSold + 1;
+  const playersAfter = playing === 'Yes' ? playersSold + 1 : playersSold;
+  const runningRevenue = rows.reduce((s: number, r: any) => s + (r.properties['Amount']?.number ?? 0), 0) + parseFloat(amountRands);
+  await postWebhook(import.meta.env.SLACK_FINANCE_URL ?? '',
+    `🎾 *Padel ticket sold!* R${amountRands}\n*${name}* (${email})\n*${playing === 'Yes' ? 'Playing' : 'Social only'}* | ${ticketType === 'member' ? 'Member' : 'GA'} · ${tierLabel}\n*Sold:* ${totalAfter}/${PADEL.TICKET_CAP} | ${playersAfter}/${PADEL.PLAYER_CAP} players\n*Revenue:* R${runningRevenue.toFixed(0)} | Break-even: ${PADEL.BREAK_EVEN} guests\n*Ref:* ${paymentId}`
+  );
+}
+
 export const POST: APIRoute = async ({ request }) => {
   const body      = await request.text();
   const signature = request.headers.get('x-paystack-signature');
@@ -182,12 +314,19 @@ export const POST: APIRoute = async ({ request }) => {
   const name        = data.metadata?.name ?? data.metadata?.custom_fields?.find((f: any) => f.variable_name === 'name')?.value ?? `${data.customer?.first_name ?? ''} ${data.customer?.last_name ?? ''}`.trim();
   const firstName   = name.split(' ')[0] ?? '';
   const itemName    = data.metadata?.item_name ?? data.metadata?.custom_fields?.find((f: any) => f.variable_name === 'item_name')?.value ?? data.plan?.name ?? 'PVC Payment';
+  // Product-link payments (member Paystack page) won't carry metadata fields —
+  // detect by product/plan name and fill in the right defaults.
+  const isMemberProduct = itemName.toLowerCase().includes('member');
+  const playing     = data.metadata?.playing    ?? (isMemberProduct ? 'Yes' : 'No');
+  const ticketType  = data.metadata?.ticket_type ?? (isMemberProduct ? 'member' : 'ga');
+  const tier        = (data.metadata?.tier === 'standard') ? 'standard' : 'early';
 
   const lower = itemName.toLowerCase();
   const paymentType: 'Membership' | 'Event' | 'Other' =
     lower.includes('membership') ? 'Membership' :
-    lower.includes('event') || lower.includes('dinner') || lower.includes('ticket') || lower.includes('admission') ||
-    lower.includes('mastermind') || lower.includes('cape town') || lower.includes('summit') || lower.includes('workshop') ? 'Event' :
+    lower.includes('padel') || lower.includes('event') || lower.includes('dinner') || lower.includes('ticket') ||
+    lower.includes('admission') || lower.includes('mastermind') || lower.includes('cape town') ||
+    lower.includes('summit') || lower.includes('workshop') ? 'Event' :
     'Other';
 
   console.log(`[paystack-webhook] charge.success - ${name} R${amountRands} | ${paymentType}`);
@@ -213,6 +352,17 @@ export const POST: APIRoute = async ({ request }) => {
 
     // 1b. PostHog payment event
     await capturePayment(email, name, amountRands, paymentType, itemName, paymentId);
+
+    // 1c. Padel-specific flow (email, Notion row, Brevo, Slack, cap enforcement)
+    const isPadel = isPadelTicket(itemName);
+    if (isPadel) {
+      try {
+        await handlePadelPurchase({ paymentId, email, name, firstName, amountRands, itemName, playing, ticketType, tier });
+      } catch (e: any) {
+        failures.push('padel-purchase-flow');
+        console.error(`[paystack-webhook] [${ref}] Padel flow failed:`, e.message);
+      }
+    }
 
     // 2. CRM status update — returns page ID we need to write portal result back
     let crmPageId: string | null = null;
@@ -269,8 +419,8 @@ export const POST: APIRoute = async ({ request }) => {
         }
       }
 
-    } else {
-      // Non-membership: event confirmation
+    } else if (!isPadel) {
+      // Non-membership, non-padel: generic event confirmation
       try {
         await sendPaymentConfirmation(email, firstName, paymentType, itemName);
       } catch (e: any) {
@@ -279,8 +429,8 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
 
-    // 6. Slack payment notification
-    try {
+    // 6. Slack payment notification (padel has its own in handlePadelPurchase)
+    if (!isPadel) try {
       await postWebhook(SLACK_FINANCE_URL, `<!channel> 💰 *New Payment (Paystack) - R${amountRands}*\n*${name}* (${email})\n*Type:* ${paymentType} | *Item:* ${itemName}\n*Ref:* ${paymentId}`);
     } catch (e: any) {
       console.error(`[paystack-webhook] [${ref}] Slack notify failed:`, e.message);

@@ -14,7 +14,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; }
-    body { background: #0A0709; -webkit-font-smoothing: antialiased; }
+    body { background: #E8DFD0; -webkit-font-smoothing: antialiased; }
     @keyframes siteReveal { from { opacity: 0; } to { opacity: 1; } }
     #root { animation: siteReveal 1s ease both; }
     @media (max-width: 768px) {
@@ -35,15 +35,15 @@
 
     // ─── Palette ─────────────────────────────────────────────────────
     const T = {
-      white:    '#0A0709',
-      warm:     '#110D10',
-      ink:      '#F5F0F4',
-      dim:      'rgba(245,240,244,0.5)',
-      faint:    'rgba(245,240,244,0.28)',
-      rule:     'rgba(245,240,244,0.1)',
-      plum:     '#A855A0',
-      plumSoft: 'rgba(168,85,160,0.1)',
-      plumMid:  'rgba(168,85,160,0.4)',
+      white:    '#E8DFD0',
+      warm:     '#E0D7C6',
+      ink:      '#1A1410',
+      dim:      'rgba(26,20,16,0.5)',
+      faint:    'rgba(26,20,16,0.28)',
+      rule:     'rgba(26,20,16,0.1)',
+      plum:     '#6B2D5E',
+      plumSoft: 'rgba(107,45,94,0.07)',
+      plumMid:  'rgba(107,45,94,0.4)',
     };
 
     const grotesk = "'Cormorant Garamond', serif";
@@ -326,8 +326,8 @@
             {/* Right: tall photo strip */}
             <div style={{ width:'clamp(180px,22vw,320px)', flexShrink:0, alignSelf:'stretch', overflow:'hidden', position:'relative' }}>
               <img src="./assets/lliam.jpg" alt="Lliam Humphrey" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 15%', display:'block' }} />
-              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #0A0709 0%, transparent 35%)', pointerEvents:'none' }} />
-              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, #0A0709 0%, transparent 18%, transparent 80%, #0A0709 100%)', pointerEvents:'none' }} />
+              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #E8DFD0 0%, transparent 35%)', pointerEvents:'none' }} />
+              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, #E8DFD0 0%, transparent 18%, transparent 80%, #E8DFD0 100%)', pointerEvents:'none' }} />
             </div>
           </header>
 

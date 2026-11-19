@@ -51,7 +51,7 @@ export const PADEL = {
   BREVO_TEMPLATE_PADEL_REMINDER: 64,
 
   // Notion DBs
-  NOTION_PADEL_DB_ID:          '41cb402f-dc12-81cb-a053-000b76179d44',
+  NOTION_PADEL_DB_ID:          '41cb402f-dc12-81be-9438-eee8a37a6236',
   // NOTION_PADEL_WAITLIST_DB_ID is loaded from env — create the DB in Notion then set this var
 
   // Paystack item names — used in webhook classifier

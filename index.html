@@ -244,6 +244,54 @@
       );
     };
 
+    // ─── Notes Newsletter Strip ───────────────────────────────────────
+    const NotesStrip = () => {
+      const [email, setEmail]       = useState('');
+      const [state, setState]       = useState('idle'); // idle | submitting | done | error
+
+      const submit = async e => {
+        e.preventDefault();
+        if (!email || state === 'submitting') return;
+        setState('submitting');
+        try {
+          const r = await fetch('/api/notes-subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+          setState(r.ok ? 'done' : 'error');
+        } catch { setState('error'); }
+      };
+
+      return (
+        <section style={{ borderTop:`1px solid ${T.rule}`, padding:'clamp(40px,5vw,60px) clamp(32px,5vw,80px)', display:'flex', alignItems:'center', gap:'clamp(24px,4vw,80px)', flexWrap:'wrap' }}>
+          <div style={{ flex:'0 0 auto', maxWidth:380 }}>
+            <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:10, fontFamily:grotesk, fontWeight:500 }}>Notes from Lliam</div>
+            <p style={{ fontFamily:grotesk, fontWeight:300, fontSize:'clamp(13px,1.1vw,15px)', color:T.dim, lineHeight:1.7, margin:0 }}>
+              Unfiltered thoughts on building, selling, and growing. Straight to your inbox.
+            </p>
+          </div>
+          <div style={{ flex:1, minWidth:260 }}>
+            {state === 'done' ? (
+              <p style={{ fontFamily:grotesk, fontWeight:300, fontSize:14, color:T.plum, letterSpacing:'0.02em' }}>You're on the list.</p>
+            ) : (
+              <form onSubmit={submit} style={{ display:'flex', gap:0, border:`1px solid ${T.rule}`, maxWidth:460 }}>
+                <input
+                  type="email" value={email} onChange={e=>setEmail(e.target.value)}
+                  placeholder="your@email.com" required
+                  style={{ flex:1, padding:'14px 18px', background:'transparent', border:'none', fontFamily:grotesk, fontSize:14, fontWeight:300, color:T.ink, outline:'none' }}
+                />
+                <button type="submit" disabled={state==='submitting'} style={{ padding:'14px 24px', background:T.plum, color:'#F5EDF4', border:'none', fontFamily:grotesk, fontSize:9, fontWeight:500, letterSpacing:'0.3em', textTransform:'uppercase', cursor:'pointer', flexShrink:0, transition:'opacity .2s', opacity:state==='submitting'?0.6:1 }}>
+                  {state === 'submitting' ? '...' : 'Subscribe'}
+                </button>
+              </form>
+            )}
+            {state === 'error' && <p style={{ marginTop:8, fontSize:12, color:T.plum, fontFamily:grotesk }}>Something went wrong. Try again.</p>}
+          </div>
+        </section>
+      );
+    };
+
     // ─── Hub Page ─────────────────────────────────────────────────────
     const Hub = ({ onWaitlist, onSetter }) => {
       const [scrollY,  setScrollY]  = useState(0);
@@ -360,6 +408,9 @@
                 cta="View Programme" href="/artofsales" />
             </div>
           </section>
+
+          {/* ── NOTES NEWSLETTER ── */}
+          <NotesStrip />
 
           {/* ── ABOUT ── */}
           <section id="about" style={{ padding:'clamp(72px,9vw,120px) clamp(32px,5vw,80px)', background:T.warm, borderTop:`1px solid ${T.rule}` }}>

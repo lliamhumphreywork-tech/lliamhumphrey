@@ -219,7 +219,7 @@ async function handlePadelPurchase(opts: {
   await notionCreate(PADEL.NOTION_PADEL_DB_ID, {
     'Name':         titleProp(name),
     'Email':        emailProp(email),
-    'Ticket Type':  selectProp(ticketType === 'member' ? 'Member' : 'GA'),
+    'Ticket Type':  selectProp(ticketType === 'member' ? 'PVC Member' : 'General Admission'),
     'Playing':      selectProp(playing === 'Yes' ? 'Yes' : 'No'),
     'Tier':         selectProp(tierLabel),
     'Payment ID':   textProp(paymentId),
@@ -319,7 +319,11 @@ export const POST: APIRoute = async ({ request }) => {
   const isMemberProduct = itemName.toLowerCase().includes('member');
   const playing     = data.metadata?.playing    ?? (isMemberProduct ? 'Yes' : 'No');
   const ticketType  = data.metadata?.ticket_type ?? (isMemberProduct ? 'member' : 'ga');
-  const tier        = (data.metadata?.tier === 'standard') ? 'standard' : 'early';
+  // Product-link payments (member padel) carry no metadata.tier — infer from amount charged.
+  const tier        = data.metadata?.tier === 'standard' ? 'standard'
+    : data.metadata?.tier === 'early' ? 'early'
+    : isMemberProduct ? (parseFloat(amountRands) >= PADEL.PRICE_STANDARD_MEMBER / 100 ? 'standard' : 'early')
+    : 'early';
 
   const lower = itemName.toLowerCase();
   const paymentType: 'Membership' | 'Event' | 'Other' =

@@ -526,6 +526,22 @@ const WHO_OPTIONS = [
 
     try {
       const canvas = await renderCardCanvas(760);
+
+      // iOS Safari (WKWebView) silently ignores <a download> on blob URLs.
+      // Fall back to opening the data URL in a new tab so the user can long-press to save.
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      if (isIOS) {
+        const dataUrl = canvas.toDataURL('image/png');
+        const w = window.open(dataUrl, '_blank');
+        if (w) {
+          dlSetStatus('Press and hold the image → Save to Photos');
+        } else {
+          dlSetStatus('Allow pop-ups then try again');
+        }
+        if (btn) btn.disabled = false;
+        return;
+      }
+
       canvas.toBlob((blob) => {
         if (!blob) { dlSetStatus('Render failed — try again'); if (btn) btn.disabled = false; return; }
         const url = URL.createObjectURL(blob);

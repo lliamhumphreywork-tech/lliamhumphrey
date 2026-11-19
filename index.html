@@ -10,7 +10,7 @@
   <meta name="description" content="20. Building businesses in public from South Africa. Entrepreneur · Founder." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Pinyon+Script&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Pinyon+Script&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; }
@@ -46,8 +46,8 @@
       plumMid:  'rgba(107,45,94,0.4)',
     };
 
-    const grotesk = "'Geist', sans-serif";
-    const serif   = "'Geist', sans-serif";
+    const grotesk = "'Cormorant Garamond', serif";
+    const serif   = "'Cormorant Garamond', serif";
     const script  = "'Pinyon Script', cursive";
 
     // ─── Sidebar Nav ─────────────────────────────────────────────────
@@ -278,40 +278,54 @@
           <MobileNav scrolled={scrollY > 20} />
 
           {/* ── HERO ── */}
-          <header id="top" style={{ minHeight:'100svh', display:'flex', alignItems:'center', padding:'clamp(80px,8vw,120px) clamp(32px,5vw,80px)', gap:'clamp(40px,6vw,80px)', flexWrap:'wrap' }}>
+          <header id="top" style={{ minHeight:'100svh', display:'flex', position:'relative', overflow:'hidden' }}>
 
-            {/* Portrait */}
-            <div style={{ width:'clamp(220px,26vw,380px)', flexShrink:0, aspectRatio:'3/4', overflow:'hidden' }}>
-              <img src="./assets/lliam.jpg" alt="Lliam Humphrey" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 20%' }} />
-            </div>
+            {/* Left: name + details */}
+            <div style={{ flex:1, display:'flex', flexDirection:'column', justifyContent:'space-between', padding:'clamp(60px,7vw,100px) clamp(32px,5vw,72px)', minWidth:0 }}>
 
-            {/* Name + details */}
-            <div style={{ flex:1, minWidth:280 }}>
-              <h1 style={{ fontFamily:grotesk, fontWeight:500, fontSize:'clamp(52px,7.5vw,108px)', lineHeight:0.96, letterSpacing:'-0.05em', color:T.ink, margin:0 }}>
-                Lliam<br />
-                <span style={{ color:T.plum }}>Humphrey</span>
-              </h1>
-              <p style={{ marginTop:22, fontFamily:grotesk, fontWeight:400, fontSize:'clamp(14px,1.3vw,17px)', color:T.dim, letterSpacing:'-0.01em' }}>
-                Visionary · Entrepreneur
-              </p>
-              <div style={{ marginTop:36, display:'flex', flexDirection:'column', gap:12 }}>
-                <a href="https://instagram.com/lliam.humphrey" target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:12, textDecoration:'none', color:T.dim, fontSize:13, fontFamily:serif, transition:'color .2s' }}
+              {/* Top: scroll hint */}
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <div style={{ width:20, height:1, background:T.plum }} />
+                <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.36em', textTransform:'uppercase', color:T.plum, fontWeight:500 }}>South Africa · 20</span>
+              </div>
+
+              {/* Middle: oversized name */}
+              <div>
+                <h1 style={{ fontFamily:grotesk, fontWeight:500, fontSize:'clamp(72px,12vw,180px)', lineHeight:0.88, letterSpacing:'-0.02em', color:T.ink, margin:0 }}>
+                  Lliam
+                </h1>
+                <h1 style={{ fontFamily:grotesk, fontWeight:500, fontSize:'clamp(72px,12vw,180px)', lineHeight:0.88, letterSpacing:'-0.02em', color:T.plum, margin:0 }}>
+                  Humphrey
+                </h1>
+                <p style={{ marginTop:28, fontFamily:grotesk, fontWeight:300, fontSize:'clamp(13px,1.1vw,16px)', color:T.dim, letterSpacing:'0.01em', maxWidth:340 }}>
+                  Visionary. Entrepreneur. Building in public from South Africa.
+                </p>
+              </div>
+
+              {/* Bottom: social links */}
+              <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                <a href="https://instagram.com/lliam.humphrey" target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:12, textDecoration:'none', color:T.dim, fontSize:12, fontFamily:grotesk, fontWeight:300, letterSpacing:'0.02em', transition:'color .2s' }}
                   onMouseEnter={e=>e.currentTarget.style.color=T.plum}
                   onMouseLeave={e=>e.currentTarget.style.color=T.dim}>
                   <span style={{ width:16, height:16, border:`1px solid ${T.rule}`, borderRadius:3, display:'flex', alignItems:'center', justifyContent:'center', fontSize:7, flexShrink:0, fontFamily:grotesk, fontWeight:600, letterSpacing:'0.05em' }}>ig</span>
                   instagram.com/lliam.humphrey
                 </a>
-                <a href="https://tiktok.com/@lliam.humphrey" target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:12, textDecoration:'none', color:T.dim, fontSize:13, fontFamily:serif, transition:'color .2s' }}
+                <a href="https://tiktok.com/@lliam.humphrey" target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:12, textDecoration:'none', color:T.dim, fontSize:12, fontFamily:grotesk, fontWeight:300, letterSpacing:'0.02em', transition:'color .2s' }}
                   onMouseEnter={e=>e.currentTarget.style.color=T.plum}
                   onMouseLeave={e=>e.currentTarget.style.color=T.dim}>
                   <span style={{ width:16, height:16, border:`1px solid ${T.rule}`, borderRadius:3, display:'flex', alignItems:'center', justifyContent:'center', fontSize:7, flexShrink:0, fontFamily:grotesk, fontWeight:600, letterSpacing:'0.05em' }}>tt</span>
                   tiktok.com/@lliam.humphrey
                 </a>
+                <div style={{ marginTop:16, display:'flex', alignItems:'center', gap:14 }}>
+                  <div style={{ width:28, height:1, background:T.plum }} />
+                  <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', color:T.plum, fontWeight:500 }}>What I'm building</span>
+                </div>
               </div>
-              <div style={{ marginTop:56, display:'flex', alignItems:'center', gap:14 }}>
-                <div style={{ width:28, height:1, background:T.plum }} />
-                <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', color:T.plum, fontWeight:500 }}>What I'm building</span>
-              </div>
+            </div>
+
+            {/* Right: tall photo strip */}
+            <div style={{ width:'clamp(180px,22vw,320px)', flexShrink:0, alignSelf:'stretch', overflow:'hidden', borderLeft:`1px solid ${T.rule}` }}>
+              <img src="./assets/lliam.jpg" alt="Lliam Humphrey" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 15%' }} />
             </div>
           </header>
 
@@ -319,7 +333,7 @@
           <section style={{ padding:'clamp(80px,10vw,120px) clamp(32px,5vw,80px)', borderTop:`1px solid ${T.rule}` }}>
             <div data-reveal="story" style={reveal('story')}>
               <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:36, fontFamily:grotesk, fontWeight:500 }}>Story</div>
-              <p style={{ fontFamily:grotesk, fontWeight:500, fontSize:'clamp(32px,5.8vw,76px)', lineHeight:1.0, letterSpacing:'-0.05em', color:T.ink, maxWidth:1100, margin:0 }}>
+              <p style={{ fontFamily:grotesk, fontWeight:500, fontSize:'clamp(36px,5.8vw,86px)', lineHeight:1.05, letterSpacing:'-0.02em', color:T.ink, maxWidth:1100, margin:0 }}>
                 My story began in a hotel in South Africa.{' '}
                 <span style={{ display:'block', color:T.plum }}>
                   Minimum wage. 10-12 hour days. No room to grow.

@@ -292,6 +292,58 @@
       );
     };
 
+    // ─── Story Beat ──────────────────────────────────────────────────
+    const StoryBeat = ({ chapter, lines, palette }) => {
+      const [vis, setVis] = useState(false);
+      const ref = useRef(null);
+      useEffect(() => {
+        const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold: 0.1 });
+        if (ref.current) io.observe(ref.current);
+        return () => io.disconnect();
+      }, []);
+      return (
+        <div ref={ref} style={{
+          minHeight: '60vh', display: 'flex', flexDirection: 'column', justifyContent: 'center',
+          padding: 'clamp(56px,7vw,96px) clamp(32px,5vw,80px)',
+          borderTop: `1px solid ${T.rule}`, position: 'relative',
+        }}>
+          <div style={{ position:'absolute', left:0, top:0, bottom:0, width:2, overflow:'hidden' }}>
+            <div style={{
+              position:'absolute', top:0, left:0, right:0,
+              height: vis ? '100%' : '0%',
+              background: T.plum,
+              transition: 'height 1.4s cubic-bezier(.2,.7,.2,1)',
+            }} />
+          </div>
+          <div style={{
+            fontSize:9, letterSpacing:'0.4em', textTransform:'uppercase',
+            color:T.plum, fontWeight:500, fontFamily:grotesk,
+            marginBottom:28, paddingLeft:24,
+            opacity: vis ? 1 : 0, transition: 'opacity 0.5s ease 0.1s',
+          }}>{chapter}</div>
+          <div style={{ paddingLeft:24 }}>
+            {lines.map((line, li) => (
+              <div key={li} style={{ overflow:'hidden', lineHeight:1.1, marginBottom:6 }}>
+                {line.split(' ').map((word, wi) => (
+                  <span key={wi} style={{
+                    display:'inline-block',
+                    fontFamily:grotesk, fontWeight:500,
+                    fontSize:'clamp(42px,6.5vw,96px)',
+                    letterSpacing:'-0.03em',
+                    color: (palette||[])[li] || (li===0 ? T.ink : T.plum),
+                    transform: vis ? 'translateY(0)' : 'translateY(110%)',
+                    opacity: vis ? 1 : 0,
+                    transition: `transform 0.9s cubic-bezier(.15,.8,.2,1) ${0.18 + li*0.12 + wi*0.04}s, opacity 0.5s ease ${0.18 + li*0.12 + wi*0.04}s`,
+                    marginRight:'0.22em',
+                  }}>{word}</span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
     // ─── Hub Page ─────────────────────────────────────────────────────
     const Hub = ({ onWaitlist, onSetter }) => {
       const [scrollY,  setScrollY]  = useState(0);
@@ -378,17 +430,25 @@
           </header>
 
           {/* ── STORY ── */}
-          <section style={{ padding:'clamp(80px,10vw,120px) clamp(32px,5vw,80px)', borderTop:`1px solid ${T.rule}` }}>
-            <div data-reveal="story" style={reveal('story')}>
-              <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:36, fontFamily:grotesk, fontWeight:500 }}>Story</div>
-              <p style={{ fontFamily:grotesk, fontWeight:500, fontSize:'clamp(36px,5.8vw,86px)', lineHeight:1.05, letterSpacing:'-0.02em', color:T.ink, maxWidth:1100, margin:0 }}>
-                My story began in a hotel in South Africa.{' '}
-                <span style={{ display:'block', color:T.plum }}>
-                  Minimum wage. 10-12 hour days. No room to grow.
-                </span>
-                I decided that couldn't be me.
-              </p>
+          <section style={{ background:T.white }}>
+            <div style={{ padding:'clamp(56px,7vw,80px) clamp(32px,5vw,80px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.rule}` }}>
+              <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, paddingLeft:24 }}>Story</div>
             </div>
+            <StoryBeat chapter="01 · South Africa · 2024"
+              lines={['My story began', 'in a hotel.']}
+              palette={[T.ink, T.plum]} />
+            <StoryBeat chapter="02 · The grind"
+              lines={['Minimum wage.', '10-12 hour days.', 'No room to grow.']}
+              palette={[T.plum, T.ink, T.ink]} />
+            <StoryBeat chapter="03 · The decision · September 2025"
+              lines={['I decided that', "couldn't be me."]}
+              palette={[T.ink, T.plum]} />
+            <StoryBeat chapter="04 · Remote sales · 2025 onwards"
+              lines={['High-ticket. Remote.', '$1M a month.', 'I saw everything.']}
+              palette={[T.plum, T.ink, T.plum]} />
+            <StoryBeat chapter="05 · Building · Now"
+              lines={['Two ventures.', 'Both from firsthand.']}
+              palette={[T.ink, T.plum]} />
           </section>
 
           {/* ── VENTURES ── */}
@@ -403,8 +463,8 @@
               <VentureCard num={1} eyebrow="Private Network" title="Private Victories Club"
                 desc="Africa's private network for entrepreneurs scaling their businesses."
                 cta="Learn More" onCta={onWaitlist} />
-              <VentureCard num={2} eyebrow="Setter Management" title="Art of Sales"
-                desc="Training for young South Africans moving from a regular job into remote sales."
+              <VentureCard num={2} eyebrow="Sales Education" title="Art of Sales"
+                desc="A remote sales education programme for young South Africans. Learn to close deals, work remotely, and build a career without a ceiling."
                 cta="View Programme" href="/artofsales" />
             </div>
           </section>
@@ -418,7 +478,7 @@
               <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:36, fontFamily:grotesk, fontWeight:500 }}>About</div>
               <div data-reveal="about" style={reveal('about')}>
                 <p style={{ fontFamily:grotesk, fontWeight:300, fontSize:'clamp(16px,1.6vw,19px)', lineHeight:1.9, color:T.dim, margin:0 }}>
-                  I'm a 20 year old South African entrepreneur who took a gap year in 2025 to figure out my life. That landed me at a hotel working 10-12 hour days for minimum wage. I wanted out when I realised there was no room for growth, so in September 2025 I posted my first piece of content to build my personal brand. I've spent the last year inside high-ticket sales, remote setting, and eventually on a team doing $1M a month. That's where Private Victories and Setter Management Co. both came from: the same instinct, pointed at two different problems. Look at what's actually happening, not what people assume is happening. Then build something from it.
+                  I'm a 20-year-old South African entrepreneur who took a gap year in 2025 to figure out my life. That landed me at a hotel working 10-12 hour days for minimum wage. I wanted out when I realised there was no ceiling, so in September 2025 I started building in public. I spent the next year inside high-ticket remote sales, eventually on a team closing $1M a month. Art of Sales came from that: a remote sales education programme helping young South Africans move from dead-end jobs into remote sales careers. Private Victories Club came from the same place: a private network for the entrepreneurs already building something. Both from the same instinct. Look at what's actually happening, then build from it.
                 </p>
               </div>
             </div>

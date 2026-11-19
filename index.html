@@ -10,7 +10,7 @@
   <meta name="description" content="20. Building businesses in public from South Africa. Entrepreneur · Founder." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400;1,9..40,500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Pinyon+Script&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; }
@@ -46,8 +46,9 @@
       plumMid:  'rgba(107,45,94,0.4)',
     };
 
-    const grotesk = "'Syne', sans-serif";
-    const serif   = "'DM Sans', sans-serif";
+    const grotesk = "'Geist', sans-serif";
+    const serif   = "'Geist', sans-serif";
+    const script  = "'Pinyon Script', cursive";
 
     // ─── Sidebar Nav ─────────────────────────────────────────────────
     const SideNav = () => (
@@ -56,7 +57,7 @@
         display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'space-between',
         padding:'28px 0', borderRight:`1px solid ${T.rule}`, background:T.white,
       }}>
-        <span style={{ fontFamily:grotesk, fontWeight:700, fontSize:10, letterSpacing:'0.22em', color:T.plum }}>LH</span>
+        <span style={{ fontFamily:script, fontSize:22, color:T.plum, lineHeight:1 }}>LH</span>
         <div style={{ display:'flex', flexDirection:'column', gap:36, alignItems:'center' }}>
           {[['HOME','#top'],['VENTURES','#ventures'],['ABOUT','#about']].map(([label,href]) => (
             <a key={label} href={href} style={{
@@ -146,7 +147,7 @@
               ) : (
                 <div>
                   <div style={{ fontSize:9, color:accent, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:16, fontWeight:500 }}>Members Club</div>
-                  <h2 style={{ fontFamily:grotesk, fontWeight:800, fontSize:32, letterSpacing:'-0.03em', margin:0, lineHeight:1.05, color:ink }}>Join the waitlist</h2>
+                  <h2 style={{ fontFamily:grotesk, fontWeight:500, fontSize:32, letterSpacing:'-0.05em', margin:0, lineHeight:1.0, color:ink }}>Join the waitlist</h2>
                   <p style={{ marginTop:16, fontSize:14, lineHeight:1.75, color:dim }}>Africa's private members club for entrepreneurs.</p>
                   <form onSubmit={submit} style={{ marginTop:36, display:'flex', flexDirection:'column', gap:22 }}>
                     <label style={{ display:'flex', flexDirection:'column', gap:10 }}>
@@ -193,7 +194,7 @@
             </div>
             <div style={{ flex:1, overflowY:'auto', padding:'48px 40px 48px' }}>
               <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:20, fontWeight:500 }}>The Work</div>
-              <h2 style={{ fontFamily:grotesk, fontWeight:800, fontSize:'clamp(28px,3.5vw,44px)', letterSpacing:'-0.03em', margin:'0 0 24px', lineHeight:1.02, color:T.ink }}>Fix What's Actually Leaking Money</h2>
+              <h2 style={{ fontFamily:grotesk, fontWeight:500, fontSize:'clamp(28px,3.5vw,44px)', letterSpacing:'-0.05em', margin:'0 0 24px', lineHeight:1.0, color:T.ink }}>Fix What's Actually Leaking Money</h2>
               <p style={{ fontSize:16, lineHeight:1.85, color:T.dim, margin:'0 0 36px', fontFamily:serif }}>
                 I audit, manage and scale setting teams for high-ticket coaches and consultants doing $20k/month or more.
               </p>
@@ -221,7 +222,7 @@
     };
 
     // ─── Venture Card ─────────────────────────────────────────────────
-    const VentureCard = ({ num, eyebrow, title, desc, cta, onCta }) => {
+    const VentureCard = ({ num, eyebrow, title, desc, cta, onCta, href }) => {
       const [hov, setHov] = useState(false);
       return (
         <div style={{ background:T.white, border:`1px solid ${T.rule}`, padding:'clamp(36px,5vw,56px)', minHeight:380, display:'flex', flexDirection:'column', position:'relative', overflow:'hidden', transition:'border-color .2s', borderColor: hov ? T.plum : T.rule }}
@@ -229,10 +230,14 @@
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background: hov ? T.plum : T.rule, transition:'background .2s' }} />
           <div style={{ flex:1, display:'flex', flexDirection:'column' }}>
             <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:24, fontFamily:grotesk, fontWeight:500 }}>0{num} · {eyebrow}</div>
-            <h3 style={{ fontFamily:grotesk, fontWeight:800, fontSize:'clamp(26px,3vw,40px)', letterSpacing:'-0.03em', color:T.ink, lineHeight:1.05, margin:0 }}>{title}</h3>
-            <p style={{ marginTop:20, fontSize:15, lineHeight:1.9, color:T.dim, fontFamily:serif, flex:1, maxWidth:420 }}>{desc}</p>
+            <h3 style={{ fontFamily:grotesk, fontWeight:500, fontSize:'clamp(26px,3vw,40px)', letterSpacing:'-0.05em', color:T.ink, lineHeight:1.0, margin:0 }}>{title}</h3>
+            <p style={{ marginTop:20, fontSize:15, lineHeight:1.9, color:T.dim, fontFamily:grotesk, fontWeight:300, flex:1, maxWidth:420 }}>{desc}</p>
             <div style={{ marginTop:40 }}>
-              <button onClick={onCta} style={{ padding:'14px 28px', borderRadius:999, background: hov ? T.plum : 'transparent', color: hov ? T.white : T.ink, border:`1px solid ${hov ? T.plum : T.ink}`, fontSize:10, letterSpacing:'0.3em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, cursor:'pointer', transition:'all .2s' }}>{cta}</button>
+              {href ? (
+                <a href={href} style={{ display:'inline-block', padding:'14px 28px', borderRadius:999, background: hov ? T.plum : 'transparent', color: hov ? T.white : T.ink, border:`1px solid ${hov ? T.plum : T.ink}`, fontSize:10, letterSpacing:'0.3em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, textDecoration:'none', transition:'all .2s' }}>{cta}</a>
+              ) : (
+                <button onClick={onCta} style={{ padding:'14px 28px', borderRadius:999, background: hov ? T.plum : 'transparent', color: hov ? T.white : T.ink, border:`1px solid ${hov ? T.plum : T.ink}`, fontSize:10, letterSpacing:'0.3em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, cursor:'pointer', transition:'all .2s' }}>{cta}</button>
+              )}
             </div>
           </div>
         </div>
@@ -277,15 +282,16 @@
 
             {/* Portrait */}
             <div style={{ width:'clamp(220px,26vw,380px)', flexShrink:0, aspectRatio:'3/4', overflow:'hidden' }}>
-              <img src="./assets/ph-IMG_5408-2.jpg" alt="Lliam Humphrey" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 40%' }} />
+              <img src="./assets/lliam.jpg" alt="Lliam Humphrey" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 20%' }} />
             </div>
 
             {/* Name + details */}
             <div style={{ flex:1, minWidth:280 }}>
-              <h1 style={{ fontFamily:grotesk, fontWeight:800, fontSize:'clamp(52px,7.5vw,108px)', lineHeight:0.9, letterSpacing:'-0.04em', color:T.ink, margin:0 }}>
-                Lliam<br />Humphrey
+              <h1 style={{ fontFamily:grotesk, fontWeight:500, fontSize:'clamp(52px,7.5vw,108px)', lineHeight:0.96, letterSpacing:'-0.05em', color:T.ink, margin:0 }}>
+                Lliam<br />
+                <span style={{ color:T.plum }}>Humphrey</span>
               </h1>
-              <p style={{ marginTop:22, fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(15px,1.4vw,18px)', color:T.plum, letterSpacing:'0.01em' }}>
+              <p style={{ marginTop:22, fontFamily:grotesk, fontWeight:400, fontSize:'clamp(14px,1.3vw,17px)', color:T.dim, letterSpacing:'-0.01em' }}>
                 Visionary · Entrepreneur
               </p>
               <div style={{ marginTop:36, display:'flex', flexDirection:'column', gap:12 }}>
@@ -313,11 +319,11 @@
           <section style={{ padding:'clamp(80px,10vw,120px) clamp(32px,5vw,80px)', borderTop:`1px solid ${T.rule}` }}>
             <div data-reveal="story" style={reveal('story')}>
               <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:36, fontFamily:grotesk, fontWeight:500 }}>Story</div>
-              <p style={{ fontFamily:grotesk, fontWeight:800, fontSize:'clamp(32px,5.8vw,76px)', lineHeight:1.06, letterSpacing:'-0.035em', color:T.ink, maxWidth:1100, margin:0 }}>
+              <p style={{ fontFamily:grotesk, fontWeight:500, fontSize:'clamp(32px,5.8vw,76px)', lineHeight:1.0, letterSpacing:'-0.05em', color:T.ink, maxWidth:1100, margin:0 }}>
                 My story began in a hotel in South Africa.{' '}
-                <span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, color:T.plum }}>
+                <span style={{ display:'block', color:T.plum }}>
                   Minimum wage. 10-12 hour days. No room to grow.
-                </span>{' '}
+                </span>
                 I decided that couldn't be me.
               </p>
             </div>
@@ -326,18 +332,18 @@
           {/* ── VENTURES ── */}
           <section id="ventures" style={{ padding:'clamp(56px,7vw,96px) clamp(32px,5vw,80px)' }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', paddingBottom:20, borderBottom:`1px solid ${T.rule}`, marginBottom:32 }}>
-              <h2 style={{ fontFamily:grotesk, fontWeight:800, fontSize:'clamp(24px,3.5vw,44px)', letterSpacing:'-0.035em', color:T.ink, margin:0 }}>
-                What I'm{' '}
-                <span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, color:T.plum }}>building</span>
+              <h2 style={{ fontFamily:grotesk, fontWeight:500, fontSize:'clamp(24px,3.5vw,44px)', letterSpacing:'-0.05em', color:T.ink, margin:0 }}>
+                What I'm building.{' '}
+                <span style={{ color:T.plum }}>Two ventures.</span>
               </h2>
             </div>
             <div data-reveal="cards" style={{ ...reveal('cards'), display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px,1fr))', gap:16 }}>
               <VentureCard num={1} eyebrow="Private Network" title="Private Victories Club"
                 desc="Africa's private network for entrepreneurs scaling their businesses."
                 cta="Learn More" onCta={onWaitlist} />
-              <VentureCard num={2} eyebrow="Setter Management" title="Setter Management Co."
-                desc="Setter management for high-ticket coaches and consultants."
-                cta="Learn More" onCta={onSetter} />
+              <VentureCard num={2} eyebrow="Setter Management" title="Art of Sales"
+                desc="Training for young South Africans moving from a regular job into remote sales."
+                cta="View Programme" href="/artofsales" />
             </div>
           </section>
 
@@ -346,7 +352,7 @@
             <div style={{ maxWidth:700 }}>
               <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:36, fontFamily:grotesk, fontWeight:500 }}>About</div>
               <div data-reveal="about" style={reveal('about')}>
-                <p style={{ fontFamily:serif, fontSize:'clamp(16px,1.6vw,19px)', lineHeight:1.9, color:T.dim, margin:0 }}>
+                <p style={{ fontFamily:grotesk, fontWeight:300, fontSize:'clamp(16px,1.6vw,19px)', lineHeight:1.9, color:T.dim, margin:0 }}>
                   I'm a 20 year old South African entrepreneur who took a gap year in 2025 to figure out my life. That landed me at a hotel working 10-12 hour days for minimum wage. I wanted out when I realised there was no room for growth, so in September 2025 I posted my first piece of content to build my personal brand. I've spent the last year inside high-ticket sales, remote setting, and eventually on a team doing $1M a month. That's where Private Victories and Setter Management Co. both came from: the same instinct, pointed at two different problems. Look at what's actually happening, not what people assume is happening. Then build something from it.
                 </p>
               </div>
@@ -357,7 +363,7 @@
           <section style={{ padding:'clamp(80px,10vw,120px) clamp(32px,5vw,80px)', textAlign:'center', borderTop:`1px solid ${T.rule}` }}>
             <div data-reveal="quote" style={reveal('quote')}>
               <div style={{ width:1, height:48, background:T.plum, margin:'0 auto 40px' }} />
-              <blockquote style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(22px,4vw,60px)', lineHeight:1.22, letterSpacing:'-0.02em', color:T.ink, maxWidth:960, margin:'0 auto' }}>
+              <blockquote style={{ fontFamily:grotesk, fontWeight:300, fontSize:'clamp(22px,4vw,60px)', lineHeight:1.2, letterSpacing:'-0.04em', color:T.ink, maxWidth:960, margin:'0 auto' }}>
                 The wins you have in public are proportionate to the victories you have in private.
               </blockquote>
             </div>

@@ -7,38 +7,20 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
   <link rel="shortcut icon" href="/favicon.ico" />
-  <meta name="description" content="19. Building businesses in public from South Africa. Entrepreneur · Creative Director · Founder." />
+  <meta name="description" content="20. Building businesses in public from South Africa. Entrepreneur · Founder." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400;1,9..40,500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; }
-    body {
-      background:
-        radial-gradient(ellipse 75vw 65vh at 5%  12%,  rgba(12,30,88,0.62)  0%, transparent 70%),
-        radial-gradient(ellipse 65vw 75vh at 95% 35%,  rgba(9,22,72,0.55)   0%, transparent 70%),
-        radial-gradient(ellipse 55vw 60vh at 55% 72%,  rgba(14,34,92,0.48)  0%, transparent 70%),
-        radial-gradient(ellipse 50vw 55vh at 80% 92%,  rgba(10,26,78,0.40)  0%, transparent 70%),
-        radial-gradient(ellipse 60vw 50vh at 18% 56%,  rgba(11,28,82,0.35)  0%, transparent 70%),
-        radial-gradient(ellipse 45vw 60vh at 65% 18%,  rgba(8,20,68,0.38)   0%, transparent 70%),
-        #06080F;
-      background-attachment: fixed;
-      -webkit-font-smoothing: antialiased;
-    }
-    @keyframes siteReveal {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-    @keyframes siteScale {
-      from { transform: scale(0.97); }
-      to   { transform: scale(1); }
-    }
-    #root { animation: siteReveal 1.8s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.05s; }
-    #site-inner { animation: siteScale 1.8s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.05s; transform-origin: center 40%; }
+    body { background: #FFFFFF; -webkit-font-smoothing: antialiased; }
+    @keyframes siteReveal { from { opacity: 0; } to { opacity: 1; } }
+    #root { animation: siteReveal 1s ease both; }
     @media (max-width: 768px) {
-      .pill-nav-links { display: none !important; }
-      .mobile-menu-btn { display: flex !important; }
+      .sidebar-nav  { display: none !important; }
+      .site-wrap    { margin-left: 0 !important; }
+      .mobile-nav   { display: flex !important; }
     }
   </style>
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
@@ -51,188 +33,137 @@
   <script type="text/babel" data-presets="react">
     const { useState, useEffect, useRef } = React;
 
-    // ─── Palette ────────────────────────────────────────────────────
+    // ─── Palette ─────────────────────────────────────────────────────
     const T = {
-      black:      '#06080F',              // main bg — deep navy
-      navy:       '#0C1428',              // card bg — mid navy
-      navyMid:    '#101A34',              // slightly lifted navy
-      navyDeep:   '#040610',              // footer bg — deepest
-      silver:     '#FFFFFF',             // white accent
-      silverLight:'#DDD8D0',             // cream text
-      silverDim:  'rgba(220,216,208,0.45)',
-      silverFaint:'rgba(200,196,188,0.3)',
-      white:      '#DDD8D0',             // main cream text
-      orange:     '#FFFFFF',             // white (scroll line / buttons)
-      orangeSoft: 'rgba(240,237,232,0.55)',
-      beige:      '#F0EDE8',             // warm cream
-      beigeDeep:  '#C8C3BB',
+      white:    '#FFFFFF',
+      warm:     '#FAFAF8',
+      ink:      '#100D0F',
+      dim:      'rgba(16,13,15,0.5)',
+      faint:    'rgba(16,13,15,0.28)',
+      rule:     'rgba(16,13,15,0.1)',
+      plum:     '#6B2D5E',
+      plumSoft: 'rgba(107,45,94,0.07)',
+      plumMid:  'rgba(107,45,94,0.4)',
     };
 
     const grotesk = "'Syne', sans-serif";
     const serif   = "'DM Sans', sans-serif";
 
-    // ─── Modal shared constants (module-level prevents focus-loss bug) ─
-    const mAccent = '#FFFFFF', mBg = '#0C1428', mPanelBg = '#08101E', mInk = '#DDD8D0', mDim = 'rgba(220,216,208,0.55)', mFaint = 'rgba(200,196,188,0.35)';
-    const baseInput = { width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:`1px solid ${mAccent}55`, fontFamily:grotesk, fontSize:16, color:mInk, outline:'none', transition:'border-color .2s', boxSizing:'border-box' };
-    const chipBase  = (sel) => ({ padding:'10px 16px', border:`1px solid ${sel?mAccent:mAccent+'33'}`, background:sel?mAccent:'transparent', color:sel?'#fff':mInk, fontFamily:grotesk, fontSize:11, letterSpacing:'0.18em', textTransform:'uppercase', fontWeight:500, cursor:'pointer', transition:'all .2s' });
-    const Field = ({ label, hint, optional, children }) => (
-      <label style={{ display:'flex', flexDirection:'column', gap:10 }}>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline' }}>
-          <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:mAccent }}>{label}{optional&&<span style={{ marginLeft:8, color:mFaint }}>(optional)</span>}</span>
-          {hint&&<span style={{ fontSize:10, color:mFaint, letterSpacing:'0.12em' }}>{hint}</span>}
+    // ─── Sidebar Nav ─────────────────────────────────────────────────
+    const SideNav = () => (
+      <nav className="sidebar-nav" style={{
+        position:'fixed', left:0, top:0, bottom:0, width:44, zIndex:20,
+        display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'space-between',
+        padding:'28px 0', borderRight:`1px solid ${T.rule}`, background:T.white,
+      }}>
+        <span style={{ fontFamily:grotesk, fontWeight:700, fontSize:10, letterSpacing:'0.22em', color:T.plum }}>LH</span>
+        <div style={{ display:'flex', flexDirection:'column', gap:36, alignItems:'center' }}>
+          {[['HOME','#top'],['VENTURES','#ventures'],['ABOUT','#about']].map(([label,href]) => (
+            <a key={label} href={href} style={{
+              writingMode:'vertical-rl', transform:'rotate(180deg)',
+              fontSize:7, letterSpacing:'0.32em', textTransform:'uppercase',
+              color:T.faint, textDecoration:'none', fontFamily:grotesk, fontWeight:500, transition:'color .2s',
+            }}
+            onMouseEnter={e=>e.currentTarget.style.color=T.plum}
+            onMouseLeave={e=>e.currentTarget.style.color=T.faint}
+            >{label}</a>
+          ))}
         </div>
-        {children}
-      </label>
+        <div style={{ width:5, height:5, borderRadius:'50%', background:T.plum }} />
+      </nav>
     );
 
-    // ─── SVG noise ──────────────────────────────────────────────────
-    const NoiseDefs = () => (
-      <svg width="0" height="0" style={{ position:'absolute' }}>
-        <filter id="nf-shared">
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-      </svg>
-    );
-    const NoiseBg = ({ opacity = 0.035 }) => (
-      <svg style={{ position:'absolute', inset:0, width:'100%', height:'100%', pointerEvents:'none', zIndex:0 }}>
-        <rect width="100%" height="100%" filter="url(#nf-shared)" opacity={opacity} />
-      </svg>
-    );
-
-    // ─── HeroMark ───────────────────────────────────────────────────
-    const HeroMark = () => (
-      <div style={{ width:100, height:100, borderRadius:26, position:'relative', background:'linear-gradient(155deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%)', border:'1px solid rgba(255,255,255,0.18)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:`0 40px 120px -30px rgba(255,255,255,0.12), inset 0 1px 0 rgba(255,255,255,0.2)`, backdropFilter:'blur(8px)' }}>
-        <span style={{ position:'absolute', inset:5, borderRadius:20, background:`radial-gradient(circle at 50% 80%, ${T.orange}22, transparent 65%)`, pointerEvents:'none' }} />
-        <span style={{ position:'absolute', top:11, left:0, right:0, textAlign:'center', fontSize:7, color:'rgba(242,233,216,0.55)', letterSpacing:'0.4em', textTransform:'uppercase', fontWeight:600, fontFamily:grotesk }}>est · mmxxiv</span>
-        <span style={{ fontFamily:grotesk, fontSize:38, fontWeight:700, letterSpacing:'0.12em', color:T.beige, position:'relative', marginTop:12 }}>LH</span>
-      </div>
-    );
-
-    // ─── Wordmark ───────────────────────────────────────────────────
-    const Wordmark = () => (
-      <span style={{ fontFamily:grotesk, fontSize:11, fontWeight:500, letterSpacing:'0.28em', color:'rgba(220,216,208,0.7)', textTransform:'uppercase' }}>Lliam Humphrey</span>
-    );
-
-    // ─── Button styles ──────────────────────────────────────────────
-    const pillBtnPrimary = { fontFamily:grotesk, fontSize:11, fontWeight:500, padding:'12px 22px', border:'none', borderRadius:999, background:T.orange, color:T.beige, cursor:'pointer', letterSpacing:'0.2em', textTransform:'uppercase', boxShadow:`0 1px 0 rgba(255,255,255,0.1) inset, 0 12px 30px -10px ${T.orange}88`, transition:'transform .2s, box-shadow .2s' };
-    const pillBtnLarge   = { ...pillBtnPrimary, fontSize:12, padding:'17px 32px' };
-    const pillBtnGhost   = { fontFamily:grotesk, fontSize:12, fontWeight:500, padding:'17px 32px', borderRadius:999, background:'linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.06))', border:'1px solid rgba(255,255,255,0.18)', color:T.beige, cursor:'pointer', textDecoration:'none', letterSpacing:'0.2em', textTransform:'uppercase', boxShadow:'0 1px 0 rgba(255,255,255,0.08) inset', display:'inline-block', backdropFilter:'blur(8px)' };
-
-    // ─── Nav ────────────────────────────────────────────────────────
-    const PillNav = ({ scrolled }) => (
-      <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:10, padding:'9px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:16, background:scrolled?'rgba(6,8,15,0.92)':'transparent', backdropFilter:scrolled?'blur(14px)':'none', borderBottom:scrolled?`1px solid rgba(255,255,255,0.07)`:'1px solid transparent', transition:'all .3s' }}>
-        <Wordmark />
-        <div style={{ display:'flex', gap:28, alignItems:'center' }}>
-          <a href="#ventures" style={{ fontFamily:grotesk, fontSize:10, fontWeight:500, letterSpacing:'0.26em', textTransform:'uppercase', color:'rgba(200,196,188,0.5)', textDecoration:'none' }}>Ventures</a>
-          <a href="#about" style={{ fontFamily:grotesk, fontSize:10, fontWeight:500, letterSpacing:'0.26em', textTransform:'uppercase', color:'rgba(200,196,188,0.5)', textDecoration:'none' }}>About</a>
+    // ─── Mobile Nav ──────────────────────────────────────────────────
+    const MobileNav = ({ scrolled }) => (
+      <nav className="mobile-nav" style={{
+        display:'none', position:'fixed', top:0, left:0, right:0, zIndex:20,
+        padding:'14px 20px', justifyContent:'space-between', alignItems:'center',
+        background: scrolled ? 'rgba(255,255,255,0.95)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: scrolled ? `1px solid ${T.rule}` : 'none',
+        transition:'all .3s',
+      }}>
+        <span style={{ fontFamily:grotesk, fontWeight:700, fontSize:10, letterSpacing:'0.3em', textTransform:'uppercase', color:T.ink }}>Lliam Humphrey</span>
+        <div style={{ display:'flex', gap:24 }}>
+          <a href="#ventures" style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.26em', textTransform:'uppercase', color:T.dim, textDecoration:'none' }}>Ventures</a>
+          <a href="#about" style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.26em', textTransform:'uppercase', color:T.dim, textDecoration:'none' }}>About</a>
         </div>
       </nav>
     );
 
-    // ─── Hub Card ───────────────────────────────────────────────────
-    const HubCard = ({ num, eyebrow, title, desc, cta, onCta, ctaHref, primary, bg, accent, ink, dim }) => {
-      const cardBg     = bg     || T.navyDeep;
-      const cardAccent = accent || T.orange;
-      const cardInk    = ink    || T.beige;
-      const cardDim    = dim    || T.silverDim;
-      return (
-        <div style={{ position:'relative', background:cardBg, border:`1px solid ${cardAccent}22`, padding:'clamp(40px,6vw,72px)', minHeight:480, display:'flex', flexDirection:'column', overflow:'hidden' }}>
-          <NoiseBg opacity={0.03} />
-          <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:cardAccent }} />
-          <div style={{ position:'relative', flex:1, display:'flex', flexDirection:'column' }}>
-            <div style={{ fontSize:11, color:cardAccent, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:28, fontFamily:grotesk, fontWeight:500 }}>0{num} · {eyebrow}</div>
-            <h3 style={{ fontFamily:grotesk, fontSize:'clamp(32px,5vw,56px)', fontWeight:700, letterSpacing:'-0.02em', margin:0, color:cardInk, lineHeight:1.05, textWrap:'balance' }}>{title}</h3>
-            <p style={{ marginTop:24, fontSize:'clamp(15px,1.6vw,18px)', lineHeight:1.8, color:cardDim, fontFamily:grotesk, flex:1, maxWidth:480 }}>{desc}</p>
-            <div style={{ marginTop:44 }}>
-              {ctaHref ? (
-                <a href={ctaHref} target="_blank" rel="noopener noreferrer" style={{ display:'inline-block', padding:'18px 32px', border:`1px solid ${cardAccent}`, background:'transparent', color:cardInk, fontSize:11, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, textDecoration:'none', transition:'all .2s' }}>{cta} →</a>
-              ) : (
-                <button onClick={onCta} style={{ padding:'18px 32px', border:primary?'none':`1px solid ${cardAccent}`, background:primary?cardAccent:'transparent', color:primary?cardBg:cardInk, fontSize:11, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, cursor:'pointer', transition:'all .2s' }}>{cta} →</button>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    // ─── Waitlist Modal ─────────────────────────────────────────────
+    // ─── Waitlist Modal (dark, premium) ──────────────────────────────
     const WaitlistModal = ({ open, onClose }) => {
-      const [email, setEmail] = useState('');
-      const [name,  setName]  = useState('');
-      const [social, setSocial] = useState('');
-      const [submitted,  setSubmitted]  = useState(false);
+      const [email, setEmail]       = useState('');
+      const [name, setName]         = useState('');
+      const [social, setSocial]     = useState('');
+      const [submitted, setSubmitted]   = useState(false);
       const [submitting, setSubmitting] = useState(false);
-      const [error, setError] = useState(false);
+      const [error, setError]           = useState(false);
 
       useEffect(() => { if (!open) setTimeout(() => { setEmail(''); setName(''); setSocial(''); setSubmitted(false); setError(false); }, 400); }, [open]);
       useEffect(() => {
-        const onKey = (e) => { if (e.key === 'Escape' && open) onClose(); };
+        const onKey = e => { if (e.key === 'Escape' && open) onClose(); };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
       }, [open, onClose]);
 
-      const submit = async (e) => {
+      const submit = async e => {
         e.preventDefault();
         if (!email) return;
         setSubmitting(true);
         try {
           const res = await fetch('/api/brevo-subscribe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, name, social })
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({ email, name, social }),
           });
           if (!res.ok) throw new Error('failed');
           setSubmitted(true);
-        } catch (_) {
-          setError(true);
-        } finally {
-          setSubmitting(false);
-        }
+        } catch (_) { setError(true); }
+        finally { setSubmitting(false); }
       };
 
-      const accent = '#FFFFFF', bg = '#08101E', ink = '#DDD8D0', dim = 'rgba(220,216,208,0.55)';
+      const bg='#0F0C0E', ink='#F0EDE8', dim='rgba(240,237,232,0.5)', accent=T.plum;
+      const inputStyle = { width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(240,237,232,0.15)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' };
+
       return (
         <>
-          <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:100, background:'rgba(8,8,8,0.75)', backdropFilter:'blur(4px)', opacity:open?1:0, pointerEvents:open?'auto':'none', transition:'opacity .35s ease' }} />
-          <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(520px, 96vw)', background:bg, color:ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.8)', borderLeft:'1px solid rgba(255,255,255,0.07)', overflow:'hidden' }}>
-            <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:'rgba(255,255,255,0.25)', zIndex:5 }} />
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:'1px solid rgba(255,255,255,0.08)', fontFamily:grotesk, fontWeight:500, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:dim }}>
+          <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:100, background:'rgba(8,6,8,0.75)', backdropFilter:'blur(4px)', opacity:open?1:0, pointerEvents:open?'auto':'none', transition:'opacity .35s ease' }} />
+          <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(520px,96vw)', background:bg, color:ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.6)', borderLeft:`1px solid rgba(107,45,94,0.3)`, overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:accent }} />
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:'1px solid rgba(240,237,232,0.08)', fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:dim }}>
               <span>Private Victories Club · Waitlist</span>
-              <button onClick={onClose} style={{ border:'none', background:'transparent', color:ink, fontSize:18, cursor:'pointer', width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
+              <button onClick={onClose} style={{ border:'none', background:'transparent', color:ink, fontSize:18, cursor:'pointer', width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center' }}>&times;</button>
             </div>
             <div style={{ flex:1, overflowY:'auto', padding:'40px 40px 32px' }}>
               {submitted ? (
                 <div style={{ textAlign:'center', paddingTop:48 }}>
-                  <div style={{ width:56, height:56, border:'1px solid rgba(255,255,255,0.4)', margin:'0 auto 28px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, color:ink }}>✓</div>
-                  <div style={{ fontSize:9, color:dim, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:18 }}>You're on the list</div>
+                  <div style={{ width:56, height:56, border:`1px solid ${accent}`, margin:'0 auto 28px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, color:accent }}>&#10003;</div>
+                  <div style={{ fontSize:9, color:accent, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:18 }}>You're on the list</div>
                   <h2 style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:36, letterSpacing:'-0.015em', margin:0, color:ink }}>See you on the inside.</h2>
                   <p style={{ marginTop:22, color:dim, fontSize:14, lineHeight:1.7, maxWidth:340, marginInline:'auto' }}>We'll be in touch at <strong style={{ color:ink, fontWeight:500 }}>{email}</strong> when doors open.</p>
-                  <button onClick={onClose} style={{ marginTop:40, padding:'14px 26px', fontSize:10, border:'1px solid rgba(255,255,255,0.2)', background:'transparent', color:ink, cursor:'pointer', fontFamily:grotesk, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500 }}>Close</button>
+                  <button onClick={onClose} style={{ marginTop:40, padding:'14px 26px', fontSize:10, border:`1px solid rgba(240,237,232,0.2)`, background:'transparent', color:ink, cursor:'pointer', fontFamily:grotesk, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500 }}>Close</button>
                 </div>
               ) : (
                 <div>
-                  <div style={{ fontSize:9, color:dim, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:16, fontWeight:500 }}>Members Club</div>
-                  <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:32, letterSpacing:'-0.02em', margin:0, lineHeight:1.05, textTransform:'uppercase', color:ink }}>Join the waitlist</h2>
-                  <p style={{ marginTop:16, fontSize:14, lineHeight:1.75, color:dim, fontFamily:grotesk }}>
-                    Africa's private members club for entrepreneurs.
-                  </p>
+                  <div style={{ fontSize:9, color:accent, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:16, fontWeight:500 }}>Members Club</div>
+                  <h2 style={{ fontFamily:grotesk, fontWeight:800, fontSize:32, letterSpacing:'-0.03em', margin:0, lineHeight:1.05, color:ink }}>Join the waitlist</h2>
+                  <p style={{ marginTop:16, fontSize:14, lineHeight:1.75, color:dim }}>Africa's private members club for entrepreneurs.</p>
                   <form onSubmit={submit} style={{ marginTop:36, display:'flex', flexDirection:'column', gap:22 }}>
                     <label style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                      <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Your name</span>
-                      <input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Anya Reyes" required style={{ width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.15)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' }} />
+                      <span style={{ fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Your name</span>
+                      <input value={name} onChange={e=>setName(e.target.value)} placeholder="Anya Reyes" required style={inputStyle} />
                     </label>
                     <label style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                      <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Email address</span>
-                      <input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="anya@studio.com" required style={{ width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.15)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' }} />
+                      <span style={{ fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Email address</span>
+                      <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="anya@studio.com" required style={inputStyle} />
                     </label>
                     <label style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                      <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Instagram or TikTok</span>
-                      <input value={social} onChange={(e)=>setSocial(e.target.value)} placeholder="@anya.reyes" required style={{ width:'100%', padding:'14px 0', background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.15)', fontFamily:grotesk, fontSize:16, color:ink, outline:'none', boxSizing:'border-box' }} />
+                      <span style={{ fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, color:dim }}>Instagram or TikTok</span>
+                      <input value={social} onChange={e=>setSocial(e.target.value)} placeholder="@anya.reyes" required style={inputStyle} />
                     </label>
-                    {error && <p style={{ fontSize:12, color:'#ff6b6b', fontFamily:grotesk }}>Something went wrong. Please try again.</p>}
-                    <button type="submit" disabled={submitting||!email||!name||!social} style={{ marginTop:8, padding:'16px 24px', border:'1px solid rgba(255,255,255,0.25)', background:email&&name&&social&&!submitting?'#FFFFFF':'transparent', color:email&&name&&social&&!submitting?bg:dim, fontSize:10, letterSpacing:'0.32em', cursor:email&&name&&social&&!submitting?'pointer':'not-allowed', fontFamily:grotesk, fontWeight:500, textTransform:'uppercase', transition:'all .2s' }}>
-                      {submitting ? 'Joining...' : 'Join the waitlist →'}
+                    {error && <p style={{ fontSize:12, color:'#e05a6b', fontFamily:grotesk }}>Something went wrong. Please try again.</p>}
+                    <button type="submit" disabled={submitting||!email||!name||!social} style={{ marginTop:8, padding:'16px 24px', border:'none', borderRadius:999, background:email&&name&&social&&!submitting?accent:'rgba(107,45,94,0.3)', color:ink, fontSize:10, letterSpacing:'0.3em', cursor:email&&name&&social&&!submitting?'pointer':'not-allowed', fontFamily:grotesk, fontWeight:500, textTransform:'uppercase', transition:'all .2s' }}>
+                      {submitting ? 'Joining...' : 'Join the waitlist'}
                     </button>
                   </form>
                 </div>
@@ -243,44 +174,45 @@
       );
     };
 
-    // ─── Setter Modal ───────────────────────────────────────────────
+    // ─── Setter Modal (light) ─────────────────────────────────────────
     const SetterModal = ({ open, onClose }) => {
       useEffect(() => {
-        const onKey = (e) => { if (e.key === 'Escape' && open) onClose(); };
+        const onKey = e => { if (e.key === 'Escape' && open) onClose(); };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
       }, [open, onClose]);
-      const bg = '#F0EDE8', ink = '#0C0E14', dim = 'rgba(12,14,20,0.6)', faint = 'rgba(12,14,20,0.4)';
+
       return (
         <>
-          <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:100, background:'rgba(8,8,8,0.65)', backdropFilter:'blur(4px)', opacity:open?1:0, pointerEvents:open?'auto':'none', transition:'opacity .35s ease' }} />
-          <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(580px, 96vw)', background:bg, color:ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.5)', borderLeft:'1px solid rgba(12,14,20,0.1)', overflow:'hidden' }}>
-            <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:'rgba(12,14,20,0.2)', zIndex:5 }} />
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:'1px solid rgba(12,14,20,0.08)', fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:dim }}>
+          <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:100, background:'rgba(8,6,8,0.5)', backdropFilter:'blur(4px)', opacity:open?1:0, pointerEvents:open?'auto':'none', transition:'opacity .35s ease' }} />
+          <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(580px,96vw)', background:T.white, color:T.ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.25)', borderLeft:`1px solid ${T.rule}`, overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:T.plum }} />
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:`1px solid ${T.rule}`, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:T.faint }}>
               <span>Setter Management Co. · What We Do</span>
-              <button onClick={onClose} style={{ border:'none', background:'transparent', color:ink, fontSize:18, cursor:'pointer', width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
+              <button onClick={onClose} style={{ border:'none', background:'transparent', color:T.ink, fontSize:18, cursor:'pointer', width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center' }}>&times;</button>
             </div>
             <div style={{ flex:1, overflowY:'auto', padding:'48px 40px 48px' }}>
-              <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(28px,3.5vw,44px)', letterSpacing:'-0.03em', margin:'0 0 24px', lineHeight:1.02, color:ink }}>Fix What's Actually Leaking Money</h2>
-              <p style={{ fontSize:16, lineHeight:1.85, color:dim, margin:'0 0 36px' }}>
+              <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:20, fontWeight:500 }}>The Work</div>
+              <h2 style={{ fontFamily:grotesk, fontWeight:800, fontSize:'clamp(28px,3.5vw,44px)', letterSpacing:'-0.03em', margin:'0 0 24px', lineHeight:1.02, color:T.ink }}>Fix What's Actually Leaking Money</h2>
+              <p style={{ fontSize:16, lineHeight:1.85, color:T.dim, margin:'0 0 36px', fontFamily:serif }}>
                 I audit, manage and scale setting teams for high-ticket coaches and consultants doing $20k/month or more.
               </p>
-              <div style={{ padding:'28px 0', borderTop:'1px solid rgba(12,14,20,0.1)', borderBottom:'1px solid rgba(12,14,20,0.1)', marginBottom:36, display:'flex', flexDirection:'column', gap:18 }}>
+              <div style={{ padding:'28px 0', borderTop:`1px solid ${T.rule}`, borderBottom:`1px solid ${T.rule}`, marginBottom:36, display:'flex', flexDirection:'column', gap:18 }}>
                 {[
                   '$250k/month in fixable leaks found inside a $1M/month sales team',
                   '$175k personally collected in 6 months as a brand-new setter',
                 ].map((s,i) => (
                   <div key={i} style={{ display:'flex', gap:16, alignItems:'flex-start' }}>
-                    <span style={{ color:'rgba(12,14,20,0.3)', fontSize:11, marginTop:3, flexShrink:0 }}>·</span>
-                    <p style={{ fontSize:14, lineHeight:1.75, color:dim, margin:0 }}>{s}</p>
+                    <span style={{ color:T.plum, fontSize:14, marginTop:1, flexShrink:0 }}>·</span>
+                    <p style={{ fontSize:14, lineHeight:1.75, color:T.dim, margin:0, fontFamily:serif }}>{s}</p>
                   </div>
                 ))}
               </div>
-              <p style={{ fontSize:14, lineHeight:1.9, color:faint, margin:'0 0 44px' }}>
+              <p style={{ fontSize:14, lineHeight:1.9, color:T.faint, margin:'0 0 44px', fontFamily:serif }}>
                 Every diagnosis follows the same process: pull the real data across all fronts and compare against a real baseline, then fix and scale it.
               </p>
-              <a href="https://instagram.com/lliam.humphrey" target="_blank" rel="noopener noreferrer" style={{ display:'inline-block', padding:'16px 28px', border:'1px solid rgba(12,14,20,0.25)', background:'transparent', color:ink, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, textDecoration:'none' }}>
-                DM on Instagram →
+              <a href="https://instagram.com/lliam.humphrey" target="_blank" rel="noopener noreferrer" style={{ display:'inline-block', padding:'16px 28px', borderRadius:999, background:T.plum, color:T.white, fontSize:10, letterSpacing:'0.3em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, textDecoration:'none' }}>
+                DM on Instagram
               </a>
             </div>
           </aside>
@@ -288,159 +220,30 @@
       );
     };
 
-    // ─── Application Modal ──────────────────────────────────────────
-    const ApplicationModal = ({ open, onClose }) => {
-      const [step, setStep]             = useState(0);
-      const [data, setData]             = useState({ name:'', email:'', company:'', stage:'', kind:[], budget:'', timing:'', about:'' });
-      const [submitted, setSubmitted]   = useState(false);
-      const [submitting, setSubmitting] = useState(false);
-      const [submitError, setSubmitError] = useState(false);
-
-      useEffect(() => { if (!open) setTimeout(() => { setStep(0); setSubmitted(false); setSubmitError(false); }, 400); }, [open]);
-      useEffect(() => {
-        const onKey = (e) => { if (e.key === 'Escape' && open) onClose(); };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-      }, [open, onClose]);
-
-      const submit = async () => {
-        setSubmitting(true);
-        try {
-          const res = await fetch('/api/submit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name:data.name, email:data.email, company:data.company, stage:data.stage, kind:data.kind, budget:data.budget, timing:data.timing, about:data.about })
-          });
-          if (!res.ok) throw new Error('failed');
-          setSubmitted(true);
-        } catch (_) {
-          setSubmitError(true);
-        } finally {
-          setSubmitting(false);
-        }
-      };
-
-      const setField   = (k,v) => setData((d) => ({ ...d, [k]:v }));
-      const toggleKind = (k)   => setData((d) => ({ ...d, kind: d.kind.includes(k) ? d.kind.filter((x)=>x!==k) : [...d.kind,k] }));
-
-      const accent = mAccent, bg = mBg, panelBg = mPanelBg, ink = mInk, dim = mDim, faint = mFaint;
-      const steps = [
-        { title:'About you',      label:'YOU' },
-        { title:'About the work', label:'THE WORK' },
-        { title:'Logistics',      label:'TIMING' },
-        { title:'Review & send',  label:'REVIEW' },
-      ];
-      const canNext = (()=>{ if(step===0) return data.name&&data.email; if(step===1) return data.company&&data.kind.length>0; if(step===2) return data.budget&&data.timing; return true; })();
-
+    // ─── Venture Card ─────────────────────────────────────────────────
+    const VentureCard = ({ num, eyebrow, title, desc, cta, onCta }) => {
+      const [hov, setHov] = useState(false);
       return (
-        <>
-          <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:100, background:'rgba(8,8,8,0.7)', backdropFilter:'blur(4px)', opacity:open?1:0, pointerEvents:open?'auto':'none', transition:'opacity .35s ease' }} />
-          <aside style={{ position:'fixed', top:0, right:0, bottom:0, zIndex:101, width:'min(640px, 96vw)', background:bg, color:ink, fontFamily:grotesk, transform:open?'translateX(0)':'translateX(102%)', transition:'transform .5s cubic-bezier(.2,.7,.2,1)', display:'flex', flexDirection:'column', boxShadow:'-30px 0 80px rgba(0,0,0,0.6)', borderLeft:`1px solid ${accent}33`, overflow:'hidden' }}>
-            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:accent, zIndex:5 }} />
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'24px 32px', borderBottom:`1px solid ${accent}22`, fontFamily:grotesk, fontWeight:500, fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', color:dim }}>
-              <span>Application / {submitted?'Received':`Step ${Math.min(step+1,steps.length)} of ${steps.length}`}</span>
-              <button onClick={onClose} style={{ border:'none', background:'transparent', color:ink, fontSize:18, cursor:'pointer', width:28, height:28, borderRadius:999, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
+        <div style={{ background:T.white, border:`1px solid ${T.rule}`, padding:'clamp(36px,5vw,56px)', minHeight:380, display:'flex', flexDirection:'column', position:'relative', overflow:'hidden', transition:'border-color .2s', borderColor: hov ? T.plum : T.rule }}
+          onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background: hov ? T.plum : T.rule, transition:'background .2s' }} />
+          <div style={{ flex:1, display:'flex', flexDirection:'column' }}>
+            <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:24, fontFamily:grotesk, fontWeight:500 }}>0{num} · {eyebrow}</div>
+            <h3 style={{ fontFamily:grotesk, fontWeight:800, fontSize:'clamp(26px,3vw,40px)', letterSpacing:'-0.03em', color:T.ink, lineHeight:1.05, margin:0 }}>{title}</h3>
+            <p style={{ marginTop:20, fontSize:15, lineHeight:1.9, color:T.dim, fontFamily:serif, flex:1, maxWidth:420 }}>{desc}</p>
+            <div style={{ marginTop:40 }}>
+              <button onClick={onCta} style={{ padding:'14px 28px', borderRadius:999, background: hov ? T.plum : 'transparent', color: hov ? T.white : T.ink, border:`1px solid ${hov ? T.plum : T.ink}`, fontSize:10, letterSpacing:'0.3em', textTransform:'uppercase', fontFamily:grotesk, fontWeight:500, cursor:'pointer', transition:'all .2s' }}>{cta}</button>
             </div>
-            {!submitted&&(
-              <div style={{ display:'flex', borderBottom:`1px solid ${accent}22` }}>
-                {steps.map((s,i)=>(
-                  <div key={s.label} style={{ flex:1, padding:'16px 14px', fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', color:i===step?ink:faint, borderRight:i<steps.length-1?`1px solid ${accent}18`:'none', background:i===step?panelBg:'transparent', fontFamily:grotesk, fontWeight:500, position:'relative' }}>
-                    <span style={{ color:i===step?accent:faint, marginRight:8 }}>0{i+1}</span>{s.label}
-                    {i===step&&<div style={{ position:'absolute', bottom:-1, left:0, right:0, height:2, background:accent }} />}
-                  </div>
-                ))}
-              </div>
-            )}
-            <div style={{ flex:1, overflowY:'auto', padding:'40px 40px 32px' }}>
-              {submitted?(
-                <div style={{ textAlign:'center', paddingTop:48 }}>
-                  <div style={{ width:56, height:56, border:`1px solid ${accent}`, margin:'0 auto 28px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, color:accent }}>✓</div>
-                  <div style={{ fontSize:9, color:accent, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:18 }}>Application Received</div>
-                  <h2 style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:38, letterSpacing:'-0.015em', margin:0, color:ink }}>Thank you, {data.name.split(' ')[0]||'friend'}.</h2>
-                  <p style={{ marginTop:22, color:dim, fontSize:14, lineHeight:1.7, maxWidth:380, marginInline:'auto' }}>You'll hear back from Lliam within seven days, at <strong style={{ color:ink, fontWeight:500 }}>{data.email}</strong>.</p>
-                  <button onClick={onClose} style={{ marginTop:40, padding:'14px 26px', fontSize:10, border:`1px solid ${accent}33`, background:'transparent', color:ink, cursor:'pointer', fontFamily:grotesk, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500 }}>Close</button>
-                </div>
-              ):(
-                <div key={step} style={{ animation:'apFade .4s ease both' }}>
-                  <div style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.4em', textTransform:'uppercase', color:accent, marginBottom:16, fontWeight:500 }}>{steps[step].label}</div>
-                  <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:36, letterSpacing:'-0.02em', margin:0, lineHeight:1.05, textTransform:'uppercase', color:ink }}>{steps[step].title}</h2>
-                  <div style={{ marginTop:36, display:'flex', flexDirection:'column', gap:22 }}>
-                    {step===0&&(<>
-                      <Field label="Your name"><input value={data.name} onChange={(e)=>setField('name',e.target.value)} placeholder="Anya Reyes" style={baseInput} /></Field>
-                      <Field label="Email"><input type="email" value={data.email} onChange={(e)=>setField('email',e.target.value)} placeholder="anya@studio.com" style={baseInput} /></Field>
-                      <Field label="Where can I see your work?" optional><input value={data.company} onChange={(e)=>setField('company',e.target.value)} placeholder="instagram.com/... or url" style={baseInput} /></Field>
-                    </>)}
-                    {step===1&&(<>
-                      <Field label="Company / project name"><input value={data.company} onChange={(e)=>setField('company',e.target.value)} placeholder="Mareva Atelier" style={baseInput} /></Field>
-                      <Field label="What stage are you at?"><div style={{ display:'flex', flexWrap:'wrap', gap:8, marginTop:4 }}>{['Idea','Building','Launched','Scaling'].map((o)=>(<button key={o} type="button" onClick={()=>setField('stage',o)} style={chipBase(data.stage===o)}>{o}</button>))}</div></Field>
-                      <Field label="What kind of work do you need?" hint="Select any that apply"><div style={{ display:'flex', flexWrap:'wrap', gap:8, marginTop:4 }}>{['Identity','Art direction','Voice / messaging','Counsel','Editorial','Not sure yet'].map((o)=>{const sel=data.kind.includes(o);return(<button key={o} type="button" onClick={()=>toggleKind(o)} style={{ ...chipBase(sel), display:'inline-flex', alignItems:'center', gap:8 }}>{sel&&<span style={{ fontSize:10 }}>✓</span>}{o}</button>);})}</div></Field>
-                    </>)}
-                    {step===2&&(<>
-                      <Field label="Budget range"><div style={{ display:'flex', flexWrap:'wrap', gap:8, marginTop:4 }}>{['$25-50k','$50-100k','$100-250k','$250k+'].map((o)=>(<button key={o} type="button" onClick={()=>setField('budget',o)} style={chipBase(data.budget===o)}>{o}</button>))}</div></Field>
-                      <Field label="When would you like to begin?"><div style={{ display:'flex', flexWrap:'wrap', gap:8, marginTop:4 }}>{['Within a month','This quarter','Later this year','Flexible'].map((o)=>(<button key={o} type="button" onClick={()=>setField('timing',o)} style={chipBase(data.timing===o)}>{o}</button>))}</div></Field>
-                      <Field label="Anything else worth knowing?" optional><textarea value={data.about} onChange={(e)=>setField('about',e.target.value)} placeholder="What you're building, what feels off, what success would look like." rows={4} style={{ ...baseInput, resize:'vertical', lineHeight:1.55, padding:'12px 0' }} /></Field>
-                    </>)}
-                    {step===3&&(
-                      <div style={{ display:'flex', flexDirection:'column', gap:0, fontSize:14 }}>
-                        {[['Name',data.name],['Email',data.email],['Company',data.company],['Stage',data.stage||'-'],['Need',data.kind.join(', ')||'-'],['Budget',data.budget],['Timing',data.timing],['Notes',data.about||'-']].map(([k,v])=>(
-                          <div key={k} style={{ display:'grid', gridTemplateColumns:'140px 1fr', gap:16, padding:'14px 0', borderTop:`1px solid ${accent}18` }}>
-                            <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', color:dim, paddingTop:4, fontWeight:500 }}>{k}</span>
-                            <span style={{ color:ink, lineHeight:1.5, fontSize:14, fontFamily:serif, fontStyle:'italic', fontWeight:300 }}>{v}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            {!submitted&&(
-              <div style={{ padding:'20px 32px', borderTop:`1px solid ${accent}22`, display:'flex', justifyContent:'space-between', alignItems:'center', background:panelBg }}>
-                <button onClick={()=>step>0?setStep(step-1):onClose()} style={{ border:'none', background:'transparent', color:dim, cursor:'pointer', fontSize:10, letterSpacing:'0.32em', textTransform:'uppercase', fontWeight:500, fontFamily:grotesk }}>{step===0?'← Cancel':'← Back'}</button>
-                {step<steps.length-1?(
-                  <button disabled={!canNext} onClick={()=>setStep(step+1)} style={{ padding:'14px 24px', border:'none', background:canNext?accent:`${accent}33`, color:canNext?bg:dim, fontSize:10, letterSpacing:'0.32em', cursor:canNext?'pointer':'not-allowed', fontFamily:grotesk, fontWeight:500, textTransform:'uppercase', transition:'all .2s' }}>Continue →</button>
-                ):(
-                  <React.Fragment>
-                    <button onClick={submit} disabled={submitting} style={{ padding:'14px 24px', border:'none', background:accent, color:bg, fontSize:10, letterSpacing:'0.32em', cursor:submitting?'wait':'pointer', fontWeight:500, fontFamily:grotesk, textTransform:'uppercase', opacity:submitting?0.7:1 }}>{submitting?'Sending…':'Send application →'}</button>
-                    {submitError&&<span style={{ fontSize:11, color:'#c0392b', marginLeft:12 }}>Something went wrong. Try again.</span>}
-                  </React.Fragment>
-                )}
-              </div>
-            )}
-          </aside>
-        </>
+          </div>
+        </div>
       );
     };
 
-    // ─── FooterCol ──────────────────────────────────────────────────
-    const FooterCol = ({ head, items }) => (
-      <div>
-        <div style={{ fontSize:9, color:T.silverFaint, letterSpacing:'0.4em', marginBottom:16, textTransform:'uppercase', fontWeight:500, fontFamily:grotesk }}>{head}</div>
-        {items.map((it, i) => {
-          if (typeof it === 'string') return <div key={i} style={{ color:T.silverLight, lineHeight:2, fontSize:12, fontFamily:grotesk }}>{it}</div>;
-          return (
-            <a key={i} href={it.href} target="_blank" rel="noopener noreferrer"
-              style={{ display:'block', color:T.silverLight, lineHeight:2, fontSize:12, textDecoration:'none', transition:'color .2s', fontFamily:grotesk }}
-              onMouseEnter={(e) => e.currentTarget.style.color = T.silver}
-              onMouseLeave={(e) => e.currentTarget.style.color = T.silverLight}>
-              {it.t}
-            </a>
-          );
-        })}
-      </div>
-    );
-
-    // ─── Hub Page ───────────────────────────────────────────────────
+    // ─── Hub Page ─────────────────────────────────────────────────────
     const Hub = ({ onWaitlist, onSetter }) => {
       const [scrollY,  setScrollY]  = useState(0);
       const [revealed, setRevealed] = useState({});
-      const [time, setTime]         = useState('');
-      const containerRef            = useRef(null);
-
-      useEffect(() => {
-        const tick = () => { const d = new Date(); setTime(`${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')} UTC`); };
-        tick(); const t = setInterval(tick, 30000); return () => clearInterval(t);
-      }, []);
+      const containerRef = useRef(null);
 
       useEffect(() => {
         let raf;
@@ -449,160 +252,146 @@
           raf = requestAnimationFrame(() => setScrollY(window.scrollY));
         };
         window.addEventListener('scroll', onScroll, { passive:true });
-        const io = new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) setRevealed((r) => ({ ...r, [e.target.dataset.reveal]:true })); }); }, { root:null, threshold:0.1 });
-        const el = containerRef.current; if (el) el.querySelectorAll('[data-reveal]').forEach((n) => io.observe(n));
+        const io = new IntersectionObserver(
+          es => { es.forEach(e => { if (e.isIntersecting) setRevealed(r => ({ ...r, [e.target.dataset.reveal]:true })); }); },
+          { threshold:0.08 }
+        );
+        const el = containerRef.current;
+        if (el) el.querySelectorAll('[data-reveal]').forEach(n => io.observe(n));
         return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); io.disconnect(); };
       }, []);
 
-      const scrolled    = scrollY > 24;
-      const pullProgress = Math.min(1, scrollY / (window.innerHeight * 0.42));
-      const reveal = (k) => ({ opacity:revealed[k]?1:0, transform:revealed[k]?'translateY(0)':'translateY(14px)', transition:'opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1)' });
+      const reveal = k => ({
+        opacity: revealed[k] ? 1 : 0,
+        transform: revealed[k] ? 'translateY(0)' : 'translateY(22px)',
+        transition: 'opacity 1s ease, transform 1s cubic-bezier(.2,.7,.2,1)',
+      });
 
       return (
-        <div ref={containerRef} style={{ width:'100%', background:'transparent', color:T.white, fontFamily:grotesk, position:'relative' }}>
-          <NoiseDefs />
+        <div ref={containerRef} style={{ background:T.white, color:T.ink, fontFamily:grotesk }}>
 
+          <MobileNav scrolled={scrollY > 20} />
 
-          {/* ── Nav ── */}
-          <PillNav scrolled={scrolled} />
+          {/* ── HERO ── */}
+          <header id="top" style={{ minHeight:'100svh', display:'flex', alignItems:'center', padding:'clamp(80px,8vw,120px) clamp(32px,5vw,80px)', gap:'clamp(40px,6vw,80px)', flexWrap:'wrap' }}>
 
-          {/* ── HERO — photo grid with name overlay ── */}
-          <header id="top" style={{ position:'relative', overflow:'hidden' }}>
-            {/* photo grid */}
-            <div style={{ display:'flex', gap:2, height:'100svh' }}>
-              {[
-                { src:'./assets/ph-IMG_5408-2.jpg', pos:'center 40%' },
-                { src:'./assets/ph-IMG_4332.jpg',   pos:'center 30%' },
-                { src:'./assets/ph-IMG_3526.jpg',   pos:'center 60%' },
-                { src:'./assets/ph-IMG_3993.jpg',   pos:'center 50%' },
-                { src:'./assets/ph-IMG_4695.jpg',   pos:'center 25%' },
-                { src:'./assets/ph-IMG_4590.jpg',   pos:'center 40%' },
-                { src:'./assets/ph-IMG_3751.jpg',   pos:'center 30%' },
-              ].map(({ src, pos }, i) => (
-                <div key={i} style={{ flex:'1 1 0', position:'relative', overflow:'hidden' }}>
-                  <img src={src} alt="" aria-hidden="true" style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:pos }} />
-                </div>
-              ))}
+            {/* Portrait */}
+            <div style={{ width:'clamp(220px,26vw,380px)', flexShrink:0, aspectRatio:'3/4', overflow:'hidden' }}>
+              <img src="./assets/ph-IMG_5408-2.jpg" alt="Lliam Humphrey" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 40%' }} />
             </div>
 
-            {/* full overlay */}
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(6,8,15,0.82) 0%, rgba(6,8,15,0.35) 55%, rgba(6,8,15,0.18) 100%)' }} />
-
-            {/* name + meta */}
-            <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', justifyContent:'flex-end', padding:'clamp(24px,4vw,48px)' }}>
-              <p style={{ fontFamily:grotesk, fontWeight:400, fontSize:'clamp(9px,0.9vw,11px)', letterSpacing:'0.38em', textTransform:'uppercase', color:'rgba(200,196,188,0.4)', margin:'0 0 14px' }}>Visionary · Entrepreneur</p>
-              <h1 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(48px,9.5vw,136px)', lineHeight:0.9, letterSpacing:'-0.04em', margin:0, color:T.beige }}>
+            {/* Name + details */}
+            <div style={{ flex:1, minWidth:280 }}>
+              <h1 style={{ fontFamily:grotesk, fontWeight:800, fontSize:'clamp(52px,7.5vw,108px)', lineHeight:0.9, letterSpacing:'-0.04em', color:T.ink, margin:0 }}>
                 Lliam<br />Humphrey
               </h1>
-              <div style={{ marginTop:28, display:'flex', flexDirection:'column', gap:8 }}>
-                <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.42em', textTransform:'uppercase', color:'rgba(200,196,188,0.3)', fontWeight:500 }}>What I'm building</span>
-                <div style={{ position:'relative', width:1, overflow:'hidden', height:36 }}>
-                  <div style={{ position:'absolute', inset:0, background:`linear-gradient(to bottom, transparent, rgba(220,216,208,0.5), transparent)`, animation:'scrollLine 1.8s cubic-bezier(0.4,0,0.6,1) infinite' }} />
-                </div>
+              <p style={{ marginTop:22, fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(15px,1.4vw,18px)', color:T.plum, letterSpacing:'0.01em' }}>
+                Visionary · Entrepreneur
+              </p>
+              <div style={{ marginTop:36, display:'flex', flexDirection:'column', gap:12 }}>
+                <a href="https://instagram.com/lliam.humphrey" target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:12, textDecoration:'none', color:T.dim, fontSize:13, fontFamily:serif, transition:'color .2s' }}
+                  onMouseEnter={e=>e.currentTarget.style.color=T.plum}
+                  onMouseLeave={e=>e.currentTarget.style.color=T.dim}>
+                  <span style={{ width:16, height:16, border:`1px solid ${T.rule}`, borderRadius:3, display:'flex', alignItems:'center', justifyContent:'center', fontSize:7, flexShrink:0, fontFamily:grotesk, fontWeight:600, letterSpacing:'0.05em' }}>ig</span>
+                  instagram.com/lliam.humphrey
+                </a>
+                <a href="https://tiktok.com/@lliam.humphrey" target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:12, textDecoration:'none', color:T.dim, fontSize:13, fontFamily:serif, transition:'color .2s' }}
+                  onMouseEnter={e=>e.currentTarget.style.color=T.plum}
+                  onMouseLeave={e=>e.currentTarget.style.color=T.dim}>
+                  <span style={{ width:16, height:16, border:`1px solid ${T.rule}`, borderRadius:3, display:'flex', alignItems:'center', justifyContent:'center', fontSize:7, flexShrink:0, fontFamily:grotesk, fontWeight:600, letterSpacing:'0.05em' }}>tt</span>
+                  tiktok.com/@lliam.humphrey
+                </a>
+              </div>
+              <div style={{ marginTop:56, display:'flex', alignItems:'center', gap:14 }}>
+                <div style={{ width:28, height:1, background:T.plum }} />
+                <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', color:T.plum, fontWeight:500 }}>What I'm building</span>
               </div>
             </div>
-            <style>{`@keyframes scrollLine { 0%{transform:translateY(-100%)} 100%{transform:translateY(200%)} }`}</style>
           </header>
 
-          {/* ── WHAT I'M BUILDING ── */}
-          <section style={{ padding:'clamp(56px,7vw,96px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, position:'relative', transform:`translateY(${(1 - pullProgress) * 72}px)`, opacity: 0.3 + pullProgress * 0.7, willChange:'transform' }}>
-            <div style={{ marginBottom:48 }}>
-              <div style={{ fontSize:9, color:T.silverFaint, letterSpacing:'0.4em', textTransform:'uppercase', fontFamily:grotesk, marginBottom:16 }}>What I'm Building</div>
-              <h2 style={{ fontFamily:grotesk, fontWeight:700, fontSize:'clamp(32px,5vw,64px)', letterSpacing:'-0.025em', margin:0, color:T.white, lineHeight:0.96, textTransform:'uppercase' }}>Two ventures.<br /><span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, textTransform:'none', letterSpacing:'-0.015em', color:T.silver }}>One story.</span></h2>
-            </div>
-
-            <div data-reveal="cards" style={{ ...reveal('cards'), display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(320px, 1fr))', gap:16 }}>
-
-              {/* Card 1 — Private Victories Club */}
-              <HubCard
-                num={1}
-                eyebrow="Private Network"
-                title="Private Victories Club"
-                desc="Africa's private network for entrepreneurs scaling their businesses."
-                cta="Learn More"
-                onCta={onWaitlist}
-                bg="#08101E"
-                accent="#FFFFFF"
-                ink="#DDD8D0"
-                dim="rgba(220,216,208,0.45)"
-              />
-
-              {/* Card 2 — Setter Management Co. */}
-              <HubCard
-                num={2}
-                eyebrow="Setter Management"
-                title="Setter Management Co."
-                desc="Setter management for high-ticket coaches &amp; consultants."
-                cta="Learn More"
-                onCta={onSetter}
-                bg="#F0EDE8"
-                accent="#06080F"
-                ink="#0C0E14"
-                dim="rgba(12,14,20,0.55)"
-              />
-
-            </div>
-          </section>
-
-          {/* ── About ── */}
-          <section id="about" style={{ padding:'clamp(72px,9vw,120px) clamp(20px,3vw,32px)', background:'#F0EDE8' }}>
-            <div style={{ maxWidth:680, marginInline:'auto' }}>
-              <div style={{ fontSize:9, color:'rgba(12,14,20,0.35)', letterSpacing:'0.4em', textTransform:'uppercase', fontFamily:grotesk, marginBottom:32 }}>About</div>
-              <p style={{ fontFamily:grotesk, fontSize:'clamp(15px,1.6vw,18px)', lineHeight:1.9, color:'rgba(12,14,20,0.7)', margin:0 }}>
-                I'm a 20 year old South African entrepreneur who took a gap year in 2025 to figure out my life. That landed me at a hotel working 10-12 hour days for minimum wage. I wanted out when I realised there was no room for growth, so in September 2025 I posted my first piece of content to build my personal brand. I've spent the last year inside high-ticket sales, remote setting, and eventually on a team doing $1M a month. That's where Private Victories and Setter Management Co. both came from: the same instinct, pointed at two different problems. Look at what's actually happening, not what people assume is happening. Then build something from it.
+          {/* ── STORY ── */}
+          <section style={{ padding:'clamp(80px,10vw,120px) clamp(32px,5vw,80px)', borderTop:`1px solid ${T.rule}` }}>
+            <div data-reveal="story" style={reveal('story')}>
+              <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:36, fontFamily:grotesk, fontWeight:500 }}>Story</div>
+              <p style={{ fontFamily:grotesk, fontWeight:800, fontSize:'clamp(32px,5.8vw,76px)', lineHeight:1.06, letterSpacing:'-0.035em', color:T.ink, maxWidth:1100, margin:0 }}>
+                My story began in a hotel in South Africa.{' '}
+                <span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, color:T.plum }}>
+                  Minimum wage. 10-12 hour days. No room to grow.
+                </span>{' '}
+                I decided that couldn't be me.
               </p>
             </div>
           </section>
 
-          {/* ── Closing tagline ── */}
-          <section style={{ padding:'clamp(80px,10vw,120px) clamp(20px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, textAlign:'center', position:'relative', overflow:'hidden' }}>
-            <NoiseBg opacity={0.04} />
-            <div style={{ position:'relative', zIndex:1 }}>
-              <div style={{ fontSize:9, color:T.silverFaint, letterSpacing:'0.4em', marginBottom:28, textTransform:'uppercase', fontFamily:grotesk }}>An Invitation</div>
-              <h2 style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(28px,5.4vw,76px)', lineHeight:1.18, letterSpacing:'-0.02em', margin:0, color:T.white, maxWidth:1100, marginInline:'auto' }}>
-                The wins you have in public are proportionate to the victories you have in private.
+          {/* ── VENTURES ── */}
+          <section id="ventures" style={{ padding:'clamp(56px,7vw,96px) clamp(32px,5vw,80px)' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', paddingBottom:20, borderBottom:`1px solid ${T.rule}`, marginBottom:32 }}>
+              <h2 style={{ fontFamily:grotesk, fontWeight:800, fontSize:'clamp(24px,3.5vw,44px)', letterSpacing:'-0.035em', color:T.ink, margin:0 }}>
+                What I'm{' '}
+                <span style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, color:T.plum }}>building</span>
               </h2>
+            </div>
+            <div data-reveal="cards" style={{ ...reveal('cards'), display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px,1fr))', gap:16 }}>
+              <VentureCard num={1} eyebrow="Private Network" title="Private Victories Club"
+                desc="Africa's private network for entrepreneurs scaling their businesses."
+                cta="Learn More" onCta={onWaitlist} />
+              <VentureCard num={2} eyebrow="Setter Management" title="Setter Management Co."
+                desc="Setter management for high-ticket coaches and consultants."
+                cta="Learn More" onCta={onSetter} />
             </div>
           </section>
 
-          {/* ── Footer ── */}
-          <footer style={{ padding:'clamp(36px,5vw,48px) clamp(20px,3vw,32px) clamp(24px,3vw,32px)', borderTop:`1px solid ${T.silver}22`, background:T.navyDeep, position:'relative', overflow:'hidden' }}>
-            <NoiseBg opacity={0.03} />
-            <div style={{ position:'relative' }}>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))', gap:'clamp(28px,4vw,32px)', fontSize:12, color:T.silverDim }}>
-                <div>
-                  <div style={{ fontFamily:grotesk, fontSize:'clamp(16px,2vw,22px)', fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:T.beige, marginBottom:14 }}>Lliam Humphrey</div>
-                  <div style={{ fontFamily:serif, fontStyle:'italic', fontSize:15, color:T.silver, marginBottom:18 }}>Creative direction, est. MMXXIV.</div>
-                  <div style={{ maxWidth:360, lineHeight:1.7, fontSize:12.5, color:T.silverDim, fontFamily:grotesk }}>Building in public from South Africa.</div>
-                </div>
-                <FooterCol head="Contact" items={['lliamhumphreywork@gmail.com']} />
-                <FooterCol head="Elsewhere" items={[
-                  { t:'Instagram @lliam.humphrey', href:'https://instagram.com/lliam.humphrey' },
-                  { t:'TikTok @lliam.humphrey',    href:'https://tiktok.com/@lliam.humphrey' },
-                ]} />
-                <FooterCol head="Colophon" items={['South Africa, MMXXVI.']} />
-              </div>
-              <div style={{ marginTop:56, paddingTop:24, borderTop:`1px solid ${T.silver}18`, display:'flex', justifyContent:'space-between', alignItems:'center', fontSize:10, color:T.silverFaint, letterSpacing:'0.32em', textTransform:'uppercase', fontFamily:grotesk, flexWrap:'wrap', gap:12 }}>
-                <span>© MMXXVI · Lliam Humphrey · South Africa</span>
-                <span>{time||'00:00 UTC'}</span>
+          {/* ── ABOUT ── */}
+          <section id="about" style={{ padding:'clamp(72px,9vw,120px) clamp(32px,5vw,80px)', background:T.warm, borderTop:`1px solid ${T.rule}` }}>
+            <div style={{ maxWidth:700 }}>
+              <div style={{ fontSize:9, color:T.plum, letterSpacing:'0.4em', textTransform:'uppercase', marginBottom:36, fontFamily:grotesk, fontWeight:500 }}>About</div>
+              <div data-reveal="about" style={reveal('about')}>
+                <p style={{ fontFamily:serif, fontSize:'clamp(16px,1.6vw,19px)', lineHeight:1.9, color:T.dim, margin:0 }}>
+                  I'm a 20 year old South African entrepreneur who took a gap year in 2025 to figure out my life. That landed me at a hotel working 10-12 hour days for minimum wage. I wanted out when I realised there was no room for growth, so in September 2025 I posted my first piece of content to build my personal brand. I've spent the last year inside high-ticket sales, remote setting, and eventually on a team doing $1M a month. That's where Private Victories and Setter Management Co. both came from: the same instinct, pointed at two different problems. Look at what's actually happening, not what people assume is happening. Then build something from it.
+                </p>
               </div>
             </div>
+          </section>
+
+          {/* ── QUOTE ── */}
+          <section style={{ padding:'clamp(80px,10vw,120px) clamp(32px,5vw,80px)', textAlign:'center', borderTop:`1px solid ${T.rule}` }}>
+            <div data-reveal="quote" style={reveal('quote')}>
+              <div style={{ width:1, height:48, background:T.plum, margin:'0 auto 40px' }} />
+              <blockquote style={{ fontFamily:serif, fontStyle:'italic', fontWeight:300, fontSize:'clamp(22px,4vw,60px)', lineHeight:1.22, letterSpacing:'-0.02em', color:T.ink, maxWidth:960, margin:'0 auto' }}>
+                The wins you have in public are proportionate to the victories you have in private.
+              </blockquote>
+            </div>
+          </section>
+
+          {/* ── FOOTER ── */}
+          <footer style={{ padding:'clamp(28px,4vw,40px) clamp(32px,5vw,80px)', borderTop:`1px solid ${T.rule}`, display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:16 }}>
+            <span style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.32em', textTransform:'uppercase', color:T.faint }}>© MMXXVI · Lliam Humphrey · South Africa</span>
+            <div style={{ display:'flex', gap:28 }}>
+              {[['Instagram','https://instagram.com/lliam.humphrey'],['TikTok','https://tiktok.com/@lliam.humphrey']].map(([label,href]) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{ fontFamily:grotesk, fontSize:9, letterSpacing:'0.28em', textTransform:'uppercase', color:T.faint, textDecoration:'none', transition:'color .2s' }}
+                  onMouseEnter={e=>e.currentTarget.style.color=T.plum}
+                  onMouseLeave={e=>e.currentTarget.style.color=T.faint}
+                >{label}</a>
+              ))}
+            </div>
           </footer>
+
         </div>
       );
     };
 
-    // ─── App ────────────────────────────────────────────────────────
+    // ─── App ──────────────────────────────────────────────────────────
     function App() {
       const [waitlistOpen, setWaitlistOpen] = useState(false);
       const [setterOpen,   setSetterOpen]   = useState(false);
       return (
         <>
-          <div id="site-inner">
-            <Hub onWaitlist={() => setWaitlistOpen(true)} onSetter={() => setSetterOpen(true)} />
+          <SideNav />
+          <div className="site-wrap" style={{ marginLeft:44 }}>
+            <Hub onWaitlist={()=>setWaitlistOpen(true)} onSetter={()=>setSetterOpen(true)} />
           </div>
-          <WaitlistModal open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
-          <SetterModal   open={setterOpen}   onClose={() => setSetterOpen(false)} />
+          <WaitlistModal open={waitlistOpen} onClose={()=>setWaitlistOpen(false)} />
+          <SetterModal   open={setterOpen}   onClose={()=>setSetterOpen(false)} />
         </>
       );
     }

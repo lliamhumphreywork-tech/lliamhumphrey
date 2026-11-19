@@ -88,15 +88,34 @@ async function createFinanceEntry(data: {
   });
 }
 
-// Returns the CRM page ID if a matching record was found and updated, null otherwise
-async function updateCRMPaymentStatus(email: string, paymentType: 'Membership' | 'Event' | 'Other'): Promise<string | null> {
+// Returns the CRM page ID after finding/updating an existing record, or creating one when createIfMissing=true
+async function updateCRMPaymentStatus(
+  email: string,
+  paymentType: 'Membership' | 'Event' | 'Other',
+  opts: { name?: string; createIfMissing?: boolean } = {},
+): Promise<string | null> {
   if (paymentType === 'Other' || !email) return null;
   const results = await notionQuery(NOTION_CRM_DB_ID, { property: 'Email', email: { equals: email } });
-  if (!results.length) return null;
-  const pageId    = results[0].id;
   const newStatus = paymentType === 'Membership' ? 'Member' : 'Event Attendee';
-  await notionPatch(pageId, { Status: selectProp(newStatus) });
-  return pageId;
+
+  if (results.length) {
+    const pageId = results[0].id;
+    await notionPatch(pageId, { Status: selectProp(newStatus) });
+    return pageId;
+  }
+
+  if (!opts.createIfMissing) return null;
+
+  // No existing record — create one for retargeting
+  const page = await notionCreate(NOTION_CRM_DB_ID, {
+    'Name':             titleProp(opts.name || email),
+    'Email':            emailProp(email),
+    'Status':           selectProp(newStatus),
+    'Last Interaction': selectProp('Paid'),
+    'Paid?':            checkProp(true),
+  });
+  console.log(`[paystack-webhook] Created new CRM record for ${email} (${newStatus})`);
+  return page.id;
 }
 
 // Writes portal provision result back to CRM so we have a record
@@ -371,7 +390,7 @@ export const POST: APIRoute = async ({ request }) => {
     // 2. CRM status update — returns page ID we need to write portal result back
     let crmPageId: string | null = null;
     try {
-      crmPageId = await updateCRMPaymentStatus(email, paymentType);
+      crmPageId = await updateCRMPaymentStatus(email, paymentType, { name, createIfMissing: isPadel });
       if (!crmPageId && paymentType !== 'Other') {
         failures.push('crm-record-not-found');
         console.warn(`[paystack-webhook] [${ref}] No CRM record found for ${email}`);

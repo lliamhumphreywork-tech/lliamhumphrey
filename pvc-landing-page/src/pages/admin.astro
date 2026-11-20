@@ -1139,8 +1139,10 @@ function renderAnalytics(ph) {
   // ── Landing trend bars ──
   var landing = ph.landing || {};
   var apply   = ph.apply || {};
+  var padel   = ph.padel  || {};
   var landingTrendHTML = trendChart(landing.trend7, 'var(--navy)');
   var applyTrendHTML   = trendChart(apply.trend7, '#6366f1');
+  var padelTrendHTML   = trendChart(padel.trend7, '#7c3aed');
 
   // ── UTM source table ──
   var srcMax = Math.max(1, Math.max.apply(null, (ph.utmSources || []).map(function(r) { return r.views; })));
@@ -1215,6 +1217,21 @@ function renderAnalytics(ph) {
       '</div>' +
       sectionLabel('Daily visits — 7 days') +
       '<div style="display:flex;align-items:stretch;gap:2px;padding:12px 8px;background:var(--bg-card);border-radius:8px">' + (applyTrendHTML || '<p class="td-muted" style="padding:8px">No trend data</p>') + '</div>' +
+    '</div>' +
+
+    // ── Padel Page ──
+    '<div class="card">' +
+      '<div class="card-title">Padel Social (/padel)</div>' +
+      '<div class="stat-grid" style="margin-bottom:16px">' +
+        '<div class="stat-card"><div class="stat-label">Pageviews (7d)</div><div class="stat-num">' + (padel.pv7 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Pageviews (30d)</div><div class="stat-num">' + (padel.pv30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Unique visitors (30d)</div><div class="stat-num">' + (padel.uv30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Tickets section (30d)</div><div class="stat-num">' + (padel.ticketsReached30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Form started (30d)</div><div class="stat-num">' + (padel.formStarted30 || 0).toLocaleString() + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">Checkout started (30d)</div><div class="stat-num">' + (padel.checkoutStarted30 || 0).toLocaleString() + '</div></div>' +
+      '</div>' +
+      sectionLabel('Daily visits — 7 days') +
+      '<div style="display:flex;align-items:stretch;gap:2px;padding:12px 8px;background:var(--bg-card);border-radius:8px">' + (padelTrendHTML || '<p class="td-muted" style="padding:8px">No trend data</p>') + '</div>' +
     '</div>' +
 
     // ── UTM Sources ──

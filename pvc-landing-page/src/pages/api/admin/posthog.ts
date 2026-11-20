@@ -68,6 +68,10 @@ export const GET: APIRoute = async ({ request }) => {
       utmMediums30,
       // UTM campaigns with submissions
       utmCampaignsSubmitted30,
+      // Padel page (30d)
+      padelPV7, padelPV30, padelUV30,
+      padelTicketsReached30, padelFormStarted30, padelCheckoutStarted30,
+      padelTrend7,
     ] = await Promise.all([
       // Landing page pageviews
       scalar(`SELECT count() FROM events WHERE event = '$pageview' AND properties.$pathname = '/' AND timestamp >= now() - toIntervalDay(7)`),
@@ -108,6 +112,15 @@ export const GET: APIRoute = async ({ request }) => {
 
       // UTM campaigns — submissions
       rows(`SELECT coalesce(nullIf(properties.$utm_campaign, ''), nullIf(properties.$initial_utm_campaign, ''), '(none)') AS campaign, count() AS subs FROM events WHERE event = 'application_submitted' AND timestamp >= now() - toIntervalDay(30) GROUP BY campaign ORDER BY subs DESC LIMIT 10`),
+
+      // Padel page
+      scalar(`SELECT count() FROM events WHERE event = '$pageview' AND properties.$pathname = '/padel' AND timestamp >= now() - toIntervalDay(7)`),
+      scalar(`SELECT count() FROM events WHERE event = '$pageview' AND properties.$pathname = '/padel' AND timestamp >= now() - toIntervalDay(30)`),
+      scalar(`SELECT count(DISTINCT distinct_id) FROM events WHERE event = '$pageview' AND properties.$pathname = '/padel' AND timestamp >= now() - toIntervalDay(30)`),
+      scalar(`SELECT count() FROM events WHERE event = 'padel_tickets_section_reached' AND timestamp >= now() - toIntervalDay(30)`),
+      scalar(`SELECT count() FROM events WHERE event = 'padel_form_started' AND timestamp >= now() - toIntervalDay(30)`),
+      scalar(`SELECT count() FROM events WHERE event = 'padel_checkout_started' AND timestamp >= now() - toIntervalDay(30)`),
+      rows(`SELECT toDate(timestamp) AS day, count() AS views FROM events WHERE event = '$pageview' AND properties.$pathname = '/padel' AND timestamp >= now() - toIntervalDay(7) GROUP BY day ORDER BY day ASC`),
     ]);
 
     // Merge UTM source traffic + submissions
@@ -164,6 +177,18 @@ export const GET: APIRoute = async ({ request }) => {
       utmSources: utmSourceRows,
       utmCampaigns: utmCampaignRows,
       utmMediums: utmMediums30.map((r: any[]) => ({ medium: String(r[0]), views: Number(r[1]) })),
+
+      // Padel page
+      padel: {
+        pv7: padelPV7,
+        pv30: padelPV30,
+        uv30: padelUV30,
+        ticketsReached30: padelTicketsReached30,
+        formStarted30: padelFormStarted30,
+        checkoutStarted30: padelCheckoutStarted30,
+        checkoutConv: padelPV30 > 0 ? Math.round((padelCheckoutStarted30 / padelPV30) * 100) : 0,
+        trend7: padelTrend7.map((r: any[]) => ({ date: String(r[0]).slice(5), count: Number(r[1]) })),
+      },
 
     }), { headers: { 'Content-Type': 'application/json' } });
 

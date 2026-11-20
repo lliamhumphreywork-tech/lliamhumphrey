@@ -535,7 +535,7 @@ const NOISE = (id: string) => `
     document.getElementById('pd-form-view').style.display = 'block';
     document.getElementById('pd-form-view').scrollIntoView({ behavior: 'smooth', block: 'start' });
     window.posthog?.capture?.('padel_checkout_started', { ticket_type: selectedTicketType });
-    (window as any).fbq?.('track', 'InitiateCheckout', { content_name: 'Padel Social Ticket', content_type: selectedTicketType });
+    window.fbq?.('track', 'InitiateCheckout', { content_name: 'Padel Social Ticket', content_type: selectedTicketType });
   });
 
   document.getElementById('pd-back')?.addEventListener('click', () => {
@@ -564,7 +564,7 @@ const NOISE = (id: string) => `
     const ticketObs = new IntersectionObserver(([e]) => {
       if (e.isIntersecting) {
         window.posthog?.capture?.('padel_tickets_section_reached');
-        (window as any).fbq?.('track', 'ViewContent', { content_name: 'Padel Social Tickets' });
+        window.fbq?.('track', 'ViewContent', { content_name: 'Padel Social Tickets' });
         ticketObs.disconnect();
       }
     }, { threshold: 0.2 });

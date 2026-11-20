@@ -283,7 +283,6 @@ const NOISE = (id: string) => `
         <div class="pd-tier-left">
           <div class="pd-tier-badge" id="pd-tier-badge">General Admission</div>
           <div class="pd-early-badge" id="pd-early-badge" style="display:none;">Early Access</div>
-          <div class="pd-tier-price" id="pd-tier-price">R400</div>
           <div class="pd-tier-hint" id="pd-tier-hint">Open to all.</div>
           <div class="pd-tier-wm" aria-hidden="true">PVC</div>
         </div>
@@ -457,18 +456,11 @@ const NOISE = (id: string) => `
     if (earlyBadge) earlyBadge.style.display = isEarly ? '' : 'none';
     if (selectedTicketType === 'member') {
       if (badge) badge.textContent = 'PVC Member';
-      if (price) price.textContent = `R${capsData.memberPrice ?? (isEarly ? 200 : 250)}`;
       if (hint)  hint.textContent  = 'PVC Members only.';
     } else {
       if (badge) badge.textContent = 'General Admission';
-      if (price) price.textContent = `R${capsData.gaPrice ?? (isEarly ? 400 : 500)}`;
       if (hint)  hint.textContent  = 'Open to all.';
     }
-    // Update toggle button labels with current prices
-    const gaBtn = document.getElementById('pd-tt-ga');
-    const memberBtn = document.getElementById('pd-tt-member');
-    if (gaBtn) gaBtn.textContent = `General Admission — R${capsData.gaPrice ?? (isEarly ? 400 : 500)}`;
-    if (memberBtn) memberBtn.textContent = `PVC Member — R${capsData.memberPrice ?? (isEarly ? 200 : 250)}`;
   }
 
   const toggle = document.getElementById('pd-ticket-toggle');
@@ -517,8 +509,7 @@ const NOISE = (id: string) => `
         tierInfoText.textContent = `Early access pricing. Goes up once early access is over.`;
         tierInfo.style.display = '';
       } else {
-        tierInfoText.textContent = `Standard pricing — R${capsData.gaPrice}.`;
-        tierInfo.style.display = '';
+        tierInfo.style.display = 'none';
       }
     }
 

@@ -119,7 +119,8 @@ const NOISE = (id: string) => `
   <div class="pd-inner">
     <div class="pd-label reveal">The Premise</div>
     <p class="pd-premise-lead reveal d1">Not just a sports session.</p>
-    <p class="pd-premise-body reveal d2">90 minutes of padel across the courts, rotating games so you actually meet people, and a room limited to 40 founders, creatives and builders. Playing or not, you're in the room: intros set up before you arrive, name tags, and the lounge after. No pitching. No panels. Just play. The conversations happen naturally when you're in motion.</p>
+    <p class="pd-premise-body reveal d2">90 minutes of padel across the courts, rotating games so you actually meet people, and a room limited to 40 founders, creatives and builders. Playing or not, you're in the room.</p>
+    <p class="pd-premise-body reveal d2" style="transition-delay:0.25s">Intros set up before you arrive. Name tags. The lounge after. No pitching. No panels. Just play. The conversations happen naturally when you're in motion.</p>
     <div class="pd-stats reveal d3">
       <div class="pd-stat">
         <div class="pd-stat-num">40</div>
@@ -187,11 +188,6 @@ const NOISE = (id: string) => `
   </div>
 </section>
 
-<!-- PREVIOUS EVENTS VIDEO HEADER -->
-<div class="pd-events-header" style="background: var(--charcoal);">
-  <span>Our Previous Events</span>
-</div>
-
 <!-- VIDEO STRIP -->
 <div class="pd-video-section">
   <div class="pd-video-event-block">
@@ -229,6 +225,9 @@ const NOISE = (id: string) => `
       <li class="reveal d3" data-num="02">You believe the right room changes what's possible.</li>
       <li class="reveal d4" data-num="03">You'd rather play than sit through another panel.</li>
     </ul>
+    <div class="pd-who-cta reveal d4">
+      <a href="#tickets" class="pd-who-cta-link scroll-to-tickets">Your spot is waiting &rarr;</a>
+    </div>
   </div>
 </section>
 
@@ -262,8 +261,8 @@ const NOISE = (id: string) => `
 
     <div id="pd-tier-view">
       <div class="pd-tickets-head">
-        <div class="pd-label reveal" style="justify-content:center;">Reserve Your Spot</div>
-        <p class="pd-tickets-closing reveal d1">40 founders. One court. No panels, no pitches. Just the right people getting into motion together. This is how PVC members meet each other.</p>
+        <div class="pd-label reveal" style="justify-content:center;">Get Your Ticket</div>
+        <p class="pd-tickets-closing reveal d1">You've read the page. You know what this is. 35 spots are going to 35 people who decided to be in the room. Be one of them.</p>
         <div class="pd-spots-pill reveal d2" id="pd-spots-pill">
           <span class="pd-spots-dot"></span>
           <span id="pd-spots-remaining">35 spots remaining</span>
@@ -957,7 +956,7 @@ const NOISE = (id: string) => `
   }
 
   /* ── VIDEO SECTION ── */
-  .pd-video-section { background: var(--charcoal); padding: 0 24px 32px; display: flex; flex-direction: column; gap: 32px; }
+  .pd-video-section { background: var(--charcoal); padding: 48px 24px 56px; display: flex; flex-direction: column; gap: 32px; }
 
   .pd-video-event-block { display: flex; flex-direction: column; gap: 12px; }
   .pd-video-event-label {
@@ -976,7 +975,7 @@ const NOISE = (id: string) => `
     position: relative; overflow: hidden; aspect-ratio: 4/3;
     background: var(--black);
   }
-  .pd-video-slot--wide { aspect-ratio: 4/1; }
+  .pd-video-slot--wide { aspect-ratio: 16/9; }
   .pd-video-slot--portrait { aspect-ratio: 3/4; }
   .pd-photo-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
@@ -1007,6 +1006,10 @@ const NOISE = (id: string) => `
     content: attr(data-num); position: absolute; left: 0; top: 50%; transform: translateY(-50%);
     font-size: 10px; letter-spacing: 2px; color: rgba(196,184,192,0.25);
   }
+
+  .pd-who-cta { margin-top: 40px; padding-top: 40px; border-top: 1px solid rgba(196,184,192,0.08); text-align: center; }
+  .pd-who-cta-link { font-family: var(--s); font-size: 15px; font-weight: 500; color: var(--lavender); text-decoration: none; transition: color 0.2s; }
+  .pd-who-cta-link:hover { color: #fff; }
 
   /* ── DETAILS ── */
   .pd-details { background: var(--black); }

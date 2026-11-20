@@ -263,8 +263,13 @@ const NOISE = (id: string) => `
     <div id="pd-tier-view">
       <div class="pd-tickets-head">
         <div class="pd-label reveal" style="justify-content:center;">Reserve Your Spot</div>
-        <p class="pd-tickets-note reveal d1">First come, first served.</p>
-        <div class="pd-caps-display reveal d2" id="pd-caps-display" aria-live="polite">
+        <p class="pd-tickets-closing reveal d1">40 founders. One court. No panels, no pitches — just the right people getting into motion together. This is how PVC members meet each other.</p>
+        <div class="pd-spots-pill reveal d2" id="pd-spots-pill">
+          <span class="pd-spots-dot"></span>
+          <span id="pd-spots-remaining">35 spots remaining</span>
+        </div>
+        <p class="pd-tickets-note reveal d3">First come, first served.</p>
+        <div class="pd-caps-display reveal d4" id="pd-caps-display" aria-live="polite" style="display:none;">
           <span id="pd-caps-text">Loading availability...</span>
         </div>
         <div class="pd-tier-info reveal d3" id="pd-tier-info" style="display:none;">
@@ -490,6 +495,20 @@ const NOISE = (id: string) => `
 
   function renderCaps() {
     const el = document.getElementById('pd-caps-text');
+    // Update spots remaining pill
+    const spotsPill = document.getElementById('pd-spots-remaining');
+    if (spotsPill && capsData) {
+      if (capsData.totalFull) {
+        spotsPill.textContent = 'Sold out';
+        const dot = spotsPill.previousElementSibling;
+        if (dot) dot.style.background = '#ef4444';
+      } else {
+        const ticketsSold = capsData.total || 0;
+        const memberPreConfirms = 5; // members who confirmed via portal
+        const remaining = Math.max(0, (capsData.totalCap || 40) - ticketsSold - memberPreConfirms);
+        spotsPill.textContent = `${remaining} spot${remaining === 1 ? '' : 's'} remaining`;
+      }
+    }
     if (!el) return;
     if (capsData.totalFull) {
       el.textContent = 'Sold out — no spots remaining.';
@@ -1022,6 +1041,9 @@ const NOISE = (id: string) => `
   .pd-tickets-inner { max-width: 900px; margin: 0 auto; }
 
   .pd-tickets-head { text-align: center; margin-bottom: 56px; }
+  .pd-tickets-closing { font-family: var(--s); font-size: 16px; color: rgba(255,255,255,0.7); line-height: 1.65; max-width: 480px; margin: 0 auto 24px; }
+  .pd-spots-pill { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 100px; padding: 7px 16px; font-family: var(--s); font-size: 13px; font-weight: 600; color: #fff; letter-spacing: 0.03em; margin-bottom: 16px; }
+  .pd-spots-dot { width: 7px; height: 7px; border-radius: 50%; background: #f97316; flex-shrink: 0; animation: proof-pulse 2s ease-in-out infinite; }
   .pd-tickets-note { font-family: var(--s); font-size: 15px; color: var(--lavender-dim); margin-bottom: 20px; }
   .pd-social-proof { display: inline-flex; align-items: center; gap: 10px; font-family: var(--s); font-size: 13px; color: var(--lavender-dim); }
   .pd-proof-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; flex-shrink: 0; animation: proof-pulse 2s ease-in-out infinite; }

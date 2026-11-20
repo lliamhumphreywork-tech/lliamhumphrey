@@ -1182,7 +1182,10 @@ function renderAnalytics(ph) {
   }).join('');
 
   el.innerHTML =
-    '<div class="page-title">Analytics</div>' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
+      '<div class="page-title" style="margin-bottom:0">Analytics</div>' +
+      '<button class="refresh-btn" onclick="loaded.analytics=false;loadAnalytics()">Refresh</button>' +
+    '</div>' +
     '<div class="page-sub">Landing page, apply funnel, UTMs — last 30 days (PostHog)</div>' +
 
     // ── Full Funnel ──

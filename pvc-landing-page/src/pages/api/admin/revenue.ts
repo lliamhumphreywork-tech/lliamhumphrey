@@ -97,6 +97,7 @@ export const GET: APIRoute = async ({ request }) => {
 
   const payments = [...notionPayments, ...newPaystack]
     .filter(p => p.amount > 0)
+    .filter(p => !p.name.toLowerCase().includes('(test)'))
     .sort((a, b) => b.date.localeCompare(a.date));
 
   const total     = payments.reduce((s, p) => s + p.amount, 0);

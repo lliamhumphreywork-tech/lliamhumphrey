@@ -1237,6 +1237,55 @@ function renderAnalytics(ph) {
       '<div style="display:flex;align-items:stretch;gap:2px;padding:12px 8px;background:var(--bg-card);border-radius:8px">' + (padelTrendHTML || '<p class="td-muted" style="padding:8px">No trend data</p>') + '</div>' +
     '</div>' +
 
+    // ── Padel Source Breakdown ──
+    (padel.bySource && padel.bySource.length ? (
+    '<div class="card">' +
+      '<div class="card-title">Padel Source Breakdown — 30 days</div>' +
+      '<table style="width:100%;border-collapse:collapse">' +
+        '<thead><tr>' +
+          '<th style="text-align:left;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px">Source</th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px">Visitors</th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px;padding-left:8px">Tickets</th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px;padding-left:8px">Form</th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px;padding-left:8px">Checkout</th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px;padding-left:8px">Conv%</th>' +
+        '</tr></thead>' +
+        '<tbody>' + padel.bySource.map(function(r) {
+          return '<tr>' +
+            '<td style="font-size:13px;padding:5px 0">' + esc(r.source) + '</td>' +
+            '<td style="text-align:right;font-size:13px;padding:5px 0">' + r.visitors + '</td>' +
+            '<td style="text-align:right;font-size:13px;padding:5px 0 5px 8px">' + r.ticketsReached + '</td>' +
+            '<td style="text-align:right;font-size:13px;padding:5px 0 5px 8px">' + r.formStarted + '</td>' +
+            '<td style="text-align:right;font-size:13px;padding:5px 0 5px 8px">' + r.checkoutStarted + '</td>' +
+            '<td style="text-align:right;font-size:13px;padding:5px 0 5px 8px;color:' + (r.convPct >= 5 ? '#22c55e' : 'inherit') + '">' + r.convPct + '%</td>' +
+          '</tr>';
+        }).join('') + '</tbody>' +
+      '</table>' +
+    '</div>'
+    ) : '') +
+
+    // ── Padel Abandoned Checkouts ──
+    (padel.abandonedCheckouts && padel.abandonedCheckouts.length ? (
+    '<div class="card">' +
+      '<div class="card-title">Abandoned Checkouts — 30 days</div>' +
+      '<p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Checkout started 30+ min ago with no purchase recorded.</p>' +
+      '<table style="width:100%;border-collapse:collapse">' +
+        '<thead><tr>' +
+          '<th style="text-align:left;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px">Person (PostHog ID)</th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px">Last checkout</th>' +
+          '<th style="text-align:right;font-size:10px;font-weight:600;color:var(--text-muted);padding-bottom:6px;padding-left:8px">Source</th>' +
+        '</tr></thead>' +
+        '<tbody>' + padel.abandonedCheckouts.map(function(r) {
+          return '<tr>' +
+            '<td style="font-size:12px;padding:5px 0;font-family:monospace;color:var(--text-muted)">' + esc(r.distinctId.slice(0,16)) + '…</td>' +
+            '<td style="text-align:right;font-size:12px;padding:5px 0">' + esc(String(r.lastCheckout).slice(0,16)) + '</td>' +
+            '<td style="text-align:right;font-size:12px;padding:5px 0 5px 8px">' + esc(r.utm_source || '(direct)') + '</td>' +
+          '</tr>';
+        }).join('') + '</tbody>' +
+      '</table>' +
+    '</div>'
+    ) : '') +
+
     // ── UTM Sources ──
     '<div class="card">' +
       '<div class="card-title">UTM Sources — 30 days</div>' +

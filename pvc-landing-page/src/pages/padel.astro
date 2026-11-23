@@ -287,17 +287,25 @@ const NOISE = (id: string) => `
         <div class="pd-tier-left">
           <div class="pd-tier-badge" id="pd-tier-badge">General Admission</div>
           <div class="pd-early-badge" id="pd-early-badge" style="display:none;">Early Access</div>
-          <div class="pd-tier-hint" id="pd-tier-hint">Open to all.</div>
+          <div class="pd-price-row" id="pd-price-row">
+            <span class="pd-price-main" id="pd-price-main"></span>
+            <span class="pd-price-strike" id="pd-price-strike" style="display:none;"></span>
+          </div>
+          <div class="pd-early-countdown" id="pd-early-countdown" style="display:none;">
+            <span id="pd-early-remaining-text"></span>
+          </div>
           <div class="pd-tier-wm" aria-hidden="true">PVC</div>
         </div>
         <div class="pd-tier-right">
           <ul class="pd-tier-list">
-            <li><span>·</span>90 min padel across the courts</li>
-            <li><span>·</span>Rackets and balls included for players</li>
-            <li><span>·</span>Rotating games, so you meet more than your own court</li>
-            <li><span>·</span>Room of 40 founders, creatives and builders</li>
+            <li><span>·</span>90 min of padel across 6 courts</li>
+            <li><span>·</span>Rackets and balls included</li>
+            <li><span>·</span>Rotating games so you meet everyone</li>
+            <li><span>·</span>Lounge until 21:30 &mdash; stay as long as you like</li>
+            <li class="pd-tier-list-note">Food and drink are paid on the day</li>
           </ul>
-          <button class="cta-btn pd-pay-btn" id="pd-pay-btn">Reserve Your Spot</button>
+          <button class="cta-btn pd-pay-btn" id="pd-pay-btn">Reserve My Spot</button>
+          <p class="pd-refund-line">Full refund up to 7 days before (by 4 Dec, 17:00).</p>
         </div>
       </div>
     </div>
@@ -339,6 +347,9 @@ const NOISE = (id: string) => `
         </p>
       </div>
 
+      <div class="pd-order-summary" id="pd-order-summary">
+        1 ticket &middot; <span id="pd-summary-price">R400</span> &middot; Playing: <span id="pd-summary-playing">Yes</span>
+      </div>
       <button class="cta-btn" id="pd-checkout" style="width:100%;margin-top:8px;">Proceed to Checkout</button>
       <p class="pd-secure-note">Secure checkout via Paystack &nbsp;·&nbsp; <a href="#refund-policy" class="pd-refund-link">Refund policy</a></p>
       <div class="pd-error" id="pd-error" style="display:none;"></div>
@@ -454,17 +465,51 @@ const NOISE = (id: string) => `
   function updateTicketDisplay() {
     const badge = document.getElementById('pd-tier-badge');
     const earlyBadge = document.getElementById('pd-early-badge');
-    const price = document.getElementById('pd-tier-price');
-    const hint  = document.getElementById('pd-tier-hint');
+    const priceMain = document.getElementById('pd-price-main');
+    const priceStrike = document.getElementById('pd-price-strike');
+    const earlyCountdown = document.getElementById('pd-early-countdown');
+    const earlyRemainingText = document.getElementById('pd-early-remaining-text');
+    const summaryPrice = document.getElementById('pd-summary-price');
+
     const isEarly = capsData.tier === 'early';
+    const isMember = selectedTicketType === 'member';
+    const price = isMember ? capsData.memberPrice : capsData.gaPrice;
+    const nextPrice = capsData.nextGaPrice;
+    const priceStr = price ? `R${price}` : '';
+
+    if (badge) badge.textContent = isMember ? 'PVC Member' : 'General Admission';
     if (earlyBadge) earlyBadge.style.display = isEarly ? '' : 'none';
-    if (selectedTicketType === 'member') {
-      if (badge) badge.textContent = 'PVC Member';
-      if (hint)  hint.textContent  = 'PVC Members only.';
-    } else {
-      if (badge) badge.textContent = 'General Admission';
-      if (hint)  hint.textContent  = 'Open to all.';
+
+    if (priceMain) priceMain.textContent = priceStr;
+
+    if (priceStrike) {
+      if (isEarly && !isMember && nextPrice) {
+        priceStrike.textContent = `R${nextPrice}`;
+        priceStrike.style.display = '';
+      } else {
+        priceStrike.style.display = 'none';
+      }
     }
+
+    if (earlyCountdown) {
+      if (isEarly && !isMember) {
+        earlyCountdown.style.display = '';
+        if (earlyRemainingText) {
+          const rem = capsData.earlyRemaining ?? 0;
+          earlyRemainingText.textContent = `${rem} of ${capsData.earlyCap ?? 15} early ticket${rem === 1 ? '' : 's'} left · ends Fri 27 Nov`;
+        }
+      } else {
+        earlyCountdown.style.display = 'none';
+      }
+    }
+
+    // Update button text
+    const payBtn = document.getElementById('pd-pay-btn');
+    if (payBtn) {
+      payBtn.textContent = priceStr ? `Reserve My Spot · ${priceStr}` : 'Reserve My Spot';
+    }
+
+    if (summaryPrice) summaryPrice.textContent = priceStr || 'R400';
   }
 
   const toggle = document.getElementById('pd-ticket-toggle');
@@ -545,6 +590,64 @@ const NOISE = (id: string) => `
     }
   }
 
+  // ── UTM / source attribution ──
+  function getAttribution() {
+    try { const s = localStorage.getItem('pvc_padel_attribution'); if (s) return JSON.parse(s); } catch {}
+    return null;
+  }
+  function setAttribution(attrs) {
+    try { localStorage.setItem('pvc_padel_attribution', JSON.stringify(attrs)); } catch {}
+  }
+  function deriveSource(referrer) {
+    if (!referrer) return { utm_source: 'direct', utm_medium: 'direct' };
+    try {
+      const h = new URL(referrer).hostname.replace(/^www\./, '');
+      if (h === 'l.instagram.com' || h === 'instagram.com') return { utm_source: 'instagram', utm_medium: 'social' };
+      if (h === 'linktr.ee') return { utm_source: 'linktree', utm_medium: 'social' };
+      if (h.includes('brevo') || h.includes('sibpages') || h.includes('sendinblue') || h.includes('mailchi')) return { utm_source: 'email', utm_medium: 'email' };
+      if (h.includes('google')) return { utm_source: 'google', utm_medium: 'organic' };
+      return { utm_source: h, utm_medium: 'referral' };
+    } catch { return { utm_source: 'direct', utm_medium: 'direct' }; }
+  }
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlUtms = {
+    utm_source:   urlParams.get('utm_source'),
+    utm_medium:   urlParams.get('utm_medium'),
+    utm_campaign: urlParams.get('utm_campaign'),
+    utm_content:  urlParams.get('utm_content'),
+    utm_term:     urlParams.get('utm_term'),
+  };
+  const hasUrlUtms = Object.values(urlUtms).some(Boolean);
+  let attribution;
+  const existingAttr = getAttribution();
+  if (hasUrlUtms) {
+    attribution = { ...urlUtms, _ts: Date.now() };
+    setAttribution(attribution);
+  } else if (existingAttr && (Date.now() - (existingAttr._ts || 0)) < 30 * 24 * 60 * 60 * 1000) {
+    attribution = existingAttr;
+  } else {
+    attribution = { ...deriveSource(document.referrer), _ts: Date.now() };
+    setAttribution(attribution);
+  }
+  function captureWithAttribution(event, props) {
+    window.posthog?.capture?.(event, {
+      utm_source:   attribution.utm_source,
+      utm_medium:   attribution.utm_medium,
+      utm_campaign: attribution.utm_campaign,
+      utm_content:  attribution.utm_content,
+      utm_term:     attribution.utm_term,
+      ...props,
+    });
+  }
+
+  // Update order summary playing when radio changes
+  document.querySelectorAll('input[name="playing"]').forEach(function(r) {
+    r.addEventListener('change', function() {
+      const sp = document.getElementById('pd-summary-playing');
+      if (sp) sp.textContent = r.value;
+    });
+  });
+
   loadCaps();
 
   // Pay flow
@@ -552,7 +655,7 @@ const NOISE = (id: string) => `
     document.getElementById('pd-tier-view').style.display = 'none';
     document.getElementById('pd-form-view').style.display = 'block';
     document.getElementById('pd-form-view').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    window.posthog?.capture?.('padel_checkout_started', { ticket_type: selectedTicketType });
+    captureWithAttribution('padel_checkout_started', { ticket_type: selectedTicketType });
     window.fbq?.('track', 'InitiateCheckout', { content_name: 'Padel Social Ticket', content_type: selectedTicketType });
   });
 
@@ -566,7 +669,7 @@ const NOISE = (id: string) => `
 
   document.querySelectorAll('.scroll-to-tickets, .pd-nav-cta, .pd-sticky-cta').forEach((el) => {
     el.addEventListener('click', () => {
-      window.posthog?.capture?.('padel_cta_clicked', {
+      captureWithAttribution('padel_cta_clicked', {
         label: el.textContent?.trim(),
         location: el.closest('.pd-hero') ? 'hero'
           : el.closest('.pd-sticky-bar') ? 'sticky_bar'
@@ -581,7 +684,7 @@ const NOISE = (id: string) => `
   if (ticketsSection) {
     const ticketObs = new IntersectionObserver(([e]) => {
       if (e.isIntersecting) {
-        window.posthog?.capture?.('padel_tickets_section_reached');
+        captureWithAttribution('padel_tickets_section_reached');
         window.fbq?.('track', 'ViewContent', { content_name: 'Padel Social Tickets' });
         ticketObs.disconnect();
       }
@@ -594,7 +697,7 @@ const NOISE = (id: string) => `
     document.getElementById(id)?.addEventListener('focus', () => {
       if (!formStarted) {
         formStarted = true;
-        window.posthog?.capture?.('padel_form_started');
+        captureWithAttribution('padel_form_started');
       }
     }, { once: true });
   });
@@ -605,7 +708,7 @@ const NOISE = (id: string) => `
     [25, 50, 75, 100].forEach((mark) => {
       if (pct >= mark && !depthHits.has(mark)) {
         depthHits.add(mark);
-        window.posthog?.capture?.('padel_scroll_depth', { depth: mark });
+        captureWithAttribution('padel_scroll_depth', { depth: mark });
       }
     });
   }, { passive: true });
@@ -629,7 +732,9 @@ const NOISE = (id: string) => `
       const res = await fetch('/api/padel/init-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: nameVal, email: emailVal, playing, ticketType: selectedTicketType }),
+        body: JSON.stringify({ name: nameVal, email: emailVal, playing, ticketType: selectedTicketType,
+          utm_source: attribution.utm_source ?? null, utm_medium: attribution.utm_medium ?? null,
+          utm_campaign: attribution.utm_campaign ?? null, utm_content: attribution.utm_content ?? null }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -1081,6 +1186,15 @@ const NOISE = (id: string) => `
   .pd-tier-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
   .pd-tier-list li { font-family: var(--s); font-size: 15px; color: var(--lavender-dim); display: flex; gap: 12px; }
   .pd-tier-list span { color: var(--lavender); flex-shrink: 0; }
+  .pd-tier-list-note { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 6px; }
+  .pd-tier-list-note span { display: none; }
+
+  .pd-price-row { display: flex; align-items: baseline; gap: 10px; margin: 12px 0 6px; }
+  .pd-price-main { font-family: var(--g); font-size: 42px; font-weight: 700; color: #fff; line-height: 1; }
+  .pd-price-strike { font-family: var(--s); font-size: 18px; color: rgba(255,255,255,0.35); text-decoration: line-through; }
+  .pd-early-countdown { font-family: var(--s); font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 0.02em; margin-bottom: 16px; }
+  .pd-refund-line { font-family: var(--s); font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 8px; line-height: 1.5; }
+  .pd-order-summary { font-family: var(--s); font-size: 13px; color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.05); border-radius: 6px; padding: 10px 14px; margin-bottom: 10px; }
 
   /* Payment form */
   .pd-form-wrap { padding: 48px 0; }

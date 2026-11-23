@@ -200,8 +200,13 @@ async function handlePadelPurchase(opts: {
   playing: string;
   ticketType: string;
   tier: string;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_content?: string | null;
 }): Promise<void> {
-  const { paymentId, email, name, firstName, amountRands, itemName, playing, ticketType, tier } = opts;
+  const { paymentId, email, name, firstName, amountRands, itemName, playing, ticketType, tier,
+          utm_source, utm_medium, utm_campaign, utm_content } = opts;
   const tierLabel = tier === 'standard' ? 'Standard' : 'Early';
 
   // ── Webhook-side hard cap enforcement ──
@@ -234,8 +239,10 @@ async function handlePadelPurchase(opts: {
   const formLink  = `${SITE_URL}/padel-confirm?token=${formToken}&ref=${paymentId}`;
 
   // ── Create Notion padel ticket row ──
+  // NOTE: 4 UTM properties must be added manually in Notion as Text type:
+  // "UTM Source", "UTM Medium", "UTM Campaign", "UTM Content"
   const purchasedAt = new Date().toISOString();
-  await notionCreate(PADEL.NOTION_PADEL_DB_ID, {
+  const notionRow: Record<string, any> = {
     'Name':         titleProp(name),
     'Email':        emailProp(email),
     'Ticket Type':  selectProp(ticketType === 'member' ? 'PVC Member' : 'General Admission'),
@@ -248,7 +255,12 @@ async function handlePadelPurchase(opts: {
     'Form Completed': checkProp(false),
     'Consent':      checkProp(false),
     'Refunded':     checkProp(false),
-  });
+  };
+  if (utm_source)   notionRow['UTM Source']   = textProp(utm_source);
+  if (utm_medium)   notionRow['UTM Medium']   = textProp(utm_medium);
+  if (utm_campaign) notionRow['UTM Campaign'] = textProp(utm_campaign);
+  if (utm_content)  notionRow['UTM Content']  = textProp(utm_content);
+  await notionCreate(PADEL.NOTION_PADEL_DB_ID, notionRow);
 
   // ── Brevo enrol into padel list ──
   await enrollContact(email, {
@@ -294,6 +306,7 @@ async function handlePadelPurchase(opts: {
             tier,
             amount_rands: parseFloat(amountRands),
             payment_id: paymentId,
+            utm_source, utm_medium, utm_campaign, utm_content,
           },
         }),
       });
@@ -344,6 +357,11 @@ export const POST: APIRoute = async ({ request }) => {
     : isMemberProduct ? (parseFloat(amountRands) >= PADEL.PRICE_STANDARD_MEMBER / 100 ? 'standard' : 'early')
     : 'early';
 
+  const utm_source   = data.metadata?.utm_source   ?? null;
+  const utm_medium   = data.metadata?.utm_medium   ?? null;
+  const utm_campaign = data.metadata?.utm_campaign ?? null;
+  const utm_content  = data.metadata?.utm_content  ?? null;
+
   const lower = itemName.toLowerCase();
   const paymentType: 'Membership' | 'Event' | 'Other' =
     lower.includes('membership') ? 'Membership' :
@@ -380,7 +398,8 @@ export const POST: APIRoute = async ({ request }) => {
     const isPadel = isPadelTicket(itemName);
     if (isPadel) {
       try {
-        await handlePadelPurchase({ paymentId, email, name, firstName, amountRands, itemName, playing, ticketType, tier });
+        await handlePadelPurchase({ paymentId, email, name, firstName, amountRands, itemName, playing, ticketType, tier,
+          utm_source, utm_medium, utm_campaign, utm_content });
       } catch (e: any) {
         failures.push('padel-purchase-flow');
         console.error(`[paystack-webhook] [${ref}] Padel flow failed:`, e.message);

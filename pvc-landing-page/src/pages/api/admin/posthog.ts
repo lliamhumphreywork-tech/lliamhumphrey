@@ -72,6 +72,10 @@ export const GET: APIRoute = async ({ request }) => {
       padelPV7, padelPV30, padelUV30,
       padelTicketsReached30, padelFormStarted30, padelCheckoutStarted30,
       padelTrend7,
+      // Padel source breakdown
+      padelSourceVisitors, padelSourceTickets, padelSourceForm, padelSourceCheckout,
+      // Padel abandoned checkouts
+      padelAbandoned,
     ] = await Promise.all([
       // Landing page pageviews
       scalar(`SELECT count() FROM events WHERE event = '$pageview' AND properties.$pathname = '/' AND timestamp >= now() - toIntervalDay(7)`),
@@ -121,6 +125,18 @@ export const GET: APIRoute = async ({ request }) => {
       scalar(`SELECT count() FROM events WHERE event = 'padel_form_started' AND timestamp >= now() - toIntervalDay(30)`),
       scalar(`SELECT count() FROM events WHERE event = 'padel_checkout_started' AND timestamp >= now() - toIntervalDay(30)`),
       rows(`SELECT toDate(timestamp) AS day, count() AS views FROM events WHERE event = '$pageview' AND properties.$pathname = '/padel' AND timestamp >= now() - toIntervalDay(7) GROUP BY day ORDER BY day ASC`),
+
+      // Padel source breakdown — visitors
+      rows(`SELECT coalesce(nullIf(properties.utm_source,''),'(direct)') AS src, count(DISTINCT distinct_id) AS n FROM events WHERE event = '$pageview' AND properties.$pathname = '/padel' AND timestamp >= now() - toIntervalDay(30) GROUP BY src ORDER BY n DESC LIMIT 15`),
+      // Padel source breakdown — tickets section reached
+      rows(`SELECT coalesce(nullIf(properties.utm_source,''),'(direct)') AS src, count() AS n FROM events WHERE event = 'padel_tickets_section_reached' AND timestamp >= now() - toIntervalDay(30) GROUP BY src ORDER BY n DESC LIMIT 15`),
+      // Padel source breakdown — form started
+      rows(`SELECT coalesce(nullIf(properties.utm_source,''),'(direct)') AS src, count() AS n FROM events WHERE event = 'padel_form_started' AND timestamp >= now() - toIntervalDay(30) GROUP BY src ORDER BY n DESC LIMIT 15`),
+      // Padel source breakdown — checkout started
+      rows(`SELECT coalesce(nullIf(properties.utm_source,''),'(direct)') AS src, count() AS n FROM events WHERE event = 'padel_checkout_started' AND timestamp >= now() - toIntervalDay(30) GROUP BY src ORDER BY n DESC LIMIT 15`),
+
+      // Abandoned checkouts: checkout_started > 30 min ago, person never fired padel_ticket_purchased
+      rows(`SELECT e.distinct_id, max(e.timestamp) AS last_checkout, any(e.properties.utm_source) AS src FROM events e WHERE e.event = 'padel_checkout_started' AND e.timestamp <= now() - toIntervalMinute(30) AND e.timestamp >= now() - toIntervalDay(30) AND e.distinct_id NOT IN (SELECT DISTINCT distinct_id FROM events WHERE event = 'padel_ticket_purchased') GROUP BY e.distinct_id ORDER BY last_checkout DESC LIMIT 50`),
     ]);
 
     // Merge UTM source traffic + submissions
@@ -188,6 +204,32 @@ export const GET: APIRoute = async ({ request }) => {
         checkoutStarted30: padelCheckoutStarted30,
         checkoutConv: padelPV30 > 0 ? Math.round((padelCheckoutStarted30 / padelPV30) * 100) : 0,
         trend7: padelTrend7.map((r: any[]) => ({ date: String(r[0]).slice(5), count: Number(r[1]) })),
+        bySource: (() => {
+          const ticketsMap: Record<string, number> = {};
+          const formMap:    Record<string, number> = {};
+          const checkoutMap:Record<string, number> = {};
+          padelSourceTickets.forEach((r: any[]) => { ticketsMap[String(r[0])] = Number(r[1]); });
+          padelSourceForm.forEach((r: any[]) => { formMap[String(r[0])] = Number(r[1]); });
+          padelSourceCheckout.forEach((r: any[]) => { checkoutMap[String(r[0])] = Number(r[1]); });
+          return padelSourceVisitors.map((r: any[]) => {
+            const src = String(r[0]);
+            const visitors = Number(r[1]);
+            const checkout = checkoutMap[src] ?? 0;
+            return {
+              source: src,
+              visitors,
+              ticketsReached: ticketsMap[src] ?? 0,
+              formStarted: formMap[src] ?? 0,
+              checkoutStarted: checkout,
+              convPct: visitors > 0 ? Math.round((checkout / visitors) * 100) : 0,
+            };
+          });
+        })(),
+        abandonedCheckouts: padelAbandoned.map((r: any[]) => ({
+          distinctId: String(r[0]),
+          lastCheckout: String(r[1]),
+          utm_source: r[2] ?? null,
+        })),
       },
 
     }), { headers: { 'Content-Type': 'application/json' } });

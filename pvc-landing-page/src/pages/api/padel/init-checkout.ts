@@ -20,7 +20,7 @@ export const POST: APIRoute = async ({ request }) => {
   let body: any;
   try { body = await request.json(); } catch { return err(400, 'Invalid JSON'); }
 
-  const { name, email, playing, ticketType } = body ?? {};
+  const { name, email, playing, ticketType, utm_source, utm_medium, utm_campaign, utm_content } = body ?? {};
 
   if (!name || !email || !playing || !ticketType) return err(400, 'Missing required fields');
   if (!['Yes', 'No'].includes(playing))           return err(400, 'Invalid playing value');
@@ -67,6 +67,10 @@ export const POST: APIRoute = async ({ request }) => {
         ticket_type: ticketType,
         tier,
         item_name: itemName,
+        utm_source: utm_source ?? null,
+        utm_medium: utm_medium ?? null,
+        utm_campaign: utm_campaign ?? null,
+        utm_content: utm_content ?? null,
         custom_fields: [
           { display_name: 'Name',        variable_name: 'name',        value: name },
           { display_name: 'Playing?',    variable_name: 'playing',     value: playing === 'Yes' ? 'Yes, playing' : 'No, social only' },

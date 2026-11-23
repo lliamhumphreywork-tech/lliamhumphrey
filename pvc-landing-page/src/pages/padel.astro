@@ -301,7 +301,7 @@ const NOISE = (id: string) => `
             <li><span>·</span>90 min of padel across 6 courts</li>
             <li><span>·</span>Rackets and balls included</li>
             <li><span>·</span>Rotating games so you meet everyone</li>
-            <li><span>·</span>Lounge until 21:30 &mdash; stay as long as you like</li>
+            <li><span>·</span>Lounge until 21:30. Stay as long as you like</li>
             <li class="pd-tier-list-note">Food and drink are paid on the day</li>
           </ul>
           <button class="cta-btn pd-pay-btn" id="pd-pay-btn">Reserve My Spot</button>
@@ -555,7 +555,7 @@ const NOISE = (id: string) => `
     }
     if (!el) return;
     if (capsData.totalFull) {
-      el.textContent = 'Sold out — no spots remaining.';
+      el.textContent = 'Sold out. No spots remaining.';
       // Show waitlist instead of ticket form
       document.getElementById('pd-tier-view')?.style && (document.getElementById('pd-tier-view').style.display = 'none');
       document.getElementById('pd-waitlist-view')?.style && (document.getElementById('pd-waitlist-view').style.display = 'block');

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Art of Sales</title>
+<title>Art of Sales: become a remote appointment setter without quitting your job</title>
 <link rel="icon" href="/artofsales/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/artofsales/apple-touch-icon.png">
 <meta name="description" content="Become a remote appointment setter without quitting your job. Training for employed South Africans aged 20 to 30 who want to move into remote sales.">
@@ -13,7 +13,12 @@
 <meta property="og:url" content="https://lliamhumphrey.com/artofsales/">
 <meta property="og:title" content="Become a remote appointment setter without quitting your job.">
 <meta property="og:description" content="Training and community for young South Africans moving from a regular job into remote sales.">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://lliamhumphrey.com/artofsales/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Art of Sales: Become a remote appointment setter without quitting your job.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://lliamhumphrey.com/artofsales/og.png">
 <meta name="theme-color" content="#f3eadb">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,6 +35,11 @@
     capture_pageview: true, capture_pageleave: true, disable_session_recording: true, person_profiles: 'identified_only'
   });
   posthog.register({ site: 'artofsales' });
+  // First-touch source for the signup: utm_source/utm_campaign from the landing URL, kept for this tab's session.
+  try {
+    var q = new URLSearchParams(location.search), src = (q.get('utm_source') || '').trim(), camp = (q.get('utm_campaign') || '').trim();
+    if ((src || camp) && !sessionStorage.getItem('aos_signup_source')) sessionStorage.setItem('aos_signup_source', ((src || 'unknown') + (camp ? '/' + camp : '')).slice(0, 100));
+  } catch (e) {}
 </script>
 <style>
 /* Cream, dark brown, black and white. One sans (Geist); the script face is only for the "A." mark.
@@ -490,7 +500,7 @@ footer .mark { color: var(--cream); }
       <h1>Become a remote appointment setter <span>without quitting your job.</span></h1>
       <p class="sub">For employed South Africans aged 20 to 30 who want out of the 9-to-5. Learn the skill on evenings and weekends, then apply for remote setter roles.</p>
       <a class="btn big" href="#join">Join the waitlist</a>
-      <p class="proof-line"><b>Lliam Humphrey, 20.</b> Since March I've set the calls behind $200K+ in cash collected.</p>
+      <p class="proof-line"><b>Lliam Humphrey, 20.</b> I've earned six figures in rand from appointment setting this year.</p>
     </div>
     <div class="phone">
     <span class="island" aria-hidden="true"></span>
@@ -595,8 +605,8 @@ footer .mark { color: var(--cream); }
       <p class="intro">Here's the rest: everything I used to get here, in one place.</p>
       <div class="gcards">
         <div class="gcard" style="--k:0"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg></span><h3>The course</h3><p>Everything that's worked for me on my journey, from first conversation to booked call.</p></div>
-        <div class="gcard" style="--k:1"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4M10 12h5M10 15.5h5"/></svg></span><h3>Call and DM scripts</h3><p>Word for word, so you know what to say from day one.</p></div>
-        <div class="gcard" style="--k:2"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4.5h3l1.2 3.5-2 1.3a10 10 0 0 0 6 6l1.3-2 3.5 1.2v3a1.5 1.5 0 0 1-1.6 1.5A15 15 0 0 1 5 6.1 1.5 1.5 0 0 1 6.5 4.5z"/></svg></span><h3>Weekly group coaching calls</h3><p>Live with me every week: your questions, your blockers, and roleplays until calls feel normal.</p></div>
+        <div class="gcard" style="--k:1"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4M10 12h5M10 15.5h5"/></svg></span><h3>Call and DM scripts</h3><p>Built on the framework, so you know what to say and why.</p></div>
+        <div class="gcard" style="--k:2"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4.5h3l1.2 3.5-2 1.3a10 10 0 0 0 6 6l1.3-2 3.5 1.2v3a1.5 1.5 0 0 1-1.6 1.5A15 15 0 0 1 5 6.1 1.5 1.5 0 0 1 6.5 4.5z"/></svg></span><h3>Weekly group coaching calls</h3><p>Live with me on Thursday evenings: your questions, your blockers, and roleplays until calls feel normal.</p></div>
         <div class="gcard" style="--k:3"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h9"/><path d="M10 8l4 4-4 4"/><path d="M17 5v14"/></svg></span><h3>Outreach frameworks</h3><p>How to find setter roles and start conversations that get replies.</p></div>
         <div class="gcard" style="--k:4"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a5 5 0 0 0-3 9v2.5h6V13a5 5 0 0 0-3-9z"/><path d="M10 19h4"/></svg></span><h3>Mindset</h3><p>Handling the no's, staying consistent, and showing up when it's slow. This part matters most.</p></div>
         <div class="gcard" style="--k:5"><span class="g-spot" aria-hidden="true"></span><span class="g-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3"/><circle cx="16.5" cy="10" r="2.5"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M14 19a4.5 4.5 0 0 1 7-3.6"/></svg></span><h3>The community</h3><p>People your age making the same move, so you're not doing it alone.</p></div>
@@ -649,7 +659,7 @@ footer .mark { color: var(--cream); }
       <div><h2>Questions</h2></div>
       <div class="faq">
         <details><summary>Do I need sales experience?</summary><p>No. The training starts from zero. If you can hold a normal conversation, you can learn this.</p></details>
-        <details><summary>How much time does it take each week?</summary><p>Plan for the weekly live session plus a few hours of practice. You can do it around your job.</p></details>
+        <details><summary>How much time does it take each week?</summary><p>Plan for 4 to 6 hours of practice a week, plus the live session on Thursday evenings (South African time). You can do it around your job.</p></details>
         <details><summary>Is this a job?</summary><p>No. Art of Sales is training and a community. It doesn't employ you or pay you. It gets you ready to apply for remote sales roles.</p></details>
         <details><summary>Can I cancel?</summary><p>Yes, anytime. You pay month to month.</p></details>
         <details><summary>What if I don't get hired?</summary><p>There's no guarantee you will. Most first roles are commission-only, and it can take a while. The skills stay with you either way, and you can keep practising with us.</p></details>
@@ -711,7 +721,7 @@ footer .mark { color: var(--cream); }
       <a href="https://instagram.com/lliamsells" rel="noopener">Instagram @lliamsells</a>
       <a data-contact-email></a>
     </div>
-    <p>Art of Sales is training and community. It is not a job offer or employment agency, and results aren't guaranteed. Run by Lliam Humphrey, Johannesburg.</p>
+    <p>Art of Sales is training and community. It is not a job offer or employment agency, and results aren't guaranteed. Run by Lliam Humphrey, Johannesburg. Income figures are Lliam's own from commission-only appointment setting and are not typical.</p>
   </div>
 </footer>
 </div>
@@ -805,28 +815,31 @@ document.querySelectorAll('.gcard').forEach(function (c) {
   function step(n) {
     modal.querySelectorAll('.step').forEach(function (el) { el.hidden = el.getAttribute('data-step') !== String(n); });
   }
-  function open(where) {
-    track('aos_waitlist_click', { location: where });
+  function open() {
     if (!modal.showModal) { location.hash = 'join'; return; }
     modal.showModal();
+    track('aos_form_opened');
     setTimeout(function () { (joined ? modal.querySelector('.m-done') : signup.name).focus(); }, 50);
   }
   document.querySelectorAll('a[href="#join"]').forEach(function (a) {
     a.addEventListener('click', function (e) {
       e.preventDefault();
+      // CTA locations: nav, hero, mid (pricing card and the "Is this you?" link), bottom (final section), sticky.
+      track('aos_cta_clicked', { location: a.closest('header') ? 'nav' : a.closest('.hero') ? 'hero' : a.closest('.sticky-join') ? 'sticky' : (a.closest('#pricing') || a.closest('.pain-count')) ? 'mid' : 'bottom' });
       // The top bar button scrolls down to the final section; every other button opens the popup.
       if (a.closest('header')) {
-        track('aos_waitlist_click', { location: 'nav' });
         document.getElementById('join').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
         return;
       }
-      open(a.closest('.hero') ? 'hero' : a.closest('#pricing') ? 'pricing' : a.closest('.sticky-join') ? 'sticky' : a.closest('.pain-count') ? 'pains' : 'final');
+      open();
     });
   });
   modal.querySelector('.m-close').addEventListener('click', function () { modal.close(); });
   modal.querySelector('.m-done').addEventListener('click', function () { modal.close(); });
   modal.addEventListener('click', function (e) { if (e.target === modal) modal.close(); });
 
+  // First-touch "source/campaign" saved on arrival (see the script in <head>), or "direct".
+  function firstTouch() { try { return sessionStorage.getItem('aos_signup_source') || 'direct'; } catch (e) { return 'direct'; } }
   function val(n) { var el = signup.querySelector('input[name="' + n + '"]:checked'); return el ? el.value : ''; }
 
   signup.addEventListener('submit', function (e) {
@@ -834,27 +847,29 @@ document.querySelectorAll('.gcard').forEach(function (c) {
     var msg = signup.querySelector('.form-msg'), btn = signup.querySelector('button[type="submit"]');
     var name = signup.name.value.trim(), email = signup.email.value.trim();
     function err(text, field) { msg.textContent = text; msg.classList.add('err'); if (field) field.focus(); }
+    function invalid(text, field) { track('aos_form_submitted_failed', { reason: 'validation' }); err(text, field); }
     msg.className = 'form-msg'; msg.textContent = '';
-    if (!name) return err('Add your first name.', signup.name);
-    if (!EMAIL_RE.test(email)) return err('That email doesn\'t look right.', signup.email);
+    if (!name) return invalid('Add your first name.', signup.name);
+    if (!EMAIL_RE.test(email)) return invalid('That email doesn\'t look right.', signup.email);
     var whatsapp = signup.whatsapp.value.replace(/[\s()-]/g, ''), instagram = signup.instagram.value.trim().replace(/^@+/, '');
-    if (whatsapp && !/^\+?\d{9,15}$/.test(whatsapp)) return err('Check your WhatsApp number, e.g. +27 82 123 4567.', signup.whatsapp);
-    if (instagram && !/^[A-Za-z0-9._]{1,30}$/.test(instagram)) return err('Check your Instagram handle, e.g. @yourhandle.', signup.instagram);
-    if (!val('would_pay')) return err('Pick a monthly price option.', signup.querySelector('input[name="would_pay"]'));
-    if (!val('current_situation')) return err('Pick what best describes you right now.', signup.querySelector('input[name="current_situation"]'));
-    if (!signup.consent.checked) return err('Tick the box to agree to emails.', signup.consent);
-    var body = { name: name, email: email, whatsapp: whatsapp, instagram: instagram, would_pay: val('would_pay'), current_situation: val('current_situation'), consent: true, website: signup.website.value };
+    if (whatsapp && !/^\+?\d{9,15}$/.test(whatsapp)) return invalid('Check your WhatsApp number, e.g. +27 82 123 4567.', signup.whatsapp);
+    if (instagram && !/^[A-Za-z0-9._]{1,30}$/.test(instagram)) return invalid('Check your Instagram handle, e.g. @yourhandle.', signup.instagram);
+    if (!val('would_pay')) return invalid('Pick a monthly price option.', signup.querySelector('input[name="would_pay"]'));
+    if (!val('current_situation')) return invalid('Pick what best describes you right now.', signup.querySelector('input[name="current_situation"]'));
+    if (!signup.consent.checked) return invalid('Tick the box to agree to emails.', signup.consent);
+    var body = { name: name, email: email, whatsapp: whatsapp, instagram: instagram, would_pay: val('would_pay'), current_situation: val('current_situation'), consent: true, website: signup.website.value, signup_source: firstTouch() };
     btn.disabled = true; btn.textContent = 'Joining…';
     fetch('/api/artofsales-waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { d.status = r.status; return d; }); })
       .then(function (d) {
-        if (!d.ok) throw new Error(d.error || 'Something went wrong. Try again.');
+        if (!d.ok) { var e1 = new Error(d.error || 'Something went wrong. Try again.'); e1.reason = d.status === 400 ? 'validation' : 'server'; throw e1; }
         joined = true;
         track('aos_waitlist_joined', { would_pay: body.would_pay, current_situation: body.current_situation, gave_whatsapp: !!whatsapp, gave_instagram: !!instagram });
         step(2);
         modal.querySelector('.m-done').focus();
       })
       .catch(function (e2) {
+        track('aos_form_submitted_failed', { reason: (e2 && e2.reason) || 'server' });
         btn.disabled = false; btn.textContent = 'Join the waitlist';
         err(e2 && e2.message && e2.message !== 'Failed to fetch' ? e2.message : 'Couldn\'t connect. Check your signal and try again.');
       });

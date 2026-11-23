@@ -16,6 +16,10 @@ const IG_RE = /^[A-Za-z0-9._]{1,30}$/;
 const cleanWhatsapp = (v) => v.replace(/[\s()-]/g, '');
 const cleanInstagram = (v) => v.replace(/^@+/, '');
 
+// First-touch "utm_source/utm_campaign" from the page, or "direct". Spaces become "-", other unusual characters are dropped.
+const MAX_SOURCE = 100;
+const cleanSource = (v) => v.replace(/\s+/g, '-').replace(/[^A-Za-z0-9._~+\/-]/g, '').slice(0, MAX_SOURCE) || 'direct';
+
 const MAX_NAME = 50;
 const MAX_EMAIL = 254;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -62,6 +66,7 @@ module.exports = async function handler(req, res) {
   const situation = str(body.current_situation);
   const whatsapp = cleanWhatsapp(str(body.whatsapp));
   const instagram = cleanInstagram(str(body.instagram));
+  const signupSource = cleanSource(str(body.signup_source));
 
   if (!name) return fail(res, 400, 'Add your first name.');
   if (name.length > MAX_NAME) return fail(res, 400, 'That name is too long.');
@@ -78,7 +83,7 @@ module.exports = async function handler(req, res) {
     return fail(res, 500, 'Something went wrong. Try again later.');
   }
 
-  const fields = { name, would_pay: wouldPay, current_situation: situation };
+  const fields = { name, would_pay: wouldPay, current_situation: situation, signup_source: signupSource };
   // Only send the optional ones when given, so a repeat signup without them doesn't wipe earlier values.
   if (whatsapp) fields.whatsapp = whatsapp;
   if (instagram) fields.instagram = instagram;

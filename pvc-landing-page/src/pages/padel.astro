@@ -194,12 +194,12 @@ const NOISE = (id: string) => `
     <div class="pd-video-event-label">PVC Events</div>
     <div class="pd-video-grid pd-video-grid--stack">
       <div class="pd-video-slot pd-video-slot--wide">
-        <video autoplay muted loop playsinline>
+        <video muted loop playsinline preload="none" data-autoplay>
           <source src="/videos/dinner-energy.mp4" type="video/mp4" />
         </video>
       </div>
       <div class="pd-video-slot pd-video-slot--wide">
-        <video autoplay muted loop playsinline>
+        <video muted loop playsinline preload="none" data-autoplay>
           <source src="/videos/dinner-conversation.mp4" type="video/mp4" />
         </video>
       </div>
@@ -649,6 +649,20 @@ const NOISE = (id: string) => `
   });
 
   loadCaps();
+
+  // Lazy-load autoplay videos
+  const videoObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const v = entry.target;
+      if (entry.isIntersecting) {
+        if (v.preload === 'none') v.preload = 'auto';
+        v.play().catch(() => {});
+      } else {
+        v.pause();
+      }
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('video[data-autoplay]').forEach(v => videoObserver.observe(v));
 
   // Pay flow
   document.getElementById('pd-pay-btn')?.addEventListener('click', () => {

@@ -16,7 +16,8 @@ function approvalHtml(name: string): string {
   return [
     `<p>Hey ${name},</p>`,
     `<p>I went through your application and I think there's a fit here.</p>`,
-    `<p>Next step is a call with me, about 30 to 45 minutes. You'll ask what you want, I'll ask what I need, and if it's a match we get you locked in and onboarded on the call.</p>`,
+    `<p>The call is 30 to 45 minutes. We'll go into your business, figure out if PVC actually makes sense for where you are, and you walk away with clarity either way. If there's a match, we get you locked in and onboarded on the call.</p>`,
+    `<p>A lot of what members value most is the relationships -- the people in the room, what they're building, what becomes possible when you're in that network.</p>`,
     `<p>Pick a time that works: <a href="${CAL_URL}">Book my call</a></p>`,
     `<p>Can't find a slot? Just reply or WhatsApp me and I'll make one work.</p>`,
     `<p>Lliam</p>`,

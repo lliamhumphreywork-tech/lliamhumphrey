@@ -22,17 +22,19 @@ function daysSince(isoDate: string): number {
 function followup1Html(name: string): string {
   return [
     `<p>Hey ${name},</p>`,
-    `<p>Saw you haven't booked yet. I've got a couple of slots open, want one?</p>`,
-    `<p><a href="${CAL_URL}">Book my call</a></p>`,
+    `<p>The main thing people get from PVC is the relationships -- operators who are building seriously, who push each other, and who you actually want to know.</p>`,
+    `<p>The call is how we figure out if you're in the right place for that right now.</p>`,
+    `<p>Still a slot open: <a href="${CAL_URL}">Book my call</a></p>`,
     `<p>Lliam</p>`,
   ].join('');
 }
 
 function followup2Html(name: string): string {
   return [
-    `<p>${name}, last one from me.</p>`,
-    `<p>Still keen to chat, but I won't chase forever. Let me know either way.</p>`,
-    `<p><a href="${CAL_URL}">Book my call</a></p>`,
+    `<p>${name},</p>`,
+    `<p>If the timing is off or it just isn't the right fit, that's completely fine. No hard feelings.</p>`,
+    `<p>If you do want to explore it, the link is still here: <a href="${CAL_URL}">Book my call</a></p>`,
+    `<p>Either way, good luck with what you're building.</p>`,
     `<p>Lliam</p>`,
   ].join('');
 }

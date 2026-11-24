@@ -16,38 +16,48 @@ function daysSince(isoDate: string): number {
 export const GET: APIRoute = async ({ request }) => {
   if (!auth(request)) return new Response('Unauthorized', { status: 401 });
 
-  let pages: any[];
+  let withDate: any[];
+  let noDate: any[];
   try {
-    pages = await notionQuery(NOTION_CRM, {
-      and: [
-        { property: 'Status', select: { equals: 'Accepted' } },
-        { property: 'Booking Email Sent', date: { is_not_empty: true } },
-      ],
-    });
+    [withDate, noDate] = await Promise.all([
+      notionQuery(NOTION_CRM, {
+        and: [
+          { property: 'Status', select: { equals: 'Accepted' } },
+          { property: 'Booking Email Sent', date: { is_not_empty: true } },
+        ],
+      }),
+      notionQuery(NOTION_CRM, {
+        and: [
+          { property: 'Status', select: { equals: 'Accepted' } },
+          { property: 'Booking Email Sent', date: { is_empty: true } },
+        ],
+      }),
+    ]);
   } catch (e: any) {
     return new Response(JSON.stringify({ error: e.message }), {
       status: 500, headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  const needsBooking = pages
-    .map(page => {
-      const p           = page.properties;
-      const fullName    = getTitle(p, 'Name');
-      const sentDate    = getDate(p, 'Booking Email Sent');
-      return {
-        id:             page.id,
-        name:           fullName,
-        firstName:      fullName.split(' ')[0] || '',
-        email:          getEmail(p, 'Email'),
-        phone:          getPhone(p, 'Phone'),
-        daysSinceEmail: sentDate ? daysSince(sentDate) : 0,
-        followupCount:  getNum(p, 'Follow-up Count') ?? 0,
-      };
-    })
-    .sort((a, b) => b.daysSinceEmail - a.daysSinceEmail);
+  function mapPage(page: any) {
+    const p        = page.properties;
+    const fullName = getTitle(p, 'Name');
+    const sentDate = getDate(p, 'Booking Email Sent');
+    return {
+      id:             page.id,
+      name:           fullName,
+      firstName:      fullName.split(' ')[0] || '',
+      email:          getEmail(p, 'Email'),
+      phone:          getPhone(p, 'Phone'),
+      daysSinceEmail: sentDate ? daysSince(sentDate) : null,
+      followupCount:  getNum(p, 'Follow-up Count') ?? 0,
+    };
+  }
 
-  return new Response(JSON.stringify({ needsBooking }), {
+  const needsBooking = withDate.map(mapPage).sort((a, b) => (b.daysSinceEmail ?? 0) - (a.daysSinceEmail ?? 0));
+  const noDateLeads  = noDate.map(mapPage).sort((a, b) => a.name.localeCompare(b.name));
+
+  return new Response(JSON.stringify({ needsBooking, noDateLeads }), {
     headers: { 'Content-Type': 'application/json' },
   });
 };

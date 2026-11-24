@@ -841,9 +841,43 @@ function loadHome() {
     appData.leadsMap = {};
     (results[1] || []).forEach(function(l) { appData.leadsMap[l.id] = l; });
     renderHome(results[0], results[1], results[2], results[3]);
+    loadNeedsBooking();
   }).catch(function(e) {
     el.innerHTML = '<div class="empty-state"><p>Failed to load: ' + esc(e.message) + '</p></div>';
   });
+}
+
+function loadNeedsBooking() {
+  var el = document.getElementById('needs-booking-panel');
+  if (!el) return;
+  api('/api/admin/booking-needs').then(function(data) {
+    var list = data.needsBooking || [];
+    if (!list.length) { el.style.display = 'none'; return; }
+    var CAL = 'https://cal.com/lliam-humphrey-q82xct/pvcapplicationcall';
+    var rows = list.map(function(r) {
+      var urgColor = r.daysSinceEmail >= 5 ? '#dc2626' : r.daysSinceEmail >= 2 ? '#d97706' : 'var(--text-secondary)';
+      var waMsg = encodeURIComponent('Hey ' + r.firstName + ', it\'s Lliam. Just checking in -- you haven\'t booked your call yet. Here\'s the link: ' + CAL + '. Let me know if you need a different time.');
+      var waBtn = r.phone
+        ? '<a href="https://wa.me/' + r.phone.replace(/\D/g,'') + '?text=' + waMsg + '" target="_blank" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:4px;background:#25D366;color:#fff;text-decoration:none;white-space:nowrap;">WA</a>'
+        : '<span style="font-size:11px;color:var(--text-muted);">No phone</span>';
+      var followLabel = r.followupCount === 0 ? 'No follow-ups sent' : r.followupCount + ' sent';
+      return '<div style="padding:9px 0;border-bottom:1px solid var(--border-ll);display:flex;align-items:center;gap:10px;">' +
+        '<div style="flex:1;">' +
+          '<span style="font-weight:600;font-size:14px;color:var(--text-primary);">' + esc(r.name) + '</span>' +
+          '<span style="font-size:11px;color:var(--text-muted);margin-left:8px;">' + esc(r.email) + '</span>' +
+        '</div>' +
+        '<span style="font-size:12px;font-weight:700;color:' + urgColor + ';min-width:48px;text-align:right;">' + r.daysSinceEmail + 'd</span>' +
+        '<span style="font-size:11px;color:var(--text-muted);min-width:90px;text-align:right;">' + esc(followLabel) + '</span>' +
+        waBtn +
+      '</div>';
+    }).join('');
+    el.innerHTML =
+      '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:16px;">' +
+        'Needs Booking <span style="font-weight:400;color:var(--text-muted);font-size:10px;margin-left:4px;">(' + list.length + ')</span>' +
+      '</div>' +
+      rows;
+    el.style.display = 'block';
+  }).catch(function() { el.style.display = 'none'; });
 }
 
 function renderHome(rev, leads, mems, brief) {
@@ -926,10 +960,12 @@ function renderHome(rev, leads, mems, brief) {
     panel('Recent Revenue', recentRevHTML) +
   '</div>';
 
+  var needsBookingPanel = '<div id="needs-booking-panel" style="display:none;background:var(--surface-l);border:1px solid var(--border-l);border-radius:14px;padding:22px 24px;margin-bottom:16px;"></div>';
+
   el.innerHTML =
     '<div class="page-title">Home</div>' +
     '<div class="page-sub">Your business at a glance</div>' +
-    stats + priority + grid;
+    stats + priority + needsBookingPanel + grid;
 }
 
 function postBriefToSlack(btn) {

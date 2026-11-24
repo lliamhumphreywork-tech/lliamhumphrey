@@ -1,11 +1,13 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import crypto from 'crypto';
+import { notionQuery, notionPatch, selectProp } from '../../lib/notion';
 
 const CAL_WEBHOOK_SECRET      = import.meta.env.CAL_WEBHOOK_SECRET ?? '';
 const BREVO_API_KEY           = import.meta.env.BREVO_API_KEY ?? '';
 const SLACK_BOOKED_CALLS_URL  = import.meta.env.SLACK_BOOKED_CALLS_URL ?? '';
 const ADMIN_URL               = 'https://privatevictoriesclub.com/admin';
+const NOTION_CRM_DB           = '872bd20eee31468f91bed1cd472e157a';
 
 function verifySignature(body: string, signature: string | null): boolean {
   if (!CAL_WEBHOOK_SECRET || !signature) return !CAL_WEBHOOK_SECRET;
@@ -13,7 +15,7 @@ function verifySignature(body: string, signature: string | null): boolean {
   return expected === signature;
 }
 
-async function markCallBooked(email: string, bookedAt: string): Promise<void> {
+async function markCallBookedBrevo(email: string, bookedAt: string): Promise<void> {
   if (!BREVO_API_KEY || !email) return;
   await fetch('https://api.brevo.com/v3/contacts', {
     method: 'POST',
@@ -24,6 +26,24 @@ async function markCallBooked(email: string, bookedAt: string): Promise<void> {
       updateEnabled: true,
     }),
   });
+}
+
+async function markCallBookedNotion(email: string): Promise<void> {
+  if (!email) return;
+  try {
+    const pages = await notionQuery(NOTION_CRM_DB, {
+      property: 'Email', email: { equals: email },
+    });
+    const page = pages[0];
+    if (!page) return;
+    const status = page.properties['Status']?.select?.name ?? '';
+    // Only advance if currently Accepted (booking email sent but not yet call booked)
+    if (status === 'Accepted') {
+      await notionPatch(page.id, { Status: selectProp('Call Booked') });
+    }
+  } catch (e: any) {
+    console.error('[cal-webhook] Notion update error:', e.message);
+  }
 }
 
 function formatSAST(iso: string): string {
@@ -88,7 +108,8 @@ export const POST: APIRoute = async ({ request }) => {
   const meetingUrl      = p.metadata?.videoCallUrl ?? p.videoCallUrl ?? '';
 
   await Promise.allSettled([
-    attendeeEmail ? markCallBooked(attendeeEmail, startTime) : Promise.resolve(),
+    attendeeEmail ? markCallBookedBrevo(attendeeEmail, startTime) : Promise.resolve(),
+    attendeeEmail ? markCallBookedNotion(attendeeEmail) : Promise.resolve(),
     postSlack(attendeeName, attendeeEmail, callTitle, startTime, meetingUrl),
   ]);
 

@@ -2212,7 +2212,10 @@ function initFirebase() {
     btn.disabled = true;
     btn.textContent = 'SIGNING IN...';
     err.textContent = '';
-    auth.signInWithEmailAndPassword(email, password).catch(function(e) {
+    var timeoutPromise = new Promise(function(_, reject) {
+      setTimeout(function() { reject(new Error('Sign-in timed out. Check your connection and try again.')); }, 12000);
+    });
+    Promise.race([auth.signInWithEmailAndPassword(email, password), timeoutPromise]).catch(function(e) {
       err.textContent = e.message || 'Sign-in failed.';
       btn.disabled = false;
       btn.textContent = 'Sign In';

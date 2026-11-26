@@ -645,6 +645,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
       <button class="tab-btn" data-tab="agent">Susan</button>
       <button class="tab-btn" data-tab="revenue">Revenue</button>
       <button class="tab-btn" data-tab="padel">Padel Social</button>
+      <button class="tab-btn" data-tab="partners">Partners</button>
     </nav>
     <div class="header-end">
       <button class="signout-btn" id="signout-btn">Sign Out</button>
@@ -659,6 +660,7 @@ const ADMIN_KEY = import.meta.env.ADMIN_KEY ?? '';
     <div id="tab-agent"     class="tab-panel"><div class="spinner"></div></div>
     <div id="tab-revenue"   class="tab-panel"><div class="spinner"></div></div>
     <div id="tab-padel"     class="tab-panel"><div class="spinner"></div></div>
+    <div id="tab-partners"  class="tab-panel"><div class="spinner"></div></div>
   </main>
 </div>
 
@@ -724,6 +726,7 @@ function loadTab(id) {
     case 'agent':     loadAgent();     break;
     case 'revenue':   loadRevenue();   break;
     case 'padel':     loadPadel();     break;
+    case 'partners':  loadPartners();  break;
   }
 }
 
@@ -2390,6 +2393,334 @@ function copyDraft(btn, text) {
     setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
   }).catch(function() {
     btn.textContent = 'Copy';
+  });
+}
+
+// ── Partners & Sponsors ──
+var partnersData = [];
+var partnersFilter = { category: '', type: '', priority: '' };
+
+var PARTNER_STATUSES = ['Idea','Researching','Drafted','Contacted','In conversation','Agreed','On hold','Paused','Done'];
+var STATUS_COLORS = {
+  'idea':           '#9ca3af',
+  'researching':    '#a78bfa',
+  'drafted':        '#60a5fa',
+  'contacted':      '#f59e0b',
+  'in-conversation':'#10b981',
+  'agreed':         '#22c55e',
+  'on-hold':        '#6b7280',
+  'paused':         '#6b7280',
+  'done':           '#374151',
+};
+
+function partnerStatusBadge(s) {
+  if (!s) return '<span class="badge badge-default">—</span>';
+  var key = s.toLowerCase().replace(/\s+/g, '-');
+  var col = STATUS_COLORS[key] || '#9ca3af';
+  return '<span class="badge" style="background:' + col + '20;color:' + col + ';border:1px solid ' + col + '40;">' + esc(s) + '</span>';
+}
+
+function partnerPriorityBadge(p) {
+  if (!p) return '';
+  var col = p === 'High' ? '#ef4444' : p === 'Medium' ? '#f59e0b' : '#9ca3af';
+  return '<span class="badge" style="background:' + col + '15;color:' + col + ';border:1px solid ' + col + '30;font-size:10px;">' + esc(p) + '</span>';
+}
+
+function isOverdue(dateStr) {
+  if (!dateStr) return false;
+  return new Date(dateStr) < new Date();
+}
+
+function isDueToday(dateStr) {
+  if (!dateStr) return false;
+  var d = new Date(dateStr);
+  var t = new Date();
+  return d.getFullYear() === t.getFullYear() && d.getMonth() === t.getMonth() && d.getDate() === t.getDate();
+}
+
+function loadPartners() {
+  var el = document.getElementById('tab-partners');
+  el.innerHTML = '<div class="spinner"></div>';
+
+  api('/api/admin/partners').then(function(data) {
+    partnersData = data.partners || [];
+    renderPartners();
+  }).catch(function(e) {
+    document.getElementById('tab-partners').innerHTML =
+      '<div class="page-title">Partners &amp; Sponsors</div>' +
+      '<div style="color:#ef4444;padding:16px;">' + esc(e.message) + '</div>';
+  });
+}
+
+function renderPartners() {
+  var el = document.getElementById('tab-partners');
+  var partners = partnersData;
+
+  // Apply filters
+  if (partnersFilter.category) partners = partners.filter(function(p) { return p.category === partnersFilter.category; });
+  if (partnersFilter.type)     partners = partners.filter(function(p) { return p.type === partnersFilter.type; });
+  if (partnersFilter.priority) partners = partners.filter(function(p) { return p.priority === partnersFilter.priority; });
+
+  // Due strip — overdue or due today
+  var dueItems = partnersData.filter(function(p) {
+    return (isOverdue(p.nextActionDate) || isDueToday(p.nextActionDate)) && p.status !== 'Done' && p.status !== 'Agreed';
+  });
+
+  // Group by status
+  var groups = {};
+  PARTNER_STATUSES.forEach(function(s) { groups[s] = []; });
+  partners.forEach(function(p) {
+    var s = p.status || 'Idea';
+    if (!groups[s]) groups[s] = [];
+    groups[s].push(p);
+  });
+
+  // Perk gap analysis
+  var categories = {};
+  partnersData.forEach(function(p) {
+    if (!p.category) return;
+    if (!categories[p.category]) categories[p.category] = { total: 0, agreed: 0 };
+    categories[p.category].total++;
+    if (p.status === 'Agreed' || p.status === 'Done') categories[p.category].agreed++;
+  });
+  var gapHtml = Object.keys(categories).sort().map(function(cat) {
+    var c = categories[cat];
+    var pct2 = c.total ? Math.round(c.agreed / c.total * 100) : 0;
+    var col = pct2 >= 50 ? '#22c55e' : pct2 > 0 ? '#f59e0b' : '#ef4444';
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
+      '<div style="width:120px;font-size:12px;color:var(--text-muted);">' + esc(cat) + '</div>' +
+      '<div style="flex:1;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;">' +
+        '<div style="width:' + pct2 + '%;height:100%;background:' + col + ';border-radius:3px;"></div>' +
+      '</div>' +
+      '<div style="font-size:11px;color:' + col + ';width:40px;text-align:right;">' + c.agreed + '/' + c.total + '</div>' +
+    '</div>';
+  }).join('');
+
+  // Unique filter options from full data
+  var cats   = [...new Set(partnersData.map(function(p) { return p.category; }).filter(Boolean))].sort();
+  var types  = [...new Set(partnersData.map(function(p) { return p.type; }).filter(Boolean))].sort();
+
+  var filterHtml =
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">' +
+    '<select onchange="partnersFilter.category=this.value;renderPartners()" style="font-size:12px;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;">' +
+      '<option value="">All Categories</option>' +
+      cats.map(function(c) { return '<option value="' + esc(c) + '"' + (partnersFilter.category===c?' selected':'') + '>' + esc(c) + '</option>'; }).join('') +
+    '</select>' +
+    '<select onchange="partnersFilter.type=this.value;renderPartners()" style="font-size:12px;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;">' +
+      '<option value="">All Types</option>' +
+      types.map(function(t) { return '<option value="' + esc(t) + '"' + (partnersFilter.type===t?' selected':'') + '>' + esc(t) + '</option>'; }).join('') +
+    '</select>' +
+    '<select onchange="partnersFilter.priority=this.value;renderPartners()" style="font-size:12px;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;">' +
+      '<option value="">All Priorities</option>' +
+      ['High','Medium','Low'].map(function(p) { return '<option value="' + p + '"' + (partnersFilter.priority===p?' selected':'') + '>' + p + '</option>'; }).join('') +
+    '</select>' +
+    '<span style="font-size:12px;color:#9ca3af;margin-left:4px;">' + partners.length + ' of ' + partnersData.length + '</span>' +
+    '<button onclick="openAddPartner()" class="btn-sm" style="margin-left:auto;">+ Add Partner</button>' +
+    '</div>';
+
+  // Due strip
+  var dueStripHtml = '';
+  if (dueItems.length) {
+    dueStripHtml = '<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px 16px;margin-bottom:16px;">' +
+      '<div style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#ea580c;margin-bottom:8px;">Due / Overdue</div>' +
+      dueItems.map(function(p) {
+        var overdue = isOverdue(p.nextActionDate) && !isDueToday(p.nextActionDate);
+        return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
+          '<span style="font-size:13px;font-weight:500;min-width:140px;">' + esc(p.name) + '</span>' +
+          '<span style="font-size:12px;color:' + (overdue?'#ef4444':'#ea580c') + ';">' + esc(p.nextActionDate) + '</span>' +
+          '<span style="font-size:12px;color:#6b7280;flex:1;">' + esc(p.nextAction) + '</span>' +
+          '<button onclick="openPartnerDrawer(' + JSON.stringify(p).replace(/</g,'\\u003c') + ')" class="btn-sm" style="font-size:10px;padding:2px 8px;">View</button>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  // Grouped list
+  var listHtml = PARTNER_STATUSES.map(function(status) {
+    var items = groups[status];
+    if (!items || !items.length) return '';
+    var key = status.toLowerCase().replace(/\s+/g, '-');
+    var col = STATUS_COLORS[key] || '#9ca3af';
+    var rows = items.map(function(p) {
+      var safeP = JSON.stringify(p).replace(/</g,'\\u003c').replace(/'/g, '\\u0027');
+      return '<tr>' +
+        '<td style="font-weight:500;">' + esc(p.name) + '</td>' +
+        '<td style="font-size:12px;color:#6b7280;">' + esc(p.category) + '</td>' +
+        '<td>' + esc(p.type) + '</td>' +
+        '<td>' + partnerPriorityBadge(p.priority) + '</td>' +
+        '<td style="font-size:12px;color:#6b7280;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.nextAction || '—') + '</td>' +
+        '<td style="font-size:12px;color:' + (isOverdue(p.nextActionDate)?'#ef4444':'#6b7280') + ';">' + esc(p.nextActionDate || '') + '</td>' +
+        '<td><button onclick=\'openPartnerDrawer(' + safeP + ')\' class="btn-sm" style="font-size:10px;padding:2px 8px;">Open</button></td>' +
+      '</tr>';
+    }).join('');
+    return '<div class="card" style="margin-bottom:12px;">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">' +
+        '<div style="width:8px;height:8px;border-radius:50%;background:' + col + ';flex-shrink:0;"></div>' +
+        '<div style="font-weight:600;font-size:14px;">' + esc(status) + '</div>' +
+        '<div style="font-size:12px;color:#9ca3af;">' + items.length + '</div>' +
+      '</div>' +
+      '<div class="table-wrap"><table>' +
+        '<thead><tr><th>Name</th><th>Category</th><th>Type</th><th>Priority</th><th>Next Action</th><th>Due</th><th></th></tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table></div>' +
+    '</div>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="page-title">Partners &amp; Sponsors</div>' +
+    '<div class="page-sub" style="margin-bottom:20px;">Private pipeline tracker — admin only. No emails sent from here.</div>' +
+    filterHtml +
+    dueStripHtml +
+    listHtml +
+    '<div class="card" style="margin-top:16px;">' +
+      '<div class="card-title">Perk Gaps by Category</div>' +
+      (gapHtml || '<p style="color:#9ca3af;font-size:13px;">No data yet.</p>') +
+    '</div>';
+}
+
+function openAddPartner() {
+  var body =
+    '<div style="display:flex;flex-direction:column;gap:12px;">' +
+    '<div><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;display:block;margin-bottom:4px;">Name *</label>' +
+    '<input id="ap-name" type="text" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;" placeholder="e.g. Paystack"></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+      '<div><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;display:block;margin-bottom:4px;">Category</label>' +
+      '<input id="ap-category" type="text" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;" placeholder="e.g. Bank"></div>' +
+      '<div><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;display:block;margin-bottom:4px;">Type</label>' +
+      '<select id="ap-type" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;">' +
+        '<option value="">—</option><option>Member perk</option><option>Sponsor</option><option>Both</option>' +
+      '</select></div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+      '<div><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;display:block;margin-bottom:4px;">Status</label>' +
+      '<select id="ap-status" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;">' +
+        PARTNER_STATUSES.map(function(s) { return '<option>' + esc(s) + '</option>'; }).join('') +
+      '</select></div>' +
+      '<div><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;display:block;margin-bottom:4px;">Priority</label>' +
+      '<select id="ap-priority" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;">' +
+        '<option value="">—</option><option>High</option><option>Medium</option><option>Low</option>' +
+      '</select></div>' +
+    '</div>' +
+    '<div><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;display:block;margin-bottom:4px;">Notes</label>' +
+    '<textarea id="ap-notes" rows="2" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;resize:vertical;"></textarea></div>' +
+    '<button onclick="submitAddPartner()" style="padding:10px 20px;background:var(--navy,#2d0f29);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;">Add Partner</button>' +
+    '<div id="ap-err" style="color:#ef4444;font-size:13px;"></div>' +
+    '</div>';
+  openDrawer('Add Partner', body);
+}
+
+function submitAddPartner() {
+  var name = document.getElementById('ap-name').value.trim();
+  if (!name) { document.getElementById('ap-err').textContent = 'Name is required.'; return; }
+  var body = {
+    name: name,
+    category: document.getElementById('ap-category').value.trim(),
+    type: document.getElementById('ap-type').value,
+    status: document.getElementById('ap-status').value,
+    priority: document.getElementById('ap-priority').value,
+    notes: document.getElementById('ap-notes').value.trim(),
+  };
+  document.getElementById('ap-err').textContent = '';
+  fetch('/api/admin/partners', {
+    method: 'POST',
+    headers: { 'x-admin-key': ADMIN_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(function(r) {
+    return r.json().then(function(d) { return { ok: r.ok, d: d }; });
+  }).then(function(res) {
+    if (res.ok) {
+      toast('Partner added');
+      closeDrawer();
+      loaded.partners = false;
+      loadPartners();
+    } else {
+      document.getElementById('ap-err').textContent = (res.d && res.d.error) || 'Save failed.';
+    }
+  }).catch(function(e) {
+    document.getElementById('ap-err').textContent = e.message;
+  });
+}
+
+function openPartnerDrawer(p) {
+  var body =
+    dField('Category', esc(p.category)) +
+    dField('Type', esc(p.type)) +
+    '<div class="d-field"><div class="d-label">Status</div><div class="d-value">' + partnerStatusBadge(p.status) + '</div></div>' +
+    '<div class="d-field"><div class="d-label">Priority</div><div class="d-value">' + partnerPriorityBadge(p.priority) + '</div></div>' +
+    dField('Contact', esc(p.contactName)) +
+    dField('Contact Route', esc(p.contactRoute)) +
+    (p.routeVerified !== undefined ? dField('Route Verified', p.routeVerified ? '✅ Yes' : '❌ No') : '') +
+    (p.sourceUrl ? dField('Source', '<a href="' + esc(p.sourceUrl) + '" target="_blank" rel="noopener">Open link →</a>') : '') +
+    '<div class="d-section">The Ask &amp; Offer</div>' +
+    dField('The Ask', esc(p.theAsk)) +
+    dField('Member Offer', esc(p.memberOffer)) +
+    '<div class="d-section">Follow-up</div>' +
+    dField('Last Contact', esc(p.lastContactDate)) +
+    dField('Next Action', esc(p.nextAction)) +
+    dField('Next Action Date', esc(p.nextActionDate)) +
+    dField('Notes', esc(p.notes)) +
+    '<div class="d-section" style="margin-top:20px;">Quick Edit</div>' +
+    '<div style="display:flex;flex-direction:column;gap:8px;">' +
+      '<div style="display:flex;gap:8px;align-items:center;">' +
+        '<label style="font-size:12px;color:#6b7280;width:80px;">Status</label>' +
+        '<select id="pe-status-' + esc(p.id) + '" style="flex:1;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;">' +
+          PARTNER_STATUSES.map(function(s) { return '<option' + (p.status===s?' selected':'') + '>' + esc(s) + '</option>'; }).join('') +
+        '</select>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;align-items:center;">' +
+        '<label style="font-size:12px;color:#6b7280;width:80px;">Next Action</label>' +
+        '<input id="pe-nextaction-' + esc(p.id) + '" type="text" value="' + esc(p.nextAction) + '" style="flex:1;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;">' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;align-items:center;">' +
+        '<label style="font-size:12px;color:#6b7280;width:80px;">Due Date</label>' +
+        '<input id="pe-duedate-' + esc(p.id) + '" type="date" value="' + esc(p.nextActionDate) + '" style="flex:1;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;">' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;align-items:center;">' +
+        '<label style="font-size:12px;color:#6b7280;width:80px;">Notes</label>' +
+        '<textarea id="pe-notes-' + esc(p.id) + '" rows="2" style="flex:1;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;resize:vertical;">' + esc(p.notes) + '</textarea>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;">' +
+        '<button onclick="savePartnerEdit(\'' + esc(p.id) + '\')" style="padding:8px 16px;background:var(--navy,#2d0f29);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Save</button>' +
+        '<div id="pe-err-' + esc(p.id) + '" style="color:#ef4444;font-size:12px;align-self:center;"></div>' +
+      '</div>' +
+    '</div>';
+
+  openDrawer(p.name || 'Partner', body);
+}
+
+function savePartnerEdit(pageId) {
+  var status     = document.getElementById('pe-status-' + pageId);
+  var nextAction = document.getElementById('pe-nextaction-' + pageId);
+  var dueDate    = document.getElementById('pe-duedate-' + pageId);
+  var notes      = document.getElementById('pe-notes-' + pageId);
+  var errEl      = document.getElementById('pe-err-' + pageId);
+  if (!status) { return; }
+
+  var body = {
+    pageId: pageId,
+    status: status.value,
+    nextAction: nextAction ? nextAction.value.trim() : undefined,
+    nextActionDate: dueDate ? dueDate.value : undefined,
+    notes: notes ? notes.value.trim() : undefined,
+  };
+
+  fetch('/api/admin/partners', {
+    method: 'PATCH',
+    headers: { 'x-admin-key': ADMIN_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(function(r) {
+    return r.json().then(function(d) { return { ok: r.ok, d: d }; });
+  }).then(function(res) {
+    if (res.ok) {
+      toast('Saved');
+      closeDrawer();
+      loaded.partners = false;
+      loadPartners();
+    } else {
+      if (errEl) errEl.textContent = (res.d && res.d.error) || 'Save failed.';
+    }
+  }).catch(function(e) {
+    if (errEl) errEl.textContent = e.message;
   });
 }
 </script>

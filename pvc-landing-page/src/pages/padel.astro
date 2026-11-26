@@ -746,6 +746,7 @@ const NOISE = (id: string) => `
         return;
       }
       captureWithAttribution('padel_proceed_to_checkout', { ticket_type: selectedTicketType });
+      posthog.identify(emailVal, { name: nameVal, email: emailVal });
       window.location.href = data.url;
     } catch (e) {
       errEl.textContent = 'Network error. Please try again.';

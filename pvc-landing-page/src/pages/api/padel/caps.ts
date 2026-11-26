@@ -48,7 +48,7 @@ export const GET: APIRoute = async () => {
       total: 0, players: 0, totalCap: PADEL.TICKET_CAP, playerCap: PADEL.PLAYER_CAP,
       totalFull: false, playerFull: false,
       tier: 'early', earlyRemaining: PADEL.EARLY_CAP, earlyCap: PADEL.EARLY_CAP,
-      earlyCutoff: '27 Nov', gaPrice: PADEL.PRICE_EARLY_GA / 100, memberPrice: PADEL.PRICE_EARLY_MEMBER / 100,
+      earlyCutoff: '1 Dec', gaPrice: PADEL.PRICE_EARLY_GA / 100, memberPrice: PADEL.PRICE_EARLY_MEMBER / 100,
       nextGaPrice: PADEL.PRICE_STANDARD_GA / 100,
     }), { status: 200 });
   }

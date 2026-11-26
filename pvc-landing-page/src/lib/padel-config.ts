@@ -7,7 +7,7 @@ export const PADEL = {
 
   // ── Two-tier pricing (amounts in kobo / cents) ──
   EARLY_CAP:            15,              // early access closes after this many tickets sold…
-  EARLY_CUTOFF_UTC:     '2026-11-27T21:59:00Z', // …or at 27 Nov 23:59 SAST (UTC+2 → 21:59 UTC)
+  EARLY_CUTOFF_UTC:     '2026-12-01T21:59:00Z', // 1 Dec 23:59 SAST (UTC+2 → 21:59 UTC)
   PRICE_EARLY_GA:       40000,           // R400 early public
   PRICE_EARLY_MEMBER:   20000,           // R200 early PVC member (50 % off)
   PRICE_STANDARD_GA:    50000,           // R500 standard public

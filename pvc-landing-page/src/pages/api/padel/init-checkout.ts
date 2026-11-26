@@ -20,9 +20,10 @@ export const POST: APIRoute = async ({ request }) => {
   let body: any;
   try { body = await request.json(); } catch { return err(400, 'Invalid JSON'); }
 
-  const { name, email, playing, ticketType, utm_source, utm_medium, utm_campaign, utm_content } = body ?? {};
+  const { name: rawName, email, playing, ticketType, utm_source, utm_medium, utm_campaign, utm_content } = body ?? {};
+  const name = rawName || email?.split('@')[0] || 'Guest';
 
-  if (!name || !email || !playing || !ticketType) return err(400, 'Missing required fields');
+  if (!email || !playing || !ticketType) return err(400, 'Missing required fields');
   if (!['Yes', 'No'].includes(playing))           return err(400, 'Invalid playing value');
   if (!['ga', 'member'].includes(ticketType))     return err(400, 'Invalid ticket type');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err(400, 'Invalid email');

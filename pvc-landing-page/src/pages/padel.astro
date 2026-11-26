@@ -315,6 +315,10 @@ const NOISE = (id: string) => `
       <button class="pd-back-btn" id="pd-back">&larr; Back</button>
       <div class="pd-form-eyebrow">Founders Padel Social · Johannesburg</div>
       <div class="pd-form-field">
+        <label class="pd-form-label" for="pd-name">Full Name</label>
+        <input type="text" id="pd-name" placeholder="Your name" autocomplete="name" />
+      </div>
+      <div class="pd-form-field">
         <label class="pd-form-label" for="pd-email">Email</label>
         <input type="email" id="pd-email" placeholder="you@example.com" autocomplete="email" />
       </div>
@@ -689,12 +693,14 @@ const NOISE = (id: string) => `
   }
 
   let formStarted = false;
-  document.getElementById('pd-email')?.addEventListener('focus', () => {
-    if (!formStarted) {
-      formStarted = true;
-      captureWithAttribution('padel_form_started');
-    }
-  }, { once: true });
+  ['pd-name', 'pd-email'].forEach((id) => {
+    document.getElementById(id)?.addEventListener('focus', () => {
+      if (!formStarted) {
+        formStarted = true;
+        captureWithAttribution('padel_form_started');
+      }
+    }, { once: true });
+  });
 
   const depthHits = new Set();
   window.addEventListener('scroll', () => {
@@ -709,11 +715,12 @@ const NOISE = (id: string) => `
 
   // ── Checkout via Paystack Initialize Transaction API ──
   document.getElementById('pd-checkout')?.addEventListener('click', async function() {
+    const nameVal  = document.getElementById('pd-name').value.trim();
     const emailVal = document.getElementById('pd-email').value.trim();
     const playing  = document.querySelector('input[name="playing"]:checked')?.value ?? 'No';
     const errEl    = document.getElementById('pd-error');
 
-    if (!emailVal) { errEl.textContent = 'Please enter your email.'; errEl.style.display = 'block'; return; }
+    if (!nameVal || !emailVal) { errEl.textContent = 'Please enter your name and email.'; errEl.style.display = 'block'; return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) { errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; return; }
     errEl.style.display = 'none';
 
@@ -725,7 +732,7 @@ const NOISE = (id: string) => `
       const res = await fetch('/api/padel/init-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailVal, playing, ticketType: selectedTicketType,
+        body: JSON.stringify({ name: nameVal, email: emailVal, playing, ticketType: selectedTicketType,
           utm_source: attribution.utm_source ?? null, utm_medium: attribution.utm_medium ?? null,
           utm_campaign: attribution.utm_campaign ?? null, utm_content: attribution.utm_content ?? null }),
       });

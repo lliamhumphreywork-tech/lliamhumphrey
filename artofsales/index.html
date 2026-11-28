@@ -125,6 +125,12 @@ section { padding: 52px 0; }
 .brown .gcard, .black .gcard, .brown .path li, .black .path li { border-color: var(--line-dark); }
 .brown h2, .brown h3 { color: var(--cream); }
 .black { background: var(--black); color: var(--white); }
+.join { position: relative; overflow: hidden; isolation: isolate; }
+.join::before {
+  content: ""; position: absolute; z-index: -1; left: -15%; right: -15%; bottom: -30%; height: 75%; pointer-events: none;
+  background: radial-gradient(35% 60% at 15% 70%, var(--w-terra), transparent 70%), radial-gradient(35% 60% at 50% 85%, var(--w-amber), transparent 70%), radial-gradient(35% 60% at 85% 70%, var(--w-olive), transparent 70%);
+  filter: blur(50px); opacity: .7;
+}
 .black h2 { color: var(--white); }
 .intro { color: var(--muted); max-width: 34em; margin-top: 14px; }
 .brown .intro { color: var(--on-brown-muted); }
@@ -151,7 +157,7 @@ section { padding: 52px 0; }
 .get-sec .intro { color: rgba(255,255,255,.62); }
 .get-glow {
   position: absolute; z-index: -1; inset: 0; pointer-events: none;
-  background: radial-gradient(40% 50% at 15% 30%, rgba(150,150,150,.38), transparent 70%), radial-gradient(45% 55% at 85% 75%, rgba(60,60,60,.7), transparent 70%), radial-gradient(30% 40% at 60% 10%, rgba(255,255,255,.12), transparent 70%);
+  background: radial-gradient(40% 50% at 15% 30%, rgba(208,96,63,.42), transparent 70%), radial-gradient(45% 55% at 85% 75%, rgba(226,162,90,.34), transparent 70%), radial-gradient(35% 45% at 60% 8%, rgba(125,138,69,.28), transparent 70%), radial-gradient(30% 40% at 40% 95%, rgba(240,177,143,.22), transparent 70%);
 }
 .gcards { display: grid; gap: 14px; margin-top: 36px; }
 .gcard {
@@ -335,11 +341,22 @@ footer .mark { color: var(--cream); }
 
 /* Hero art: rings, example setting call (live call screen with captions) */
 .hero-bg { position: relative; isolation: isolate; }
+/* Photo wash: a soft, blurred gradient built from the colours in Lliam's photo (terracotta umbrellas, amber lights,
+   cream shirt, olive leaves, blush). Rises from the bottom of the hero and fades into the white page. */
+:root { --w-terra: #d0603f; --w-amber: #e2a25a; --w-cream: #f6dcae; --w-olive: #7d8a45; --w-blush: #f0b18f; }
 .glow {
-  position: absolute; z-index: -1; pointer-events: none; width: 520px; height: 520px; right: -160px; bottom: 40px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, rgba(150,150,150,.55), rgba(150,150,150,0) 60%), radial-gradient(circle at 70% 70%, rgba(20,20,20,.45), rgba(20,20,20,0) 62%);
-  filter: blur(10px);
+  position: absolute; z-index: -1; pointer-events: none; left: -12%; right: -12%; bottom: 0; height: 58%;
+  background:
+    radial-gradient(45% 70% at 6% 80%, var(--w-terra), transparent 72%),
+    radial-gradient(40% 65% at 30% 100%, var(--w-amber), transparent 72%),
+    radial-gradient(45% 65% at 58% 88%, var(--w-blush), transparent 72%),
+    radial-gradient(38% 60% at 90% 92%, var(--w-olive), transparent 72%),
+    radial-gradient(60% 55% at 46% 60%, var(--w-cream), transparent 75%);
+  filter: blur(32px); opacity: 1;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 28%); mask-image: linear-gradient(to bottom, transparent 0%, #000 28%);
 }
+.motion .glow { animation: wash 16s ease-in-out infinite alternate; }
+@keyframes wash { from { transform: translate3d(-2%, 0, 0) scale(1); } to { transform: translate3d(2%, -3%, 0) scale(1.06); } }
 .rings { position: absolute; z-index: -1; width: 760px; right: -380px; top: -200px; pointer-events: none; }
 .rings circle { stroke: var(--brown-2); stroke-opacity: .16; }
 /* The call screen sits inside an iPhone-style frame: titanium edge, black bezel, Dynamic Island, status bar. */
@@ -355,7 +372,7 @@ footer .mark { color: var(--cream); }
 .call {
   margin: 0; color: var(--cream); border-radius: 46px; padding: 16px 18px 20px; position: relative; overflow: hidden; height: 100%;
   display: flex; flex-direction: column;
-  background: radial-gradient(120% 60% at 50% 0%, #5c5c5c 0%, #2b2b2b 45%, #121212 100%);
+  background: radial-gradient(120% 60% at 50% 0%, #b5643f 0%, #4a2a17 45%, #1a0f08 100%); /* photo colours: terracotta into deep brown */
 }
 .call::before {
   content: ""; position: absolute; inset: 0 0 auto; height: 40%; pointer-events: none;
@@ -369,7 +386,7 @@ footer .mark { color: var(--cream); }
 .call-top strong { font-weight: 500; font-size: 1.3rem; letter-spacing: -.02em; color: var(--cream); }
 .tag { font-size: .74rem; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
 .call-status { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; color: var(--on-brown-muted); font-variant-numeric: tabular-nums; font-size: .9rem; color: var(--cream); }
-.rec { width: 8px; height: 8px; border-radius: 50%; background: #a3a3a3; animation: blink 1.4s ease-in-out infinite; }
+.rec { width: 8px; height: 8px; border-radius: 50%; background: #e0684a; animation: blink 1.4s ease-in-out infinite; }
 @keyframes blink { 50% { opacity: .25; } }
 .wave { display: flex; align-items: center; gap: 4px; height: 36px; }
 .wave i { flex: 1; height: 30%; border-radius: 3px; background: rgba(255,255,255,.45); }
@@ -384,17 +401,17 @@ footer .mark { color: var(--cream); }
 .motion .cap-line { opacity: 0; transform: translateY(8px); animation: msg .55s var(--ease) both; animation-delay: calc(1s + var(--t) * .9s); }
 .controls { display: flex; justify-content: center; gap: 22px; margin-top: auto; padding-top: 18px; }
 .ctl { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.12); color: var(--cream); }
-.ctl.end { background: #f5f5f5; color: #0a0a0a; }
+.ctl.end { background: #c4472c; color: #fff; }
 @media (prefers-reduced-motion: reduce) { .rec { animation: none; } }
 .booked {
   margin: 16px 0 0; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px;
-  background: #f5f5f7; color: #171717; font-weight: 500; font-size: .92rem;
+  background: #e8efe2; color: #2f5a2a; font-weight: 500; font-size: .92rem;
 }
-.booked .dot { width: 8px; height: 8px; border-radius: 50%; background: #171717; box-shadow: 0 0 0 0 rgba(23,23,23,.4); }
+.booked .dot { width: 8px; height: 8px; border-radius: 50%; background: #4f7a4a; box-shadow: 0 0 0 0 rgba(79,122,74,.5); }
 .motion .motion .motion .motion .booked { opacity: 0; animation: msg .7s var(--ease) 5.8s both; }
 .motion .booked .dot { animation: ping 2s ease-out 6.4s 3; }
 @keyframes msg { to { opacity: 1; transform: none; } }
-@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(23,23,23,.4); } 100% { box-shadow: 0 0 0 12px rgba(23,23,23,0); } }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(79,122,74,.5); } 100% { box-shadow: 0 0 0 12px rgba(79,122,74,0); } }
 
 /* Path line and 60-day bar */
 .path { position: relative; }
@@ -431,7 +448,7 @@ footer .mark { color: var(--cream); }
   .hero { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 56px; align-items: center; }
   .phone { margin: 0; justify-self: end; width: 318px; height: clamp(420px, calc(100svh - 130px), 660px); }
   .rings { right: -200px; top: -120px; }
-  .glow { right: 4%; top: 120px; bottom: auto; width: 460px; height: 460px; }
+  .glow { height: 72%; }
   .top { margin-top: 16px; }
   .path::before { left: 40px; right: 40px; top: 40px; bottom: auto; width: auto; height: 1px; transform-origin: left; }
   .motion .path::before { transform: scaleX(0); }
@@ -536,6 +553,24 @@ footer .mark { color: var(--cream); }
   .live-body { grid-template-columns: auto 1fr; align-items: center; gap: 24px; }
   .cal { font-size: .74rem; }
 }
+/* Site-wide photo wash: every section gets a soft glow in the photo's colours, alternating sides down the page.
+   No blur filters (soft gradient stops only) so phones stay smooth. Light sections stay subtle for readability. */
+section { position: relative; isolation: isolate; overflow: hidden; }
+section:not(.join):not(.get-sec)::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none; width: 120vmax; height: 90vmax; max-width: 1500px; max-height: 1100px;
+  background: radial-gradient(closest-side at 35% 45%, var(--g1), transparent), radial-gradient(closest-side at 65% 60%, var(--g2), transparent);
+  opacity: .5;
+}
+section.brown::before { opacity: .55; }
+main > section:nth-of-type(1)::before { --g1: var(--w-terra); --g2: var(--w-blush); top: -30%; right: -45%; }
+main > section:nth-of-type(2)::before { --g1: var(--w-amber); --g2: var(--w-cream); bottom: -30%; left: -45%; }
+main > section:nth-of-type(3)::before { --g1: var(--w-terra); --g2: var(--w-olive); bottom: -30%; right: -45%; }
+main > section:nth-of-type(4)::before { --g1: var(--w-blush); --g2: var(--w-amber); top: -30%; left: -45%; }
+main > section:nth-of-type(5)::before { --g1: var(--w-olive); --g2: var(--w-cream); bottom: -30%; right: -45%; }
+main > section:nth-of-type(7)::before { --g1: var(--w-terra); --g2: var(--w-amber); top: -30%; left: -45%; }
+main > section:nth-of-type(8)::before { --g1: var(--w-amber); --g2: var(--w-blush); top: -30%; right: -45%; }
+main > section:nth-of-type(9)::before { --g1: var(--w-olive); --g2: var(--w-blush); bottom: -30%; left: -45%; }
+@media (min-width: 900px) { section:not(.join):not(.get-sec)::before { opacity: .42; } section.brown::before { opacity: .5; } }
 /* Short laptop screens: tighter hero so the phone and the button both fit above the fold. */
 @media (min-width: 900px) and (max-height: 720px) {
   .hero { padding-top: 28px !important; padding-bottom: 72px !important; }
@@ -606,7 +641,7 @@ footer .mark { color: var(--cream); }
   <section class="white">
     <div class="wrap about">
       <div>
-        <img src="/artofsales/lliam-bw.jpg" alt="Lliam Humphrey" width="760" height="950" loading="lazy">
+        <img src="/artofsales/lliam-crop.jpg" alt="Lliam Humphrey" width="760" height="950" loading="lazy">
         <p class="cap">Lliam Humphrey, 20, Johannesburg</p>
       </div>
       <div>

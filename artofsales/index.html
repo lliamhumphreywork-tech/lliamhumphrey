@@ -35,10 +35,23 @@
     capture_pageview: true, capture_pageleave: true, disable_session_recording: true, person_profiles: 'identified_only'
   });
   posthog.register({ site: 'artofsales' });
-  // First-touch source for the signup: utm_source/utm_campaign from the landing URL, kept for this tab's session.
+  // First-touch source for the signup, kept for this tab's session: utm_source/utm_campaign from the landing URL,
+  // or, when there are no tags (TikTok and some Instagram links strip them), the site the visitor came from.
   try {
-    var q = new URLSearchParams(location.search), src = (q.get('utm_source') || '').trim(), camp = (q.get('utm_campaign') || '').trim();
-    if ((src || camp) && !sessionStorage.getItem('aos_signup_source')) sessionStorage.setItem('aos_signup_source', ((src || 'unknown') + (camp ? '/' + camp : '')).slice(0, 100));
+    if (!sessionStorage.getItem('aos_signup_source')) {
+      var q = new URLSearchParams(location.search), src = (q.get('utm_source') || '').trim(), camp = (q.get('utm_campaign') || '').trim(), val = '';
+      if (src || camp) val = (src || 'unknown') + (camp ? '/' + camp : '');
+      else if (document.referrer) {
+        var host = ''; try { host = new URL(document.referrer).hostname.toLowerCase(); } catch (e) {}
+        if (host && host !== location.hostname) {
+          var known = [['tiktok', 'tiktok'], ['instagram', 'instagram'], ['facebook', 'facebook'], ['fb.', 'facebook'], ['twitter', 'x'],
+                       ['youtube', 'youtube'], ['linkedin', 'linkedin'], ['whatsapp', 'whatsapp'], ['google', 'google'], ['bing', 'bing']];
+          var hit = known.filter(function (k) { return host.indexOf(k[0]) !== -1; })[0];
+          val = (host === 't.co' || host === 'x.com' || /\.x\.com$/.test(host)) ? 'x' : hit ? hit[1] : host.replace(/^www\./, '');
+        }
+      }
+      if (val) sessionStorage.setItem('aos_signup_source', val.slice(0, 100));
+    }
   } catch (e) {}
 </script>
 <style>

@@ -67,14 +67,17 @@ module.exports = async function handler(req, res) {
   const whatsapp = cleanWhatsapp(str(body.whatsapp));
   const instagram = cleanInstagram(str(body.instagram));
   const signupSource = cleanSource(str(body.signup_source));
+  // Two-step form: step 1 is the signup itself; step 2 ("answers") adds the optional answers to the same subscriber.
+  const isAnswers = body.stage === 'answers';
 
   if (!name) return fail(res, 400, 'Add your first name.');
   if (name.length > MAX_NAME) return fail(res, 400, 'That name is too long.');
   if (!email || email.length > MAX_EMAIL || !EMAIL_RE.test(email)) return fail(res, 400, 'Enter a valid email address.');
   if (whatsapp && !WHATSAPP_RE.test(whatsapp)) return fail(res, 400, 'Check your WhatsApp number, e.g. +27 82 123 4567.');
   if (instagram && !IG_RE.test(instagram)) return fail(res, 400, 'Check your Instagram handle, e.g. @yourhandle.');
-  if (!WOULD_PAY.includes(wouldPay)) return fail(res, 400, 'Pick a monthly price option.');
-  if (!SITUATION.includes(situation)) return fail(res, 400, 'Pick what best describes you right now.');
+  // The two questions are optional, but only the exact options are accepted.
+  if (wouldPay && !WOULD_PAY.includes(wouldPay)) return fail(res, 400, 'Pick one of the price options.');
+  if (situation && !SITUATION.includes(situation)) return fail(res, 400, 'Pick one of the options for what describes you.');
   if (body.consent !== true) return fail(res, 400, 'Tick the box to agree to emails.');
 
   const apiKey = process.env.MAILERLITE_API_KEY;
@@ -83,14 +86,21 @@ module.exports = async function handler(req, res) {
     return fail(res, 500, 'Something went wrong. Try again later.');
   }
 
-  const fields = { name, would_pay: wouldPay, current_situation: situation, signup_source: signupSource };
-  // Only send the optional ones when given, so a repeat signup without them doesn't wipe earlier values.
+  const fields = { name };
+  // Only send optional values when given, so a later request without them doesn't wipe earlier values.
+  if (wouldPay) fields.would_pay = wouldPay;
+  if (situation) fields.current_situation = situation;
   if (whatsapp) fields.whatsapp = whatsapp;
   if (instagram) fields.instagram = instagram;
+  if (!isAnswers) fields.signup_source = signupSource;
 
-  // Opt-in record: when (UTC, "YYYY-MM-DD HH:MM:SS") and from which IP, only if it's a valid IPv4/IPv6. Never logged.
-  const subscriber = { email, fields, groups: [GROUP_ID], opted_in_at: new Date().toISOString().slice(0, 19).replace('T', ' ') };
-  if (isIP(ip)) subscriber.optin_ip = ip;
+  const subscriber = { email, fields, groups: [GROUP_ID] };
+  // Opt-in record, set on the signup step only: when (UTC, "YYYY-MM-DD HH:MM:SS") and from which IP,
+  // only if it's a valid IPv4/IPv6. Never logged.
+  if (!isAnswers) {
+    subscriber.opted_in_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    if (isIP(ip)) subscriber.optin_ip = ip;
+  }
 
   try {
     const mlRes = await fetch(ML_URL, {
